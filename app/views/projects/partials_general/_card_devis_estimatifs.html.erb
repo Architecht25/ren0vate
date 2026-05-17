@@ -59,4 +59,29 @@
       </div>
     <% end %>
   </div>
+
+  <%# ── Section Métrés (uploadés par l'architecte) ── %>
+  <% metres_docs = @project.documents.where(type_document: 'metre').order(created_at: :desc) %>
+  <% if metres_docs.any? %>
+    <div class="card-footer bg-white border-top px-3 py-3">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <i class="bi bi-file-earmark-spreadsheet text-info flex-shrink-0"></i>
+        <span class="fw-semibold" style="font-size:0.85rem;">Métrés de l'architecte</span>
+        <span class="badge bg-info-subtle text-info border border-info-subtle rounded-3" style="font-size:0.68rem;"><%= metres_docs.count %></span>
+      </div>
+      <% metres_docs.each do |doc| %>
+        <div class="d-flex align-items-center gap-2 mb-1 pb-1 border-bottom">
+          <i class="bi bi-file-earmark-spreadsheet text-info flex-shrink-0" style="font-size:0.9rem;"></i>
+          <div class="flex-grow-1 overflow-hidden">
+            <div class="text-truncate" style="font-size:0.82rem;"><%= doc.file_name.presence || "Métré" %></div>
+            <div class="text-muted" style="font-size:0.7rem;"><%= doc.created_at.strftime("%d/%m/%Y") %></div>
+          </div>
+          <%= link_to rails_blob_path(doc, disposition: 'inline'), target: '_blank',
+                class: "btn btn-sm btn-outline-info py-0 px-1 flex-shrink-0" do %>
+            <i class="bi bi-eye" style="font-size:0.75rem;"></i>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
 </div>
