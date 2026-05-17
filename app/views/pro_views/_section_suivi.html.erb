@@ -89,50 +89,65 @@
                   <% else %>
                     <p class="text-muted mb-0" style="font-size:0.72rem;"><i class="bi bi-camera me-1"></i>Aucune photo</p>
                   <% end %>
+                  <%# Mini upload photo par phase (entrepreneur) %>
+                  <% if @membership.role == 'entrepreneur' %>
+                    <%= form_with url: upload_facture_pro_project_path(@project), method: :post, multipart: true, class: "mt-2" do |f| %>
+                      <input type="hidden" name="type_facture" value="photo">
+                      <input type="hidden" name="phase_photo" value="<%= phase[:key] %>">
+                      <div class="d-flex gap-1 align-items-center">
+                        <input type="file" name="photo_file" class="form-control form-control-sm" accept="image/*" capture="environment" style="font-size:0.7rem;">
+                        <button type="submit" class="btn btn-warning btn-sm flex-shrink-0" title="Ajouter une photo pour cette phase">
+                          <i class="bi bi-camera"></i>
+                        </button>
+                      </div>
+                    <% end %>
+                  <% end %>
                 </div>
               </div>
             </div>
           <% end %>
         </div>
 
-        <%# Upload photo (entrepreneur) %>
+        <%# Factures de travaux (entrepreneur) %>
         <% if @membership.role == 'entrepreneur' %>
           <div class="card border-0 shadow-sm rounded-3 mb-3" style="border-left:3px solid #fd7e14 !important;">
-            <div class="card-body px-4 py-3">
-              <%= form_with url: upload_facture_pro_project_path(@project), method: :post,
-                            multipart: true do |f| %>
-                <input type="hidden" name="type_facture" value="photo">
-                <label class="form-label text-muted mb-2" style="font-size:0.8rem;">
-                  <i class="bi bi-camera me-1 text-warning"></i>Ajouter une photo de chantier
-                </label>
+            <div class="card-body px-3 py-3">
+              <label class="form-label text-muted mb-2 d-block" style="font-size:0.8rem;">
+                <i class="bi bi-receipt me-1 text-warning"></i>Ajouter une facture de travaux
+              </label>
+              <% factures_travaux = @factures&.select { |f| %w[facture acompte solde].include?(f.type_facture) } || [] %>
+              <% if factures_travaux.any? %>
+                <div class="d-flex flex-column gap-1 mb-2">
+                  <% factures_travaux.each do |f| %>
+                    <div class="d-flex align-items-center gap-2 p-1 rounded" style="background:rgba(253,126,20,0.06);font-size:0.75rem;">
+                      <i class="bi bi-file-earmark-text text-warning"></i>
+                      <span class="flex-grow-1 text-truncate"><%= f.nom_entreprise.presence || f.type_facture_display %></span>
+                      <span class="badge bg-warning-subtle text-warning border border-warning-subtle" style="font-size:0.65rem;"><%= f.type_facture_display %></span>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+              <%= form_with url: upload_facture_pro_project_path(@project), method: :post, multipart: true do |ff| %>
                 <div class="row g-2 align-items-end">
-                  <div class="col-md-4 col-6">
-                    <select name="phase_photo" class="form-select form-select-sm" style="font-size:0.78rem;">
-                      <option value="">Phase...</option>
-                      <% chantier_phases_all.first(4).each do |ph| %>
-                        <option value="<%= ph[:key] %>"><%= ph[:label] %></option>
-                      <% end %>
+                  <div class="col-md-4 col-5">
+                    <select name="type_facture" class="form-select form-select-sm" style="font-size:0.78rem;">
+                      <option value="facture">Facture</option>
+                      <option value="acompte">Acompte</option>
+                      <option value="solde">Solde</option>
                     </select>
                   </div>
                   <div class="col-md-6 col">
-                    <input type="file" name="photo_file" class="form-control form-control-sm"
-                           accept="image/*" capture="environment" style="font-size:0.78rem;">
+                    <input type="file" name="facture_pdf" class="form-control form-control-sm"
+                           accept=".pdf,.jpg,.jpeg,.png" style="font-size:0.78rem;">
                   </div>
                   <div class="col-md-2 col-auto">
                     <button type="submit" class="btn btn-warning btn-sm w-100">
-                      <i class="bi bi-camera"></i>
+                      <i class="bi bi-upload"></i>
                     </button>
                   </div>
                 </div>
               <% end %>
             </div>
-          </div>
-        <% else %>
-          <div class="mb-3">
-            <%= link_to new_project_document_path(@project, type_document: 'photo_pendant'),
-                  class: "btn btn-outline-warning btn-sm", style: "font-size:0.8rem;" do %>
-              <i class="bi bi-camera me-1"></i>+ Ajouter une photo
-            <% end %>
           </div>
         <% end %>
 
