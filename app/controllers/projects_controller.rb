@@ -796,9 +796,13 @@ class ProjectsController < ApplicationController
   CHANTIER_PHASES = %w[phase_preparation phase_demolition phase_installation phase_finition phase_reception].freeze
 
   def validate_phase
-    phase_key = params[:phase_key].to_s
+    phase_key         = params[:phase_key].to_s
+    redirect_fallback = @project.user_id == current_user.id ?
+                          project_path(@project, tab: :suivi) :
+                          pro_view_project_path(@project)
+
     unless CHANTIER_PHASES.include?(phase_key)
-      redirect_back fallback_location: pro_view_project_path(@project), alert: "Phase invalide." and return
+      redirect_back fallback_location: redirect_fallback, alert: "Phase invalide." and return
     end
 
     # Déterminer le rôle du validateur
@@ -811,20 +815,19 @@ class ProjectsController < ApplicationController
            end
 
     unless role
-      redirect_back fallback_location: pro_view_project_path(@project), alert: "Non autorisé." and return
+      redirect_back fallback_location: redirect_fallback, alert: "Non autorisé." and return
     end
 
     avancement = @project.phases_avancement.dup
     phase_data = (avancement[phase_key] || {}).dup
 
-    # Structure V2 : chaque rôle a sa propre validation
-    # Rétrocompatibilité : si ancienne structure (validated_at à la racine), on migre
+    # Rétrocompatibilité V1 : ancienne structure sans rôles imbriqués
     if phase_data['validated_at'].present? && phase_data['owner'].nil? && phase_data['architect'].nil?
       phase_data = { 'owner' => { 'validated_at' => phase_data['validated_at'], 'validated_by' => phase_data['validated_by'] } }
     end
 
     if phase_data[role].present?
-      redirect_back fallback_location: pro_view_project_path(@project),
+      redirect_back fallback_location: redirect_fallback,
                     notice: "Vous avez déjà validé cette phase." and return
     end
 
@@ -832,18 +835,17 @@ class ProjectsController < ApplicationController
     avancement[phase_key] = phase_data
     @project.update!(phases_avancement: avancement)
 
-    # Message selon rôle et nombre de validations
-    role_label = { 'owner' => 'Propriétaire', 'architect' => 'Architecte', 'entrepreneur' => 'Entrepreneur' }[role]
-    validation_count = phase_data.keys.count
+    role_label        = { 'owner' => 'Propriétaire', 'architect' => 'Architecte', 'entrepreneur' => 'Entrepreneur' }[role]
+    validation_count  = phase_data.keys.count
     all_roles_present = determine_required_roles.all? { |r| phase_data[r].present? }
 
     notice = if all_roles_present
-               "Phase « #{phase_key.delete_prefix('phase_').humanize} » validée par les 3 parties ✓"
+               "Phase « #{phase_key.delete_prefix('phase_').humanize} » approuvée par toutes les parties ✓"
              else
                "#{role_label} : phase « #{phase_key.delete_prefix('phase_').humanize} » validée (#{validation_count}/#{determine_required_roles.size})"
              end
 
-    redirect_back fallback_location: pro_view_project_path(@project), notice: notice
+    redirect_back fallback_location: redirect_fallback, notice: notice
   end
 
   private

@@ -258,6 +258,17 @@ class Project < ApplicationRecord
     ((phases_avancement || {})[key.to_s].to_i).clamp(0, 100)
   end
 
+  # Retourne le hash de validations numériques pour une phase.
+  # Les clés de validation sont préfixées 'phase_' (ex: 'phase_preparation').
+  # Les clés de PHASES_CHANTIER n'ont pas ce préfixe (ex: 'preparation', 'finitions').
+  # On gère aussi la singularisation de 'finitions' → 'phase_finition'.
+  def phase_validations(key)
+    k       = key.to_s
+    val_key = k.start_with?('phase_') ? k : "phase_#{k.delete_suffix('s')}"
+    val     = (phases_avancement || {})[val_key]
+    val.is_a?(Hash) ? val : {}
+  end
+
   def avancement_global_pct
     return 0 if PHASES_CHANTIER.empty?
     total = PHASES_CHANTIER.sum { |p| phase_pct(p[:key]) }

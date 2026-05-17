@@ -61,7 +61,10 @@
     role_labels = { 'owner' => 'Propriétaire', 'architect' => 'Architecte', 'entrepreneur' => 'Entrepreneur', 'intermediary' => 'Intermédiaire' }
     role_icons  = { 'owner' => 'bi-house',      'architect' => 'bi-pencil-ruler', 'entrepreneur' => 'bi-tools', 'intermediary' => 'bi-people'  }
     suivi_phase_keys = %w[phase_preparation phase_demolition phase_installation phase_finition]
-    nb_phases_validees = suivi_phase_keys.count { |k| (@phases_avancement || {})[k].present? }
+    nb_phases_validees = suivi_phase_keys.count do |k|
+      phase_d = (@phases_avancement || {})[k]
+      phase_d.is_a?(Hash) && required_roles.all? { |r| phase_d[r].present? }
+    end
     pct_global = (nb_phases_validees * 100.0 / 4).round
     phase_data_for = ->(key) {
       raw = (@phases_avancement || {})[key]

@@ -1,0 +1,96 @@
+<%# Card Accords de phase — validations multi-parties (pros connectés) %>
+<%
+  has_architect    = @project.project_members.active.where(role: 'architect').exists?
+  has_entrepreneur = @project.project_members.active.where(role: 'entrepreneur').exists?
+%>
+
+<div class="card border-0 shadow-sm rounded-4 h-100">
+  <div class="card-header border-0 py-3 px-4 d-flex align-items-center justify-content-between"
+       style="background:linear-gradient(135deg,#064e3b,#065f46); border-radius: 1rem 1rem 0 0 !important;">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-pen-fill text-white fs-5"></i>
+      <span class="fw-semibold text-white">Accords de phase</span>
+    </div>
+    <span class="badge rounded-pill" style="background:rgba(255,255,255,0.2);color:#fff;font-size:0.65rem;">
+      <i class="bi bi-wifi me-1"></i>pros connectés
+    </span>
+  </div>
+
+  <div class="card-body px-3 py-3">
+    <% if !has_architect && !has_entrepreneur %>
+      <div class="text-center py-4">
+        <i class="bi bi-people fs-3 text-muted d-block mb-2"></i>
+        <p class="text-muted small mb-0">
+          Aucun pro connecté.<br>
+          Invitez un entrepreneur ou architecte pour activer les accords de phase.
+        </p>
+      </div>
+    <% else %>
+      <p class="text-muted mb-3" style="font-size:0.75rem;">
+        <i class="bi bi-info-circle me-1"></i>Votre accord libère la phase suivante
+      </p>
+      <div class="d-flex flex-column gap-1">
+        <% Project::PHASES_CHANTIER.first(4).each do |phase| %>
+          <%
+            phase_val       = @project.phase_validations(phase[:key])
+            owner_signed    = phase_val['owner'].present?
+            entr_signed     = phase_val['entrepreneur'].present?
+            archi_signed    = phase_val['architect'].present?
+            key_pro_signed  = has_architect ? archi_signed : entr_signed
+            can_approve     = key_pro_signed && !owner_signed
+            all_pros_signed = (!has_entrepreneur || entr_signed) && (!has_architect || archi_signed)
+            all_signed      = all_pros_signed && owner_signed
+          %>
+          <div class="d-flex align-items-center gap-2 py-2 px-2 rounded-2"
+               style="background:<%= all_signed ? 'rgba(25,135,84,0.07)' : (phase_val.any? ? 'rgba(253,126,20,0.04)' : 'transparent') %>;">
+            <span style="font-size:0.75rem;color:#555;min-width:80px;flex-shrink:0;"><%= phase[:label] %></span>
+
+            <% if phase_val.none? %>
+              <span class="text-muted" style="font-size:0.68rem;">
+                <i class="bi bi-hourglass me-1"></i>En attente…
+              </span>
+            <% else %>
+              <div class="d-flex gap-1 flex-wrap">
+                <% if has_entrepreneur %>
+                  <span class="badge"
+                        style="font-size:0.58rem;background:<%= entr_signed ? 'rgba(25,135,84,0.12)' : 'rgba(108,117,125,0.08)' %>;color:<%= entr_signed ? '#198754' : '#6c757d' %>;"
+                        title="<%= entr_signed ? "Entrepreneur — #{Time.zone.parse(phase_val.dig('entrepreneur','validated_at')).strftime('%d/%m/%Y') rescue ''}" : 'Entrepreneur : en attente' %>">
+                    <i class="bi bi-tools me-1"></i>Entr.
+                    <% if entr_signed %><i class="bi bi-check ms-1"></i><% else %><i class="bi bi-clock ms-1"></i><% end %>
+                  </span>
+                <% end %>
+                <% if has_architect %>
+                  <span class="badge"
+                        style="font-size:0.58rem;background:<%= archi_signed ? 'rgba(25,135,84,0.12)' : 'rgba(108,117,125,0.08)' %>;color:<%= archi_signed ? '#198754' : '#6c757d' %>;"
+                        title="<%= archi_signed ? "Architecte — #{Time.zone.parse(phase_val.dig('architect','validated_at')).strftime('%d/%m/%Y') rescue ''}" : 'Architecte : en attente' %>">
+                    <i class="bi bi-pencil-ruler me-1"></i>Archi.
+                    <% if archi_signed %><i class="bi bi-check ms-1"></i><% else %><i class="bi bi-clock ms-1"></i><% end %>
+                  </span>
+                <% end %>
+                <% if owner_signed %>
+                  <span class="badge" style="font-size:0.58rem;background:rgba(25,135,84,0.12);color:#198754;"
+                        title="Propriétaire — <%= Time.zone.parse(phase_val.dig('owner','validated_at')).strftime('%d/%m/%Y') rescue '' %>">
+                    <i class="bi bi-house me-1"></i>Vous <i class="bi bi-check ms-1"></i>
+                  </span>
+                <% end %>
+              </div>
+            <% end %>
+
+            <% if can_approve %>
+              <%= button_to validate_phase_project_path(@project),
+                  method: :patch,
+                  params: { phase_key: "phase_#{phase[:key].delete_suffix('s')}" },
+                  class: "btn btn-success btn-sm py-0 px-2 ms-auto flex-shrink-0",
+                  style: "font-size:0.7rem;" do %>
+                <i class="bi bi-check2 me-1"></i>Approuver
+              <% end %>
+            <% elsif all_signed %>
+              <i class="bi bi-patch-check-fill text-success ms-auto flex-shrink-0"
+                 style="font-size:0.95rem;" title="Approuvée par toutes les parties"></i>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
