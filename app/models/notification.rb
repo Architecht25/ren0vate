@@ -252,13 +252,12 @@ class Notification < ApplicationRecord
       target_label   = is_fg ? 'E'  : 'D'
       urgency = is_fg ? :critique : :haute
 
-      # Ne pas dupliquer si une alerte non-lue existe déjà pour ce bien
+      # Ne pas renvoyer si une alerte existe déjà pour ce bien dans les 3 derniers mois (lue ou non)
       return nil if where(
         user: user,
         property: property,
-        type: 'alerte_conformite_peb',
-        read: false
-      ).where('created_at > ?', 6.months.ago).exists?
+        type: 'alerte_conformite_peb'
+      ).where('created_at > ?', 3.months.ago).exists?
 
       create!(
         user: user,
