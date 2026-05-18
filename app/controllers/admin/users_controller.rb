@@ -71,7 +71,10 @@ class Admin::UsersController < ApplicationController
 
   def toggle_primes_services
     @user.update!(primes_services_client: !@user.primes_services_client)
-    redirect_back fallback_location: admin_dashboard_path, notice: "Segment mis à jour pour #{@user.email}."
+    respond_to do |format|
+      format.json { render json: { primes_services_client: @user.primes_services_client } }
+      format.html { redirect_back fallback_location: admin_dashboard_path, notice: "Segment mis à jour pour #{@user.email}." }
+    end
   end
 
   def impersonate

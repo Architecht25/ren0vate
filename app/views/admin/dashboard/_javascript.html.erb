@@ -594,6 +594,51 @@ function testSystemHealth() {
 
 console.log('🔧 Event delegation setup complete');
 
+// Toggle Primes-Services AJAX — mise à jour instantanée sans rechargement de page
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.primes-services-toggle');
+  if (!btn) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  const url = btn.dataset.toggleUrl;
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+  // Feedback visuel immédiat (spinner)
+  const icon = btn.querySelector('i');
+  icon.className = 'bi bi-arrow-repeat';
+  icon.style.color = '#aaa';
+  btn.disabled = true;
+
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'X-CSRF-Token': csrfToken,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    const active = data.primes_services_client;
+    btn.dataset.state = active ? '1' : '0';
+    btn.title = active ? 'Retirer Primes-Services' : 'Marquer Primes-Services';
+    icon.className = active ? 'bi bi-star-fill' : 'bi bi-star';
+    icon.style.color = active ? '#D97706' : '#ccc';
+    icon.style.fontSize = '1.2rem';
+    btn.disabled = false;
+  })
+  .catch(function() {
+    // En cas d'erreur : restaurer l'état précédent
+    const wasActive = btn.dataset.state === '1';
+    icon.className = wasActive ? 'bi bi-star-fill' : 'bi bi-star';
+    icon.style.color = wasActive ? '#D97706' : '#ccc';
+    icon.style.fontSize = '1.2rem';
+    btn.disabled = false;
+  });
+});
+
 // Fonction de test pour la modal
 function testModal(userId) {
   console.log('🎯 Tentative d\'ouverture de la modal pour user:', userId);
