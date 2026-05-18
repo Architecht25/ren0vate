@@ -46,7 +46,15 @@ Rails.application.configure do
                            "https://cdnjs.cloudflare.com",
                            "https://unpkg.com",
                            "https://api.mapbox.com",
-                           "https://plausible.io"
+                           "https://plausible.io",
+                           # Hashes des scripts inline générés par Turbo lors des navigations
+                           "'sha256-428cnxCfeQxvp/bW2Z3UuFfBBP0pXGmafBREYA3qPbM='",
+                           "'sha256-YNw62I+4BSARy5Ai85IqwTlWvm58279O8hGEOm48Gck='",
+                           "'sha256-S2OTTMDowYbtZdX48OgZt58QypfWEy7TyIbBuEgIxfY='",
+                           "'sha256-66/hRq/pZaNOtfE4AadRDwCqTquAXAA3vt0X5xFhWSo='",
+                           "'sha256-KgTFVOTAR06haNrZ9m/ea8WEAjUBIOE7QMDIB1waxfY='",
+                           "'sha256-WHFe3NDoq2auiN7B1i/wxGpCweJJ8cJcXcJZ4U1nyvE='",
+                           "'sha256-BzNcgSQenaJbvARk9sUhkBjC6WaPeI7mDhmtjPUUqiQ='"
 
     policy.script_src_attr "'unsafe-inline'" # Pour les event handlers onclick, onload, etc. dans les attributs
 

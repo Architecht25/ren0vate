@@ -1,7 +1,7 @@
 class Admin::UsersController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_admin, except: [:stop_impersonating]
-  before_action :find_user, only: [:show, :details, :edit, :update, :destroy, :properties, :documents, :projects, :impersonate]
+  before_action :find_user, only: [:show, :details, :edit, :update, :destroy, :properties, :documents, :projects, :impersonate, :toggle_primes_services]
 
   def index
     @users = User.includes(:properties, :projects, :simulations, :requests, :documents, :notifications)
