@@ -69,6 +69,11 @@ class Admin::UsersController < ApplicationController
     redirect_to admin_users_path, notice: 'Utilisateur supprimé avec succès'
   end
 
+  def toggle_primes_services
+    @user.update!(primes_services_client: !@user.primes_services_client)
+    redirect_back fallback_location: admin_dashboard_path, notice: "Segment mis à jour pour #{@user.email}."
+  end
+
   def impersonate
     if @user.admin?
       redirect_to admin_user_path(@user), alert: "Impossible d'emprunter l'identité d'un administrateur."
@@ -180,6 +185,6 @@ class Admin::UsersController < ApplicationController
 
   def user_params
     # :role est intentionnel ici — admin seulement (double vérification ensure_admin)
-    params.require(:user).permit(:email, :first_name, :last_name, :phone, :region, :role, :preferred_locale) # rubocop:disable Rails/MassAssignment
+    params.require(:user).permit(:email, :first_name, :last_name, :phone, :region, :role, :preferred_locale, :primes_services_client) # rubocop:disable Rails/MassAssignment
   end
 end

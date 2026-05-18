@@ -78,6 +78,7 @@
                       <th style="cursor:pointer;" onclick="sortTable(6)">Abonnement <i class="bi bi-arrow-down-up small"></i></th>
                       <th style="cursor:pointer;" onclick="sortTable(7)">Engagement <i class="bi bi-arrow-down-up small"></i></th>
                       <th>Activité</th>
+                      <th>Segment</th>
                       <th>Profil</th>
                     </tr>
                   </thead>
@@ -231,6 +232,21 @@
                             <span class="badge bg-dark px-2 py-1" title="Demandes"><i class="bi bi-list-check me-1"></i><%= req_count %></span>
                             <span class="badge bg-info px-2 py-1" title="Documents"><i class="bi bi-file-earmark me-1"></i><%= doc_count %></span>
                           </div>
+                        </td>
+
+                        <%# Segment Primes-Services %>
+                        <td class="text-center">
+                          <%= button_to toggle_primes_services_admin_user_path(user),
+                                method: :post,
+                                class: "btn btn-sm border-0 p-1",
+                                title: user.primes_services_client? ? "Retirer Primes-Services" : "Marquer Primes-Services",
+                                style: "background:none;" do %>
+                            <% if user.primes_services_client? %>
+                              <i class="bi bi-star-fill" style="color:#D97706; font-size:1.2rem;"></i>
+                            <% else %>
+                              <i class="bi bi-star" style="color:#ccc; font-size:1.2rem;"></i>
+                            <% end %>
+                          <% end %>
                         </td>
 
                         <%# Profil %>

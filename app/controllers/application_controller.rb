@@ -102,6 +102,7 @@ class ApplicationController < ActionController::Base
 
   before_action :redirect_old_heroku_host
   before_action :authenticate_user!
+  before_action :require_admin_2fa
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :store_referral_token
 
@@ -184,7 +185,24 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  PLAN_EXEMPT_EMAIL = 'robin@primes-services.be'.freeze
+  PLAN_EXEMPT_EMAIL      = 'robin@primes-services.be'.freeze
+  ADMIN_2FA_BYPASS_EMAIL = 'robin@primes-services.be'.freeze
+  ADMIN_2FA_COOKIE       = :admin_2fa_verified
+
+  def require_admin_2fa
+    return unless user_signed_in? && current_user.admin?
+    return if current_user.email == ADMIN_2FA_BYPASS_EMAIL
+    return if devise_controller?
+    return if controller_name == 'two_factor'
+    return if admin_2fa_cookie_valid?
+
+    redirect_to admin_two_factor_path(locale: I18n.locale)
+  end
+
+  def admin_2fa_cookie_valid?
+    cookies.signed[ADMIN_2FA_COOKIE] == current_user.id.to_s
+  end
+  helper_method :admin_2fa_cookie_valid?
 
   def plan_exempt?
     user_signed_in? && current_user.email == PLAN_EXEMPT_EMAIL

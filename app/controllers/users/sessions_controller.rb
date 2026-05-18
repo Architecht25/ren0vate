@@ -6,13 +6,13 @@ class Users::SessionsController < Devise::SessionsController
     super
   end
 
-  # Après déconnexion : vider l'historique IA + forcer le navigateur à purger son cache HTTP
+  # Après déconnexion : vider l'historique IA + cookie 2FA + forcer purge cache
   def respond_to_on_destroy(non_navigational_status: :no_content)
-    # Vider l'historique Claude pour cet utilisateur
     if current_user
       cache_key = "chat_history_#{current_user.id}_#{session.id}"
       Rails.cache.delete(cache_key)
     end
+    cookies.delete(:admin_2fa_verified)
     response.headers['Clear-Site-Data'] = '"cache"'
     super(non_navigational_status: non_navigational_status)
   end

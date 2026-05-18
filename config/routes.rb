@@ -408,7 +408,8 @@ Rails.application.routes.draw do
         get :documents      # Voir tous les documents d'un utilisateur
         get :properties     # Voir toutes les propriétés d'un utilisateur
         get :projects       # Voir tous les projets d'un utilisateur
-        post :impersonate   # Se connecter en tant qu'utilisateur (loggé dans AdminAuditLog)
+        post :impersonate             # Se connecter en tant qu'utilisateur (loggé dans AdminAuditLog)
+        post :toggle_primes_services  # Basculer le flag client Primes-Services
       end
     end
 
@@ -524,6 +525,11 @@ Rails.application.routes.draw do
   get '/faq', to: 'pages#faq', as: :faq
   get '/aide', to: 'pages#aide', as: :aide
   get '/accord-de-traitement-des-donnees', to: 'pages#dpa', as: :dpa
+
+  # 2FA admin — vérification OTP après connexion
+  get  '/admin/2fa',        to: 'two_factor#show',   as: :admin_two_factor
+  post '/admin/2fa/verify', to: 'two_factor#verify', as: :verify_admin_two_factor
+  post '/admin/2fa/resend', to: 'two_factor#resend', as: :resend_admin_two_factor
 
   # Routes globales pour les gestionnaires (admin/modérateur)
   # complement_requests sont gérées uniquement via request_progresses (nested)

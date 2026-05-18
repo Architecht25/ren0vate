@@ -1,6 +1,6 @@
 # TODO — Ren0vate Roadmap
 
-*Dernière mise à jour : 27 avril 2026*
+*Dernière mise à jour : 26 avril 2026*
 *Synthèse des tâches restantes extraite de tous les MDs du projet.*
 
 ---
@@ -31,15 +31,12 @@
 
 | # | Tâche | Priorité | Source |
 |---|-------|----------|--------|
-| 2.1 | ✅ **Basculer en mode Live Stripe** — clés live injectées sur Heroku (v808) | ✅ | `STRIPE_INTEGRATION_GUIDE.md` |
-| 2.2 | ✅ **Webhook production configuré** — URL `/webhooks/stripe`, 6 events, `STRIPE_WEBHOOK_SECRET` injecté | ✅ | `STRIPE_INTEGRATION_GUIDE.md` |
-| 2.3 | ✅ **Flux complet testé** — Checkout Stripe fonctionnel, webhook `subscription.created` sauvé en DB, page success OK | ✅ | `STRIPE_INTEGRATION_GUIDE.md` |
-| 2.4 | ✅ **Fix CSP `form-action`** — `checkout.stripe.com` autorisé (v815), Turbo désactivé sur form (v814) | ✅ | — |
-| 2.5 | ✅ **Fix webhook Stripe API 2026-04-22.dahlia** — conversion objet → Hash, `current_period` dans items (v819) | ✅ | — |
-| 2.6 | ✅ **Gate `property_limit`** — freemium=1 / individual=3 / portfolio=10 / enterprise=∞ (en place dans `properties_controller.rb`) | ✅ | — |
-| 2.7 | ✅ **Gate `simulation_limit`** — freemium=1 / autres=∞ (en place dans `simulations_controller.rb`) | ✅ | — |
-| 2.8 | **Stratégie early adopters** — 124 comptes existants (4 avec >1 propriété, 8 avec >1 simulation). Contacter avant d'appliquer les gates sur les données existantes. Option : freemium étendu jusqu'à fin 2026 + 20% de remise pour fidélisation | 🟠 | — |
-| 2.9 | **Portail client Stripe** — permettre aux abonnés de gérer/annuler leur abonnement via `Stripe::BillingPortal::Session` | 🟠 | `STRIPE_INTEGRATION_GUIDE.md` |
+| 2.1 | **Basculer en mode Live Stripe** — remplacer clés `pk_test_` / `sk_test_` par clés Live | 🔴 | `STRIPE_INTEGRATION_GUIDE.md` |
+| 2.2 | **Créer les Products/Prices Stripe réels** — Freemium/Propriétaire 39€/Investisseur 89€/Expert 149€/Platform 299€ (mensuel + annuel) | 🔴 | `STRIPE_INTEGRATION_GUIDE.md`, `CGV` |
+| 2.3 | **Configurer webhook production** — URL `https://ren0vate.be/webhooks/stripe`, events : `checkout.session.completed`, `subscription.*`, `invoice.payment_*` | 🔴 | `STRIPE_INTEGRATION_GUIDE.md` |
+| 2.4 | **Tester le flux complet en production** — cartes test Live → success → upgrade tier | 🟠 | `STRIPE_INTEGRATION_GUIDE.md` |
+| 2.5 | **Gate `property_limit`** — vérifier freemium=1 / individual=3 / portfolio=10 / enterprise=∞ | 🟠 | `STRATEGIE_TESTS_ET_AGENTS.md §Couche 1` |
+| 2.6 | **Gate `simulation_limit`** — freemium=1 / autres=∞ | 🟠 | `STRATEGIE_TESTS_ET_AGENTS.md §Couche 1` |
 
 ---
 
@@ -79,13 +76,13 @@
 
 | # | Page / Tâche | Fichier | Priorité |
 |---|--------------|---------|----------|
-| 5.1 | ✅ **Landing page** — V2 intégrée (11/05/2026) : hero, pricing restructuré, pages légales | `app/views/pages/home.html.erb` | ✅ |
+| 5.1 | **Landing page** — hero fort, social proof, CTA above fold, tone belge rénovation | `app/views/pages/home.html.erb` | 🔴 |
 | 5.2 | **Pricing page** — toggle mensuel/annuel, plan mis en avant, bullets iconifiés, FAQ | `app/views/pricing/index.html.erb` | 🔴 |
 | 5.3 | **Page checkout/select** — sticky récap plan, réassurance Stripe, étapes claires | `app/views/pricing/select.html.erb` | 🔴 |
-| 5.4 | **Tunnels d'onboarding ×4** — propriétaire / architecte / entrepreneur / intermédiaire | `app/views/onboarding/` | ✅ |
-| 5.5 | ✅ **Dashboards ×4** — cockpit propriétaire (KPIs + alertes + Expert IA) + architecte/entrepreneur/intermédiaire | `app/views/dashboard/` | ✅ |
+| 5.4 | **Tunnels d'onboarding ×3** — propriétaire / architecte / entrepreneur | `app/views/onboarding/` | 🔴 |
+| 5.5 | **Dashboards ×3 variantes** — un par profil (ne pas refaire le générique avant) | `app/views/dashboard/` | 🟠 |
 | 5.6 | **Vue entrepreneur mobile-first** — 860 lignes à coordonner avec tunnel Entrepreneur | `app/views/pro_views/show.html.erb` | 🟠 |
-| 5.7 | ✅ **Dashboard IA** — Expert IA intégré dans cockpit propriétaire (11/05/2026) | `app/views/dashboard/index.html.erb` | ✅ |
+| 5.7 | **Dashboard IA** — col-4 biens + col-8 Expert IA (clic bien → charge chat) | `app/views/dashboard/index.html.erb` | 🟡 |
 | 5.8 | **Micro-animations AOS.js** sur landing | `layouts/application.html.erb` | 🟡 |
 | 5.9 | **Navbar glassmorphism au scroll** | `assets/stylesheets/layout/_navbar.scss` | 🟡 |
 
@@ -113,20 +110,20 @@
 
 ---
 
-## 8. ✅ Roadmap V2 — Fonctionnalités livrées
+## 8. 🔵 Roadmap V2 — Fonctionnalités futures
 
-Ces fonctionnalités sont documentées dans `STRATEGIE_EVOLUTION_REN0VATE.md`.
+Ces fonctionnalités sont documentées dans `STRATEGIE_EVOLUTION_REN0VATE.md` et ne sont pas encore implémentées.
 
-| # | Fonctionnalité | Description courte | Statut |
-|---|----------------|--------------------|--------|
-| 8.1 | **Estimateur Budget IA** | Estimation 30 sec basée sur historique chantiers | ✅ |
-| 8.2 | **Détection Progression IA** | Analyse photos chantier → % avancement réel vs déclaré | ✅ |
-| 8.3 | **Score Santé Projet /10** | KPIs budget + planning + comm + qualité + docs | ✅ |
-| 8.4 | **Prédicteur Permis IA** | Besoin permis + délai + documents requis | ✅ |
-| 8.5 | **Assistant Primes/Prêts IA** | Optimisation combinaisons travaux pour max primes | ✅ |
-| 8.6 | **Benchmark Marché IA** | Comparaison devis vs marché (n projets similaires) | ✅ |
-| 8.7 | **Comparateur Matériaux IA** | Isolants / châssis / chaudières / PV — prix, perf, ROI, primes | ✅ |
-| 8.8 | **Écosystème 3-parties** | Invitation architecte + entrepreneur par le client, espace collaboratif partagé | ✅ |
+| # | Fonctionnalité | Description courte |
+|---|----------------|--------------------|
+| 8.1 | **Estimateur Budget IA** | Estimation 30 sec basée sur historique chantiers |
+| 8.2 | **Détection Progression IA** | Analyse photos chantier → % avancement réel vs déclaré |
+| 8.3 | **Score Santé Projet /10** | KPIs budget + planning + comm + qualité + docs |
+| 8.4 | **Prédicteur Permis IA** | Besoin permis + délai + documents requis |
+| 8.5 | **Assistant Primes/Prêts IA** | Optimisation combinaisons travaux pour max primes |
+| 8.6 | **Benchmark Marché IA** | Comparaison devis vs marché (n projets similaires) |
+| 8.7 | **Comparateur Matériaux IA** | Isolants / châssis / chaudières / PV — prix, perf, ROI, primes |
+| 8.8 | **Écosystème 3-parties** | Invitation architecte + entrepreneur par le client, espace collaboratif partagé |
 
 ---
 
@@ -144,8 +141,8 @@ Ces fonctionnalités sont documentées dans `STRATEGIE_EVOLUTION_REN0VATE.md`.
 
 ```
 Avant 1er client payant :
-  → 9.1 SMTP · 9.2 confirmable · ✅ Stripe Live (2.1-2.7) · 3.1-3.2 Anthropic DPA
-  → 5.1-5.4 Design pages critiques · 1.2-1.3 Auth email · 2.8 Stratégie early adopters
+  → 9.1 SMTP · 9.2 confirmable · 2.1-2.3 Stripe Live · 3.1-3.2 Anthropic DPA
+  → 5.1-5.4 Design pages critiques · 1.2-1.3 Auth email
 
 Dans le mois :
   → 4.1-4.8 Tests · 2.4-2.6 Stripe gates · 3.3-3.5 RGPD

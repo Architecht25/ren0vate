@@ -3,18 +3,13 @@ class User < ApplicationRecord
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
-         :lockable
-         # Confirmable temporairement désactivé jusqu'à configuration complète SMTP
+         :lockable, :confirmable
 
   # Chiffrement at-rest des données personnelles sensibles (RGPD A02)
   # support_unencrypted_data: true permet de lire les valeurs stockées en clair
   # avant l'activation du chiffrement (migration transparente)
   encrypts :national_number, support_unencrypted_data: true
   encrypts :iban, support_unencrypted_data: true
-
-  # Auto-confirmer les utilisateurs à la création (solution temporaire)
-  # Commenté car :confirmable est désactivé
-  # after_create :auto_confirm_user
 
   # Enum pour les rôles
   enum :role, { user: 0, moderator: 1, admin: 2 }, default: :user
@@ -321,10 +316,4 @@ class User < ApplicationRecord
     end
   end
 
-  # SOLUTION TEMPORAIRE : Auto-confirmer les utilisateurs
-  # TODO: Retirer cette méthode une fois le problème d'email de confirmation résolu
-  # Commenté car :confirmable est désactivé
-  # def auto_confirm_user
-  #   self.confirm unless self.confirmed?
-  # end
 end
