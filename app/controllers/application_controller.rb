@@ -185,8 +185,8 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  PLAN_EXEMPT_EMAIL      = 'robin@primes-services.be'.freeze
-  ADMIN_2FA_BYPASS_EMAIL = 'robin@primes-services.be'.freeze
+  PLAN_EXEMPT_EMAIL      = ENV.fetch('PLAN_EXEMPT_EMAIL', 'robin@primes-services.be').freeze
+  ADMIN_2FA_BYPASS_EMAIL = ENV.fetch('ADMIN_2FA_BYPASS_EMAIL', 'robin@primes-services.be').freeze
   ADMIN_2FA_COOKIE       = :admin_2fa_verified
 
   def require_admin_2fa

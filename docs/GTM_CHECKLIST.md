@@ -25,7 +25,7 @@ ANALYTICS             ███████████████████�
 | Core features livrées | ✅ | Q2/Q3/Q4 2026 livré avec avance |
 | Mobile / PWA | ✅ | Manifest, SW, offline, install prompt |
 | Tunnels onboarding ×4 | ✅ | Propriétaire / Architecte / Entrepreneur / Intermédiaire |
-| Stripe Live + webhooks | ✅ | ArchiTecht SRL, `sk_live_`, API `2026-04-22.dahlia` |
+| Stripe Live + webhooks | ✅ | ArchiTecht SRL, clé live via ENV, API `2026-04-22.dahlia` |
 | Sécurité (sprint mai 2026) | ✅ | P0/P1/P2 corrigés |
 | Tests | ✅ | 60 runs, 164 assertions, 0 failures |
 | Landing page | ✅ | `home.html.erb` |
