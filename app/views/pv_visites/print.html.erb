@@ -1,0 +1,220 @@
+<% content_for :title, "#{@pv_visite.titre} — #{@project.nom}" %>
+
+<%
+  nature_labels   = { "defaut" => "Défaut", "non_conformite" => "Non-conformité", "vigilance" => "Vigilance", "information" => "Information" }
+  conformite_labels = { "oui" => "Conforme", "reserve" => "Réserve", "non" => "Non conforme" }
+%>
+
+<style>
+  body { font-size: 12px; font-family: Arial, sans-serif; color: #222; }
+  .pv-section { margin-bottom: 20px; page-break-inside: avoid; }
+  .pv-section h3 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+                   color: #1e3a5f; border-bottom: 2px solid #1e3a5f; padding-bottom: 3px; margin-bottom: 10px; }
+  .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; font-size: 11px; }
+  .info-cell .label { color: #888; margin-bottom: 1px; }
+  .info-cell .val { font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  th { background: #f0f4f8; font-weight: 700; text-align: left; padding: 5px 7px; border: 1px solid #ddd; }
+  td { padding: 5px 7px; border: 1px solid #eee; vertical-align: top; }
+  .badge-small { font-size: 9px; padding: 1px 5px; border-radius: 3px; border: 1px solid #ccc; background: #f5f5f5; }
+  .lot-box { border: 1px solid #e0e0e0; border-radius: 4px; padding: 8px; margin-bottom: 8px; page-break-inside: avoid; }
+  .lot-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-weight: 700; }
+  .lot-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; font-size: 10px; }
+  .lot-col .col-label { color: #888; margin-bottom: 2px; }
+  .progress-bar-wrap { display: flex; align-items: center; gap: 6px; }
+  .progress-bar-bg { background: #e9ecef; border-radius: 3px; height: 6px; width: 80px; display: inline-block; }
+  .progress-bar-fill { background: #1e3a5f; border-radius: 3px; height: 6px; display: block; }
+  .clause-box { border: 1px solid #1e3a5f; border-radius: 4px; padding: 10px 14px; background: #f8f9fa; font-size: 11px; font-style: italic; }
+  .sig-box { border: 1px solid #ccc; border-radius: 4px; padding: 10px; min-height: 60px; }
+  .sig-label { font-size: 9px; font-weight: 700; text-transform: uppercase; color: #888; margin-bottom: 3px; }
+  @media print { .no-print { display: none !important; } }
+</style>
+
+<div class="no-print container py-3 d-flex gap-2">
+  <button onclick="window.print()" class="btn btn-primary btn-sm">
+    <i class="bi bi-printer me-1"></i>Imprimer / Enregistrer en PDF
+  </button>
+  <%= link_to project_pv_visite_path(@project, @pv_visite), class: "btn btn-outline-secondary btn-sm" do %>
+    <i class="bi bi-arrow-left me-1"></i>Retour au PV
+  <% end %>
+</div>
+
+<div style="max-width:860px;margin:0 auto;padding:24px;">
+
+  <%# ── En-tête officiel ── %>
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;border-bottom:3px solid #1e3a5f;padding-bottom:12px;">
+    <div>
+      <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Document de suivi de chantier</div>
+      <div style="font-size:20px;font-weight:700;color:#1e3a5f;">Procès-Verbal de Visite de Chantier</div>
+      <div style="font-size:12px;color:#555;">Ren0vate — Gestion numérique de projets de rénovation</div>
+    </div>
+    <div style="text-align:right;font-size:11px;color:#666;">
+      <strong>Visite n°<%= @pv_visite.numero %></strong><br>
+      Généré le <%= Date.today.strftime('%d/%m/%Y') %>
+    </div>
+  </div>
+
+  <%# ── 1. Informations générales ── %>
+  <div class="pv-section">
+    <h3>1. Informations générales</h3>
+    <div class="info-grid">
+      <div class="info-cell"><div class="label">Projet</div><div class="val"><%= @project.nom %></div></div>
+      <div class="info-cell"><div class="label">Adresse du chantier</div><div class="val"><%= @project.property&.adresse.presence || "—" %></div></div>
+      <div class="info-cell"><div class="label">Date de visite</div><div class="val"><%= @pv_visite.date_visite.strftime('%d/%m/%Y') %><% if @pv_visite.heure_visite.present? %> à <%= @pv_visite.heure_visite %><% end %></div></div>
+      <div class="info-cell"><div class="label">Météo</div><div class="val"><%= @pv_visite.meteo.presence || "—" %></div></div>
+      <div class="info-cell"><div class="label">Architecte (auteur)</div><div class="val"><%= @pv_visite.auteur.full_name %></div></div>
+      <div class="info-cell"><div class="label">Coordinateur SPS</div><div class="val"><%= @pv_visite.coordinateur_sps.presence || "—" %></div></div>
+      <div class="info-cell"><div class="label">Maître d'ouvrage</div><div class="val"><%= @project.user.full_name %></div></div>
+      <div class="info-cell"><div class="label">Référence dossier</div><div class="val">V<%= @pv_visite.numero %>/<%= @project.id %></div></div>
+    </div>
+  </div>
+
+  <%# ── 2. Participants ── %>
+  <div class="pv-section">
+    <h3>2. Participants</h3>
+    <table>
+      <thead><tr><th style="width:50%;">Présents</th><th>Absents / excusés</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><%= @pv_visite.presents.presence || "—" %></td>
+          <td><%= @pv_visite.absents.presence || "—" %></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <%# ── 3. Observations générales ── %>
+  <% if @pv_visite.observations.present? %>
+    <div class="pv-section">
+      <h3>3. Observations générales</h3>
+      <p style="margin:0;line-height:1.6;"><%= @pv_visite.observations %></p>
+    </div>
+  <% end %>
+
+  <%# ── 4. Avancement par lot ── %>
+  <% if @pv_visite.lots_liste.any? %>
+    <div class="pv-section">
+      <h3>4. Avancement par lot / corps de métier</h3>
+      <% @pv_visite.lots_liste.each do |lot| %>
+        <div class="lot-box">
+          <div class="lot-header">
+            <% if lot[:numero].present? %><span style="background:#1e3a5f;color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;">Lot <%= lot[:numero] %></span><% end %>
+            <span><%= lot[:intitule].presence || "—" %></span>
+            <% if lot[:entreprise].present? %><span style="color:#666;font-weight:normal;">· <%= lot[:entreprise] %></span><% end %>
+            <% if lot[:avancement_pct].present? && lot[:avancement_pct].to_s != "" %>
+              <span class="progress-bar-wrap">
+                <span class="progress-bar-bg"><span class="progress-bar-fill" style="width:<%= [lot[:avancement_pct].to_i, 100].min %>%;"></span></span>
+                <strong><%= lot[:avancement_pct] %>%</strong>
+              </span>
+            <% end %>
+            <span class="badge-small"><%= conformite_labels[lot[:conforme_plans]] || "Conforme" %></span>
+          </div>
+          <div class="lot-grid">
+            <div class="lot-col"><div class="col-label">Travaux réalisés</div><%= lot[:travaux_realises].presence || "—" %></div>
+            <div class="lot-col"><div class="col-label">En cours</div><%= lot[:travaux_en_cours].presence || "—" %></div>
+            <div class="lot-col"><div class="col-label">Points bloquants</div><%= lot[:points_bloquants].presence || "—" %></div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# ── 5. Points constatés ── %>
+  <div class="pv-section">
+    <h3>5. Points constatés / réserves (<%= @pv_visite.points_liste.size %>)</h3>
+    <% if @pv_visite.points_liste.any? %>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Description</th><th>Localisation</th><th>Nature</th><th>Priorité</th><th>Responsable</th><th>Délai</th><th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @pv_visite.points_liste.each_with_index do |pt, i| %>
+            <tr>
+              <td><%= i + 1 %></td>
+              <td><%= pt[:description] %></td>
+              <td><%= pt[:localisation].presence || "—" %></td>
+              <td><span class="badge-small"><%= nature_labels[pt[:nature]] || pt[:nature] || "Défaut" %></span></td>
+              <td><span class="badge-small"><%= (pt[:priorite] || "normal").capitalize %></span></td>
+              <td><%= pt[:responsable].presence || "—" %></td>
+              <td><%= pt[:delai].presence || "—" %></td>
+              <td><span class="badge-small"><%= (pt[:statut] || "ouvert").capitalize %></span></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p style="color:#198754;margin:0;"><strong>✓</strong> Aucun point particulier constaté lors de cette visite.</p>
+    <% end %>
+  </div>
+
+  <%# ── 6. Décisions actées ── %>
+  <% if @pv_visite.decisions_liste.any? %>
+    <div class="pv-section">
+      <h3>6. Décisions actées</h3>
+      <table>
+        <thead><tr><th>#</th><th>Décision</th><th>Responsable</th><th>Échéance</th></tr></thead>
+        <tbody>
+          <% @pv_visite.decisions_liste.each_with_index do |d, i| %>
+            <tr>
+              <td><%= i + 1 %></td>
+              <td><%= d[:description] %></td>
+              <td><%= d[:responsable].presence || "—" %></td>
+              <td><%= d[:delai].presence || "—" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+
+  <%# ── 7. Prochaine visite ── %>
+  <div class="pv-section">
+    <h3>7. Prochaine visite</h3>
+    <% if @pv_visite.prochaine_visite.present? %>
+      <p style="margin:0;">
+        <strong><%= @pv_visite.prochaine_visite.strftime('%d/%m/%Y') %></strong>
+        <% if @pv_visite.prochaine_visite_heure.present? %> à <strong><%= @pv_visite.prochaine_visite_heure %></strong><% end %>
+      </p>
+    <% else %>
+      <p style="margin:0;color:#888;">Date à convenir.</p>
+    <% end %>
+  </div>
+
+  <%# ── 8. Visa ── %>
+  <div class="pv-section">
+    <h3>8. Visa de l'architecte</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div class="sig-box">
+        <div class="sig-label">Architecte (auteur)</div>
+        <div style="font-weight:600;"><%= @pv_visite.auteur.full_name %></div>
+        <div style="font-size:10px;color:#666;">Rédigé le <%= @pv_visite.updated_at.strftime('%d/%m/%Y') %></div>
+      </div>
+      <div class="sig-box">
+        <div class="sig-label">Maître d'ouvrage</div>
+        <div style="color:#aaa;font-size:10px;font-style:italic;">Pour information</div>
+      </div>
+      <div class="sig-box">
+        <div class="sig-label">Entrepreneur</div>
+        <div style="color:#aaa;font-size:10px;font-style:italic;">Pour information</div>
+      </div>
+    </div>
+  </div>
+
+  <%# ── Clause de validité (obligatoire en pratique belge) ── %>
+  <div class="clause-box" style="margin-top:20px;">
+    <strong>Clause de validité :</strong>
+    Conformément à l'usage en vigueur dans la pratique belge du suivi de chantier, ce procès-verbal est réputé
+    accepté par toutes les parties en l'absence d'observation écrite adressée à l'architecte dans un délai de
+    <strong>48 heures</strong> à compter de sa réception.
+    Ce document est généré et archivé via la plateforme Ren0vate.
+  </div>
+
+  <%# ── Pied de page ── %>
+  <div style="font-size:10px;color:#aaa;border-top:1px solid #eee;margin-top:20px;padding-top:10px;text-align:center;">
+    Ren0vate · Gestion numérique de projets de rénovation · Belgique ·
+    PV Visite n°<%= @pv_visite.numero %> · Projet <%= @project.nom %>
+  </div>
+
+</div>

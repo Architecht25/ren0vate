@@ -26,6 +26,9 @@ class Project < ApplicationRecord
   # PV de réception numérique
   has_one :pv_reception, dependent: :destroy
 
+  # PV de visite de chantier (multiples, produits par l'architecte)
+  has_many :pv_visites, dependent: :destroy
+
   # États d'avancement structurés (bordereaux)
   has_many :etats_avancement, class_name: 'EtatAvancement', foreign_key: :project_id, dependent: :destroy
 

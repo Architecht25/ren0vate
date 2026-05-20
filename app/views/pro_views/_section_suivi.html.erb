@@ -8,6 +8,13 @@
           </span>
         </div>
 
+        <%# PV de visite de chantier — architecte uniquement %>
+        <% if @membership.role == 'architect' %>
+          <div class="mb-3">
+            <%= render 'projects/partials_general/card_pv_visites' %>
+          </div>
+        <% end %>
+
         <%# Phases 1–4 en grille 2×2 %>
         <div class="row g-3 mb-3">
           <% chantier_phases_all.first(4).each do |phase| %>

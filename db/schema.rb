@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_18_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_20_110000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -792,6 +792,34 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_18_100000) do
     t.index ["token_owner"], name: "index_pv_receptions_on_token_owner", unique: true, where: "(token_owner IS NOT NULL)"
   end
 
+  create_table "pv_visites", force: :cascade do |t|
+    t.text "absents"
+    t.bigint "auteur_id", null: false
+    t.string "coordinateur_sps"
+    t.datetime "created_at", null: false
+    t.date "date_visite", null: false
+    t.jsonb "decisions", default: [], null: false
+    t.string "heure_visite"
+    t.jsonb "lots", default: [], null: false
+    t.string "meteo"
+    t.integer "numero", default: 1, null: false
+    t.text "observations"
+    t.jsonb "points", default: [], null: false
+    t.text "presents"
+    t.date "prochaine_visite"
+    t.string "prochaine_visite_heure"
+    t.bigint "project_id", null: false
+    t.string "statut", default: "draft", null: false
+    t.string "token_entrepreneur"
+    t.string "token_owner"
+    t.datetime "updated_at", null: false
+    t.index ["auteur_id"], name: "index_pv_visites_on_auteur_id"
+    t.index ["project_id", "numero"], name: "index_pv_visites_on_project_id_and_numero", unique: true
+    t.index ["project_id"], name: "index_pv_visites_on_project_id"
+    t.index ["token_entrepreneur"], name: "index_pv_visites_on_token_entrepreneur", unique: true, where: "(token_entrepreneur IS NOT NULL)"
+    t.index ["token_owner"], name: "index_pv_visites_on_token_owner", unique: true, where: "(token_owner IS NOT NULL)"
+  end
+
   create_table "quote_items", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.jsonb "options", default: {}
@@ -1263,6 +1291,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_18_100000) do
   add_foreign_key "projects", "users"
   add_foreign_key "properties", "users"
   add_foreign_key "pv_receptions", "projects"
+  add_foreign_key "pv_visites", "projects"
+  add_foreign_key "pv_visites", "users", column: "auteur_id"
   add_foreign_key "quote_items", "quotes"
   add_foreign_key "quotes", "properties"
   add_foreign_key "quotes", "users"

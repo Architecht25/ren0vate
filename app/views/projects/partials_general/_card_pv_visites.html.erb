@@ -1,0 +1,408 @@
+<%#
+  Card PV de visite de chantier — tab Suivi
+  Création réservée à l'architecte. Lecture seule pour les autres.
+%>
+
+<%
+  is_architect = @project.project_members.active.where(user: current_user, role: "architect").exists?
+  pv_visites   = @project.pv_visites.chronologique
+%>
+
+<div class="card border-0 shadow-sm rounded-3 h-100">
+  <div class="card-header bg-transparent border-bottom d-flex align-items-center px-4 py-3">
+    <div class="d-flex align-items-center gap-2">
+      <span class="d-flex align-items-center justify-content-center rounded-2 flex-shrink-0"
+            style="width:32px;height:32px;background:rgba(30,58,95,.1);">
+        <i class="bi bi-clipboard-check" style="color:#1e3a5f;font-size:1rem;"></i>
+      </span>
+      <div>
+        <h6 class="mb-0 fw-semibold" style="color:#1e3a5f;">PV de visite de chantier</h6>
+        <small class="text-muted">Rapports de visite rédigés par l'architecte</small>
+      </div>
+    </div>
+    <% if is_architect %>
+      <button class="btn btn-primary btn-sm ms-auto"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#form-pv-visite"
+              aria-expanded="false">
+        <i class="bi bi-plus-lg me-1"></i>Nouvelle visite
+      </button>
+    <% end %>
+  </div>
+
+  <% if is_architect %>
+    <div class="collapse" id="form-pv-visite">
+      <div class="card-body border-bottom px-4 py-4" style="background:#f8f9fa;">
+        <%= form_with url: project_pv_visites_path(@project), method: :post,
+              scope: :pv_visite, data: { turbo: false } do |f| %>
+
+          <%# ── SECTION 1 : En-tête ── %>
+          <h6 class="fw-semibold mb-3" style="color:#1e3a5f;font-size:.85rem;text-transform:uppercase;letter-spacing:.04em;">
+            <i class="bi bi-info-circle me-2"></i>Informations générales
+          </h6>
+          <div class="row g-3 mb-4">
+            <div class="col-sm-3">
+              <%= f.label :date_visite, "Date *", class: "form-label small fw-semibold" %>
+              <%= f.date_field :date_visite, value: Date.current,
+                    class: "form-control form-control-sm rounded-3", required: true %>
+            </div>
+            <div class="col-sm-2">
+              <%= f.label :heure_visite, "Heure", class: "form-label small fw-semibold" %>
+              <%= f.time_field :heure_visite, value: "09:00",
+                    class: "form-control form-control-sm rounded-3" %>
+            </div>
+            <div class="col-sm-3">
+              <%= f.label :meteo, "Météo", class: "form-label small fw-semibold" %>
+              <%= f.select :meteo,
+                    [["— Sélectionner —", ""]] + PvVisite::METEOS.map { |m| [m, m] },
+                    {}, class: "form-select form-select-sm rounded-3" %>
+            </div>
+            <div class="col-sm-4">
+              <%= f.label :coordinateur_sps, "Coordinateur SPS", class: "form-label small fw-semibold" %>
+              <%= f.text_field :coordinateur_sps, class: "form-control form-control-sm rounded-3",
+                    placeholder: "Nom et société (si applicable)" %>
+            </div>
+          </div>
+
+          <%# ── SECTION 2 : Participants ── %>
+          <h6 class="fw-semibold mb-3" style="color:#1e3a5f;font-size:.85rem;text-transform:uppercase;letter-spacing:.04em;">
+            <i class="bi bi-people me-2"></i>Participants
+          </h6>
+          <div class="row g-3 mb-4">
+            <div class="col-sm-6">
+              <%= f.label :presents, "Présents", class: "form-label small fw-semibold" %>
+              <%= f.text_area :presents, rows: 2, class: "form-control form-control-sm rounded-3",
+                    placeholder: "Ex : Arch. Dupont, M. Martin (propriétaire), Leroy SA (maçon)…" %>
+            </div>
+            <div class="col-sm-6">
+              <%= f.label :absents, "Absents / excusés", class: "form-label small fw-semibold" %>
+              <%= f.text_area :absents, rows: 2, class: "form-control form-control-sm rounded-3",
+                    placeholder: "Ex : M. Durand (électricien) — excusé" %>
+            </div>
+          </div>
+
+          <%# ── SECTION 3 : Observations générales ── %>
+          <h6 class="fw-semibold mb-3" style="color:#1e3a5f;font-size:.85rem;text-transform:uppercase;letter-spacing:.04em;">
+            <i class="bi bi-chat-left-text me-2"></i>Observations générales
+          </h6>
+          <div class="mb-4">
+            <%= f.text_area :observations, rows: 3, class: "form-control form-control-sm rounded-3",
+                  placeholder: "État général du chantier, avancement global, commentaires libres…" %>
+          </div>
+
+          <%# ── SECTION 4 : Avancement par lot ── %>
+          <h6 class="fw-semibold mb-2" style="color:#1e3a5f;font-size:.85rem;text-transform:uppercase;letter-spacing:.04em;">
+            <i class="bi bi-layers me-2"></i>Avancement par lot / corps de métier
+          </h6>
+          <div class="mb-1">
+            <div id="lots-container" class="d-flex flex-column gap-2 mb-2"></div>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-add-lot">
+              <i class="bi bi-plus me-1"></i>Ajouter un lot
+            </button>
+            <%= f.hidden_field :lots_json, id: "lots-json-input", value: "[]" %>
+          </div>
+          <hr class="my-4">
+
+          <%# ── SECTION 5 : Points constatés ── %>
+          <h6 class="fw-semibold mb-2" style="color:#1e3a5f;font-size:.85rem;text-transform:uppercase;letter-spacing:.04em;">
+            <i class="bi bi-list-check me-2"></i>Points constatés / réserves
+          </h6>
+          <div class="mb-1">
+            <div id="points-container" class="d-flex flex-column gap-2 mb-2"></div>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-add-point">
+              <i class="bi bi-plus me-1"></i>Ajouter un point
+            </button>
+            <%= f.hidden_field :points_json, id: "points-json-input", value: "[]" %>
+          </div>
+          <hr class="my-4">
+
+          <%# ── SECTION 6 : Décisions actées ── %>
+          <h6 class="fw-semibold mb-2" style="color:#1e3a5f;font-size:.85rem;text-transform:uppercase;letter-spacing:.04em;">
+            <i class="bi bi-check2-square me-2"></i>Décisions actées
+          </h6>
+          <div class="mb-1">
+            <div id="decisions-container" class="d-flex flex-column gap-2 mb-2"></div>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-add-decision">
+              <i class="bi bi-plus me-1"></i>Ajouter une décision
+            </button>
+            <%= f.hidden_field :decisions_json, id: "decisions-json-input", value: "[]" %>
+          </div>
+          <hr class="my-4">
+
+          <%# ── SECTION 7 : Prochaine visite ── %>
+          <h6 class="fw-semibold mb-3" style="color:#1e3a5f;font-size:.85rem;text-transform:uppercase;letter-spacing:.04em;">
+            <i class="bi bi-calendar-event me-2"></i>Prochaine visite
+          </h6>
+          <div class="row g-3 mb-4">
+            <div class="col-sm-3">
+              <%= f.label :prochaine_visite, "Date", class: "form-label small fw-semibold" %>
+              <%= f.date_field :prochaine_visite, class: "form-control form-control-sm rounded-3" %>
+            </div>
+            <div class="col-sm-2">
+              <%= f.label :prochaine_visite_heure, "Heure", class: "form-label small fw-semibold" %>
+              <%= f.time_field :prochaine_visite_heure, class: "form-control form-control-sm rounded-3" %>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2">
+            <%= f.submit "Créer le PV", class: "btn btn-primary btn-sm" %>
+            <button type="button" class="btn btn-outline-secondary btn-sm"
+                    data-bs-toggle="collapse" data-bs-target="#form-pv-visite">
+              Annuler
+            </button>
+          </div>
+
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%# ── Liste des PV ── %>
+  <div class="card-body px-4 py-3">
+    <% if pv_visites.any? %>
+      <div class="d-flex flex-column gap-2">
+        <% pv_visites.each do |pv| %>
+          <div class="d-flex align-items-center gap-3 py-2 border-bottom">
+            <div class="d-flex align-items-center justify-content-center rounded-2 flex-shrink-0"
+                 style="width:36px;height:36px;background:rgba(30,58,95,.08);">
+              <span style="font-size:.8rem;font-weight:700;color:#1e3a5f;">V<%= pv.numero %></span>
+            </div>
+            <div class="flex-grow-1 min-w-0">
+              <div class="fw-semibold small text-truncate"><%= pv.titre %></div>
+              <div class="text-muted" style="font-size:.75rem;">
+                <%= pv.auteur.full_name %>
+                <% if pv.meteo.present? %>· <i class="bi bi-cloud me-1"></i><%= pv.meteo %><% end %>
+                <% if pv.points_liste.any? %>· <%= pv.points_liste.size %> point<%= 's' if pv.points_liste.size != 1 %><% end %>
+                <% if pv.lots_liste.any? %>· <%= pv.lots_liste.size %> lot<%= 's' if pv.lots_liste.size != 1 %><% end %>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+              <span class="badge bg-<%= pv.statut_color %>-subtle text-<%= pv.statut_color %> border"
+                    style="font-size:.65rem;"><%= pv.statut_label %></span>
+              <%= link_to project_pv_visite_path(@project, pv), class: "btn btn-outline-secondary btn-sm" do %>
+                <i class="bi bi-eye"></i>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center py-4">
+        <i class="bi bi-clipboard2 text-muted" style="font-size:2rem;opacity:.4;"></i>
+        <div class="text-muted small mt-2">
+          <% if is_architect %>
+            Aucun PV de visite pour l'instant. Cliquez sur "Nouvelle visite" pour en créer un.
+          <% else %>
+            L'architecte n'a pas encore rédigé de PV de visite.
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+(function() {
+  function escHtml(str) {
+    return (str || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  /* ── LOTS ── */
+  const lotsContainer = document.getElementById('lots-container');
+  const lotsInput     = document.getElementById('lots-json-input');
+  const btnAddLot     = document.getElementById('btn-add-lot');
+  let lots = [];
+
+  function renderLots() {
+    if (!lotsContainer) return;
+    lotsContainer.innerHTML = '';
+    lots.forEach(function(lot, i) {
+      const div = document.createElement('div');
+      div.className = 'card border rounded-3 p-3';
+      div.innerHTML = `
+        <div class="row g-2 mb-2">
+          <div class="col-sm-1">
+            <label class="form-label small text-muted mb-1">N°</label>
+            <input type="text" class="form-control form-control-sm l-num" value="${escHtml(lot.numero)}" placeholder="1">
+          </div>
+          <div class="col-sm-4">
+            <label class="form-label small text-muted mb-1">Intitulé du lot</label>
+            <input type="text" class="form-control form-control-sm l-int" value="${escHtml(lot.intitule)}" placeholder="Ex : Maçonnerie, Électricité…" required>
+          </div>
+          <div class="col-sm-4">
+            <label class="form-label small text-muted mb-1">Entreprise</label>
+            <input type="text" class="form-control form-control-sm l-ent" value="${escHtml(lot.entreprise)}" placeholder="Nom de l'entreprise">
+          </div>
+          <div class="col-sm-2">
+            <label class="form-label small text-muted mb-1">Avancement %</label>
+            <input type="number" class="form-control form-control-sm l-pct" value="${escHtml(String(lot.avancement_pct))}" min="0" max="100" placeholder="0">
+          </div>
+          <div class="col-sm-1 text-end d-flex align-items-end justify-content-end">
+            <button type="button" class="btn btn-outline-danger btn-sm l-remove" data-idx="${i}"><i class="bi bi-trash"></i></button>
+          </div>
+        </div>
+        <div class="row g-2">
+          <div class="col-sm-4">
+            <label class="form-label small text-muted mb-1">Travaux réalisés depuis la dernière visite</label>
+            <textarea class="form-control form-control-sm l-real" rows="2" placeholder="Description…">${escHtml(lot.travaux_realises)}</textarea>
+          </div>
+          <div class="col-sm-4">
+            <label class="form-label small text-muted mb-1">Travaux en cours</label>
+            <textarea class="form-control form-control-sm l-cours" rows="2" placeholder="Description…">${escHtml(lot.travaux_en_cours)}</textarea>
+          </div>
+          <div class="col-sm-2">
+            <label class="form-label small text-muted mb-1">Conformité plans</label>
+            <select class="form-select form-select-sm l-conf">
+              <option value="oui"${lot.conforme_plans==='oui'?' selected':''}>✓ Conforme</option>
+              <option value="reserve"${lot.conforme_plans==='reserve'?' selected':''}>⚠ Réserve</option>
+              <option value="non"${lot.conforme_plans==='non'?' selected':''}>✗ Non conforme</option>
+            </select>
+          </div>
+          <div class="col-sm-2">
+            <label class="form-label small text-muted mb-1">Points bloquants</label>
+            <textarea class="form-control form-control-sm l-bloc" rows="2" placeholder="Retards, manques…">${escHtml(lot.points_bloquants)}</textarea>
+          </div>
+        </div>
+      `;
+      function bind(sel, field) {
+        const el = div.querySelector(sel);
+        el.addEventListener('input',  function(e) { lots[i][field] = e.target.value; syncLots(); });
+        el.addEventListener('change', function(e) { lots[i][field] = e.target.value; syncLots(); });
+      }
+      bind('.l-num',  'numero');   bind('.l-int',  'intitule'); bind('.l-ent',  'entreprise');
+      bind('.l-pct',  'avancement_pct'); bind('.l-real', 'travaux_realises');
+      bind('.l-cours','travaux_en_cours'); bind('.l-conf', 'conforme_plans');
+      bind('.l-bloc', 'points_bloquants');
+      div.querySelector('.l-remove').addEventListener('click', function() { lots.splice(i,1); renderLots(); syncLots(); });
+      lotsContainer.appendChild(div);
+    });
+  }
+  function syncLots() { if (lotsInput) lotsInput.value = JSON.stringify(lots); }
+  if (btnAddLot) btnAddLot.addEventListener('click', function() {
+    lots.push({ numero: String(lots.length+1), intitule:'', entreprise:'', avancement_pct:'', travaux_realises:'', travaux_en_cours:'', conforme_plans:'oui', points_bloquants:'' });
+    renderLots(); syncLots();
+  });
+
+  /* ── POINTS ── */
+  const pointsContainer = document.getElementById('points-container');
+  const pointsInput     = document.getElementById('points-json-input');
+  const btnAddPoint     = document.getElementById('btn-add-point');
+  let points = [];
+
+  function renderPoints() {
+    if (!pointsContainer) return;
+    pointsContainer.innerHTML = '';
+    points.forEach(function(pt, i) {
+      const div = document.createElement('div');
+      div.className = 'card border rounded-3 p-3';
+      div.innerHTML = `
+        <div class="row g-2">
+          <div class="col-sm-5">
+            <label class="form-label small text-muted mb-1">Description *</label>
+            <input type="text" class="form-control form-control-sm p-desc" value="${escHtml(pt.description)}" placeholder="Description du point…" required>
+          </div>
+          <div class="col-sm-3">
+            <label class="form-label small text-muted mb-1">Localisation</label>
+            <input type="text" class="form-control form-control-sm p-loc" value="${escHtml(pt.localisation)}" placeholder="Ex : Salle de bain R+1">
+          </div>
+          <div class="col-sm-2">
+            <label class="form-label small text-muted mb-1">Nature</label>
+            <select class="form-select form-select-sm p-nat">
+              <option value="defaut"${pt.nature==='defaut'?' selected':''}>Défaut</option>
+              <option value="non_conformite"${pt.nature==='non_conformite'?' selected':''}>Non-conformité</option>
+              <option value="vigilance"${pt.nature==='vigilance'?' selected':''}>Vigilance</option>
+              <option value="information"${pt.nature==='information'?' selected':''}>Information</option>
+            </select>
+          </div>
+          <div class="col-sm-1">
+            <label class="form-label small text-muted mb-1">Priorité</label>
+            <select class="form-select form-select-sm p-pri">
+              <option value="normal"${pt.priorite==='normal'?' selected':''}>Normal</option>
+              <option value="urgent"${pt.priorite==='urgent'?' selected':''}>Urgent</option>
+              <option value="critique"${pt.priorite==='critique'?' selected':''}>Critique</option>
+            </select>
+          </div>
+          <div class="col-sm-1 text-end d-flex align-items-end justify-content-end">
+            <button type="button" class="btn btn-outline-danger btn-sm p-remove" data-idx="${i}"><i class="bi bi-trash"></i></button>
+          </div>
+          <div class="col-sm-4">
+            <label class="form-label small text-muted mb-1">Responsable</label>
+            <input type="text" class="form-control form-control-sm p-resp" value="${escHtml(pt.responsable)}" placeholder="Entreprise ou personne…">
+          </div>
+          <div class="col-sm-3">
+            <label class="form-label small text-muted mb-1">Délai</label>
+            <input type="text" class="form-control form-control-sm p-del" value="${escHtml(pt.delai)}" placeholder="Ex : 30/05/2026">
+          </div>
+          <div class="col-sm-2">
+            <label class="form-label small text-muted mb-1">Statut</label>
+            <select class="form-select form-select-sm p-sta">
+              <option value="ouvert"${pt.statut==='ouvert'?' selected':''}>Ouvert</option>
+              <option value="en cours"${pt.statut==='en cours'?' selected':''}>En cours</option>
+              <option value="résolu"${pt.statut==='résolu'?' selected':''}>Résolu</option>
+            </select>
+          </div>
+        </div>
+      `;
+      function bindP(sel, field, ev='input') {
+        const el = div.querySelector(sel);
+        el.addEventListener(ev, function(e) { points[i][field]=e.target.value; syncPoints(); });
+      }
+      bindP('.p-desc','description'); bindP('.p-loc','localisation'); bindP('.p-nat','nature','change');
+      bindP('.p-pri','priorite','change'); bindP('.p-resp','responsable'); bindP('.p-del','delai');
+      bindP('.p-sta','statut','change');
+      div.querySelector('.p-remove').addEventListener('click', function() { points.splice(i,1); renderPoints(); syncPoints(); });
+      pointsContainer.appendChild(div);
+    });
+  }
+  function syncPoints() { if (pointsInput) pointsInput.value = JSON.stringify(points); }
+  if (btnAddPoint) btnAddPoint.addEventListener('click', function() {
+    points.push({ description:'', localisation:'', nature:'defaut', priorite:'normal', responsable:'', delai:'', statut:'ouvert' });
+    renderPoints(); syncPoints();
+  });
+
+  /* ── DÉCISIONS ── */
+  const decisionsContainer = document.getElementById('decisions-container');
+  const decisionsInput     = document.getElementById('decisions-json-input');
+  const btnAddDecision     = document.getElementById('btn-add-decision');
+  let decisions = [];
+
+  function renderDecisions() {
+    if (!decisionsContainer) return;
+    decisionsContainer.innerHTML = '';
+    decisions.forEach(function(d, i) {
+      const div = document.createElement('div');
+      div.className = 'row g-2 align-items-end p-2 rounded-3 bg-white border';
+      div.innerHTML = `
+        <div class="col-sm-6">
+          <label class="form-label small text-muted mb-1">Décision</label>
+          <input type="text" class="form-control form-control-sm d-desc" value="${escHtml(d.description)}" placeholder="Ex : Report de la pose carrelage accepté…" required>
+        </div>
+        <div class="col-sm-3">
+          <label class="form-label small text-muted mb-1">Responsable</label>
+          <input type="text" class="form-control form-control-sm d-resp" value="${escHtml(d.responsable)}" placeholder="Qui ?">
+        </div>
+        <div class="col-sm-2">
+          <label class="form-label small text-muted mb-1">Échéance</label>
+          <input type="text" class="form-control form-control-sm d-del" value="${escHtml(d.delai)}" placeholder="dd/mm/yyyy">
+        </div>
+        <div class="col-sm-1 text-end">
+          <button type="button" class="btn btn-outline-danger btn-sm d-remove" data-idx="${i}"><i class="bi bi-trash"></i></button>
+        </div>
+      `;
+      function bindD(sel, field) {
+        div.querySelector(sel).addEventListener('input', function(e) { decisions[i][field]=e.target.value; syncDecisions(); });
+      }
+      bindD('.d-desc','description'); bindD('.d-resp','responsable'); bindD('.d-del','delai');
+      div.querySelector('.d-remove').addEventListener('click', function() { decisions.splice(i,1); renderDecisions(); syncDecisions(); });
+      decisionsContainer.appendChild(div);
+    });
+  }
+  function syncDecisions() { if (decisionsInput) decisionsInput.value = JSON.stringify(decisions); }
+  if (btnAddDecision) btnAddDecision.addEventListener('click', function() {
+    decisions.push({ description:'', responsable:'', delai:'' });
+    renderDecisions(); syncDecisions();
+  });
+
+})();
+</script>

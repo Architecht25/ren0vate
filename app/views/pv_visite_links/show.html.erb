@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PV de Visite de Chantier — Ren0vate</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <style>
+    body { background: #f5f7fa; font-family: Arial, sans-serif; color: #222; min-height: 100vh; }
+    .pv-header { background: #1e3a5f; color: #fff; padding: 24px 0; }
+    .card { border-radius: 10px; }
+    .section-title { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #1e3a5f; }
+    .badge-nat { font-size: .65rem; }
+    .clause-box { background: #f8f9fa; border: 1px solid #1e3a5f; border-radius: 6px; padding: 12px 16px; font-size: .8rem; font-style: italic; }
+    @media print { .no-print { display: none !important; } }
+  </style>
+</head>
+<body>
+
+  <%
+    nature_labels   = { "defaut" => "Défaut", "non_conformite" => "Non-conformité", "vigilance" => "Vigilance", "information" => "Information" }
+    nature_colors   = { "defaut" => "danger", "non_conformite" => "warning", "vigilance" => "info", "information" => "secondary" }
+    priorite_colors = { "critique" => "danger", "urgent" => "warning", "normal" => "secondary" }
+    conformite_labels = { "oui" => ["text-success","bi-check-circle-fill","Conforme"], "reserve" => ["text-warning","bi-exclamation-triangle-fill","Réserve"], "non" => ["text-danger","bi-x-circle-fill","Non conforme"] }
+  %>
+
+  <div class="pv-header">
+    <div class="container">
+      <div class="d-flex align-items-center gap-3 flex-wrap">
+        <div class="rounded-circle bg-white d-flex align-items-center justify-content-center flex-shrink-0"
+             style="width:48px;height:48px;">
+          <i class="bi bi-clipboard-check fs-4 text-primary"></i>
+        </div>
+        <div>
+          <div style="font-size:11px;opacity:.7;text-transform:uppercase;letter-spacing:1px;">Ren0vate · Document de suivi</div>
+          <div style="font-size:20px;font-weight:700;">Procès-Verbal de Visite de Chantier</div>
+          <div style="font-size:13px;opacity:.8;">
+            Projet : <strong><%= @project.nom %></strong> — <%= @pv_visite.titre %>
+          </div>
+        </div>
+        <div class="ms-auto no-print">
+          <button onclick="window.print()" class="btn btn-outline-light btn-sm">
+            <i class="bi bi-printer me-1"></i>Imprimer / PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container py-4" style="max-width:800px;">
+
+    <%# Votre rôle %>
+    <div class="alert alert-info d-flex align-items-center gap-2 mb-4 small no-print">
+      <i class="bi bi-person-check-fill fs-5"></i>
+      Vous consultez ce document en tant que <strong><%= @role == :owner ? "Maître d'ouvrage" : "Entrepreneur" %></strong>.
+      Ce lien est personnel.
+    </div>
+
+    <%# 1. Informations générales %>
+    <div class="card shadow-sm border-0 mb-3">
+      <div class="card-header bg-transparent border-bottom py-3 px-4">
+        <span class="section-title"><i class="bi bi-info-circle me-2"></i>Informations générales</span>
+      </div>
+      <div class="card-body px-4 py-3">
+        <div class="row g-2 small">
+          <div class="col-sm-4"><div class="text-muted">Date de visite</div><div class="fw-semibold"><%= @pv_visite.date_visite.strftime('%d/%m/%Y') %><% if @pv_visite.heure_visite.present? %> à <%= @pv_visite.heure_visite %><% end %></div></div>
+          <% if @pv_visite.meteo.present? %>
+            <div class="col-sm-3"><div class="text-muted">Météo</div><div class="fw-semibold"><%= @pv_visite.meteo %></div></div>
+          <% end %>
+          <div class="col-sm-4"><div class="text-muted">Architecte</div><div class="fw-semibold"><%= @pv_visite.auteur.full_name %></div></div>
+          <div class="col-sm-5"><div class="text-muted">Adresse du chantier</div><div class="fw-semibold"><%= @project.property&.adresse.presence || "—" %></div></div>
+          <% if @pv_visite.coordinateur_sps.present? %>
+            <div class="col-sm-4"><div class="text-muted">Coordinateur SPS</div><div class="fw-semibold"><%= @pv_visite.coordinateur_sps %></div></div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# 2. Participants %>
+    <div class="card shadow-sm border-0 mb-3">
+      <div class="card-header bg-transparent border-bottom py-3 px-4">
+        <span class="section-title"><i class="bi bi-people me-2"></i>Participants</span>
+      </div>
+      <div class="card-body px-4 py-3">
+        <div class="row g-3 small">
+          <% if @pv_visite.presents.present? %>
+            <div class="col-sm-6">
+              <div class="text-muted mb-1"><i class="bi bi-person-check-fill text-success me-1"></i>Présents</div>
+              <div class="bg-light rounded-3 px-3 py-2"><%= simple_format @pv_visite.presents %></div>
+            </div>
+          <% end %>
+          <% if @pv_visite.absents.present? %>
+            <div class="col-sm-6">
+              <div class="text-muted mb-1"><i class="bi bi-person-x-fill text-danger me-1"></i>Absents / excusés</div>
+              <div class="bg-light rounded-3 px-3 py-2"><%= simple_format @pv_visite.absents %></div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# 3. Observations générales %>
+    <% if @pv_visite.observations.present? %>
+      <div class="card shadow-sm border-0 mb-3">
+        <div class="card-header bg-transparent border-bottom py-3 px-4">
+          <span class="section-title"><i class="bi bi-chat-left-text me-2"></i>Observations générales</span>
+        </div>
+        <div class="card-body px-4 py-3 small"><%= simple_format @pv_visite.observations %></div>
+      </div>
+    <% end %>
+
+    <%# 4. Avancement par lot %>
+    <% if @pv_visite.lots_liste.any? %>
+      <div class="card shadow-sm border-0 mb-3">
+        <div class="card-header bg-transparent border-bottom py-3 px-4 d-flex align-items-center">
+          <span class="section-title"><i class="bi bi-layers me-2"></i>Avancement par lot</span>
+          <span class="ms-2 badge bg-secondary-subtle text-secondary border"><%= @pv_visite.lots_liste.size %></span>
+        </div>
+        <div class="card-body px-4 py-3">
+          <div class="d-flex flex-column gap-3">
+            <% @pv_visite.lots_liste.each do |lot| %>
+              <% conf = lot[:conforme_plans] || "oui"; clabel = conformite_labels[conf] || conformite_labels["oui"] %>
+              <div class="border rounded-3 p-3 small">
+                <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                  <% if lot[:numero].present? %><span class="badge bg-primary-subtle text-primary border" style="font-size:.65rem;">Lot <%= lot[:numero] %></span><% end %>
+                  <span class="fw-semibold"><%= lot[:intitule].presence || "—" %></span>
+                  <% if lot[:entreprise].present? %><span class="text-muted">· <%= lot[:entreprise] %></span><% end %>
+                  <% if lot[:avancement_pct].present? && lot[:avancement_pct].to_s != "" %>
+                    <div class="ms-auto d-flex align-items-center gap-2">
+                      <div class="progress flex-shrink-0" style="height:5px;width:60px;"><div class="progress-bar" style="width:<%= [lot[:avancement_pct].to_i,100].min %>%;background:#1e3a5f;"></div></div>
+                      <span class="fw-semibold" style="color:#1e3a5f;"><%= lot[:avancement_pct] %>%</span>
+                    </div>
+                  <% end %>
+                  <span class="<%= clabel[0] %>"><i class="bi <%= clabel[1] %> me-1"></i><%= clabel[2] %></span>
+                </div>
+                <div class="row g-2">
+                  <% if lot[:travaux_realises].present? %><div class="col-sm-4"><div class="text-muted mb-1">Travaux réalisés</div><div class="bg-light rounded-2 px-2 py-1"><%= lot[:travaux_realises] %></div></div><% end %>
+                  <% if lot[:travaux_en_cours].present? %><div class="col-sm-4"><div class="text-muted mb-1">En cours</div><div class="bg-light rounded-2 px-2 py-1"><%= lot[:travaux_en_cours] %></div></div><% end %>
+                  <% if lot[:points_bloquants].present? %><div class="col-sm-4"><div class="text-warning mb-1"><i class="bi bi-exclamation-triangle me-1"></i>Points bloquants</div><div class="bg-warning-subtle rounded-2 px-2 py-1"><%= lot[:points_bloquants] %></div></div><% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <%# 5. Points constatés %>
+    <div class="card shadow-sm border-0 mb-3">
+      <div class="card-header bg-transparent border-bottom py-3 px-4 d-flex align-items-center">
+        <span class="section-title"><i class="bi bi-list-check me-2"></i>Points constatés / réserves</span>
+        <span class="ms-2 badge bg-secondary-subtle text-secondary border"><%= @pv_visite.points_liste.size %></span>
+      </div>
+      <div class="card-body px-4 py-3">
+        <% if @pv_visite.points_liste.any? %>
+          <% @pv_visite.points_liste.each_with_index do |pt, i| %>
+            <% nat = pt[:nature] || "defaut"; pri = pt[:priorite] || "normal"; sta = pt[:statut] || "ouvert"
+               sta_color = sta == "résolu" ? "success" : sta == "en cours" ? "warning" : "secondary" %>
+            <div class="d-flex align-items-start gap-3 py-2 <%= 'border-top' if i > 0 %> small">
+              <span class="text-muted flex-shrink-0 mt-1" style="min-width:1.2rem;"><%= i + 1 %>.</span>
+              <div class="flex-grow-1">
+                <div class="fw-medium"><%= pt[:description] %></div>
+                <div class="d-flex gap-2 flex-wrap mt-1">
+                  <% if pt[:localisation].present? %><span class="text-muted"><i class="bi bi-geo-alt me-1"></i><%= pt[:localisation] %></span><% end %>
+                  <% if pt[:responsable].present? %><span class="text-muted"><i class="bi bi-person me-1"></i><%= pt[:responsable] %></span><% end %>
+                  <% if pt[:delai].present? %><span class="text-muted"><i class="bi bi-calendar3 me-1"></i><%= pt[:delai] %></span><% end %>
+                </div>
+              </div>
+              <div class="d-flex flex-column gap-1 align-items-end flex-shrink-0">
+                <span class="badge bg-<%= nature_colors[nat] || 'secondary' %>-subtle text-<%= nature_colors[nat] || 'secondary' %> border badge-nat"><%= nature_labels[nat] || nat %></span>
+                <span class="badge bg-<%= priorite_colors[pri] || 'secondary' %>-subtle text-<%= priorite_colors[pri] || 'secondary' %> border badge-nat"><%= pri.capitalize %></span>
+                <span class="badge bg-<%= sta_color %>-subtle text-<%= sta_color %> border badge-nat"><%= sta.capitalize %></span>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="text-muted small py-2"><i class="bi bi-check-circle-fill text-success me-1"></i>Aucun point particulier constaté.</div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# 6. Décisions %>
+    <% if @pv_visite.decisions_liste.any? %>
+      <div class="card shadow-sm border-0 mb-3">
+        <div class="card-header bg-transparent border-bottom py-3 px-4 d-flex align-items-center">
+          <span class="section-title"><i class="bi bi-check2-square me-2"></i>Décisions actées</span>
+        </div>
+        <div class="card-body px-4 py-3">
+          <% @pv_visite.decisions_liste.each_with_index do |d, i| %>
+            <div class="d-flex align-items-start gap-3 py-2 <%= 'border-top' if i > 0 %> small">
+              <span class="badge bg-success-subtle text-success border flex-shrink-0 mt-1" style="font-size:.65rem;">D<%= i+1 %></span>
+              <div class="flex-grow-1">
+                <div class="fw-medium"><%= d[:description] %></div>
+                <div class="text-muted mt-1">
+                  <% if d[:responsable].present? %><i class="bi bi-person me-1"></i><%= d[:responsable] %><% end %>
+                  <% if d[:delai].present? %><i class="bi bi-calendar3 ms-2 me-1"></i><%= d[:delai] %><% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <%# 7. Prochaine visite %>
+    <% if @pv_visite.prochaine_visite.present? %>
+      <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body px-4 py-3 d-flex align-items-center gap-3 small">
+          <i class="bi bi-calendar-event text-primary fs-5"></i>
+          <div>
+            <div class="text-muted">Prochaine visite planifiée</div>
+            <div class="fw-semibold"><%= @pv_visite.prochaine_visite.strftime('%d/%m/%Y') %><% if @pv_visite.prochaine_visite_heure.present? %> à <%= @pv_visite.prochaine_visite_heure %><% end %></div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <%# Clause de validité %>
+    <div class="clause-box mb-4">
+      <i class="bi bi-shield-check me-2"></i>
+      <strong>Clause de validité :</strong>
+      Ce procès-verbal est réputé accepté par toutes les parties en l'absence d'observation écrite adressée
+      à l'architecte dans un délai de <strong>48 heures</strong> à compter de sa réception.
+    </div>
+
+    <div class="text-center text-muted" style="font-size:11px;">
+      Ren0vate · Gestion numérique de projets de rénovation · Belgique<br>
+      Document transmis par <%= @pv_visite.auteur.full_name %> (architecte) — lien de consultation personnel
+    </div>
+
+  </div>
+</body>
+</html>

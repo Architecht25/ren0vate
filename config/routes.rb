@@ -343,6 +343,14 @@ Rails.application.routes.draw do
         get  :print
       end
     end
+
+    # PV de visite de chantier (multiples, rédigés par l'architecte)
+    resources :pv_visites, only: %i[index show create update destroy] do
+      member do
+        post :send_links
+        get  :print
+      end
+    end
   end
 
   # Items de checklists (toggle checked/unchecked) — shallow route
@@ -360,6 +368,9 @@ Rails.application.routes.draw do
   # PV de réception — liens de signature publics (sans authentification)
   get  'pv/:token', to: 'pv_signatures#show', as: :pv_signature
   post 'pv/:token', to: 'pv_signatures#sign', as: :sign_pv
+
+  # PV de visite — liens de consultation publics (sans authentification, lecture seule)
+  get 'visite/:token', to: 'pv_visite_links#show', as: :pv_visite_link
 
   # Acceptation invitations (lien email, sans authentification requise)
   get  'invitations/:token',            to: 'invitations#show',            as: :invitation

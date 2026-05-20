@@ -1,0 +1,300 @@
+<% content_for :title, "#{@pv_visite.titre} — #{@project.nom}" %>
+
+<%
+  is_architect = @project.project_members.active.where(user: current_user, role: "architect").exists?
+  nature_labels = { "defaut" => "Défaut", "non_conformite" => "Non-conformité", "vigilance" => "Vigilance", "information" => "Information" }
+  nature_colors = { "defaut" => "danger", "non_conformite" => "warning", "vigilance" => "info", "information" => "secondary" }
+  priorite_colors = { "critique" => "danger", "urgent" => "warning", "normal" => "secondary" }
+  conformite_labels = { "oui" => ["text-success", "bi-check-circle-fill", "Conforme"], "reserve" => ["text-warning", "bi-exclamation-triangle-fill", "Réserve"], "non" => ["text-danger", "bi-x-circle-fill", "Non conforme"] }
+%>
+
+<div class="container py-4" style="max-width:920px;">
+
+  <%# ── En-tête actions ── %>
+  <%
+    is_architect_back = @project.project_members.active.where(user: current_user, role: "architect").exists?
+    back_path = is_architect_back ? pro_view_project_path(@project) : project_path(@project, tab: "suivi")
+  %>
+  <div class="d-flex align-items-center gap-2 mb-4 flex-wrap">
+    <%= link_to back_path, class: "btn btn-outline-secondary btn-sm" do %>
+      <i class="bi bi-arrow-left me-1"></i>Retour au suivi
+    <% end %>
+    <div class="ms-auto d-flex gap-2 flex-wrap">
+      <%= link_to print_project_pv_visite_path(@project, @pv_visite),
+            class: "btn btn-outline-primary btn-sm", target: "_blank" do %>
+        <i class="bi bi-printer me-1"></i>Imprimer / PDF
+      <% end %>
+      <% if is_architect && @pv_visite.draft? %>
+        <%= button_to send_links_project_pv_visite_path(@project, @pv_visite), method: :post,
+              class: "btn btn-success btn-sm",
+              data: { turbo_confirm: "Envoyer ce PV au propriétaire et à l'entrepreneur ?" } do %>
+          <i class="bi bi-send me-1"></i>Envoyer
+        <% end %>
+        <%= button_to project_pv_visite_path(@project, @pv_visite), method: :delete,
+              class: "btn btn-outline-danger btn-sm",
+              data: { turbo_confirm: "Supprimer ce PV de visite ?" } do %>
+          <i class="bi bi-trash me-1"></i>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── Hero card ── %>
+  <div class="card border-0 shadow-sm rounded-3 mb-4"
+       style="background:linear-gradient(135deg,#1e3a5f,#2d5a8e);color:#fff;">
+    <div class="card-body px-4 py-3 d-flex align-items-center gap-3 flex-wrap">
+      <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+           style="width:48px;height:48px;background:rgba(255,255,255,.15);">
+        <i class="bi bi-clipboard-check" style="font-size:1.3rem;"></i>
+      </div>
+      <div>
+        <div style="font-size:.75rem;opacity:.7;text-transform:uppercase;letter-spacing:.05em;">Procès-Verbal de visite</div>
+        <div style="font-size:1.15rem;font-weight:700;"><%= @pv_visite.titre %></div>
+        <div style="font-size:.85rem;opacity:.8;">
+          <%= @project.nom %>
+          · Rédigé par <%= @pv_visite.auteur.full_name %>
+          <% if @pv_visite.meteo.present? %>· <i class="bi bi-cloud me-1"></i><%= @pv_visite.meteo %><% end %>
+        </div>
+      </div>
+      <div class="ms-auto d-flex gap-2 align-items-center">
+        <span class="badge bg-<%= @pv_visite.statut_color %> fs-6">
+          <i class="bi bi-<%= @pv_visite.draft? ? 'pencil-square' : 'send-check' %> me-1"></i>
+          <%= @pv_visite.statut_label %>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <%# ── Section 1 : Informations générales ── %>
+  <div class="card border-0 shadow-sm rounded-3 mb-3">
+    <div class="card-header bg-transparent border-bottom px-4 py-3">
+      <h6 class="mb-0 fw-semibold" style="color:#1e3a5f;"><i class="bi bi-info-circle me-2"></i>Informations générales</h6>
+    </div>
+    <div class="card-body px-4 py-3">
+      <div class="row g-3 small">
+        <div class="col-sm-3"><div class="text-muted">Date</div><div class="fw-semibold"><%= @pv_visite.date_visite.strftime('%d/%m/%Y') %></div></div>
+        <% if @pv_visite.heure_visite.present? %>
+          <div class="col-sm-2"><div class="text-muted">Heure</div><div class="fw-semibold"><%= @pv_visite.heure_visite %></div></div>
+        <% end %>
+        <% if @pv_visite.meteo.present? %>
+          <div class="col-sm-2"><div class="text-muted">Météo</div><div class="fw-semibold"><%= @pv_visite.meteo %></div></div>
+        <% end %>
+        <div class="col-sm-3"><div class="text-muted">Architecte</div><div class="fw-semibold"><%= @pv_visite.auteur.full_name %></div></div>
+        <div class="col-sm-4"><div class="text-muted">Adresse du chantier</div><div class="fw-semibold"><%= @project.property&.adresse.presence || "—" %></div></div>
+        <% if @pv_visite.coordinateur_sps.present? %>
+          <div class="col-sm-4"><div class="text-muted">Coordinateur SPS</div><div class="fw-semibold"><%= @pv_visite.coordinateur_sps %></div></div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%# ── Section 2 : Participants ── %>
+  <div class="card border-0 shadow-sm rounded-3 mb-3">
+    <div class="card-header bg-transparent border-bottom px-4 py-3">
+      <h6 class="mb-0 fw-semibold" style="color:#1e3a5f;"><i class="bi bi-people me-2"></i>Participants</h6>
+    </div>
+    <div class="card-body px-4 py-3">
+      <div class="row g-3 small">
+        <% if @pv_visite.presents.present? %>
+          <div class="col-sm-6">
+            <div class="text-muted mb-1 fw-semibold"><i class="bi bi-person-check-fill text-success me-1"></i>Présents</div>
+            <div class="bg-light rounded-3 px-3 py-2"><%= simple_format @pv_visite.presents %></div>
+          </div>
+        <% end %>
+        <% if @pv_visite.absents.present? %>
+          <div class="col-sm-6">
+            <div class="text-muted mb-1 fw-semibold"><i class="bi bi-person-x-fill text-danger me-1"></i>Absents / excusés</div>
+            <div class="bg-light rounded-3 px-3 py-2"><%= simple_format @pv_visite.absents %></div>
+          </div>
+        <% end %>
+        <% if @pv_visite.presents.blank? && @pv_visite.absents.blank? %>
+          <div class="col-12 text-muted">Aucun participant renseigné.</div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%# ── Section 3 : Observations générales ── %>
+  <% if @pv_visite.observations.present? %>
+    <div class="card border-0 shadow-sm rounded-3 mb-3">
+      <div class="card-header bg-transparent border-bottom px-4 py-3">
+        <h6 class="mb-0 fw-semibold" style="color:#1e3a5f;"><i class="bi bi-chat-left-text me-2"></i>Observations générales</h6>
+      </div>
+      <div class="card-body px-4 py-3 small"><%= simple_format @pv_visite.observations %></div>
+    </div>
+  <% end %>
+
+  <%# ── Section 4 : Avancement par lot ── %>
+  <% if @pv_visite.lots_liste.any? %>
+    <div class="card border-0 shadow-sm rounded-3 mb-3">
+      <div class="card-header bg-transparent border-bottom px-4 py-3 d-flex align-items-center">
+        <h6 class="mb-0 fw-semibold" style="color:#1e3a5f;"><i class="bi bi-layers me-2"></i>Avancement par lot</h6>
+        <span class="ms-2 badge bg-secondary-subtle text-secondary border"><%= @pv_visite.lots_liste.size %></span>
+      </div>
+      <div class="card-body px-4 py-3">
+        <div class="d-flex flex-column gap-3">
+          <% @pv_visite.lots_liste.each do |lot| %>
+            <% conf = lot[:conforme_plans] || "oui"
+               clabel = conformite_labels[conf] || conformite_labels["oui"] %>
+            <div class="border rounded-3 p-3">
+              <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                <% if lot[:numero].present? %>
+                  <span class="badge bg-primary-subtle text-primary border" style="font-size:.7rem;">Lot <%= lot[:numero] %></span>
+                <% end %>
+                <span class="fw-semibold small"><%= lot[:intitule].presence || "—" %></span>
+                <% if lot[:entreprise].present? %>
+                  <span class="text-muted small">· <%= lot[:entreprise] %></span>
+                <% end %>
+                <% if lot[:avancement_pct].present? && lot[:avancement_pct].to_s != "" %>
+                  <div class="ms-auto d-flex align-items-center gap-2">
+                    <div class="progress flex-shrink-0" style="height:6px;width:80px;">
+                      <div class="progress-bar" style="width:<%= lot[:avancement_pct] %>%;background:#1e3a5f;"></div>
+                    </div>
+                    <span class="fw-semibold small" style="color:#1e3a5f;"><%= lot[:avancement_pct] %>%</span>
+                  </div>
+                <% end %>
+                <span class="<%= clabel[0] %> small flex-shrink-0">
+                  <i class="bi <%= clabel[1] %> me-1"></i><%= clabel[2] %>
+                </span>
+              </div>
+              <div class="row g-2 small">
+                <% if lot[:travaux_realises].present? %>
+                  <div class="col-sm-4">
+                    <div class="text-muted mb-1">Travaux réalisés</div>
+                    <div class="bg-light rounded-2 px-2 py-1"><%= lot[:travaux_realises] %></div>
+                  </div>
+                <% end %>
+                <% if lot[:travaux_en_cours].present? %>
+                  <div class="col-sm-4">
+                    <div class="text-muted mb-1">En cours</div>
+                    <div class="bg-light rounded-2 px-2 py-1"><%= lot[:travaux_en_cours] %></div>
+                  </div>
+                <% end %>
+                <% if lot[:points_bloquants].present? %>
+                  <div class="col-sm-4">
+                    <div class="text-muted mb-1 text-warning"><i class="bi bi-exclamation-triangle me-1"></i>Points bloquants</div>
+                    <div class="bg-warning-subtle rounded-2 px-2 py-1"><%= lot[:points_bloquants] %></div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# ── Section 5 : Points constatés ── %>
+  <div class="card border-0 shadow-sm rounded-3 mb-3">
+    <div class="card-header bg-transparent border-bottom px-4 py-3 d-flex align-items-center">
+      <h6 class="mb-0 fw-semibold" style="color:#1e3a5f;"><i class="bi bi-list-check me-2"></i>Points constatés / réserves</h6>
+      <span class="ms-2 badge bg-secondary-subtle text-secondary border"><%= @pv_visite.points_liste.size %></span>
+    </div>
+    <div class="card-body px-4 py-3">
+      <% if @pv_visite.points_liste.any? %>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0" style="font-size:.85rem;">
+            <thead class="table-light">
+              <tr>
+                <th style="width:2rem;">#</th>
+                <th>Description</th>
+                <th>Localisation</th>
+                <th>Nature</th>
+                <th>Priorité</th>
+                <th>Responsable</th>
+                <th>Délai</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @pv_visite.points_liste.each_with_index do |pt, i| %>
+                <% nat = pt[:nature] || "defaut"
+                   pri = pt[:priorite] || "normal"
+                   sta = pt[:statut] || "ouvert"
+                   sta_color = sta == "résolu" ? "success" : sta == "en cours" ? "warning" : "secondary" %>
+                <tr>
+                  <td class="text-muted"><%= i + 1 %></td>
+                  <td><%= pt[:description] %></td>
+                  <td class="text-muted"><%= pt[:localisation].presence || "—" %></td>
+                  <td>
+                    <span class="badge bg-<%= nature_colors[nat] || 'secondary' %>-subtle text-<%= nature_colors[nat] || 'secondary' %> border" style="font-size:.65rem;">
+                      <%= nature_labels[nat] || nat %>
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge bg-<%= priorite_colors[pri] || 'secondary' %>-subtle text-<%= priorite_colors[pri] || 'secondary' %> border" style="font-size:.65rem;">
+                      <%= pri.capitalize %>
+                    </span>
+                  </td>
+                  <td class="text-muted"><%= pt[:responsable].presence || "—" %></td>
+                  <td class="text-muted"><%= pt[:delai].presence || "—" %></td>
+                  <td>
+                    <span class="badge bg-<%= sta_color %>-subtle text-<%= sta_color %> border" style="font-size:.65rem;">
+                      <%= sta.capitalize %>
+                    </span>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-muted small py-2"><i class="bi bi-check-circle text-success me-1"></i>Aucun point constaté.</div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── Section 6 : Décisions ── %>
+  <% if @pv_visite.decisions_liste.any? %>
+    <div class="card border-0 shadow-sm rounded-3 mb-3">
+      <div class="card-header bg-transparent border-bottom px-4 py-3 d-flex align-items-center">
+        <h6 class="mb-0 fw-semibold" style="color:#1e3a5f;"><i class="bi bi-check2-square me-2"></i>Décisions actées</h6>
+        <span class="ms-2 badge bg-success-subtle text-success border"><%= @pv_visite.decisions_liste.size %></span>
+      </div>
+      <div class="card-body px-4 py-3">
+        <div class="d-flex flex-column gap-2">
+          <% @pv_visite.decisions_liste.each_with_index do |d, i| %>
+            <div class="d-flex align-items-start gap-3 py-2 <%= 'border-top' if i > 0 %> small">
+              <span class="badge bg-success-subtle text-success border flex-shrink-0 mt-1" style="font-size:.65rem;">D<%= i + 1 %></span>
+              <div class="flex-grow-1">
+                <div class="fw-medium"><%= d[:description] %></div>
+                <div class="text-muted mt-1">
+                  <% if d[:responsable].present? %><i class="bi bi-person me-1"></i><%= d[:responsable] %><% end %>
+                  <% if d[:delai].present? %><i class="bi bi-calendar3 ms-2 me-1"></i><%= d[:delai] %><% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# ── Section 7 : Prochaine visite ── %>
+  <% if @pv_visite.prochaine_visite.present? %>
+    <div class="card border-0 shadow-sm rounded-3 mb-3">
+      <div class="card-body px-4 py-3 d-flex align-items-center gap-3 small">
+        <i class="bi bi-calendar-event text-primary fs-5"></i>
+        <div>
+          <div class="text-muted">Prochaine visite planifiée</div>
+          <div class="fw-semibold">
+            <%= @pv_visite.prochaine_visite.strftime('%d/%m/%Y') %>
+            <% if @pv_visite.prochaine_visite_heure.present? %>à <%= @pv_visite.prochaine_visite_heure %><% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# ── Statut envoi ── %>
+  <% if @pv_visite.envoye? %>
+    <div class="alert alert-success d-flex align-items-center gap-3 border-0 rounded-3">
+      <i class="bi bi-send-check-fill fs-5"></i>
+      <div class="small">
+        <div class="fw-semibold">PV envoyé</div>
+        <div>Le propriétaire et l'entrepreneur ont reçu un lien de consultation.</div>
+      </div>
+    </div>
+  <% end %>
+
+</div>
