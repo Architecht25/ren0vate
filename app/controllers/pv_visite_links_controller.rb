@@ -1,4 +1,4 @@
-class PvVisteLinksController < ApplicationController
+class PvVisiteLinksController < ApplicationController
   # Vue publique lecture seule — sans authentification
   skip_before_action :authenticate_user!, raise: false
 
