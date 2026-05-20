@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_20_110000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_20_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -760,19 +760,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_110000) do
   end
 
   create_table "pv_receptions", force: :cascade do |t|
+    t.text "absents"
     t.text "commentaire_architect"
     t.text "commentaire_entrepreneur"
     t.text "commentaire_owner"
+    t.string "coordinateur_sps"
     t.datetime "created_at", null: false
     t.date "date_reception"
     t.string "email_architect"
     t.string "email_entrepreneur"
     t.string "email_owner"
+    t.string "heure_reception"
     t.date "legal_archive_until"
+    t.jsonb "lots_reception", default: []
+    t.string "meteo"
     t.string "nom_architect"
     t.string "nom_entrepreneur"
     t.string "nom_owner"
     t.text "observations"
+    t.text "presents"
     t.bigint "project_id", null: false
     t.text "reserves_snapshot"
     t.datetime "sent_architect_at"

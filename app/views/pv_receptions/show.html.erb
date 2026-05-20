@@ -18,7 +18,15 @@
       <%= link_to print_project_pv_reception_path(@project), target: "_blank", class: "btn btn-outline-secondary btn-sm" do %>
         <i class="bi bi-printer me-1"></i>Imprimer / PDF
       <% end %>
-      <% if @project.user_id == current_user.id %>
+      <%
+        has_arch     = @project.project_members.active.where(role: "architect").exists?
+        is_creator   = if has_arch
+          @project.project_members.active.where(user: current_user, role: "architect").exists?
+        else
+          @project.user_id == current_user.id
+        end
+      %>
+      <% if is_creator %>
         <%= button_to project_pv_reception_path(@project), method: :delete,
             form: { data: { turbo_confirm: "Supprimer ce PV ? Cette action est irréversible." } },
             class: "btn btn-outline-danger btn-sm" do %>
@@ -39,7 +47,7 @@
         — PV finalisé le <%= @pv.updated_at.strftime('%d/%m/%Y à %H:%M') %>
       <% end %>
     </div>
-    <% if @project.user_id == current_user.id && !@pv.finalise? %>
+    <% if is_creator && !@pv.finalise? %>
       <div class="ms-auto">
         <%= button_to send_signatures_project_pv_reception_path(@project), method: :post,
             class: "btn btn-primary btn-sm" do %>
@@ -53,7 +61,7 @@
   <div class="row g-4">
 
     <!-- ═══════════════════════════════════════════════════════════════════════ -->
-    <!-- COLONNE GAUCHE : informations PV                                       -->
+    <!-- COLONNE GAUCHE                                                         -->
     <!-- ═══════════════════════════════════════════════════════════════════════ -->
     <div class="col-lg-7">
 
@@ -74,12 +82,30 @@
               <div class="small text-muted">Adresse du bien</div>
               <div><%= @project.property&.adresse.presence || "—" %></div>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-4">
               <div class="small text-muted">Date de réception</div>
               <div class="fw-semibold">
                 <%= @pv.date_reception ? @pv.date_reception.strftime('%d/%m/%Y') : '—' %>
               </div>
             </div>
+            <% if @pv.heure_reception.present? %>
+              <div class="col-sm-2">
+                <div class="small text-muted">Heure</div>
+                <div class="fw-semibold"><%= @pv.heure_reception %></div>
+              </div>
+            <% end %>
+            <% if @pv.meteo.present? %>
+              <div class="col-sm-3">
+                <div class="small text-muted">Météo</div>
+                <div><%= @pv.meteo %></div>
+              </div>
+            <% end %>
+            <% if @pv.coordinateur_sps.present? %>
+              <div class="col-sm-6">
+                <div class="small text-muted">Coordinateur SPS</div>
+                <div><%= @pv.coordinateur_sps %></div>
+              </div>
+            <% end %>
             <div class="col-sm-6">
               <div class="small text-muted">PV créé le</div>
               <div><%= @pv.created_at.strftime('%d/%m/%Y à %H:%M') %></div>
@@ -93,6 +119,75 @@
           </div>
         </div>
       </div>
+
+      <!-- ─── Participants ──────────────────────────────────────────────────── -->
+      <% if @pv.presents.present? || @pv.absents.present? %>
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-transparent border-bottom py-3 px-4">
+            <h5 class="mb-0 fw-normal text-primary-custom">
+              <i class="bi bi-people me-2"></i>Participants
+            </h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="row g-3 small">
+              <% if @pv.presents.present? %>
+                <div class="col-sm-6">
+                  <div class="text-muted mb-1"><i class="bi bi-person-check-fill text-success me-1"></i>Présents</div>
+                  <div class="bg-light rounded-3 px-3 py-2"><%= simple_format @pv.presents %></div>
+                </div>
+              <% end %>
+              <% if @pv.absents.present? %>
+                <div class="col-sm-6">
+                  <div class="text-muted mb-1"><i class="bi bi-person-x-fill text-danger me-1"></i>Absents / excusés</div>
+                  <div class="bg-light rounded-3 px-3 py-2"><%= simple_format @pv.absents %></div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- ─── Lots réceptionnés ─────────────────────────────────────────────── -->
+      <% lots = @pv.lots_reception_liste %>
+      <% if lots.any? %>
+        <%
+          statut_labels  = { "accepte" => ["success","bi-check-circle-fill","Accepté"],
+                             "accepte_avec_reserves" => ["warning","bi-exclamation-triangle-fill","Accepté avec réserves"],
+                             "refuse"  => ["danger","bi-x-circle-fill","Refusé"] }
+        %>
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-transparent border-bottom py-3 px-4 d-flex align-items-center">
+            <h5 class="mb-0 fw-normal text-primary-custom">
+              <i class="bi bi-layers me-2"></i>Lots réceptionnés
+            </h5>
+            <span class="ms-2 badge bg-secondary-subtle text-secondary border"><%= lots.size %></span>
+          </div>
+          <div class="card-body p-4">
+            <div class="d-flex flex-column gap-2">
+              <% lots.each do |lot| %>
+                <% sta = lot[:statut_reception] || "accepte"; slabel = statut_labels[sta] || statut_labels["accepte"] %>
+                <div class="border rounded-3 p-3 small">
+                  <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <% if lot[:numero].present? %>
+                      <span class="badge bg-primary-subtle text-primary border" style="font-size:.65rem;">Lot <%= lot[:numero] %></span>
+                    <% end %>
+                    <span class="fw-semibold"><%= lot[:intitule].presence || "—" %></span>
+                    <% if lot[:entreprise].present? %>
+                      <span class="text-muted">· <%= lot[:entreprise] %></span>
+                    <% end %>
+                    <span class="ms-auto text-<%= slabel[0] %>">
+                      <i class="bi <%= slabel[1] %> me-1"></i><%= slabel[2] %>
+                    </span>
+                  </div>
+                  <% if lot[:observations].present? %>
+                    <div class="text-muted mt-1 ps-1"><%= lot[:observations] %></div>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
 
       <!-- ─── Réserves (snapshot) ────────────────────────────────────────────── -->
       <% reserves = @pv.reserves_liste %>
@@ -137,10 +232,11 @@
     </div><!-- /col gauche -->
 
     <!-- ═══════════════════════════════════════════════════════════════════════ -->
-    <!-- COLONNE DROITE : signatures                                            -->
+    <!-- COLONNE DROITE : signatures + garanties                                -->
     <!-- ═══════════════════════════════════════════════════════════════════════ -->
     <div class="col-lg-5">
 
+      <!-- ─── Signatures ────────────────────────────────────────────────────── -->
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-transparent border-bottom py-3 px-4">
           <h5 class="mb-0 fw-normal text-primary-custom">
@@ -162,23 +258,17 @@
                 <div class="d-flex align-items-center gap-2 mb-1">
                   <span class="badge bg-primary-subtle text-primary border" style="font-size:0.65rem;">Maître d'ouvrage</span>
                   <% if @pv.signed_owner? %>
-                    <span class="badge bg-success" style="font-size:0.65rem;">
-                      <i class="bi bi-check me-1"></i>Signé
-                    </span>
+                    <span class="badge bg-success" style="font-size:0.65rem;"><i class="bi bi-check me-1"></i>Signé</span>
                   <% end %>
                 </div>
                 <div class="fw-medium small"><%= @pv.nom_owner.presence || @pv.email_owner %></div>
                 <% if @pv.signed_owner? %>
-                  <div class="text-muted" style="font-size:0.75rem;">
-                    Le <%= @pv.signed_owner_at.strftime('%d/%m/%Y à %H:%M') %>
-                  </div>
+                  <div class="text-muted" style="font-size:0.75rem;">Le <%= @pv.signed_owner_at.strftime('%d/%m/%Y à %H:%M') %></div>
                   <% if @pv.commentaire_owner.present? %>
                     <div class="fst-italic text-muted mt-1" style="font-size:0.75rem;">"<%= @pv.commentaire_owner %>"</div>
                   <% end %>
                 <% elsif @pv.sent_owner_at %>
-                  <div class="text-muted" style="font-size:0.75rem;">
-                    <i class="bi bi-send me-1"></i>Invite envoyée le <%= @pv.sent_owner_at.strftime('%d/%m/%Y') %>
-                  </div>
+                  <div class="text-muted" style="font-size:0.75rem;"><i class="bi bi-send me-1"></i>Invite envoyée le <%= @pv.sent_owner_at.strftime('%d/%m/%Y') %></div>
                 <% else %>
                   <div class="text-muted" style="font-size:0.75rem;">En attente d'envoi</div>
                 <% end %>
@@ -200,23 +290,17 @@
                   <div class="d-flex align-items-center gap-2 mb-1">
                     <span class="badge bg-info-subtle text-info border" style="font-size:0.65rem;">Architecte</span>
                     <% if @pv.signed_architect? %>
-                      <span class="badge bg-success" style="font-size:0.65rem;">
-                        <i class="bi bi-check me-1"></i>Signé
-                      </span>
+                      <span class="badge bg-success" style="font-size:0.65rem;"><i class="bi bi-check me-1"></i>Signé</span>
                     <% end %>
                   </div>
                   <div class="fw-medium small"><%= @pv.nom_architect.presence || @pv.email_architect %></div>
                   <% if @pv.signed_architect? %>
-                    <div class="text-muted" style="font-size:0.75rem;">
-                      Le <%= @pv.signed_architect_at.strftime('%d/%m/%Y à %H:%M') %>
-                    </div>
+                    <div class="text-muted" style="font-size:0.75rem;">Le <%= @pv.signed_architect_at.strftime('%d/%m/%Y à %H:%M') %></div>
                     <% if @pv.commentaire_architect.present? %>
                       <div class="fst-italic text-muted mt-1" style="font-size:0.75rem;">"<%= @pv.commentaire_architect %>"</div>
                     <% end %>
                   <% elsif @pv.sent_architect_at %>
-                    <div class="text-muted" style="font-size:0.75rem;">
-                      <i class="bi bi-send me-1"></i>Invite envoyée le <%= @pv.sent_architect_at.strftime('%d/%m/%Y') %>
-                    </div>
+                    <div class="text-muted" style="font-size:0.75rem;"><i class="bi bi-send me-1"></i>Invite envoyée le <%= @pv.sent_architect_at.strftime('%d/%m/%Y') %></div>
                   <% else %>
                     <div class="text-muted" style="font-size:0.75rem;">En attente d'envoi</div>
                   <% end %>
@@ -239,23 +323,17 @@
                   <div class="d-flex align-items-center gap-2 mb-1">
                     <span class="badge bg-warning-subtle text-warning border" style="font-size:0.65rem;">Entrepreneur</span>
                     <% if @pv.signed_entrepreneur? %>
-                      <span class="badge bg-success" style="font-size:0.65rem;">
-                        <i class="bi bi-check me-1"></i>Signé
-                      </span>
+                      <span class="badge bg-success" style="font-size:0.65rem;"><i class="bi bi-check me-1"></i>Signé</span>
                     <% end %>
                   </div>
                   <div class="fw-medium small"><%= @pv.nom_entrepreneur.presence || @pv.email_entrepreneur %></div>
                   <% if @pv.signed_entrepreneur? %>
-                    <div class="text-muted" style="font-size:0.75rem;">
-                      Le <%= @pv.signed_entrepreneur_at.strftime('%d/%m/%Y à %H:%M') %>
-                    </div>
+                    <div class="text-muted" style="font-size:0.75rem;">Le <%= @pv.signed_entrepreneur_at.strftime('%d/%m/%Y à %H:%M') %></div>
                     <% if @pv.commentaire_entrepreneur.present? %>
                       <div class="fst-italic text-muted mt-1" style="font-size:0.75rem;">"<%= @pv.commentaire_entrepreneur %>"</div>
                     <% end %>
                   <% elsif @pv.sent_entrepreneur_at %>
-                    <div class="text-muted" style="font-size:0.75rem;">
-                      <i class="bi bi-send me-1"></i>Invite envoyée le <%= @pv.sent_entrepreneur_at.strftime('%d/%m/%Y') %>
-                    </div>
+                    <div class="text-muted" style="font-size:0.75rem;"><i class="bi bi-send me-1"></i>Invite envoyée le <%= @pv.sent_entrepreneur_at.strftime('%d/%m/%Y') %></div>
                   <% else %>
                     <div class="text-muted" style="font-size:0.75rem;">En attente d'envoi</div>
                   <% end %>
@@ -264,8 +342,56 @@
             </div>
           <% end %>
 
-        </div><!-- /list-group -->
-      </div><!-- /card signatures -->
+        </div>
+      </div>
+
+      <!-- ─── Délais de garantie ─────────────────────────────────────────────── -->
+      <% if @pv.date_reception.present? %>
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-transparent border-bottom py-3 px-4">
+            <h5 class="mb-0 fw-normal text-primary-custom">
+              <i class="bi bi-shield-check me-2"></i>Délais de garantie
+            </h5>
+          </div>
+          <div class="list-group list-group-flush small">
+            <div class="list-group-item px-4 py-3">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <div class="fw-semibold">Garantie biennale</div>
+                  <div class="text-muted" style="font-size:0.75rem;">Équipements dissociables (art. 1792-3 C.civ.)</div>
+                </div>
+                <span class="badge bg-info-subtle text-info border">
+                  jusqu'au <%= @pv.garantie_biennale_jusqu_au.strftime('%d/%m/%Y') %>
+                </span>
+              </div>
+            </div>
+            <div class="list-group-item px-4 py-3">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <div class="fw-semibold">Garantie décennale</div>
+                  <div class="text-muted" style="font-size:0.75rem;">Solidité et étanchéité (art. 1792 C.civ.)</div>
+                </div>
+                <span class="badge bg-primary-subtle text-primary border">
+                  jusqu'au <%= @pv.garantie_decennale_jusqu_au.strftime('%d/%m/%Y') %>
+                </span>
+              </div>
+            </div>
+            <% if @pv.legal_archive_until.present? %>
+              <div class="list-group-item px-4 py-3">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div>
+                    <div class="fw-semibold">Archivage légal</div>
+                    <div class="text-muted" style="font-size:0.75rem;">PV conservé et non supprimable</div>
+                  </div>
+                  <span class="badge bg-secondary-subtle text-secondary border">
+                    jusqu'au <%= @pv.legal_archive_until.strftime('%d/%m/%Y') %>
+                  </span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
 
       <!-- ─── Infos légales ──────────────────────────────────────────────────── -->
       <div class="card border-0 shadow-sm mb-4">
@@ -280,5 +406,5 @@
 
     </div><!-- /col droite -->
 
-  </div><!-- /row -->
+  </div>
 </div>

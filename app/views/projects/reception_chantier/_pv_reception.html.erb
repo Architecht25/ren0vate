@@ -1,6 +1,15 @@
 <%# Partial : PV de réception numérique %>
 
-<% pv = @project.pv_reception %>
+<%
+  pv = @project.pv_reception
+  has_architect = @project.project_members.active.where(role: "architect").exists?
+  is_creator = if has_architect
+    @project.project_members.active.where(user: current_user, role: "architect").exists?
+  else
+    @project.user_id == current_user.id
+  end
+%>
+
 <div class="card border-0 shadow-sm mb-4" id="pv-reception">
   <div class="card-header bg-transparent border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
     <div>
@@ -22,7 +31,7 @@
         <%= link_to project_pv_reception_path(@project), class: "btn btn-sm btn-outline-primary" do %>
           <i class="bi bi-eye me-1"></i>Voir le PV
         <% end %>
-      <% elsif @project.user_id == current_user.id %>
+      <% elsif is_creator %>
         <button class="btn btn-sm btn-primary" type="button"
                 data-bs-toggle="collapse" data-bs-target="#form-pv-<%= @project.id %>">
           <i class="bi bi-plus me-1"></i>Créer le PV
@@ -31,36 +40,100 @@
     </div>
   </div>
 
-  <%# Formulaire de création du PV (owner seulement) %>
-  <% if pv.nil? && @project.user_id == current_user.id %>
+  <%# Formulaire de création du PV %>
+  <% if pv.nil? && is_creator %>
     <div class="collapse" id="form-pv-<%= @project.id %>">
       <%= form_with url: project_pv_reception_path(@project), method: :post,
                     data: { turbo: false } do |f| %>
-        <div class="p-3 border-bottom bg-light">
-          <div class="row g-2">
+        <div class="p-4 border-bottom bg-light">
+
+          <%# ── Informations générales ── %>
+          <div class="fw-semibold small text-uppercase text-muted mb-2" style="letter-spacing:.05em;">
+            Informations générales
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-sm-4">
+              <label class="form-label small fw-semibold">Date de réception <span class="text-danger">*</span></label>
+              <input type="date" name="pv_reception[date_reception]" class="form-control form-control-sm rounded-3"
+                     value="<%= Date.current %>">
+            </div>
+            <div class="col-sm-3">
+              <label class="form-label small fw-semibold">Heure</label>
+              <input type="time" name="pv_reception[heure_reception]" class="form-control form-control-sm rounded-3">
+            </div>
+            <div class="col-sm-5">
+              <label class="form-label small fw-semibold">Météo</label>
+              <select name="pv_reception[meteo]" class="form-select form-select-sm rounded-3">
+                <option value="">—</option>
+                <% %w[Ensoleillé Nuageux Pluvieux Neige Vent].each do |m| %>
+                  <option value="<%= m %>"><%= m %></option>
+                <% end %>
+              </select>
+            </div>
             <div class="col-sm-6">
-              <%= f.label :date_reception, "Date de réception", class: "form-label small fw-semibold" %>
-              <%= f.date_field :date_reception, class: "form-control form-control-sm rounded-3",
-                  value: Date.current, name: "pv_reception[date_reception]" %>
+              <label class="form-label small fw-semibold">Coordinateur SPS</label>
+              <input type="text" name="pv_reception[coordinateur_sps]" class="form-control form-control-sm rounded-3"
+                     placeholder="Nom du coordinateur sécurité (si présent)">
             </div>
-            <div class="col-12">
-              <%= f.label :observations, "Observations générales (facultatif)", class: "form-label small fw-semibold" %>
-              <%= f.text_area :observations, class: "form-control form-control-sm rounded-3",
-                  rows: 2, placeholder: "Travaux réalisés conformément aux plans. Réserves listées ci-dessus…",
-                  name: "pv_reception[observations]" %>
+          </div>
+
+          <%# ── Participants ── %>
+          <div class="fw-semibold small text-uppercase text-muted mb-2 mt-1" style="letter-spacing:.05em;">
+            Participants
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-sm-6">
+              <label class="form-label small fw-semibold">Présents</label>
+              <textarea name="pv_reception[presents]" class="form-control form-control-sm rounded-3" rows="2"
+                        placeholder="Noms et qualités des présents…"></textarea>
             </div>
-            <div class="col-12 small text-muted">
-              <i class="bi bi-info-circle me-1"></i>
-              Les parties identifiées (maître d'ouvrage, architecte, entrepreneur) seront détectées
-              depuis les membres actifs du projet.
+            <div class="col-sm-6">
+              <label class="form-label small fw-semibold">Absents / excusés</label>
+              <textarea name="pv_reception[absents]" class="form-control form-control-sm rounded-3" rows="2"
+                        placeholder="Noms et qualités des absents…"></textarea>
             </div>
-            <div class="col-12 d-flex justify-content-end gap-2">
-              <button type="button" class="btn btn-sm btn-outline-secondary rounded-3"
-                      data-bs-toggle="collapse" data-bs-target="#form-pv-<%= @project.id %>">
-                Annuler
-              </button>
-              <%= f.submit "Créer le PV de réception", class: "btn btn-sm btn-primary rounded-3" %>
+          </div>
+
+          <%# ── Lots réceptionnés ── %>
+          <div class="d-flex align-items-center gap-2 mb-2 mt-1">
+            <div class="fw-semibold small text-uppercase text-muted" style="letter-spacing:.05em;">Lots réceptionnés</div>
+            <button type="button" class="btn btn-outline-secondary btn-sm rounded-3 ms-auto"
+                    id="btn-add-lot-recep-<%= @project.id %>"
+                    onclick="addLotReception('<%= @project.id %>')">
+              <i class="bi bi-plus me-1"></i>Ajouter un lot
+            </button>
+          </div>
+          <div id="lots-recep-container-<%= @project.id %>" class="d-flex flex-column gap-2 mb-3">
+            <div class="text-muted small fst-italic py-1" id="lots-recep-empty-<%= @project.id %>">
+              Aucun lot ajouté. Cliquez sur "Ajouter un lot" pour décrire chaque corps de métier réceptionné.
             </div>
+          </div>
+          <input type="hidden" name="pv_reception[lots_reception_json]"
+                 id="lots-recep-json-<%= @project.id %>" value="[]">
+
+          <%# ── Observations ── %>
+          <div class="fw-semibold small text-uppercase text-muted mb-2 mt-1" style="letter-spacing:.05em;">
+            Observations générales
+          </div>
+          <div class="mb-3">
+            <textarea name="pv_reception[observations]" class="form-control form-control-sm rounded-3" rows="2"
+                      placeholder="Travaux réalisés conformément aux plans. Réserves listées ci-dessus…"></textarea>
+          </div>
+
+          <div class="small text-muted mb-3">
+            <i class="bi bi-info-circle me-1"></i>
+            Les parties (maître d'ouvrage, architecte, entrepreneur) sont détectées depuis les membres actifs du projet.
+            Les réserves ouvertes sont automatiquement jointes au PV.
+          </div>
+
+          <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-3"
+                    data-bs-toggle="collapse" data-bs-target="#form-pv-<%= @project.id %>">
+              Annuler
+            </button>
+            <button type="submit" class="btn btn-sm btn-primary rounded-3">
+              <i class="bi bi-patch-check me-1"></i>Créer le PV de réception
+            </button>
           </div>
         </div>
       <% end %>
@@ -71,13 +144,22 @@
   <% if pv %>
     <div class="card-body p-4">
       <div class="row g-3 align-items-center">
-        <div class="col-sm-6">
+        <div class="col-sm-4">
           <div class="small text-muted">Date de réception</div>
           <div class="fw-semibold">
             <%= pv.date_reception ? pv.date_reception.strftime('%d/%m/%Y') : '—' %>
+            <% if pv.heure_reception.present? %>
+              <span class="text-muted fw-normal">à <%= pv.heure_reception %></span>
+            <% end %>
           </div>
         </div>
-        <div class="col-sm-6">
+        <% if pv.lots_reception_liste.any? %>
+          <div class="col-sm-4">
+            <div class="small text-muted">Lots réceptionnés</div>
+            <div class="fw-semibold"><%= pv.lots_reception_liste.size %> lot<%= 's' if pv.lots_reception_liste.size > 1 %></div>
+          </div>
+        <% end %>
+        <div class="col-sm-4">
           <div class="small text-muted">Signatures</div>
           <div class="d-flex gap-1 flex-wrap mt-1">
             <% [
@@ -111,12 +193,96 @@
     <div class="card-body p-4 text-center text-muted small">
       <i class="bi bi-patch-check fs-4 d-block mb-2 text-secondary"></i>
       Aucun PV créé pour ce chantier.
-      <% if @project.user_id == current_user.id %>
+      <% if is_creator %>
         <div class="mt-2" style="font-size:0.78rem;">
-          Créez le PV pour recueillir les signatures des 3 parties (maître d'ouvrage, architecte, entrepreneur).
+          Créez le PV pour recueillir les signatures des parties (maître d'ouvrage, architecte, entrepreneur).
         </div>
       <% end %>
     </div>
   <% end %>
 
 </div>
+
+<script>
+(function() {
+  var lotsRecep = [];
+  var projId = '<%= @project.id %>';
+
+  var STATUTS = {
+    'accepte':               'Accepté',
+    'accepte_avec_reserves': 'Accepté avec réserves',
+    'refuse':                'Refusé'
+  };
+
+  function syncJson() {
+    var el = document.getElementById('lots-recep-json-' + projId);
+    if (el) el.value = JSON.stringify(lotsRecep);
+  }
+
+  function renderLots() {
+    var container = document.getElementById('lots-recep-container-' + projId);
+    var empty     = document.getElementById('lots-recep-empty-' + projId);
+    if (!container) return;
+    // Remove existing lot rows (keep empty notice)
+    container.querySelectorAll('.lot-recep-row').forEach(function(el) { el.remove(); });
+    empty.style.display = lotsRecep.length === 0 ? '' : 'none';
+
+    lotsRecep.forEach(function(lot, idx) {
+      var div = document.createElement('div');
+      div.className = 'lot-recep-row border rounded-3 p-2 bg-white';
+      div.innerHTML =
+        '<div class="row g-2 align-items-end">' +
+          '<div class="col-sm-1">' +
+            '<label class="form-label form-label-sm mb-1 small">N°</label>' +
+            '<input type="text" class="form-control form-control-sm" placeholder="1" value="' + (lot.numero || '') + '" ' +
+                   'onchange="updateLotRecep(' + idx + ', \'numero\', this.value)">' +
+          '</div>' +
+          '<div class="col-sm-3">' +
+            '<label class="form-label form-label-sm mb-1 small">Intitulé</label>' +
+            '<input type="text" class="form-control form-control-sm" placeholder="Gros œuvre, menuiseries…" value="' + (lot.intitule || '') + '" ' +
+                   'onchange="updateLotRecep(' + idx + ', \'intitule\', this.value)">' +
+          '</div>' +
+          '<div class="col-sm-3">' +
+            '<label class="form-label form-label-sm mb-1 small">Entreprise</label>' +
+            '<input type="text" class="form-control form-control-sm" placeholder="Nom de l\'entreprise" value="' + (lot.entreprise || '') + '" ' +
+                   'onchange="updateLotRecep(' + idx + ', \'entreprise\', this.value)">' +
+          '</div>' +
+          '<div class="col-sm-3">' +
+            '<label class="form-label form-label-sm mb-1 small">Statut réception</label>' +
+            '<select class="form-select form-select-sm" onchange="updateLotRecep(' + idx + ', \'statut_reception\', this.value)">' +
+              Object.keys(STATUTS).map(function(k) {
+                return '<option value="' + k + '"' + (lot.statut_reception === k ? ' selected' : '') + '>' + STATUTS[k] + '</option>';
+              }).join('') +
+            '</select>' +
+          '</div>' +
+          '<div class="col-sm-1 d-flex align-items-end">' +
+            '<button type="button" class="btn btn-sm btn-outline-danger w-100" onclick="removeLotRecep(' + idx + ')">' +
+              '<i class="bi bi-trash3"></i>' +
+            '</button>' +
+          '</div>' +
+          '<div class="col-12">' +
+            '<input type="text" class="form-control form-control-sm" placeholder="Observations (facultatif)" value="' + (lot.observations || '') + '" ' +
+                   'onchange="updateLotRecep(' + idx + ', \'observations\', this.value)">' +
+          '</div>' +
+        '</div>';
+      container.appendChild(div);
+    });
+    syncJson();
+  }
+
+  window.addLotReception = function(pid) {
+    if (pid !== projId) return;
+    lotsRecep.push({ numero: String(lotsRecep.length + 1), intitule: '', entreprise: '', statut_reception: 'accepte', observations: '' });
+    renderLots();
+  };
+
+  window.updateLotRecep = function(idx, field, val) {
+    if (lotsRecep[idx]) { lotsRecep[idx][field] = val; syncJson(); }
+  };
+
+  window.removeLotRecep = function(idx) {
+    lotsRecep.splice(idx, 1);
+    renderLots();
+  };
+})();
+</script>

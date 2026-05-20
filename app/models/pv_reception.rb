@@ -134,6 +134,20 @@ class PvReception < ApplicationRecord
     JSON.parse(reserves_snapshot) rescue []
   end
 
+  # ── Lots réceptionnés ────────────────────────────────────────────────────────
+  def lots_reception_liste
+    Array(lots_reception).map(&:with_indifferent_access)
+  end
+
+  # ── Dates de garantie (depuis date_reception) ────────────────────────────────
+  def garantie_biennale_jusqu_au
+    date_reception + 2.years if date_reception.present?
+  end
+
+  def garantie_decennale_jusqu_au
+    date_reception + 10.years if date_reception.present?
+  end
+
   private
 
   def generate_tokens
