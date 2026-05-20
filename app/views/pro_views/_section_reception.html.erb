@@ -12,7 +12,7 @@
           is_pv_creator = if has_arch
             @membership.role == 'architect'
           else
-            @project.user_id == current_user.id
+            @project.user_id == current_user.id || @membership.role == 'entrepreneur'
           end
         %>
         <div class="card border-0 shadow-sm rounded-3">
@@ -88,8 +88,6 @@
                     Le chantier est terminé ? Créez le procès-verbal de réception.
                   <% elsif has_arch %>
                     Le PV sera créé par l'architecte en fin de chantier.
-                  <% else %>
-                    Le PV sera créé par le propriétaire en fin de chantier.
                   <% end %>
                 </p>
                 <% if is_pv_creator %>

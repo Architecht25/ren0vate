@@ -23,7 +23,8 @@
         is_creator   = if has_arch
           @project.project_members.active.where(user: current_user, role: "architect").exists?
         else
-          @project.user_id == current_user.id
+          @project.user_id == current_user.id ||
+          @project.project_members.active.where(user: current_user, role: "entrepreneur").exists?
         end
       %>
       <% if is_creator %>

@@ -136,11 +136,12 @@ class PvReceptionsController < ApplicationController
     end
   end
 
-  # L'architecte gère le PV quand il est présent ; le propriétaire sinon.
+  # L'architecte gère le PV quand il est présent ; sinon propriétaire OU entrepreneur.
   def authorize_creator!
-    has_arch     = @project.project_members.active.where(role: "architect").exists?
-    is_architect = @project.project_members.active.where(user: current_user, role: "architect").exists?
-    is_owner     = @project.user_id == current_user.id
+    has_arch        = @project.project_members.active.where(role: "architect").exists?
+    is_architect    = @project.project_members.active.where(user: current_user, role: "architect").exists?
+    is_owner        = @project.user_id == current_user.id
+    is_entrepreneur = @project.project_members.active.where(user: current_user, role: "entrepreneur").exists?
 
     if has_arch
       unless is_architect
@@ -148,9 +149,9 @@ class PvReceptionsController < ApplicationController
                     alert: "L'architecte du projet gère le PV de réception."
       end
     else
-      unless is_owner
+      unless is_owner || is_entrepreneur
         redirect_to reception_chantier_project_path(@project),
-                    alert: "Seul le propriétaire du projet peut gérer le PV de réception."
+                    alert: "Seul le propriétaire ou l'entrepreneur peut gérer le PV de réception."
       end
     end
   end
