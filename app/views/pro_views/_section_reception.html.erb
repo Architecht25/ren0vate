@@ -6,71 +6,6 @@
           <span class="badge bg-success-subtle text-success border border-success-subtle ms-auto" style="font-size:0.68rem;">Clôture du chantier</span>
         </div>
 
-        <%# Phase réception ── %>
-        <%
-          reception_d      = phase_data_for.call('phase_reception')
-          reception_done   = required_roles.all? { |r| reception_d[r].present? }
-          reception_me     = current_role && reception_d[current_role].present?
-          reception_photos = (@photos_by_phase || {})['phase_reception'] || []
-        %>
-        <div class="card border-0 shadow-sm rounded-3 mb-3"
-             style="border:1px solid <%= reception_done ? '#a3cfbb' : '#e9ecef' %> !important;background:<%= reception_done ? '#f0faf4' : 'white' %>;">
-          <div class="card-header border-bottom pt-3 pb-2 px-4 d-flex align-items-center justify-content-between"
-               style="background:<%= reception_done ? '#d1e7dd' : 'white' %>;">
-            <h5 class="mb-0 fw-semibold" style="font-size:0.95rem;">
-              <i class="bi bi-check2-circle me-2 text-success"></i>Phase réception
-              <% if reception_done %>
-                <span class="badge bg-success ms-1" style="font-size:0.62rem;">Complète ✓</span>
-              <% end %>
-            </h5>
-            <% if reception_me %>
-              <span class="text-success" style="font-size:0.72rem;">✓ votre validation enregistrée</span>
-            <% elsif can_validate && !reception_done %>
-              <%= button_to validate_phase_project_path(@project),
-                  method: :patch,
-                  params: { phase_key: 'phase_reception' },
-                  class: "btn btn-success btn-sm",
-                  style: "font-size:0.75rem;" do %>
-                <i class="bi bi-check2 me-1"></i>Valider la réception
-              <% end %>
-            <% end %>
-          </div>
-          <div class="card-body px-4 py-3">
-            <div class="d-flex gap-2 flex-wrap mb-3">
-              <% required_roles.each do |r| %>
-                <% vdata = reception_d[r] %>
-                <div class="d-flex align-items-center gap-1 px-2 py-1 rounded-2 <%= vdata ? 'bg-success-subtle' : 'bg-light' %>"
-                     style="font-size:0.8rem;">
-                  <i class="bi <%= role_icons[r] %> text-<%= vdata ? 'success' : 'secondary' %>"></i>
-                  <span class="<%= vdata ? 'text-success fw-medium' : 'text-muted' %>"><%= role_labels[r] %></span>
-                  <% if vdata %>
-                    <i class="bi bi-check-circle-fill text-success" style="font-size:0.68rem;"></i>
-                    <span class="text-muted" style="font-size:0.68rem;"><%= Time.zone.parse(vdata['validated_at']).strftime('%d/%m') rescue '' %></span>
-                  <% else %>
-                    <i class="bi bi-clock text-muted" style="font-size:0.68rem;"></i>
-                  <% end %>
-                </div>
-              <% end %>
-            </div>
-            <% if reception_photos.any? %>
-              <div class="d-flex gap-2 flex-wrap">
-                <% reception_photos.first(6).each do |photo| %>
-                  <div class="rounded overflow-hidden flex-shrink-0" style="width:56px;height:56px;background:#dee2e6;">
-                    <% begin %>
-                      <%= image_tag rails_blob_path(photo, only_path: true),
-                            style: "width:56px;height:56px;object-fit:cover;", alt: "Réception" %>
-                    <% rescue %>
-                      <div class="w-100 h-100 d-flex align-items-center justify-content-center">
-                        <i class="bi bi-image text-muted"></i>
-                      </div>
-                    <% end %>
-                  </div>
-                <% end %>
-              </div>
-            <% end %>
-          </div>
-        </div>
-
         <%# PV DE RÉCEPTION ── %>
         <%
           has_arch   = @project.project_members.active.where(role: "architect").exists?
@@ -292,6 +227,71 @@
                 })();
                 </script>
               <% end %>
+            <% end %>
+          </div>
+        </div>
+
+        <%# Phase réception — validation ── %>
+        <%
+          reception_d      = phase_data_for.call('phase_reception')
+          reception_done   = required_roles.all? { |r| reception_d[r].present? }
+          reception_me     = current_role && reception_d[current_role].present?
+          reception_photos = (@photos_by_phase || {})['phase_reception'] || []
+        %>
+        <div class="card border-0 shadow-sm rounded-3 mt-3"
+             style="border:1px solid <%= reception_done ? '#a3cfbb' : '#e9ecef' %> !important;background:<%= reception_done ? '#f0faf4' : 'white' %>;">
+          <div class="card-header border-bottom pt-3 pb-2 px-4 d-flex align-items-center justify-content-between"
+               style="background:<%= reception_done ? '#d1e7dd' : 'white' %>;">
+            <h5 class="mb-0 fw-semibold" style="font-size:0.95rem;">
+              <i class="bi bi-check2-circle me-2 text-success"></i>Valider la phase réception
+              <% if reception_done %>
+                <span class="badge bg-success ms-1" style="font-size:0.62rem;">Complète ✓</span>
+              <% end %>
+            </h5>
+            <% if reception_me %>
+              <span class="text-success" style="font-size:0.72rem;">✓ votre validation enregistrée</span>
+            <% elsif can_validate && !reception_done %>
+              <%= button_to validate_phase_project_path(@project),
+                  method: :patch,
+                  params: { phase_key: 'phase_reception' },
+                  class: "btn btn-success btn-sm",
+                  style: "font-size:0.75rem;" do %>
+                <i class="bi bi-check2 me-1"></i>Valider la réception
+              <% end %>
+            <% end %>
+          </div>
+          <div class="card-body px-4 py-3">
+            <div class="d-flex gap-2 flex-wrap mb-3">
+              <% required_roles.each do |r| %>
+                <% vdata = reception_d[r] %>
+                <div class="d-flex align-items-center gap-1 px-2 py-1 rounded-2 <%= vdata ? 'bg-success-subtle' : 'bg-light' %>"
+                     style="font-size:0.8rem;">
+                  <i class="bi <%= role_icons[r] %> text-<%= vdata ? 'success' : 'secondary' %>"></i>
+                  <span class="<%= vdata ? 'text-success fw-medium' : 'text-muted' %>"><%= role_labels[r] %></span>
+                  <% if vdata %>
+                    <i class="bi bi-check-circle-fill text-success" style="font-size:0.68rem;"></i>
+                    <span class="text-muted" style="font-size:0.68rem;"><%= Time.zone.parse(vdata['validated_at']).strftime('%d/%m') rescue '' %></span>
+                  <% else %>
+                    <i class="bi bi-clock text-muted" style="font-size:0.68rem;"></i>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+            <% if reception_photos.any? %>
+              <div class="d-flex gap-2 flex-wrap">
+                <% reception_photos.first(6).each do |photo| %>
+                  <div class="rounded overflow-hidden flex-shrink-0" style="width:56px;height:56px;background:#dee2e6;">
+                    <% begin %>
+                      <%= image_tag rails_blob_path(photo, only_path: true),
+                            style: "width:56px;height:56px;object-fit:cover;", alt: "Réception" %>
+                    <% rescue %>
+                      <div class="w-100 h-100 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-image text-muted"></i>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
             <% end %>
           </div>
         </div>
