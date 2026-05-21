@@ -168,6 +168,7 @@ Rails.application.routes.draw do
   post 'ocr/scan_peb',                to: 'ocr#scan_peb',           as: :ocr_scan_peb
   post 'ocr/scan_devis',              to: 'ocr#scan_devis',             as: :ocr_scan_devis
   post 'ocr/analyser_devis',          to: 'ocr#analyser_devis',         as: :ocr_analyser_devis
+  post 'ocr/optimiser_budget',        to: 'ocr#optimiser_budget',       as: :ocr_optimiser_budget
   post 'ocr/scan_bordereau_chassis',  to: 'ocr#scan_bordereau_chassis', as: :ocr_scan_bordereau_chassis
   post 'ocr/scan_label_energetique',  to: 'ocr#scan_label_energetique', as: :ocr_scan_label_energetique
   post 'ocr/scan_existing/:id',       to: 'ocr#scan_existing',      as: :ocr_scan_existing

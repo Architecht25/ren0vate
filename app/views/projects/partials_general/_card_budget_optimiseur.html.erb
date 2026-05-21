@@ -1,0 +1,264 @@
+<%# Card IA Économies Chantier — analyse des devis pour proposer des pistes d'économies %>
+<%
+  devis_count = (@project.devis_donnees.par_categorie('entrepreneur').avec_montant.count rescue 0)
+%>
+
+<div class="card border-0 rounded-4 overflow-hidden"
+     style="background: linear-gradient(135deg, #1e3a5f 0%, #0f5e4a 100%);">
+
+  <!-- En-tête commercial -->
+  <div class="card-header border-0 py-3 px-4" style="background: transparent;">
+    <div class="d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-2">
+        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+             style="width:40px;height:40px;background:rgba(255,255,255,0.15);">
+          <i class="bi bi-piggy-bank-fill text-white fs-6"></i>
+        </div>
+        <div>
+          <h5 class="mb-0 fw-semibold text-white" style="font-size:0.95rem;">
+            IA Économies Chantier
+          </h5>
+          <p class="mb-0 text-white-50" style="font-size:0.72rem;">
+            Alternatives matériaux · Alertes hausse pétrolière · Regroupements de lots
+          </p>
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge rounded-pill"
+              style="background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.9); font-size:0.68rem;">
+          <i class="bi bi-stars me-1"></i>IA
+        </span>
+        <% if devis_count > 0 %>
+          <span class="badge rounded-pill"
+                style="background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.8); font-size:0.68rem;">
+            <%= devis_count %> devis
+          </span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body px-4 pb-4 pt-2">
+
+    <% if devis_count == 0 %>
+      <!-- État vide -->
+      <div class="rounded-3 py-3 px-4 text-center" style="background:rgba(255,255,255,0.08);">
+        <i class="bi bi-file-earmark-text text-white-50 fs-3 d-block mb-2"></i>
+        <p class="text-white-50 mb-0" style="font-size:0.8rem;">
+          Uploadez au moins un devis entrepreneur (onglet Comparateur de devis) pour activer l'analyse.
+        </p>
+      </div>
+    <% else %>
+
+      <!-- Pitch rapide -->
+      <div class="row g-2 mb-3">
+        <div class="col-md-4">
+          <div class="rounded-3 p-3 text-center" style="background:rgba(255,255,255,0.08);">
+            <i class="bi bi-arrow-down-circle-fill text-success fs-5 d-block mb-1"></i>
+            <p class="text-white mb-0" style="font-size:0.72rem;">Alternatives matériaux<br>à performance équivalente</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="rounded-3 p-3 text-center" style="background:rgba(255,255,255,0.08);">
+            <i class="bi bi-fuel-pump-fill text-warning fs-5 d-block mb-1"></i>
+            <p class="text-white mb-0" style="font-size:0.72rem;">Alertes hausse<br>dérivés pétroliers</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="rounded-3 p-3 text-center" style="background:rgba(255,255,255,0.08);">
+            <i class="bi bi-collection-fill text-info fs-5 d-block mb-1"></i>
+            <p class="text-white mb-0" style="font-size:0.72rem;">Regroupements de lots<br>pour négocier</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bouton déclencheur -->
+      <div class="text-center mb-2">
+        <button type="button"
+                id="budget-optimiser-btn"
+                class="btn btn-light fw-semibold px-4"
+                data-project-id="<%= @project.id %>"
+                style="font-size:0.85rem; border-radius:2rem;">
+          <i class="bi bi-lightning-charge-fill text-warning me-2"></i>Analyser mes devis — trouver des économies
+        </button>
+        <p class="text-white-50 mt-2 mb-0" style="font-size:0.7rem;">
+          Analyse en ~20 secondes · Basé sur <%= WorkType::CATALOGUE.size %> références de prix du marché belge
+        </p>
+      </div>
+
+      <!-- Zone résultats -->
+      <div id="budget-optimiser-result" style="display:none;"></div>
+
+    <% end %>
+  </div>
+</div>
+
+<script nonce="<%= content_security_policy_nonce %>">
+document.getElementById('budget-optimiser-btn')?.addEventListener('click', function() {
+  const btn    = this;
+  const result = document.getElementById('budget-optimiser-result');
+  const csrf   = document.querySelector('meta[name="csrf-token"]').content;
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Analyse en cours…';
+  result.style.display = 'none';
+
+  fetch('<%= ocr_optimiser_budget_path %>', {
+    method: 'POST',
+    headers: {
+      'X-CSRF-Token': csrf,
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: new URLSearchParams({ project_id: btn.dataset.projectId })
+  })
+  .then(r => r.json())
+  .then(data => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-lightning-charge-fill text-warning me-2"></i>Relancer l\'analyse';
+    result.style.display = 'block';
+
+    if (!data.success) {
+      result.innerHTML = `<div class="alert alert-warning rounded-3 py-2 mb-0 mt-3" style="font-size:0.78rem;">${data.error || 'Erreur'}</div>`;
+      return;
+    }
+
+    const score = data.score_optimisation || 0;
+    const scoreColor = score >= 70 ? '#22c55e' : score >= 45 ? '#f59e0b' : '#ef4444';
+    const scoreLabel = score >= 70 ? 'Devis bien optimisé' : score >= 45 ? 'Potentiel modéré' : 'Fort potentiel d\'économies';
+
+    // Score gauge
+    const scoreHtml = `
+      <div class="rounded-3 p-3 mb-3" style="background:rgba(255,255,255,0.1);">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <span class="text-white fw-semibold" style="font-size:0.82rem;">Score d'optimisation</span>
+          <span class="fw-bold" style="color:${scoreColor}; font-size:1.1rem;">${score}/100</span>
+        </div>
+        <div class="progress mb-1" style="height:8px; background:rgba(255,255,255,0.15); border-radius:4px;">
+          <div class="progress-bar" style="width:${score}%; background:${scoreColor}; border-radius:4px;"></div>
+        </div>
+        <p class="mb-0" style="font-size:0.72rem; color:rgba(255,255,255,0.7);">${scoreLabel}</p>
+      </div>
+    `;
+
+    // Synthèse
+    const syntheseHtml = data.synthese ? `
+      <div class="rounded-3 p-3 mb-3" style="background:rgba(255,255,255,0.08);">
+        <p class="text-white mb-0" style="font-size:0.82rem;">${data.synthese}</p>
+      </div>
+    ` : '';
+
+    // Économies estimées
+    const econHtml = data.economies_estimees > 0 ? `
+      <div class="rounded-3 p-3 mb-3 d-flex align-items-center gap-3" style="background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3);">
+        <i class="bi bi-piggy-bank-fill text-success fs-4 flex-shrink-0"></i>
+        <div>
+          <p class="text-white fw-semibold mb-0" style="font-size:0.9rem;">
+            Économies potentielles estimées : <span class="text-success">${data.economies_estimees.toLocaleString('fr-BE')} €</span>
+          </p>
+          <p class="mb-0" style="font-size:0.7rem; color:rgba(255,255,255,0.55);">Estimation conservative — à valider avec votre entrepreneur</p>
+        </div>
+      </div>
+    ` : '';
+
+    // Alternatives matériaux
+    let altsHtml = '';
+    if ((data.alternatives || []).length > 0) {
+      const rows = data.alternatives.map(a => {
+        const perfBadge = a.performance === 'équivalente'
+          ? '<span class="badge rounded-pill" style="background:rgba(34,197,94,0.2);color:#86efac;font-size:0.6rem;">équiv.</span>'
+          : a.performance === 'supérieure'
+          ? '<span class="badge rounded-pill" style="background:rgba(59,130,246,0.2);color:#93c5fd;font-size:0.6rem;">supérieure</span>'
+          : '<span class="badge rounded-pill" style="background:rgba(245,158,11,0.2);color:#fcd34d;font-size:0.6rem;">légèrement inf.</span>';
+        return `
+          <tr style="border-color:rgba(255,255,255,0.08);">
+            <td class="py-2" style="font-size:0.75rem; color:rgba(255,255,255,0.85);">${a.poste || '—'}</td>
+            <td class="py-2" style="font-size:0.75rem; color:rgba(255,255,255,0.6);">${a.materiau_propose || '—'}</td>
+            <td class="py-2 fw-medium" style="font-size:0.75rem; color:#86efac;">→ ${a.alternative || '—'}</td>
+            <td class="py-2 text-end fw-semibold" style="font-size:0.75rem; color:#86efac;">${a.economie_estimee || '—'}</td>
+            <td class="py-2 text-center">${perfBadge}</td>
+          </tr>
+          ${a.remarque ? `<tr style="border-color:rgba(255,255,255,0.04);"><td colspan="5" class="pb-2" style="font-size:0.68rem; color:rgba(255,255,255,0.45);">↳ ${a.remarque}</td></tr>` : ''}
+        `;
+      }).join('');
+
+      altsHtml = `
+        <div class="mb-3">
+          <p class="text-white-50 mb-2" style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.05em;">Alternatives recommandées</p>
+          <div class="table-responsive rounded-3" style="background:rgba(255,255,255,0.06);">
+            <table class="table table-sm mb-0" style="--bs-table-bg:transparent; --bs-table-border-color:rgba(255,255,255,0.08);">
+              <thead>
+                <tr style="border-color:rgba(255,255,255,0.1);">
+                  <th class="py-2 text-white-50 fw-normal" style="font-size:0.68rem;">Poste</th>
+                  <th class="py-2 text-white-50 fw-normal" style="font-size:0.68rem;">Proposé</th>
+                  <th class="py-2 text-white-50 fw-normal" style="font-size:0.68rem;">Alternative</th>
+                  <th class="py-2 text-end text-white-50 fw-normal" style="font-size:0.68rem;">Économie</th>
+                  <th class="py-2 text-center text-white-50 fw-normal" style="font-size:0.68rem;">Perf.</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    // Risques pétroliers
+    let risquesHtml = '';
+    if ((data.risques_petroliers || []).length > 0) {
+      const items = data.risques_petroliers.map(r => `
+        <div class="d-flex gap-2 mb-2">
+          <i class="bi bi-fuel-pump-fill text-warning flex-shrink-0 mt-1" style="font-size:0.8rem;"></i>
+          <div>
+            <p class="text-white mb-0" style="font-size:0.75rem; font-weight:500;">${r.poste}</p>
+            <p style="font-size:0.72rem; color:rgba(255,255,255,0.6); margin-bottom:2px;">${r.risque}</p>
+            <p style="font-size:0.7rem; color:#fcd34d; margin-bottom:0;">→ ${r.recommandation}</p>
+          </div>
+        </div>
+      `).join('');
+
+      risquesHtml = `
+        <div class="mb-3">
+          <p class="text-white-50 mb-2" style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.05em;">Alertes dérivés pétroliers</p>
+          <div class="rounded-3 p-3" style="background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.2);">
+            ${items}
+          </div>
+        </div>
+      `;
+    }
+
+    // Optimisations de lots
+    let lotsHtml = '';
+    if ((data.optimisations_lots || []).length > 0) {
+      const items = data.optimisations_lots.map(l => `
+        <li class="mb-1" style="font-size:0.75rem; color:rgba(255,255,255,0.8);">${l}</li>
+      `).join('');
+
+      lotsHtml = `
+        <div class="mb-1">
+          <p class="text-white-50 mb-2" style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.05em;">Optimisations de lots</p>
+          <ul class="mb-0 ps-3" style="background:rgba(255,255,255,0.06); border-radius:0.5rem; padding:0.75rem 0.75rem 0.75rem 1.75rem;">
+            ${items}
+          </ul>
+        </div>
+      `;
+    }
+
+    result.innerHTML = `
+      <div class="mt-3">
+        ${scoreHtml}
+        ${syntheseHtml}
+        ${econHtml}
+        ${altsHtml}
+        ${risquesHtml}
+        ${lotsHtml}
+      </div>
+    `;
+  })
+  .catch(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-lightning-charge-fill text-warning me-2"></i>Relancer l\'analyse';
+    result.style.display = 'block';
+    result.innerHTML = '<div class="alert alert-danger rounded-3 py-2 mb-0 mt-3" style="font-size:0.78rem;">Erreur réseau — réessayez.</div>';
+  });
+});
+</script>

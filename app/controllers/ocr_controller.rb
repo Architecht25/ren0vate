@@ -582,6 +582,24 @@ class OcrController < ApplicationController
     render json: { error: 'Chantier introuvable' }, status: :not_found
   end
 
+  # POST /ocr/optimiser_budget
+  # Analyse IA des devis pour proposer des pistes d'économies sur les matériaux,
+  # alertes sur les postes sensibles au pétrole, et regroupements de lots.
+  def optimiser_budget
+    return render json: { error: 'project_id requis' }, status: :bad_request unless params[:project_id].present?
+
+    project = current_user.projects.find(params[:project_id])
+    result  = BudgetOptimiseurService.new(project).analyser
+
+    if result[:success]
+      render json: result
+    else
+      render json: { error: result[:error] }, status: :unprocessable_entity
+    end
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Chantier introuvable' }, status: :not_found
+  end
+
   # POST /ocr/scan_bordereau_chassis
   # Scanne un bordereau de commande ou fiche technique châssis et persiste les
   # données dans bordereau_chassis_donnees. Lie le document au chantier project_id.
