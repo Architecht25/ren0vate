@@ -290,7 +290,7 @@ class Notification < ApplicationRecord
     end
 
     # Méthodes pour notifications admin
-    def create_admin_notification(type:, title:, message:, category: :systeme, priority: :normale, target_users: nil, expires_at: nil)
+    def create_admin_notification(type:, title:, message:, category: :systeme, priority: :normale, action_url: nil, target_users: nil, expires_at: nil)
       users = target_users || User.all
 
       users.find_each do |user|
@@ -301,6 +301,7 @@ class Notification < ApplicationRecord
           title: title,
           message: message,
           priority: priority,
+          action_url: action_url,
           expires_at: expires_at
         )
       end

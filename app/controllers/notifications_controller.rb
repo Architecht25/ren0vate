@@ -118,6 +118,7 @@ class NotificationsController < ApplicationController
       message: params[:notification][:message],
       category: params[:notification][:category] || 'systeme',
       priority: params[:notification][:priority] || 'normale',
+      action_url: params[:notification][:action_url].presence,
       target_users: target_users,
       expires_at: expires_at
     )
