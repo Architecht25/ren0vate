@@ -1,5 +1,6 @@
 class BlogController < ApplicationController
   skip_before_action :authenticate_user!
+  before_action -> { response.set_header("Cache-Control", "no-store, no-cache, must-revalidate") }
 
   def index
     @articles = Article.published
