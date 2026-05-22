@@ -1,13 +1,20 @@
 class PvReception < ApplicationRecord
   belongs_to :project
 
+  has_one_attached :pv_externe_file
+
   STATUTS = %w[draft envoye finalise].freeze
 
   validates :statut, inclusion: { in: STATUTS }
-  validate  :date_reception_coherente
+  validates :date_reception, presence: true, if: :externe?
+  validate  :pv_externe_file_present, if: :externe?
+  validate  :date_reception_coherente, unless: :externe?
 
-  before_create :generate_tokens
+  before_create :generate_tokens, unless: :externe?
   before_destroy :prevent_deletion_during_legal_hold
+
+  # ── Source ──────────────────────────────────────────────────────────────────
+  def externe? = source == 'externe'
 
   # ── Scopes ──────────────────────────────────────────────────────────────────
   scope :finalises, -> { where(statut: "finalise") }
@@ -161,6 +168,10 @@ class PvReception < ApplicationRecord
     if date_reception < project.date_début
       errors.add(:date_reception, "ne peut pas être antérieure au début du chantier")
     end
+  end
+
+  def pv_externe_file_present
+    errors.add(:pv_externe_file, "doit être joint (PDF)") unless pv_externe_file.attached?
   end
 
   # Archivage légal 10 ans (garantie décennale) — art. 1792 C.civ.

@@ -277,6 +277,7 @@ Rails.application.routes.draw do
     # Réception de chantier (7.1)
     get  :reception_chantier,           on: :member
     post :scan_attestation_conformite,  on: :member
+    post :upload_pv_externe,            on: :member
 
     # Garanties (7.2)
     get  :garanties,                    on: :member

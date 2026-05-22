@@ -240,6 +240,50 @@ class ProjectsController < ApplicationController
     end
   end
 
+  # POST /projects/:id/upload_pv_externe
+  def upload_pv_externe
+    if @project.pv_reception.present?
+      return redirect_to reception_chantier_project_path(@project),
+                         alert: "Un PV de réception existe déjà pour ce projet."
+    end
+
+    file = params[:pv_externe_file]
+    unless file.present?
+      return redirect_to reception_chantier_project_path(@project),
+                         alert: "Veuillez sélectionner un fichier PDF."
+    end
+
+    unless file.content_type == 'application/pdf'
+      return redirect_to reception_chantier_project_path(@project),
+                         alert: "Seuls les fichiers PDF sont acceptés."
+    end
+
+    date_str = params[:date_reception_externe].presence || Date.current.to_s
+    date_reception = begin
+      Date.parse(date_str)
+    rescue ArgumentError
+      Date.current
+    end
+
+    pv = @project.build_pv_reception(
+      source:               'externe',
+      statut:               'finalise',
+      date_reception:       date_reception,
+      nom_owner:            @project.user.full_name,
+      email_owner:          @project.user.email,
+      legal_archive_until:  date_reception + 10.years
+    )
+    pv.pv_externe_file.attach(file)
+
+    if pv.save
+      redirect_to reception_chantier_project_path(@project),
+                  notice: "PV externe déposé — la réception est validée."
+    else
+      redirect_to reception_chantier_project_path(@project),
+                  alert: "Erreur : #{pv.errors.full_messages.to_sentence}"
+    end
+  end
+
   def reception_chantier
     property = @project.property
 

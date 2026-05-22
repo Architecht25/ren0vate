@@ -8,6 +8,7 @@
   else
     @project.user_id == current_user.id
   end
+  is_owner = @project.user_id == current_user.id
 %>
 
 <div class="card border-0 shadow-sm mb-4" id="pv-reception">
@@ -15,7 +16,11 @@
     <div>
       <h5 class="mb-0 text-primary-custom fw-normal">
         <i class="bi bi-patch-check me-2"></i>PV de Réception
-        <span class="badge bg-primary ms-1" style="font-size:0.6rem;vertical-align:middle;">Numérique</span>
+        <% if pv&.externe? %>
+          <span class="badge bg-secondary ms-1" style="font-size:0.6rem;vertical-align:middle;">Externe</span>
+        <% else %>
+          <span class="badge bg-primary ms-1" style="font-size:0.6rem;vertical-align:middle;">Numérique</span>
+        <% end %>
       </h5>
       <% if pv %>
         <small class="text-<%= pv.statut_color %>">
@@ -28,19 +33,76 @@
     </div>
     <div class="d-flex gap-2">
       <% if pv %>
-        <%= link_to project_pv_reception_path(@project), class: "btn btn-sm btn-outline-primary" do %>
-          <i class="bi bi-eye me-1"></i>Voir le PV
+        <% if pv.externe? %>
+          <% if pv.pv_externe_file.attached? %>
+            <%= link_to rails_blob_path(pv.pv_externe_file, disposition: "attachment"),
+                        class: "btn btn-sm btn-outline-secondary", target: "_blank" do %>
+              <i class="bi bi-download me-1"></i>Télécharger
+            <% end %>
+          <% end %>
+        <% else %>
+          <%= link_to project_pv_reception_path(@project), class: "btn btn-sm btn-outline-primary" do %>
+            <i class="bi bi-eye me-1"></i>Voir le PV
+          <% end %>
         <% end %>
       <% elsif is_creator %>
+        <button class="btn btn-sm btn-outline-secondary" type="button"
+                data-bs-toggle="collapse" data-bs-target="#form-pv-externe-<%= @project.id %>">
+          <i class="bi bi-upload me-1"></i>Déposer un PV externe
+        </button>
         <button class="btn btn-sm btn-primary" type="button"
                 data-bs-toggle="collapse" data-bs-target="#form-pv-<%= @project.id %>">
           <i class="bi bi-plus me-1"></i>Créer le PV
+        </button>
+      <% elsif is_owner %>
+        <button class="btn btn-sm btn-outline-secondary" type="button"
+                data-bs-toggle="collapse" data-bs-target="#form-pv-externe-<%= @project.id %>">
+          <i class="bi bi-upload me-1"></i>Déposer un PV externe
         </button>
       <% end %>
     </div>
   </div>
 
-  <%# Formulaire de création du PV %>
+  <%# ── Formulaire upload PV externe ── %>
+  <% if pv.nil? %>
+    <div class="collapse" id="form-pv-externe-<%= @project.id %>">
+      <%= form_with url: upload_pv_externe_project_path(@project), method: :post,
+                    multipart: true, data: { turbo: false } do |f| %>
+        <div class="p-4 border-bottom bg-light">
+          <div class="fw-semibold small text-uppercase text-muted mb-3" style="letter-spacing:.05em;">
+            <i class="bi bi-file-earmark-pdf me-1 text-danger"></i>Déposer un PV réalisé en externe
+          </div>
+          <div class="row g-3 align-items-end">
+            <div class="col-sm-4">
+              <label class="form-label small fw-semibold">Date de réception <span class="text-danger">*</span></label>
+              <input type="date" name="date_reception_externe" class="form-control form-control-sm rounded-3"
+                     value="<%= Date.current %>" required>
+            </div>
+            <div class="col-sm-5">
+              <label class="form-label small fw-semibold">Fichier PDF <span class="text-danger">*</span></label>
+              <input type="file" name="pv_externe_file" class="form-control form-control-sm rounded-3"
+                     accept="application/pdf" required>
+            </div>
+            <div class="col-sm-3 d-flex gap-2">
+              <button type="button" class="btn btn-sm btn-outline-secondary rounded-3"
+                      data-bs-toggle="collapse" data-bs-target="#form-pv-externe-<%= @project.id %>">
+                Annuler
+              </button>
+              <button type="submit" class="btn btn-sm btn-success rounded-3">
+                <i class="bi bi-check2-circle me-1"></i>Valider
+              </button>
+            </div>
+          </div>
+          <div class="small text-muted mt-2">
+            <i class="bi bi-info-circle me-1"></i>
+            L'upload du PV valide la réception du chantier et désactive les relances automatiques.
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# Formulaire de création du PV numérique %>
   <% if pv.nil? && is_creator %>
     <div class="collapse" id="form-pv-<%= @project.id %>">
       <%= form_with url: project_pv_reception_path(@project), method: :post,
@@ -143,6 +205,28 @@
   <%# Aperçu condensé si PV existant %>
   <% if pv %>
     <div class="card-body p-4">
+      <% if pv.externe? %>
+        <div class="d-flex align-items-center gap-3">
+          <div>
+            <div class="small text-muted">Date de réception</div>
+            <div class="fw-semibold">
+              <%= pv.date_reception ? pv.date_reception.strftime('%d/%m/%Y') : '—' %>
+            </div>
+          </div>
+          <div class="ms-auto">
+            <div class="alert alert-success py-2 px-3 small mb-0 d-flex align-items-center gap-2">
+              <i class="bi bi-patch-check-fill"></i>
+              <strong>Réception validée</strong> — PV déposé depuis un document externe.
+              <% if pv.pv_externe_file.attached? %>
+                <%= link_to rails_blob_path(pv.pv_externe_file, disposition: "attachment"),
+                            class: "ms-2 btn btn-sm btn-outline-success", target: "_blank" do %>
+                  <i class="bi bi-download me-1"></i>PDF
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% else %>
       <div class="row g-3 align-items-center">
         <div class="col-sm-4">
           <div class="small text-muted">Date de réception</div>
@@ -188,6 +272,7 @@
           </div>
         <% end %>
       </div>
+      <% end %>
     </div>
   <% else %>
     <div class="card-body p-4 text-center text-muted small">
@@ -195,7 +280,11 @@
       Aucun PV créé pour ce chantier.
       <% if is_creator %>
         <div class="mt-2" style="font-size:0.78rem;">
-          Créez le PV pour recueillir les signatures des parties (maître d'ouvrage, architecte, entrepreneur).
+          Créez le PV numérique pour recueillir les signatures des parties, ou déposez un PV réalisé en externe (PDF).
+        </div>
+      <% elsif is_owner %>
+        <div class="mt-2" style="font-size:0.78rem;">
+          Vous pouvez déposer un PV réalisé en externe (PDF) pour valider la réception.
         </div>
       <% end %>
     </div>

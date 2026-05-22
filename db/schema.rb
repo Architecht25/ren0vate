@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_20_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_22_113227) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -787,6 +787,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_120000) do
     t.datetime "signed_architect_at"
     t.datetime "signed_entrepreneur_at"
     t.datetime "signed_owner_at"
+    t.string "source"
     t.string "statut", default: "draft", null: false
     t.string "token_architect"
     t.string "token_entrepreneur"
