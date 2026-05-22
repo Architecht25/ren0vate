@@ -2,30 +2,25 @@
 <% _audit = @project.property&.audit_energ_donnees&.order(created_at: :desc)&.first rescue nil %>
 <% _upload_url = scan_audit_energ_project_path(@project) %>
 
-<div class="card border border-2 rounded-4 h-100" id="audit-energ-card">
+<div class="card border-0 shadow-sm rounded-4 h-100" id="audit-energ-card">
   <%# ─────────────────────────── Header ──────────────────────────────────── %>
-  <div class="card-header bg-white border-0 py-3">
-    <div class="d-flex align-items-center justify-content-between">
-      <div class="d-flex align-items-center">
-        <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0"
-             style="width:40px;height:40px;background:#1a7a4a;">
-          <i class="bi bi-file-earmark-text text-white fs-6"></i>
-        </div>
-        <div>
-          <h5 class="card-title mb-0 text-dark fw-normal" style="font-size:0.95rem;">Audit énergétique</h5>
-          <p class="text-muted mb-0" style="font-size:0.75rem;">
-            Rapport Walloreno — SPW Énergie
-          </p>
-        </div>
+  <div class="card-header border-0 py-3 px-4 d-flex align-items-center justify-content-between"
+       style="background:linear-gradient(135deg,#064e3b,#065f46); border-radius: 1rem 1rem 0 0 !important;">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-file-earmark-text text-white fs-5"></i>
+      <div>
+        <span class="fw-semibold text-white">Audit énergétique</span>
+        <div class="text-white opacity-75" style="font-size:0.75rem;">Requis pour certaines primes en Wallonie</div>
       </div>
-      <%# Bouton upload toujours visible pour re-scanner %>
-      <button class="btn btn-sm btn-outline-success rounded-3"
-              onclick="document.getElementById('audit-energ-file-input').click()"
-              title="Scanner un rapport d'audit">
-        <i class="bi bi-upload me-1"></i>
-        <span style="font-size:0.78rem;"><%= _audit ? 'Remplacer' : 'Scanner' %></span>
-      </button>
     </div>
+    <%# Bouton upload toujours visible pour re-scanner %>
+    <button class="btn btn-sm text-white rounded-3"
+            style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);"
+            onclick="document.getElementById('audit-energ-file-input').click()"
+            title="Scanner un rapport d'audit">
+      <i class="bi bi-upload me-1"></i>
+      <span style="font-size:0.78rem;"><%= _audit ? 'Remplacer' : 'Scanner' %></span>
+    </button>
 
     <%# Input file caché %>
     <input type="file" id="audit-energ-file-input" class="d-none"

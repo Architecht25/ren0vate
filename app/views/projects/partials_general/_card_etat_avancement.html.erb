@@ -1,22 +1,21 @@
 <%# État d'avancement — preuve d'avancement des travaux %>
 <% etat_avancement_docs = @project.documents.where(type_document: 'etat_avancement').order(created_at: :desc) %>
 
-<div class="card border border-2 rounded-4 h-100">
-  <div class="card-header bg-white border-0 py-3">
-    <div class="d-flex align-items-center justify-content-between">
-      <div class="d-flex align-items-center">
-        <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;flex-shrink:0;">
-          <i class="bi bi-list-check text-white fs-6"></i>
-        </div>
-        <div>
-          <h5 class="card-title mb-0 text-dark fw-normal" style="font-size:0.95rem;">État d'avancement</h5>
-          <p class="text-muted mb-0" style="font-size:0.75rem;">Preuve d'avancement des travaux</p>
-        </div>
+<div class="card border-0 shadow-sm rounded-4 h-100">
+  <div class="card-header border-0 py-3 px-4 d-flex align-items-center justify-content-between"
+       style="background:linear-gradient(135deg,#78350f,#92400e); border-radius: 1rem 1rem 0 0 !important;">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-list-check text-white fs-5"></i>
+      <div>
+        <span class="fw-semibold text-white">État d'avancement</span>
+        <div class="text-white opacity-75" style="font-size:0.75rem;">Justifiez l'avancement pour déclencher les paiements</div>
       </div>
-      <%= link_to new_project_document_path(@project, type_document: 'etat_avancement'), class: "btn btn-sm btn-outline-warning rounded-3" do %>
-        <i class="bi bi-plus me-1"></i><span style="font-size:0.78rem;">Ajouter</span>
-      <% end %>
     </div>
+    <%= link_to new_project_document_path(@project, type_document: 'etat_avancement'),
+          class: "btn btn-sm text-white rounded-3",
+          style: "background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);" do %>
+      <i class="bi bi-plus me-1"></i><span style="font-size:0.78rem;">Ajouter</span>
+    <% end %>
   </div>
   <div class="card-body p-3">
     <% if etat_avancement_docs.any? %>

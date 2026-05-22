@@ -5,24 +5,26 @@
   'photo_chassis'  => { label: 'Châssis',         icon: 'bi-window',       color: 'info'      }
 } %>
 
-<div class="form-section bg-white border border-2 rounded-3 p-3 h-100" id="photos-suivi-section" style="border-color: #dee2e6 !important;">
-
-  <%# ── En-tête ── %>
-  <div class="d-flex align-items-center justify-content-between mb-3">
+<div class="card border-0 shadow-sm rounded-4 h-100" id="photos-suivi-section">
+  <div class="card-header border-0 py-3 px-4 d-flex align-items-center justify-content-between"
+       style="background:linear-gradient(135deg,#134e4a,#0f766e); border-radius: 1rem 1rem 0 0 !important;">
     <div class="d-flex align-items-center gap-2">
-      <div class="icon-circle" style="width:28px;height:28px;font-size:14px;">
-        <i class="bi bi-camera"></i>
+      <i class="bi bi-camera text-white fs-5"></i>
+      <div>
+        <span class="fw-semibold text-white">
+          Photos de suivi
+          <span class="badge rounded-pill ms-1" style="background:rgba(255,255,255,0.2);font-size:0.7rem;"><%= @photos.size %></span>
+        </span>
+        <div class="text-white opacity-75" style="font-size:0.75rem;">Documentez l'avancement de votre chantier</div>
       </div>
-      <h6 class="mb-0 fw-normal text-primary-custom">
-        Photos de suivi
-        <span class="badge bg-secondary ms-1"><%= @photos.size %></span>
-      </h6>
     </div>
     <%= link_to new_project_document_path(@project, type_document: 'photo_pendant'),
-          class: "btn btn-sm btn-outline-primary rounded-3" do %>
+          class: "btn btn-sm text-white rounded-3",
+          style: "background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);" do %>
       <i class="bi bi-plus-lg me-1"></i><span style="font-size:0.78rem;">Ajouter vos photos</span>
     <% end %>
   </div>
+  <div class="card-body p-3">
 
   <% if @photos.empty? %>
 

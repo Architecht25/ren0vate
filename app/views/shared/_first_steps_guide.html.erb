@@ -7,6 +7,8 @@
      controller_name != 'onboarding' %>
 
 <%
+  _first_project = current_user.properties.flat_map(&:projects).first
+
   steps = [
     {
       key:  :profile,
@@ -24,17 +26,24 @@
     },
     {
       key:  :project,
-      done: current_user.properties.flat_map(&:projects).any?,
+      done: _first_project.present?,
       icon: 'bi-hammer',
       label: 'Créer un projet',
       path:  dashboard_path
     },
     {
-      key:  :pro,
-      done: current_user.properties.flat_map { |p| p.projects.flat_map(&:project_members) }.any?,
-      icon: 'bi-people-fill',
-      label: 'Inviter un pro',
-      path:  dashboard_path
+      key:  :preparation,
+      done: _first_project&.date_debut.present? || _first_project&.entrepreneur_principal_nom.present?,
+      icon: 'bi-clipboard-check',
+      label: 'Fiche de préparation',
+      path:  _first_project ? project_path(_first_project, tab: :preparation) : dashboard_path
+    },
+    {
+      key:  :budget,
+      done: _first_project&.total_devis_montant.to_f > 0,
+      icon: 'bi-currency-euro',
+      label: 'Estimer vos travaux',
+      path:  _first_project ? edit_budget_project_path(_first_project) : dashboard_path
     }
   ]
   done_count = steps.count { |s| s[:done] }

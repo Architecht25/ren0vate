@@ -63,7 +63,7 @@ class OnboardingController < ApplicationController
 
     if @project.save
       finish_onboarding!
-      redirect_to dashboard_path(locale: I18n.locale),
+      redirect_to project_path(@project, locale: I18n.locale, tab: :preparation),
                   notice: t('onboarding.welcome_proprietaire')
     else
       render :proprietaire_projet, status: :unprocessable_entity
