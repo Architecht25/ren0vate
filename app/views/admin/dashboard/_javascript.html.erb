@@ -1,4 +1,5 @@
 <script nonce="<%= content_security_policy_nonce %>">
+(function() {
 // Données de sécurité injectées depuis le serveur (via @security_stats)
 const SECURITY_DATA = <%= json_escape(@security_stats.to_json).html_safe %>;
 
@@ -842,4 +843,5 @@ document.addEventListener('DOMContentLoaded', function() {
   );
 });
 
+})(); // fin IIFE
 </script>
