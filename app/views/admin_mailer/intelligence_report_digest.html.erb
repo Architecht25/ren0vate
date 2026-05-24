@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+      .container { max-width: 640px; margin: 0 auto; padding: 20px; }
+      .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 24px 20px; border-radius: 8px 8px 0 0; }
+      .header h2 { margin: 0 0 4px 0; font-size: 20px; }
+      .header p  { margin: 0; opacity: 0.75; font-size: 13px; }
+      .content { background: #f9f9f9; padding: 24px 20px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; }
+      .meta { font-size: 12px; color: #888; margin-bottom: 20px; }
+      .analysis { background: white; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; }
+      .analysis h2 { font-size: 15px; font-weight: bold; color: #1a1a2e; margin: 20px 0 6px 0; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+      .analysis h2:first-child { margin-top: 0; }
+      .analysis p  { margin: 6px 0; font-size: 14px; }
+      .analysis strong { color: #222; }
+      .btn { display: inline-block; padding: 10px 20px; background: #1a1a2e; color: white; text-decoration: none; border-radius: 6px; margin-top: 16px; font-size: 14px; }
+      .footer { text-align: center; padding: 16px; color: #aaa; font-size: 11px; margin-top: 16px; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h2>🔭 Veille Ren0vate</h2>
+        <p><%= @report.week_label %> &mdash; <%= @report.sources_count %> articles analysés</p>
+      </div>
+
+      <div class="content">
+        <p class="meta">Généré le <%= @report.updated_at.strftime("%-d %B %Y à %H:%M") %></p>
+
+        <div class="analysis">
+          <%= simple_format(@report.analysis) %>
+        </div>
+
+        <div style="text-align: center;">
+          <a href="<%= ENV.fetch('APP_URL', 'https://ren0vate.be') %>/admin/intelligence_reports/<%= @report.id %>" class="btn">
+            Voir les sources brutes →
+          </a>
+        </div>
+      </div>
+
+      <div class="footer">
+        Rapport automatique — Ren0vate Intelligence &mdash; <a href="<%= ENV.fetch('APP_URL', 'https://ren0vate.be') %>/admin" style="color: #aaa;">Dashboard admin</a>
+      </div>
+    </div>
+  </body>
+</html>

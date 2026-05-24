@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_24_135742) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_24_160000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -430,6 +430,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_135742) do
     t.index ["project_id"], name: "index_factures_on_project_id"
     t.index ["property_id"], name: "index_factures_on_property_id"
     t.index ["type_intervenant"], name: "index_factures_on_type_intervenant"
+  end
+
+  create_table "intelligence_reports", force: :cascade do |t|
+    t.text "analysis"
+    t.datetime "created_at", null: false
+    t.text "error_message"
+    t.text "raw_content"
+    t.integer "sources_count", default: 0
+    t.string "status", default: "pending", null: false
+    t.datetime "updated_at", null: false
+    t.string "week_of", null: false
+    t.index ["status"], name: "index_intelligence_reports_on_status"
+    t.index ["week_of"], name: "index_intelligence_reports_on_week_of", unique: true
   end
 
   create_table "leases", force: :cascade do |t|

@@ -83,6 +83,11 @@ class AdminController < ApplicationController
       in_progress: SupportTicket.where(status: 'in_progress').count,
       resolved_this_week: SupportTicket.where(status: 'resolved').where('updated_at >= ?', 7.days.ago).count,
     }
+
+    # Onglet Intelligence — veille hebdomadaire IA
+    @intelligence_reports   = IntelligenceReport.recent.limit(10)
+    @intelligence_latest    = IntelligenceReport.completed.recent.first
+    @intelligence_current_week = IntelligenceReport.current_week_key
   end
 
   def geocode_properties

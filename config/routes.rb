@@ -458,6 +458,13 @@ Rails.application.routes.draw do
         patch :close
       end
     end
+
+    # Veille intelligence — rapports hebdomadaires IA
+    resources :intelligence_reports, only: [:index, :show] do
+      collection do
+        post :run
+      end
+    end
   end
 
   resources :requests do

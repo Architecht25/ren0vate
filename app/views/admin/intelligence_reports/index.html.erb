@@ -1,0 +1,68 @@
+<div class="container-fluid px-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 fw-bold mb-1" style="color: var(--ren0vate-primary);">Veille Intelligence</h1>
+      <p class="text-muted mb-0 small">Rapports hebdomadaires — marché, réglementation, concurrence</p>
+    </div>
+    <%= button_to "Lancer l'analyse cette semaine", run_admin_intelligence_reports_path,
+        method: :post,
+        class: "btn btn-primary btn-sm",
+        form: { data: { turbo_confirm: "Lancer une nouvelle analyse pour #{@current_week} ?" } } %>
+  </div>
+
+  <% if @reports.empty? %>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body text-center py-5 text-muted">
+        <p class="mb-2">Aucun rapport disponible.</p>
+        <p class="small">Le job tourne automatiquement chaque lundi matin, ou lance une analyse manuellement.</p>
+      </div>
+    </div>
+  <% else %>
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Semaine</th>
+              <th>Statut</th>
+              <th>Articles collectés</th>
+              <th>Généré le</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @reports.each do |report| %>
+              <tr>
+                <td>
+                  <strong><%= report.week_label %></strong>
+                  <% if report.week_of == @current_week %>
+                    <span class="badge bg-info ms-1">Cette semaine</span>
+                  <% end %>
+                </td>
+                <td>
+                  <% case report.status %>
+                  <% when 'completed' %>
+                    <span class="badge bg-success">Complété</span>
+                  <% when 'processing' %>
+                    <span class="badge bg-warning text-dark">En cours...</span>
+                  <% when 'failed' %>
+                    <span class="badge bg-danger" title="<%= report.error_message %>">Échec</span>
+                  <% else %>
+                    <span class="badge bg-secondary">En attente</span>
+                  <% end %>
+                </td>
+                <td class="text-muted"><%= report.sources_count %> articles</td>
+                <td class="text-muted small"><%= report.created_at.strftime("%-d %b %Y à %H:%M") %></td>
+                <td class="text-end">
+                  <% if report.completed? %>
+                    <%= link_to "Lire", admin_intelligence_report_path(report), class: "btn btn-sm btn-outline-primary" %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% end %>
+</div>

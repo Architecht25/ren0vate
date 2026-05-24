@@ -1,0 +1,54 @@
+<div class="container-fluid px-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 fw-bold mb-1" style="color: var(--ren0vate-primary);"><%= @report.week_label %></h1>
+      <p class="text-muted mb-0 small">
+        <%= @report.sources_count %> articles collectés —
+        généré le <%= @report.updated_at.strftime("%-d %B %Y à %H:%M") %>
+      </p>
+    </div>
+    <%= link_to "← Tous les rapports", admin_intelligence_reports_path, class: "btn btn-outline-secondary btn-sm" %>
+  </div>
+
+  <div class="row g-4">
+    <%# Analyse Claude %>
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+          <h5 class="mb-0 fw-semibold">Analyse IA</h5>
+        </div>
+        <div class="card-body">
+          <% if @report.analysis.present? %>
+            <div class="intelligence-analysis">
+              <%= simple_format(@report.analysis) %>
+            </div>
+          <% else %>
+            <p class="text-muted">Analyse non disponible.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# Sources brutes %>
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+          <h5 class="mb-0 fw-semibold">Sources brutes</h5>
+        </div>
+        <div class="card-body p-0">
+          <% if @report.raw_content.present? %>
+            <pre class="p-3 mb-0 small text-muted" style="max-height: 600px; overflow-y: auto; white-space: pre-wrap; font-size: 0.75rem;"><%= @report.raw_content %></pre>
+          <% else %>
+            <p class="text-muted p-3 mb-0">Contenu brut non disponible.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .intelligence-analysis h2 { font-size: 1.1rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--ren0vate-primary); }
+  .intelligence-analysis strong { color: #333; }
+  .intelligence-analysis p { margin-bottom: 0.75rem; line-height: 1.6; }
+</style>

@@ -40,4 +40,14 @@ class AdminMailer < ApplicationMailer
       subject: "📎 Réponse à demande de complément - #{user.email}"
     )
   end
+
+  # Rapport de veille hebdomadaire IA
+  def intelligence_report_digest(report)
+    @report = report
+
+    mail(
+      to:      ENV.fetch('INTELLIGENCE_REPORT_EMAIL', 'robin@architecht.be'),
+      subject: "🔭 Veille Ren0vate — #{report.week_label} (#{report.sources_count} articles)"
+    )
+  end
 end
