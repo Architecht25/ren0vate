@@ -56,9 +56,9 @@ module SeoHelper
       }
     else
       {
-        title: "Ren0vate - Plateforme de gestion de chantiers de rénovation en Belgique",
-        description: "Gérez vos chantiers de rénovation de A à Z. Planification, intervenants, budget et suivi des travaux en Flandre, Bruxelles et Wallonie.",
-        keywords: "gestion chantier rénovation, suivi travaux, planification, budget rénovation, Belgique, Flandre, Bruxelles, Wallonie"
+        title: "Ren0vate — Passeport numérique de votre logement en Belgique",
+        description: "Rénovation, primes, DIU, vente et gestion locative : Ren0vate centralise toute la vie de votre bien immobilier, en un seul endroit, pour propriétaires belges.",
+        keywords: "gestion immobilière belgique, passeport logement, DIU, rénovation belgique, gestion locative, vente immobilière, primes, flandre, bruxelles, wallonie"
       }
     end
   end
@@ -71,7 +71,7 @@ module SeoHelper
       "name": "Ren0vate",
       "url": canonical_url_for("/"),
       "logo": "#{request.protocol}#{request.host_with_port}/icon.png",
-      "description": "Plateforme de gestion de chantiers de rénovation en Belgique",
+      "description": "Plateforme digitale de gestion immobilière en Belgique — rénovation, DIU, vente, location",
       "address": {
         "@type": "PostalAddress",
         "addressCountry": "BE"
@@ -83,9 +83,12 @@ module SeoHelper
         }
       ],
       "serviceType": [
+        "Gestion immobilière digitale",
+        "Passeport numérique du logement",
         "Gestion de chantiers de rénovation",
-        "Planification et suivi de travaux",
-        "Coordination d'intervenants"
+        "Dossier d'Intervention Ultérieure (DIU)",
+        "Gestion locative",
+        "Préparation vente immobilière"
       ]
     }.to_json.html_safe
   end
