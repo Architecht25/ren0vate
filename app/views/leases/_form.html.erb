@@ -1,0 +1,60 @@
+<%= simple_form_for [@property, @tenant, @lease] do |f| %>
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-transparent border-bottom py-3">
+      <h6 class="mb-0 fw-semibold">
+        <i class="bi bi-file-text me-2"></i>
+        <%= @lease.new_record? ? 'Nouveau bail' : 'Modifier le bail' %>
+      </h6>
+    </div>
+    <div class="card-body p-4">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <%= f.input :lease_type, label: 'Type de bail', as: :select,
+              collection: [
+                ['Résidence principale (3 ans)', 'residence_principale'],
+                ['Courte durée (< 3 ans)', 'courte_duree'],
+                ['Meublé', 'meuble'],
+                ['Commercial', 'commercial']
+              ],
+              input_html: { class: 'form-select' } %>
+        </div>
+        <div class="col-md-6">
+          <%= f.input :status, label: 'Statut', as: :select,
+              collection: [['Actif', 'actif'], ['En résiliation', 'en_resiliation'], ['Terminé', 'termine']],
+              input_html: { class: 'form-select' } %>
+        </div>
+        <div class="col-md-6">
+          <%= f.input :start_date, label: 'Date de début', as: :date,
+              input_html: { class: 'form-control', value: @lease.start_date&.strftime('%Y-%m-%d') } %>
+        </div>
+        <div class="col-md-6">
+          <%= f.input :end_date, label: 'Date de fin (optionnel)', as: :date, required: false,
+              input_html: { class: 'form-control', value: @lease.end_date&.strftime('%Y-%m-%d') } %>
+        </div>
+        <div class="col-md-4">
+          <%= f.input :rent_amount, label: 'Loyer (€/mois)', input_html: { class: 'form-control', step: '0.01' } %>
+        </div>
+        <div class="col-md-4">
+          <%= f.input :charges_amount, label: 'Charges (€/mois)', input_html: { class: 'form-control', step: '0.01', value: @lease.charges_amount || 0 } %>
+        </div>
+        <div class="col-md-4">
+          <%= f.input :rental_guarantee_amount, label: 'Garantie locative (€)', required: false,
+              input_html: { class: 'form-control', step: '0.01' } %>
+        </div>
+        <div class="col-md-6">
+          <%= f.input :indexation_month, label: "Mois d'indexation annuelle", as: :select,
+              hint: 'Mois anniversaire de signature du bail',
+              collection: (1..12).map { |m| [Date::MONTHNAMES[m] || I18n.t("date.month_names")[m], m] },
+              input_html: { class: 'form-select' } %>
+        </div>
+        <div class="col-12">
+          <%= f.input :notes, label: 'Notes', required: false, input_html: { class: 'form-control', rows: 3 } %>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer bg-transparent d-flex gap-2 justify-content-end">
+      <%= link_to 'Annuler', property_tenant_path(@property, @tenant), class: 'btn btn-outline-secondary' %>
+      <%= f.submit @lease.new_record? ? 'Créer le bail' : 'Enregistrer', class: 'btn btn-success' %>
+    </div>
+  </div>
+<% end %>

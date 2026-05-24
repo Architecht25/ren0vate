@@ -1,0 +1,241 @@
+<div class="container-fluid px-4 py-4">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3" style="background: var(--bs-success-bg-subtle);">
+        <i class="bi bi-key-fill text-success"></i>
+      </div>
+      <div>
+        <h1 class="h3 mb-0 fw-normal">Gestion locative</h1>
+        <small class="text-muted">
+          <i class="bi bi-house-door me-1"></i>
+          <%= @property.titre.presence || @property.name %> —
+          <%= @property.rue %> <%= @property.numero %>, <%= @property.commune %>
+        </small>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to new_property_tenant_path(@property), class: "btn btn-success" do %>
+        <i class="bi bi-person-plus me-1"></i>Nouveau locataire
+      <% end %>
+      <%= link_to dashboard_property_path(@property), class: "btn btn-outline-secondary" do %>
+        <i class="bi bi-arrow-left me-1"></i>Dashboard
+      <% end %>
+    </div>
+  </div>
+
+  <% if @bail_actif %>
+    <!-- Bail actif — panneau de situation -->
+    <div class="row g-4 mb-4">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm border-start border-success border-4">
+          <div class="card-body p-4">
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <div class="d-flex align-items-center mb-2">
+                  <span class="badge bg-success me-2">Bail actif</span>
+                  <span class="fw-semibold"><%= @bail_actif.lease_type_label %></span>
+                </div>
+                <h5 class="mb-1"><%= @bail_actif.tenant.full_name %></h5>
+                <p class="text-muted mb-0 small">
+                  Depuis le <%= l(@bail_actif.start_date, format: :long) %>
+                  <% if @bail_actif.end_date %>
+                    → <%= l(@bail_actif.end_date, format: :long) %>
+                  <% end %>
+                </p>
+              </div>
+              <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <div class="d-flex justify-content-md-end gap-3">
+                  <div class="text-center">
+                    <div class="h4 mb-0 fw-bold text-success"><%= number_to_currency(@bail_actif.rent_amount, unit: '€', format: '%n %u') %></div>
+                    <small class="text-muted">loyer</small>
+                  </div>
+                  <% if @bail_actif.charges_amount.to_f > 0 %>
+                    <div class="text-center">
+                      <div class="h4 mb-0 fw-bold text-secondary"><%= number_to_currency(@bail_actif.charges_amount, unit: '€', format: '%n %u') %></div>
+                      <small class="text-muted">charges</small>
+                    </div>
+                  <% end %>
+                  <div class="text-center">
+                    <div class="h4 mb-0 fw-bold"><%= number_to_currency(@bail_actif.loyer_total, unit: '€', format: '%n %u') %></div>
+                    <small class="text-muted">total/mois</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <% if @paiements_retard.any? %>
+              <div class="alert alert-danger mt-3 mb-0">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong><%= @paiements_retard.size %> paiement(s) en retard</strong> —
+                <%= number_to_currency(@paiements_retard.sum(&:amount), unit: '€', format: '%n %u') %> impayé(s)
+                <%= link_to 'Voir les paiements', property_tenant_lease_path(@property, @bail_actif.tenant, @bail_actif), class: 'ms-2' %>
+              </div>
+            <% end %>
+
+            <div class="mt-3 d-flex gap-2 flex-wrap">
+              <%= link_to property_tenant_lease_path(@property, @bail_actif.tenant, @bail_actif), class: "btn btn-outline-success btn-sm" do %>
+                <i class="bi bi-eye me-1"></i>Voir le bail
+              <% end %>
+              <%= link_to new_property_tenant_lease_rent_payment_path(@property, @bail_actif.tenant, @bail_actif), class: "btn btn-outline-primary btn-sm" do %>
+                <i class="bi bi-plus-circle me-1"></i>Enregistrer un paiement
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="row g-4">
+    <!-- Colonne gauche : locataires -->
+    <div class="col-lg-5">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent border-bottom d-flex justify-content-between align-items-center py-3">
+          <h6 class="mb-0 fw-semibold"><i class="bi bi-people me-2"></i>Locataires</h6>
+          <%= link_to new_property_tenant_path(@property), class: "btn btn-sm btn-outline-success" do %>
+            <i class="bi bi-plus"></i> Ajouter
+          <% end %>
+        </div>
+        <div class="card-body p-0">
+          <% if @tenants.any? %>
+            <ul class="list-group list-group-flush">
+              <% @tenants.each do |tenant| %>
+                <li class="list-group-item px-4 py-3">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="fw-semibold"><%= tenant.full_name %></div>
+                      <% if tenant.email.present? %>
+                        <small class="text-muted"><i class="bi bi-envelope me-1"></i><%= tenant.email %></small>
+                      <% end %>
+                      <% if tenant.phone.present? %>
+                        <br><small class="text-muted"><i class="bi bi-telephone me-1"></i><%= tenant.phone %></small>
+                      <% end %>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                      <% active_lease = tenant.active_lease %>
+                      <% if active_lease %>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">Locataire actif</span>
+                      <% elsif tenant.leases.any? %>
+                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Ancien</span>
+                      <% end %>
+                      <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown">
+                          <i class="bi bi-three-dots"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                          <li><%= link_to 'Voir', property_tenant_path(@property, tenant), class: 'dropdown-item' %></li>
+                          <li><%= link_to 'Modifier', edit_property_tenant_path(@property, tenant), class: 'dropdown-item' %></li>
+                          <li><%= link_to 'Nouveau bail', new_property_tenant_lease_path(@property, tenant), class: 'dropdown-item' %></li>
+                          <li><hr class="dropdown-divider"></li>
+                          <li><%= link_to 'Supprimer', property_tenant_path(@property, tenant), data: { turbo_method: :delete, turbo_confirm: 'Supprimer ce locataire et tous ses baux ?' }, class: 'dropdown-item text-danger' %></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <div class="text-center py-5 text-muted">
+              <i class="bi bi-person-dash display-4 d-block mb-3 opacity-25"></i>
+              <p class="mb-0">Aucun locataire enregistré</p>
+              <small>Ajoutez votre premier locataire pour commencer</small>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Colonne droite : baux + infos légales -->
+    <div class="col-lg-7">
+      <!-- Historique des baux -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-bottom py-3">
+          <h6 class="mb-0 fw-semibold"><i class="bi bi-file-text me-2"></i>Historique des baux</h6>
+        </div>
+        <div class="card-body p-0">
+          <% if @leases.any? %>
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th class="ps-4">Locataire</th>
+                    <th>Type</th>
+                    <th>Période</th>
+                    <th>Loyer</th>
+                    <th>Statut</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @leases.each do |lease| %>
+                    <tr>
+                      <td class="ps-4 fw-medium"><%= lease.tenant.full_name %></td>
+                      <td><small><%= lease.lease_type_label %></small></td>
+                      <td>
+                        <small>
+                          <%= l(lease.start_date, format: :short) %>
+                          <% if lease.end_date %>→ <%= l(lease.end_date, format: :short) %><% end %>
+                        </small>
+                      </td>
+                      <td><strong><%= number_to_currency(lease.rent_amount, unit: '€', format: '%n %u') %></strong></td>
+                      <td>
+                        <span class="badge bg-<%= lease.statut_badge_class %>-subtle text-<%= lease.statut_badge_class %> border border-<%= lease.statut_badge_class %>-subtle">
+                          <%= lease.statut_label %>
+                        </span>
+                      </td>
+                      <td>
+                        <%= link_to property_tenant_lease_path(@property, lease.tenant, lease), class: "btn btn-sm btn-outline-secondary" do %>
+                          <i class="bi bi-eye"></i>
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <div class="text-center py-4 text-muted">
+              <p class="mb-0 small">Aucun bail enregistré</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Info légale belge -->
+      <div class="card border-0 shadow-sm bg-info-subtle">
+        <div class="card-body p-4">
+          <h6 class="fw-semibold mb-3"><i class="bi bi-info-circle me-2 text-info"></i>Droit belge — Rappels clés</h6>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <p class="small fw-semibold mb-1">Bail résidence principale</p>
+              <ul class="small text-muted ps-3 mb-0">
+                <li>Durée standard : 3 ans (renouvelable)</li>
+                <li>Préavis locataire : 3 à 6 mois</li>
+                <li>Garantie locative : max 2 mois de loyer</li>
+                <li>Indexation : indice santé lissé (annuel)</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <p class="small fw-semibold mb-1">Bail courte durée / meublé</p>
+              <ul class="small text-muted ps-3 mb-0">
+                <li>Courte durée : max 3 ans, non renouvelable</li>
+                <li>Meublé : régi par le droit commun</li>
+                <li>Préavis : 1 mois (les deux parties)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="mt-3 pt-3 border-top border-info">
+            <p class="small mb-0">
+              <strong>Indexation :</strong> loyer indexé = loyer de base × (indice santé du mois d'indexation / indice santé du mois de signature).
+              Consultez <a href="https://statbel.fgov.be/fr/themes/consumer-prices/indice-sante" target="_blank" rel="noopener" class="text-info">statbel.fgov.be</a> pour les indices actuels.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

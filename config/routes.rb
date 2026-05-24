@@ -215,6 +215,9 @@ Rails.application.routes.draw do
       patch :desactiver_vente
       patch :marquer_vendu
 
+      # Gestion locative
+      get :gestion_locative
+
       # Nouvelle route pour sélecteur formulaires
       get :select_form, to: 'requests#select_form'
     end
@@ -231,6 +234,16 @@ Rails.application.routes.draw do
     end
     # Documents liés à une propriété
     resources :documents, shallow: true
+    # Gestion locative
+    resources :tenants, except: [:index] do
+      resources :leases, except: [:index] do
+        member do
+          patch :terminer
+          patch :activer_resiliation
+        end
+        resources :rent_payments, except: [:show, :index]
+      end
+    end
     # Devis estimatifs
     resources :quotes, only: [:index, :new, :create, :show, :destroy] do
       collection do

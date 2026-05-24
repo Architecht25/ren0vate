@@ -2,7 +2,7 @@ require 'net/http'
 
 class PropertiesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_property, only: [:show, :dashboard, :edit, :update, :destroy, :purge_photo, :documents_dashboard, :peb_recommandations, :documents_phases_dashboard, :formulaire_miroir, :submit_prime, :select_form, :mise_en_vente, :activer_vente, :desactiver_vente, :marquer_vendu]
+  before_action :set_property, only: [:show, :dashboard, :edit, :update, :destroy, :purge_photo, :documents_dashboard, :peb_recommandations, :documents_phases_dashboard, :formulaire_miroir, :submit_prime, :select_form, :mise_en_vente, :activer_vente, :desactiver_vente, :marquer_vendu, :gestion_locative]
 
   def index
     @properties = current_user.properties
@@ -519,6 +519,13 @@ class PropertiesController < ApplicationController
     @property.update(statut_vente: 'vendu')
     redirect_to property_dashboard_path(@property),
                 notice: 'Bien marqué comme vendu. Félicitations !'
+  end
+
+  def gestion_locative
+    @leases   = @property.leases.includes(:tenant, :rent_payments).order(created_at: :desc)
+    @tenants  = @property.tenants.includes(:leases).order(:last_name, :first_name)
+    @bail_actif = @leases.find { |l| l.actif? }
+    @paiements_retard = @bail_actif&.rent_payments&.overdue || []
   end
 
   private

@@ -1,0 +1,36 @@
+<%= simple_form_for [@property, @tenant] do |f| %>
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-transparent border-bottom py-3">
+      <h6 class="mb-0 fw-semibold">
+        <i class="bi bi-person me-2"></i>
+        <%= @tenant.new_record? ? 'Nouveau locataire' : "Modifier #{@tenant.full_name}" %>
+      </h6>
+    </div>
+    <div class="card-body p-4">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <%= f.input :first_name, label: 'Prénom', input_html: { class: 'form-control' } %>
+        </div>
+        <div class="col-md-6">
+          <%= f.input :last_name, label: 'Nom', input_html: { class: 'form-control' } %>
+        </div>
+        <div class="col-md-6">
+          <%= f.input :email, label: 'E-mail', input_html: { class: 'form-control' } %>
+        </div>
+        <div class="col-md-6">
+          <%= f.input :phone, label: 'Téléphone', input_html: { class: 'form-control' } %>
+        </div>
+        <div class="col-12">
+          <%= f.input :national_number_ciphertext, label: 'N° national (chiffré)', hint: 'Stocké de façon chiffrée — non visible après enregistrement.', input_html: { class: 'form-control', autocomplete: 'off' } %>
+        </div>
+        <div class="col-12">
+          <%= f.input :notes, label: 'Notes internes', input_html: { class: 'form-control', rows: 3 } %>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer bg-transparent d-flex gap-2 justify-content-end">
+      <%= link_to 'Annuler', property_gestion_locative_path(@property), class: 'btn btn-outline-secondary' %>
+      <%= f.submit @tenant.new_record? ? 'Créer le locataire' : 'Enregistrer', class: 'btn btn-success' %>
+    </div>
+  </div>
+<% end %>

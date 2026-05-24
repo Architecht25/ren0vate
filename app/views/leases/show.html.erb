@@ -1,0 +1,256 @@
+<div class="container-fluid px-4 py-4">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3" style="background: var(--bs-success-bg-subtle);">
+        <i class="bi bi-file-text-fill text-success"></i>
+      </div>
+      <div>
+        <h1 class="h3 mb-0 fw-normal">
+          Bail — <%= @lease.lease_type_label %>
+          <span class="badge bg-<%= @lease.statut_badge_class %> ms-2 fs-6"><%= @lease.statut_label %></span>
+        </h1>
+        <small class="text-muted">
+          <i class="bi bi-person me-1"></i><%= @tenant.full_name %> —
+          <%= @property.titre.presence || @property.name %>
+        </small>
+      </div>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <%= link_to edit_property_tenant_lease_path(@property, @tenant, @lease), class: "btn btn-outline-secondary btn-sm" do %>
+        <i class="bi bi-pencil me-1"></i>Modifier
+      <% end %>
+      <%= link_to new_property_tenant_lease_rent_payment_path(@property, @tenant, @lease), class: "btn btn-primary btn-sm" do %>
+        <i class="bi bi-plus-circle me-1"></i>Enregistrer paiement
+      <% end %>
+      <%= link_to property_gestion_locative_path(@property), class: "btn btn-outline-secondary" do %>
+        <i class="bi bi-arrow-left me-1"></i>Gestion locative
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Détails du bail -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-bottom py-3">
+          <h6 class="mb-0 fw-semibold">Conditions du bail</h6>
+        </div>
+        <div class="card-body p-4">
+          <dl class="row small mb-0">
+            <dt class="col-5 text-muted">Type</dt>
+            <dd class="col-7"><%= @lease.lease_type_label %></dd>
+
+            <dt class="col-5 text-muted">Début</dt>
+            <dd class="col-7"><%= l(@lease.start_date, format: :long) %></dd>
+
+            <% if @lease.end_date %>
+              <dt class="col-5 text-muted">Fin</dt>
+              <dd class="col-7"><%= l(@lease.end_date, format: :long) %></dd>
+            <% end %>
+
+            <dt class="col-5 text-muted">Ancienneté</dt>
+            <dd class="col-7"><%= pluralize(@lease.anciennete_mois, 'mois') %></dd>
+
+            <dt class="col-5 text-muted">Loyer</dt>
+            <dd class="col-7 fw-semibold"><%= number_to_currency(@lease.rent_amount, unit: '€', format: '%n %u') %>/mois</dd>
+
+            <% if @lease.charges_amount.to_f > 0 %>
+              <dt class="col-5 text-muted">Charges</dt>
+              <dd class="col-7"><%= number_to_currency(@lease.charges_amount, unit: '€', format: '%n %u') %>/mois</dd>
+            <% end %>
+
+            <dt class="col-5 text-muted fw-semibold">Total</dt>
+            <dd class="col-7 fw-semibold text-success"><%= number_to_currency(@lease.loyer_total, unit: '€', format: '%n %u') %>/mois</dd>
+
+            <% if @lease.rental_guarantee_amount.to_f > 0 %>
+              <dt class="col-5 text-muted">Garantie</dt>
+              <dd class="col-7"><%= number_to_currency(@lease.rental_guarantee_amount, unit: '€', format: '%n %u') %></dd>
+            <% end %>
+
+            <dt class="col-5 text-muted">Indexation</dt>
+            <dd class="col-7">
+              Chaque <%= Date::MONTHNAMES[@lease.indexation_month] || @lease.indexation_month %>
+              <% if @prochaine_indexation %>
+                <br><small class="text-muted">Prochaine : <%= l(@prochaine_indexation, format: :long) %></small>
+              <% end %>
+            </dd>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Préavis légaux -->
+      <div class="card border-0 shadow-sm bg-warning-subtle">
+        <div class="card-body p-3">
+          <h6 class="fw-semibold small mb-2"><i class="bi bi-calendar-check me-1"></i>Préavis légaux (Belgique)</h6>
+          <p class="small mb-1">
+            <strong>Locataire :</strong> <%= pluralize(@lease.preavis_locataire_mois, 'mois') %>
+          </p>
+          <p class="small mb-0">
+            <strong>Propriétaire (reprise) :</strong> <%= pluralize(@lease.preavis_proprietaire_mois(motif: :reprise_personnelle), 'mois') %>
+          </p>
+          <p class="small text-muted mt-2 mb-0">Basé sur <%= pluralize(@lease.anciennete_mois, 'mois') %> d'ancienneté.</p>
+        </div>
+      </div>
+
+      <% if @lease.en_resiliation? %>
+        <div class="card border-danger mt-4">
+          <div class="card-body p-3 small">
+            <p class="fw-semibold mb-1 text-danger"><i class="bi bi-exclamation-triangle me-1"></i>En résiliation</p>
+            <% if @lease.notice_given_at %>
+              <p class="mb-0">Préavis donné le <%= l(@lease.notice_given_at, format: :long) %>
+              <% if @lease.notice_by.present? %> par le <strong><%= @lease.notice_by %></strong><% end %>.</p>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <% if @lease.actif? %>
+        <div class="mt-4 d-grid gap-2">
+          <!-- Préavis -->
+          <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalPreavis">
+            <i class="bi bi-calendar-x me-1"></i>Enregistrer un préavis
+          </button>
+          <!-- Clôturer -->
+          <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalTerminer">
+            <i class="bi bi-x-circle me-1"></i>Clôturer le bail
+          </button>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Paiements -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent border-bottom py-3 d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="mb-0 fw-semibold"><i class="bi bi-cash-coin me-2"></i>Paiements de loyer</h6>
+            <% if @impaye_total > 0 %>
+              <small class="text-danger">
+                <i class="bi bi-exclamation-circle me-1"></i>
+                <%= number_to_currency(@impaye_total, unit: '€', format: '%n %u') %> impayé(s)
+              </small>
+            <% end %>
+          </div>
+          <%= link_to new_property_tenant_lease_rent_payment_path(@property, @tenant, @lease), class: "btn btn-sm btn-outline-primary" do %>
+            <i class="bi bi-plus-circle me-1"></i>Nouveau paiement
+          <% end %>
+        </div>
+        <div class="card-body p-0">
+          <% if @rent_payments.any? %>
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th class="ps-4">Échéance</th>
+                    <th>Montant</th>
+                    <th>Statut</th>
+                    <th>Date paiement</th>
+                    <th>Mode</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @rent_payments.each do |payment| %>
+                    <tr>
+                      <td class="ps-4"><%= l(payment.due_date, format: :long) %></td>
+                      <td><strong><%= number_to_currency(payment.amount, unit: '€', format: '%n %u') %></strong></td>
+                      <td>
+                        <span class="badge bg-<%= payment.statut_badge_class %>-subtle text-<%= payment.statut_badge_class %> border border-<%= payment.statut_badge_class %>-subtle">
+                          <%= payment.statut_label %>
+                        </span>
+                      </td>
+                      <td><%= payment.paid_date ? l(payment.paid_date, format: :short) : '—' %></td>
+                      <td><small class="text-muted"><%= payment.payment_method.presence || '—' %></small></td>
+                      <td>
+                        <div class="d-flex gap-1">
+                          <%= link_to edit_property_tenant_lease_rent_payment_path(@property, @tenant, @lease, payment), class: "btn btn-sm btn-outline-secondary" do %>
+                            <i class="bi bi-pencil"></i>
+                          <% end %>
+                          <%= link_to property_tenant_lease_rent_payment_path(@property, @tenant, @lease, payment),
+                                      data: { turbo_method: :delete, turbo_confirm: 'Supprimer ce paiement ?' },
+                                      class: "btn btn-sm btn-outline-danger" do %>
+                            <i class="bi bi-trash"></i>
+                          <% end %>
+                        </div>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <div class="text-center py-5 text-muted">
+              <i class="bi bi-cash display-4 d-block mb-3 opacity-25"></i>
+              <p class="mb-0">Aucun paiement enregistré</p>
+              <%= link_to 'Enregistrer le premier paiement', new_property_tenant_lease_rent_payment_path(@property, @tenant, @lease), class: 'btn btn-sm btn-outline-primary mt-2' %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal préavis -->
+<div class="modal fade" id="modalPreavis" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Enregistrer un préavis</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <%= form_with url: activer_resiliation_property_tenant_lease_path(@property, @tenant, @lease), method: :patch do |f| %>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Date du préavis</label>
+            <input type="date" name="notice_given_at" class="form-control" value="<%= Date.current.strftime('%Y-%m-%d') %>">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Donné par</label>
+            <select name="notice_by" class="form-select">
+              <option value="locataire">Le locataire</option>
+              <option value="propriétaire">Le propriétaire</option>
+            </select>
+          </div>
+          <div class="alert alert-info small mb-0">
+            Délai légal calculé : <strong><%= pluralize(@lease.preavis_locataire_mois, 'mois') %></strong> (locataire) /
+            <strong><%= pluralize(@lease.preavis_proprietaire_mois(motif: :reprise_personnelle), 'mois') %></strong> (propriétaire, reprise)
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+          <%= f.submit 'Enregistrer', class: 'btn btn-warning' %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Modal terminer -->
+<div class="modal fade" id="modalTerminer" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Clôturer le bail</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <%= form_with url: terminer_property_tenant_lease_path(@property, @tenant, @lease), method: :patch do |f| %>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Date de fin du bail</label>
+            <input type="date" name="end_date" class="form-control" value="<%= Date.current.strftime('%Y-%m-%d') %>">
+          </div>
+          <div class="alert alert-warning small mb-0">
+            Cette action marque le bail comme <strong>terminé</strong>. Elle n'est pas irréversible — vous pouvez le modifier à tout moment.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+          <%= f.submit 'Clôturer le bail', class: 'btn btn-danger' %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

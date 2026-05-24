@@ -1,0 +1,18 @@
+<div class="container-fluid px-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3" style="background: var(--bs-primary-bg-subtle);">
+        <i class="bi bi-pencil-fill text-primary"></i>
+      </div>
+      <div>
+        <h1 class="h3 mb-0 fw-normal">Modifier le paiement</h1>
+        <small class="text-muted"><%= @tenant.full_name %> — bail <%= @lease.lease_type_label %></small>
+      </div>
+    </div>
+    <%= link_to property_tenant_lease_path(@property, @tenant, @lease), class: "btn btn-outline-secondary" do %>
+      <i class="bi bi-arrow-left me-1"></i>Retour
+    <% end %>
+  </div>
+
+  <%= render 'form', property: @property, tenant: @tenant, lease: @lease, rent_payment: @rent_payment %>
+</div>

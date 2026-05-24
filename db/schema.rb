@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_24_125449) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_24_135742) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -430,6 +430,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_125449) do
     t.index ["project_id"], name: "index_factures_on_project_id"
     t.index ["property_id"], name: "index_factures_on_property_id"
     t.index ["type_intervenant"], name: "index_factures_on_type_intervenant"
+  end
+
+  create_table "leases", force: :cascade do |t|
+    t.decimal "charges_amount", precision: 10, scale: 2, default: "0.0"
+    t.datetime "created_at", null: false
+    t.date "end_date"
+    t.integer "indexation_month", default: 1
+    t.string "lease_type", default: "residence_principale", null: false
+    t.text "notes"
+    t.string "notice_by"
+    t.date "notice_given_at"
+    t.bigint "property_id", null: false
+    t.decimal "rent_amount", precision: 10, scale: 2, null: false
+    t.decimal "rental_guarantee_amount", precision: 10, scale: 2
+    t.date "start_date", null: false
+    t.string "status", default: "actif", null: false
+    t.bigint "tenant_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["property_id"], name: "index_leases_on_property_id"
+    t.index ["status"], name: "index_leases_on_status"
+    t.index ["tenant_id"], name: "index_leases_on_tenant_id"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -864,6 +885,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_125449) do
     t.index ["user_id"], name: "index_quotes_on_user_id"
   end
 
+  create_table "rent_payments", force: :cascade do |t|
+    t.decimal "amount", precision: 10, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.date "due_date", null: false
+    t.bigint "lease_id", null: false
+    t.text "notes"
+    t.date "paid_date"
+    t.string "payment_method"
+    t.string "status", default: "pending", null: false
+    t.datetime "updated_at", null: false
+    t.index ["due_date"], name: "index_rent_payments_on_due_date"
+    t.index ["lease_id"], name: "index_rent_payments_on_lease_id"
+    t.index ["status"], name: "index_rent_payments_on_status"
+  end
+
   create_table "request_progresses", force: :cascade do |t|
     t.text "commentaires_admin"
     t.boolean "completed"
@@ -1183,6 +1219,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_125449) do
     t.index ["user_id"], name: "index_support_tickets_on_user_id"
   end
 
+  create_table "tenants", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "email"
+    t.string "first_name", null: false
+    t.string "last_name", null: false
+    t.text "national_number_ciphertext"
+    t.text "notes"
+    t.string "phone"
+    t.bigint "property_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["property_id"], name: "index_tenants_on_property_id"
+    t.index ["user_id"], name: "index_tenants_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "annee_revenus_conjoint"
     t.string "annee_revenus_demandeur"
@@ -1279,6 +1330,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_125449) do
   add_foreign_key "factures", "documents"
   add_foreign_key "factures", "projects"
   add_foreign_key "factures", "properties"
+  add_foreign_key "leases", "properties"
+  add_foreign_key "leases", "tenants"
   add_foreign_key "notifications", "projects"
   add_foreign_key "notifications", "properties"
   add_foreign_key "notifications", "simulations"
@@ -1307,6 +1360,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_125449) do
   add_foreign_key "quote_items", "quotes"
   add_foreign_key "quotes", "properties"
   add_foreign_key "quotes", "users"
+  add_foreign_key "rent_payments", "leases"
   add_foreign_key "request_progresses", "primes"
   add_foreign_key "request_progresses", "requests"
   add_foreign_key "requests", "projects"
@@ -1330,4 +1384,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_125449) do
   add_foreign_key "support_messages", "support_tickets"
   add_foreign_key "support_messages", "users"
   add_foreign_key "support_tickets", "users"
+  add_foreign_key "tenants", "properties"
+  add_foreign_key "tenants", "users"
 end

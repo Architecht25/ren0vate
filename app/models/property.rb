@@ -11,6 +11,8 @@ class Property < ApplicationRecord
   has_many :audit_energ_donnees, dependent: :destroy
   has_many :projects, dependent: :destroy
   has_many :requests, dependent: :destroy
+  has_many :tenants, dependent: :destroy
+  has_many :leases, dependent: :destroy
   has_many :documents, dependent: :destroy
   has_many :notifications, dependent: :destroy
   has_many :quotes, dependent: :destroy

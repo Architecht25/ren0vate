@@ -1,0 +1,85 @@
+<div class="container-fluid px-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3" style="background: var(--bs-success-bg-subtle);">
+        <i class="bi bi-person-fill text-success"></i>
+      </div>
+      <div>
+        <h1 class="h3 mb-0 fw-normal"><%= @tenant.full_name %></h1>
+        <small class="text-muted"><%= @property.titre.presence || @property.name %></small>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to edit_property_tenant_path(@property, @tenant), class: "btn btn-outline-secondary btn-sm" do %>
+        <i class="bi bi-pencil me-1"></i>Modifier
+      <% end %>
+      <%= link_to new_property_tenant_lease_path(@property, @tenant), class: "btn btn-success btn-sm" do %>
+        <i class="bi bi-plus-circle me-1"></i>Nouveau bail
+      <% end %>
+      <%= link_to property_gestion_locative_path(@property), class: "btn btn-outline-secondary" do %>
+        <i class="bi bi-arrow-left me-1"></i>Retour
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <h6 class="fw-semibold mb-3">Coordonnées</h6>
+          <dl class="row small mb-0">
+            <% if @tenant.email.present? %>
+              <dt class="col-4 text-muted">E-mail</dt>
+              <dd class="col-8"><%= mail_to @tenant.email %></dd>
+            <% end %>
+            <% if @tenant.phone.present? %>
+              <dt class="col-4 text-muted">Tél.</dt>
+              <dd class="col-8"><%= @tenant.phone %></dd>
+            <% end %>
+            <% if @tenant.notes.present? %>
+              <dt class="col-4 text-muted">Notes</dt>
+              <dd class="col-8"><%= @tenant.notes %></dd>
+            <% end %>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent border-bottom py-3 d-flex justify-content-between">
+          <h6 class="mb-0 fw-semibold"><i class="bi bi-file-text me-2"></i>Baux</h6>
+          <%= link_to new_property_tenant_lease_path(@property, @tenant), class: "btn btn-sm btn-outline-success" do %>
+            <i class="bi bi-plus"></i> Nouveau bail
+          <% end %>
+        </div>
+        <div class="card-body p-0">
+          <% if @leases.any? %>
+            <ul class="list-group list-group-flush">
+              <% @leases.each do |lease| %>
+                <li class="list-group-item px-4 py-3">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="fw-medium"><%= lease.lease_type_label %></div>
+                      <small class="text-muted">
+                        Depuis le <%= l(lease.start_date, format: :long) %>
+                        <% if lease.end_date %> → <%= l(lease.end_date, format: :long) %><% end %>
+                      </small>
+                      <br>
+                      <strong><%= number_to_currency(lease.rent_amount, unit: '€', format: '%n %u') %>/mois</strong>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="badge bg-<%= lease.statut_badge_class %>"><%= lease.statut_label %></span>
+                      <%= link_to 'Voir', property_tenant_lease_path(@property, @tenant, lease), class: 'btn btn-sm btn-outline-secondary' %>
+                    </div>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <div class="text-center py-4 text-muted small">Aucun bail pour ce locataire</div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
