@@ -163,7 +163,7 @@ class DocumentsController < ApplicationController
         begin
           # Utiliser FactureOcrService pour les factures afin d'extraire les données structurées
           if @document.type_document == 'facture'
-            facture_service = FactureOcrService.new(file)
+            facture_service = FactureClaudeService.new(file)
             facture_ocr_result = facture_service.extraire_donnees_facture
             ocr_result = facture_ocr_result
           else

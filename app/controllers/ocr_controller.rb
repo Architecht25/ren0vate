@@ -109,7 +109,7 @@ class OcrController < ApplicationController
       is_facture = @document.type_document == 'facture'
 
       if is_facture
-        facture_service = FactureOcrService.new(uploaded_file)
+        facture_service = FactureClaudeService.new(uploaded_file)
         result = facture_service.extraire_donnees_facture
       else
         ocr_service = OcrService.new(uploaded_file)

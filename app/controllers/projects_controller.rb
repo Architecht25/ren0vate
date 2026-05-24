@@ -1027,9 +1027,11 @@ class ProjectsController < ApplicationController
     params.require(:project).permit(
       :architecte_nom, :architecte_prenom, :architecte_entreprise, :architecte_numero_ordre,
       :architecte_telephone, :architecte_email, :architecte_adresse, :architecte_specialites,
+      :architecte_devis_montant,
       :entrepreneur_principal_nom, :entrepreneur_principal_entreprise, :entrepreneur_principal_numero_tva,
       :entrepreneur_principal_telephone, :entrepreneur_principal_email, :entrepreneur_principal_adresse,
       :entrepreneur_principal_assurance, :entrepreneur_principal_certifications,
+      :contractor_devis_montant,
       :maitre_ouvrage_nom, :maitre_ouvrage_contact, :coordinateur_securite_nom, :coordinateur_securite_contact,
       :assurance_decennale_architecte, :assurance_decennale_entrepreneur, :garanties_travaux,
       :additional_entrepreneurs

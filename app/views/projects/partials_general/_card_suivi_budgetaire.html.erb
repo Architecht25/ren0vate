@@ -18,25 +18,27 @@
     </div>
   </div>
   <div class="card-body p-3">
-    <% if @project.architecte_devis_montant.present? || @project.contractor_devis_montant.present? || chassis_total > 0 %>
+    <% architecte_effectif = @project.architecte_devis_montant_effectif
+       contractor_effectif = @project.contractor_devis_montant_effectif %>
+    <% if architecte_effectif.present? || contractor_effectif.present? || chassis_total > 0 %>
 
-      <% if @project.architecte_devis_montant.present? %>
+      <% if architecte_effectif.present? %>
         <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
           <div class="d-flex align-items-center gap-2">
             <i class="bi bi-building text-muted"></i>
             <span class="text-muted small">Architecte</span>
           </div>
-          <span class="fw-semibold text-primary"><%= @project.architecte_devis_montant_formatted %></span>
+          <span class="fw-semibold text-primary"><%= number_to_currency(architecte_effectif, unit: "€", separator: ",", delimiter: " ") %></span>
         </div>
       <% end %>
 
-      <% if @project.contractor_devis_montant.present? %>
+      <% if contractor_effectif.present? %>
         <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
           <div class="d-flex align-items-center gap-2">
             <i class="bi bi-hammer text-muted"></i>
             <span class="text-muted small">Entrepreneur</span>
           </div>
-          <span class="fw-semibold text-primary"><%= @project.contractor_devis_montant_formatted %></span>
+          <span class="fw-semibold text-primary"><%= number_to_currency(contractor_effectif, unit: "€", separator: ",", delimiter: " ") %></span>
         </div>
       <% end %>
 
