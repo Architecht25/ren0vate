@@ -198,7 +198,7 @@ class PricingController < ApplicationController
         price: 39,
         annual_total: 390,
         period: "mois",
-        description: "Gérez votre rénovation de A à Z — 1 à 3 biens",
+        description: "Rénovation, primes, DIU et vente — 1 à 3 biens",
         features: [
           "🏠 Jusqu'à 3 biens",
           "📊 Simulations de primes illimitées",
@@ -207,15 +207,17 @@ class PricingController < ApplicationController
           "📋 Import & analyse PEB / Audit énergie",
           "🏛️ Prédicteur permis urbanisme IA (87%)",
           "👷 Comparateur entrepreneurs (3/mois)",
-          "� Bordereaux d'avancement IA — suivi structuré",
-          "�📁 Dossier documentaire de base",
+          "📋 Bordereaux d'avancement IA — suivi structuré",
+          "📁 Dossier documentaire de base",
+          "📜 DIU automatique (Dossier d'Intervention Ultérieure)",
+          "🏷️ Mise en vente — checklist & valorisation",
           "📞 Support prioritaire (24h)"
         ],
-        roi: "Économisez 40h d'admin • +25% d'aides détectées • ROI moyen : 15 000€ sur projet 50K€",
-        cta: "Gérer mon projet",
+        roi: "Économisez 40h d'admin • +25% d'aides détectées • DIU & vente inclus",
+        cta: "Gérer mon bien",
         popular: true,
         target: "Propriétaire particulier",
-        new_badge: "Gestion complète"
+        new_badge: "DIU & vente inclus"
       },
 
       portfolio: {
@@ -223,7 +225,7 @@ class PricingController < ApplicationController
         price: 89,
         annual_total: 890,
         period: "mois",
-        description: "Multi-biens + suivi de chantier en temps réel",
+        description: "Multi-biens, chantier en temps réel + gestion locative",
         features: [
           "✅ Tout Propriétaire PLUS :",
           "🏘️ Jusqu'à 10 biens",
@@ -235,15 +237,17 @@ class PricingController < ApplicationController
           "✅ Checklist clôture (garanties, certifs)",
           "👷 Comparateur entrepreneurs illimité",
           "📈 Dashboard analytics multi-biens",
+          "🔑 Gestion locative — baux, locataires, loyers",
+          "📅 Suivi paiements & alertes impayés",
           "🤖 Expert IA 24/7 (100 questions/mois)",
           "📞 Support expert (12h)",
           "📦 Dossier final ZIP/PDF (à venir)"
         ],
-        roi: "ROI minimum 300% • Valorisation +5-10% par bien • Conformité garantie",
+        roi: "ROI minimum 300% • Valorisation +5-10% par bien • Gestion locative intégrée",
         cta: "Gérer mon patrimoine",
         popular: false,
-        target: "Investisseur multi-biens",
-        new_badge: "Suivi chantier IA"
+        target: "Investisseur / Bailleur multi-biens",
+        new_badge: "Gestion locative incluse"
       },
 
       premium_mixed: {
