@@ -209,6 +209,12 @@ Rails.application.routes.draw do
       delete :destroy  # Route de suppression explicite
       delete :purge_photo  # Suppression de la photo du bien
 
+      # Mode vente & DIU
+      get  :mise_en_vente
+      patch :activer_vente
+      patch :desactiver_vente
+      patch :marquer_vendu
+
       # Nouvelle route pour sélecteur formulaires
       get :select_form, to: 'requests#select_form'
     end

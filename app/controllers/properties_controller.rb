@@ -486,6 +486,41 @@ class PropertiesController < ApplicationController
     @completion_stats = calculate_forms_completion_stats(@existing_requests)
   end
 
+  # GET /properties/:id/mise_en_vente
+  def mise_en_vente
+    @checklist_vente = @property.checklist_vente
+    @checklist_diu   = @property.checklist_diu
+    @readiness_score = @property.vente_readiness_score
+    @projects        = @property.projects.order(created_at: :desc)
+  end
+
+  # PATCH /properties/:id/activer_vente
+  def activer_vente
+    if @property.update(statut_vente: 'en_vente',
+                        date_mise_en_vente: Date.current,
+                        prix_vente_estime: params[:prix_vente_estime].presence)
+      redirect_to mise_en_vente_property_path(@property),
+                  notice: 'Votre bien est maintenant en mode « En vente ».'
+    else
+      redirect_to mise_en_vente_property_path(@property),
+                  alert: 'Impossible d\'activer le mode vente.'
+    end
+  end
+
+  # PATCH /properties/:id/desactiver_vente
+  def desactiver_vente
+    @property.update(statut_vente: 'actif', date_mise_en_vente: nil)
+    redirect_to property_dashboard_path(@property),
+                notice: 'Mode vente désactivé.'
+  end
+
+  # PATCH /properties/:id/marquer_vendu
+  def marquer_vendu
+    @property.update(statut_vente: 'vendu')
+    redirect_to property_dashboard_path(@property),
+                notice: 'Bien marqué comme vendu. Félicitations !'
+  end
+
   private
 
   def set_property

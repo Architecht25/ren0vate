@@ -10,6 +10,13 @@
           <h1 class="h3 text-primary-custom mb-0 fw-normal">
             <%= @property.titre || "Bien sans nom" %>
           </h1>
+          <% if @property.en_vente? %>
+            <%= link_to mise_en_vente_property_path(@property), class: "badge bg-warning text-dark text-decoration-none", title: "Voir le dossier de vente" do %>
+              <i class="bi bi-tag-fill me-1"></i>En vente
+            <% end %>
+          <% elsif @property.vendu? %>
+            <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Vendu</span>
+          <% end %>
           <% unless @property.titre.present? %>
             <%= link_to edit_property_path(@property), class: "btn btn-outline-warning btn-sm", title: "Définir le nom du bien" do %>
               <i class="bi bi-pencil-square"></i>
@@ -897,6 +904,54 @@
       </div>
     </div>
     <% end %>
+
+    <!-- Module Vente & DIU -->
+    <div class="col" data-dashboard-tabs-target="panel" data-tab="mon-bien">
+      <div class="card border-0 shadow h-100 dashboard-module <%= @property.en_vente? ? 'border-warning border-2' : '' %>">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center mb-3">
+            <div class="icon-circle me-3" style="background: var(--bs-warning-bg-subtle);">
+              <i class="bi bi-tag-fill text-warning"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0 fw-normal">Vente & DIU</h5>
+              <small class="text-muted-custom">Préparer la vente · Dossier d'Intervention Ultérieure</small>
+            </div>
+          </div>
+
+          <% readiness = @property.vente_readiness_score %>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+              <small class="text-muted">Préparation vente</small>
+              <small class="fw-semibold <%= readiness >= 75 ? 'text-success' : readiness >= 40 ? 'text-warning' : 'text-danger' %>">
+                <%= readiness %>%
+              </small>
+            </div>
+            <div class="progress" style="height: 6px;">
+              <div class="progress-bar <%= readiness >= 75 ? 'bg-success' : readiness >= 40 ? 'bg-warning' : 'bg-danger' %>"
+                   style="width: <%= readiness %>%"></div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <span class="badge <%= @property.statut_vente_badge_class %> me-1">
+              <%= @property.statut_vente_label %>
+            </span>
+            <% if @property.date_mise_en_vente.present? %>
+              <small class="text-muted">depuis le <%= l(@property.date_mise_en_vente, format: :long) %></small>
+            <% end %>
+          </div>
+
+          <div class="mt-auto pt-3 border-top">
+            <%= link_to mise_en_vente_property_path(@property), class: "btn btn-outline-warning btn-sm w-100" do %>
+              <i class="bi bi-tag me-2"></i>
+              <%= @property.en_vente? ? 'Gérer la vente' : 'Préparer la vente' %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- end row -->
   </div><!-- end dashboard-tabs -->
 

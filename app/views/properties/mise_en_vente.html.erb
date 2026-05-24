@@ -1,0 +1,290 @@
+<div class="container-fluid px-4 py-4">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3" style="background: var(--bs-warning-bg-subtle);">
+        <i class="bi bi-tag-fill text-warning"></i>
+      </div>
+      <div>
+        <h1 class="h3 mb-0 fw-normal">
+          Mise en vente
+          <% if @property.en_vente? %>
+            <span class="badge bg-warning text-dark ms-2 fs-6">En vente</span>
+          <% elsif @property.vendu? %>
+            <span class="badge bg-success ms-2 fs-6">Vendu</span>
+          <% end %>
+        </h1>
+        <small class="text-muted">
+          <i class="bi bi-house-door me-1"></i>
+          <%= @property.titre.presence || @property.name %> —
+          <%= @property.rue %> <%= @property.numero %>, <%= @property.commune %>
+        </small>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to dashboard_property_path(@property), class: "btn btn-outline-secondary" do %>
+        <i class="bi bi-arrow-left me-1"></i>Dashboard
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Score de préparation -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h5 class="mb-1">Préparation à la vente</h5>
+              <p class="text-muted small mb-0">Documents obligatoires + DIU à transmettre</p>
+            </div>
+            <div class="text-center">
+              <span class="display-6 fw-bold <%= @readiness_score >= 75 ? 'text-success' : @readiness_score >= 40 ? 'text-warning' : 'text-danger' %>">
+                <%= @readiness_score %>%
+              </span>
+              <div class="text-muted small">prêt</div>
+            </div>
+          </div>
+          <div class="progress" style="height: 10px;">
+            <div class="progress-bar <%= @readiness_score >= 75 ? 'bg-success' : @readiness_score >= 40 ? 'bg-warning' : 'bg-danger' %>"
+                 role="progressbar"
+                 style="width: <%= @readiness_score %>%"
+                 aria-valuenow="<%= @readiness_score %>"
+                 aria-valuemin="0"
+                 aria-valuemax="100">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Colonne gauche : Checklists -->
+    <div class="col-lg-8">
+
+      <!-- Checklist documents légaux vente -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-bottom py-3">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-shield-check text-primary me-2 fs-5"></i>
+            <div>
+              <h6 class="mb-0 fw-semibold">Documents légaux obligatoires (vente)</h6>
+              <small class="text-muted">Obligatoires selon le droit belge pour toute vente immobilière</small>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush">
+            <% @checklist_vente.each do |item| %>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
+                <div class="d-flex align-items-center">
+                  <% if item[:present] %>
+                    <i class="bi bi-check-circle-fill text-success me-3 fs-5"></i>
+                  <% else %>
+                    <i class="bi bi-x-circle text-danger me-3 fs-5"></i>
+                  <% end %>
+                  <span class="<%= item[:present] ? '' : 'text-muted' %>">
+                    <%= item[:label] %>
+                  </span>
+                </div>
+                <% unless item[:present] %>
+                  <%= link_to new_property_document_path(@property, type_document: item[:type]),
+                      class: "btn btn-outline-primary btn-sm" do %>
+                    <i class="bi bi-plus me-1"></i>Ajouter
+                  <% end %>
+                <% else %>
+                  <span class="badge bg-success-subtle text-success border border-success-subtle">Présent</span>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Checklist DIU -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-bottom py-3">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-folder2-open text-warning me-2 fs-5"></i>
+            <div>
+              <h6 class="mb-0 fw-semibold">DIU — Dossier d'Intervention Ultérieure</h6>
+              <small class="text-muted">Documents à transmettre obligatoirement à l'acheteur lors de la vente</small>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush">
+            <% @checklist_diu.each do |item| %>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
+                <div class="d-flex align-items-center">
+                  <% if item[:present] %>
+                    <i class="bi bi-check-circle-fill text-success me-3 fs-5"></i>
+                  <% else %>
+                    <i class="bi bi-circle text-secondary me-3 fs-5"></i>
+                  <% end %>
+                  <span class="<%= item[:present] ? '' : 'text-muted' %>">
+                    <%= item[:label] %>
+                  </span>
+                </div>
+                <% unless item[:present] %>
+                  <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Manquant</span>
+                <% else %>
+                  <span class="badge bg-success-subtle text-success border border-success-subtle">Présent</span>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+        <div class="card-footer bg-transparent border-top py-3 px-4">
+          <p class="text-muted small mb-0">
+            <i class="bi bi-info-circle me-1"></i>
+            Les documents DIU se trouvent dans vos chantiers. Accédez à chaque chantier pour les compléter.
+          </p>
+        </div>
+      </div>
+
+      <!-- Chantiers associés -->
+      <% if @projects.any? %>
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-transparent border-bottom py-3">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-hammer text-secondary me-2 fs-5"></i>
+              <h6 class="mb-0 fw-semibold">Historique des chantiers (<%= @projects.count %>)</h6>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <ul class="list-group list-group-flush">
+              <% @projects.each do |project| %>
+                <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
+                  <div>
+                    <div class="fw-medium"><%= project.nom %></div>
+                    <small class="text-muted">
+                      <% if project.created_at %>
+                        <i class="bi bi-calendar3 me-1"></i><%= project.created_at.strftime('%Y') %>
+                      <% end %>
+                      <% if project.entrepreneur_principal_entreprise.present? %>
+                        · <i class="bi bi-building me-1"></i><%= project.entrepreneur_principal_entreprise %>
+                      <% end %>
+                    </small>
+                  </div>
+                  <div class="d-flex align-items-center gap-2">
+                    <% doc_count = project.documents.count %>
+                    <span class="badge bg-light text-dark border">
+                      <i class="bi bi-file-earmark me-1"></i><%= doc_count %> doc<%= doc_count != 1 ? 's' : '' %>
+                    </span>
+                    <%= link_to project_path(project), class: "btn btn-outline-secondary btn-sm" do %>
+                      <i class="bi bi-eye"></i>
+                    <% end %>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      <% end %>
+
+    </div><!-- /col-lg-8 -->
+
+    <!-- Colonne droite : Statut + Actions -->
+    <div class="col-lg-4">
+
+      <!-- Statut actuel -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-bottom py-3">
+          <h6 class="mb-0 fw-semibold"><i class="bi bi-flag me-2"></i>Statut du bien</h6>
+        </div>
+        <div class="card-body p-4">
+          <div class="text-center mb-4">
+            <span class="badge <%= @property.statut_vente_badge_class %> fs-6 px-3 py-2">
+              <%= @property.statut_vente_label %>
+            </span>
+            <% if @property.date_mise_en_vente.present? %>
+              <div class="text-muted small mt-2">
+                Mis en vente le <%= l(@property.date_mise_en_vente, format: :long) %>
+              </div>
+            <% end %>
+          </div>
+
+          <% if @property.actif? %>
+            <!-- Formulaire activation vente -->
+            <%= form_with url: activer_vente_property_path(@property), method: :patch, local: true do |f| %>
+              <div class="mb-3">
+                <%= f.label :prix_vente_estime, "Prix de vente estimé (optionnel)", class: "form-label small fw-medium" %>
+                <div class="input-group">
+                  <%= f.number_field :prix_vente_estime,
+                      value: @property.prix_vente_estime,
+                      class: "form-control",
+                      placeholder: "ex: 350000",
+                      min: 0, step: 1000 %>
+                  <span class="input-group-text">€</span>
+                </div>
+              </div>
+              <%= f.submit "Mettre en vente",
+                  class: "btn btn-warning w-100 fw-semibold",
+                  data: { confirm: "Activer le mode « En vente » pour ce bien ?" } %>
+            <% end %>
+
+          <% elsif @property.en_vente? %>
+            <!-- Mise à jour prix -->
+            <%= form_with url: activer_vente_property_path(@property), method: :patch, local: true do |f| %>
+              <div class="mb-3">
+                <%= f.label :prix_vente_estime, "Prix demandé", class: "form-label small fw-medium" %>
+                <div class="input-group">
+                  <%= f.number_field :prix_vente_estime,
+                      value: @property.prix_vente_estime,
+                      class: "form-control",
+                      placeholder: "ex: 350000",
+                      min: 0, step: 1000 %>
+                  <span class="input-group-text">€</span>
+                </div>
+              </div>
+              <%= f.submit "Mettre à jour le prix", class: "btn btn-outline-warning w-100 mb-2" %>
+            <% end %>
+            <%= button_to "Marquer comme vendu",
+                marquer_vendu_property_path(@property),
+                method: :patch,
+                class: "btn btn-success w-100 mb-2",
+                data: { confirm: "Confirmer la vente du bien ?" } %>
+            <%= button_to "Désactiver le mode vente",
+                desactiver_vente_property_path(@property),
+                method: :patch,
+                class: "btn btn-outline-secondary w-100",
+                data: { confirm: "Retirer ce bien du mode « En vente » ?" } %>
+
+          <% elsif @property.vendu? %>
+            <div class="alert alert-success text-center mb-3">
+              <i class="bi bi-check-circle-fill fs-4 d-block mb-2"></i>
+              <strong>Vendu !</strong>
+            </div>
+            <%= button_to "Remettre en actif",
+                desactiver_vente_property_path(@property),
+                method: :patch,
+                class: "btn btn-outline-secondary w-100 btn-sm" %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Info DIU légale -->
+      <div class="card border-0 shadow-sm border-warning">
+        <div class="card-body p-4">
+          <h6 class="fw-semibold mb-3">
+            <i class="bi bi-info-circle text-warning me-2"></i>
+            Qu'est-ce que le DIU ?
+          </h6>
+          <p class="text-muted small mb-2">
+            Le <strong>Dossier d'Intervention Ultérieure</strong> est un document légalement obligatoire en Belgique pour tout bien ayant fait l'objet de travaux soumis à permis.
+          </p>
+          <p class="text-muted small mb-0">
+            Il doit être remis à l'acheteur lors de la vente et contient tous les documents relatifs aux travaux réalisés (plans, fiches techniques, notices, garanties…).
+          </p>
+        </div>
+      </div>
+
+    </div><!-- /col-lg-4 -->
+
+  </div><!-- /row -->
+
+</div>

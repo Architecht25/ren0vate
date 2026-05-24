@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_22_113227) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_24_125449) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -710,6 +710,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_22_113227) do
     t.string "commune"
     t.datetime "created_at", null: false
     t.date "date_achat"
+    t.date "date_mise_en_vente"
     t.date "date_peb_apres_travaux"
     t.date "date_peb_avant_travaux"
     t.integer "date_raccordement_electrique"
@@ -734,10 +735,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_22_113227) do
     t.boolean "petit_patrimoine"
     t.integer "pourcentage_propriete"
     t.boolean "primes_recues"
+    t.decimal "prix_vente_estime", precision: 12, scale: 2
     t.string "profil_demandeur"
     t.string "reconstruit"
     t.string "region"
     t.string "rue"
+    t.string "statut_vente", default: "actif", null: false
     t.integer "surface_habitable"
     t.integer "surface_habitable_wallonie"
     t.integer "surface_totale"
@@ -756,6 +759,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_22_113227) do
     t.bigint "user_id", null: false
     t.decimal "valeur_achat", precision: 10, scale: 2
     t.index ["latitude", "longitude"], name: "index_properties_on_latitude_and_longitude"
+    t.index ["statut_vente"], name: "index_properties_on_statut_vente"
     t.index ["user_id"], name: "index_properties_on_user_id"
   end
 
