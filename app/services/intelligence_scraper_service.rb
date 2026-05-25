@@ -1,38 +1,49 @@
 class IntelligenceScraperService
   include HTTParty
 
-  # Sources RSS belges pertinentes pour Ren0vate
-  # Clé = identifiant, url = flux RSS, label = nom affiché dans le rapport
   SOURCES = [
     {
-      key: 'spw_energie',
-      label: 'SPW Énergie (Wallonie)',
-      url: 'https://energie.wallonie.be/fr/rss.xml?IDC=19026',
-      region: 'Wallonie'
+      key:    'abex',
+      label:  'ABEX — Indice de reconstruction',
+      url:    'https://abex.be/feed/',
+      region: 'Belgique',
+      type:   :rss
     },
     {
-      key: 'bruxelles_env',
-      label: 'Bruxelles Environnement',
-      url: 'https://www.bruxellesenvironnement.be/rss/actualites.xml',
-      region: 'Bruxelles'
+      key:    'google_news_renov',
+      label:  'Google News — Rénovation & Énergie Belgique',
+      url:    'https://news.google.com/rss/search?q=%22r%C3%A9novation%22+%22Belgique%22+OR+%22EPBD%22+OR+%22primes+%C3%A9nergie%22&hl=fr&gl=BE&ceid=BE:fr',
+      region: 'Belgique',
+      type:   :rss
     },
     {
-      key: 'fednot',
-      label: 'Fednot (actualités notariales)',
-      url: 'https://www.notaire.be/rss/fr/news.xml',
-      region: 'Belgique'
+      key:            'embuild',
+      label:          'Embuild — Construction Belgique',
+      url:            'https://embuild.be/fr/actualit%C3%A9s',
+      region:         'Belgique',
+      type:           :html,
+      title_selector: '.content__title',
+      base_url:       'https://embuild.be'
     },
     {
-      key: 'vlaanderen_energie',
-      label: 'VEKA / Énergie Flandre',
-      url: 'https://www.vlaanderen.be/api/news/rss?entity=ondersteuning-voor-renovatie',
-      region: 'Flandre'
+      key:            'urban_brussels',
+      label:          'Urban.brussels — Permis & Urbanisme',
+      url:            'https://urban.brussels/fr/news/index',
+      region:         'Bruxelles',
+      type:           :html,
+      title_selector: 'h3.card__title a',
+      link_selector:  'h3.card__title a',
+      base_url:       'https://urban.brussels'
     },
     {
-      key: 'statbel_immo',
-      label: 'Statbel — Statistiques immobilier',
-      url: 'https://statbel.fgov.be/fr/rss/news',
-      region: 'Belgique'
+      key:            'bxl_env_press',
+      label:          'Bruxelles Environnement — Communiqués de presse',
+      url:            'https://press.environment.brussels/',
+      region:         'Bruxelles',
+      type:           :html,
+      title_selector: 'h2[class*="StoryCard_title"]',
+      link_selector:  'a[class*="StoryCard_link"]',
+      base_url:       'https://press.environment.brussels'
     }
   ].freeze
 
@@ -43,7 +54,6 @@ class IntelligenceScraperService
     @results = []
   end
 
-  # Retourne { sources: [...], total_items: N, formatted_text: "..." }
   def fetch_all
     SOURCES.each do |source|
       items = fetch_source(source)
@@ -65,22 +75,26 @@ class IntelligenceScraperService
   def fetch_source(source)
     response = HTTParty.get(
       source[:url],
-      timeout: REQUEST_TIMEOUT,
-      headers: { 'User-Agent' => 'Ren0vate-IntelligenceBot/1.0' },
+      timeout:          REQUEST_TIMEOUT,
+      headers:          { 'User-Agent' => 'Ren0vate-IntelligenceBot/1.0' },
       follow_redirects: true
     )
 
     return [] unless response.success?
 
-    parse_rss(response.body)
+    case source[:type]
+    when :rss  then parse_rss(response.body)
+    when :html then parse_html(response.body, source)
+    else []
+    end
   rescue Net::ReadTimeout, Net::OpenTimeout, Timeout::Error
     Rails.logger.warn "IntelligenceScraperService — timeout #{source[:url]}"
     []
   end
 
   def parse_rss(xml_body)
-    doc = Nokogiri::XML(xml_body)
-    items = doc.css('item, entry')  # RSS 2.0 = <item>, Atom = <entry>
+    doc   = Nokogiri::XML(xml_body)
+    items = doc.css('item, entry')
 
     items.first(MAX_ITEMS_PER_SOURCE).map do |item|
       title       = item.at_css('title')&.text&.strip
@@ -88,12 +102,30 @@ class IntelligenceScraperService
       pub_date    = item.at_css('pubDate, published, updated')&.text&.strip
       link        = item.at_css('link')&.text&.strip || item.at_css('link')&.attr('href')
 
-      # Nettoyer le HTML éventuel dans la description
       description = Nokogiri::HTML(description).text.strip if description&.include?('<')
       description = description&.truncate(300)
 
       { title: title, description: description, date: pub_date, url: link }.compact
     end.reject { |i| i[:title].blank? }
+  end
+
+  def parse_html(html_body, source)
+    doc          = Nokogiri::HTML(html_body)
+    title_nodes  = doc.css(source[:title_selector])
+    link_nodes   = source[:link_selector] ? doc.css(source[:link_selector]) : []
+    base         = source[:base_url].to_s
+
+    title_nodes.first(MAX_ITEMS_PER_SOURCE).each_with_index.filter_map do |node, i|
+      title = node.text.gsub(/\s+/, ' ').strip
+      next if title.length < 10
+
+      href = (link_nodes[i] || node).attr('href')&.strip
+      url  = if href.present?
+               href.start_with?('http') ? href : "#{base}#{href}"
+             end
+
+      { title: title, url: url }.compact
+    end
   end
 
   def build_text
@@ -115,7 +147,7 @@ class IntelligenceScraperService
       result[:items].each_with_index do |item, i|
         lines << "\n  #{i + 1}. #{item[:title]}"
         lines << "     Date : #{item[:date]}" if item[:date].present?
-        lines << "     #{item[:description]}" if item[:description].present?
+        lines << "     #{item[:description]}"  if item[:description].present?
       end
     end
 
