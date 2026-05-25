@@ -19,6 +19,15 @@ class Product < ApplicationRecord
 
   PRICE_UNITS = %w[m2 unit kWc].freeze
 
+  # Uw de référence par matériau châssis (W/m²K) — source Bobex mai 2026
+  # Plus la valeur est basse, meilleure est l'isolation.
+  # Seuil prime régionale : Uw ≤ 1,0 — vitrage seul Ug ≤ 1,1
+  UW_BY_MATERIAL = {
+    'pvc'  => 0.98,
+    'alu'  => 0.85,
+    'bois' => 0.77
+  }.freeze
+
   # ── Validations ───────────────────────────────────────────────────────────
   validates :category, presence: true, inclusion: { in: CATEGORIES.keys }
   validates :name,     presence: true
@@ -54,6 +63,17 @@ class Product < ApplicationRecord
     when 'bruxelles' then brussels_grant_eligible?
     else false
     end
+  end
+
+  # Uw effectif : valeur produit si renseignée, sinon référence matériau
+  def uw_value
+    technical_specs['uw_value']&.to_f || UW_BY_MATERIAL[subcategory]
+  end
+
+  # Vitrage éligible prime régionale (Ug ≤ 1,1 W/m²K)
+  def prime_glazing_eligible?
+    ug = technical_specs['ug_value']&.to_f
+    ug.present? ? ug <= 1.1 : false
   end
 
   # R-value selon épaisseur (cm) — isolants uniquement
@@ -120,6 +140,11 @@ class Product < ApplicationRecord
       # COP : 1 = gaz condensation, 3-4 = PAC
       cop = technical_specs['cop']&.to_f || thermal_performance
       [(cop / 4.5 * 10).clamp(2, 10), 10].min
+    when 'windows'
+      # Uw : plus bas = meilleur. Seuil prime ≤ 1,0. Bois 0,77 = 10/10
+      uw = uw_value
+      return 5.0 unless uw
+      [(((1.0 - uw) / (1.0 - 0.7)) * 7 + 3).clamp(3, 10), 10].min
     else
       5.0
     end

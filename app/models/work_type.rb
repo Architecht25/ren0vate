@@ -263,7 +263,7 @@ class WorkType
       unit_label: 'pièce',
       forfait: true,
       price_min: 300,
-      price_max: 900,
+      price_max: 1_750,
       duration_min: 1,
       duration_max: 2,
       vat_rate: 6
