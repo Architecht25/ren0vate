@@ -30,7 +30,7 @@ class AdminController < ApplicationController
       user_count:        User.user.count,
       confirmed_count:   User.where.not(confirmed_at: nil).count,
       unconfirmed_count: User.where(confirmed_at: nil).count,
-      total_users:       @users_count,
+      total_users:       User.count,
       csp_enforced:      Rails.env.production?,
       ssl_active:        Rails.application.config.force_ssl,
       hsts_active:       Rails.env.production?,
