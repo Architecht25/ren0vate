@@ -163,9 +163,23 @@ class WorkType
       unit_label: 'm²',
       forfait: false,
       price_min: 15,
-      price_max: 40,
+      price_max: 25,
       duration_min: 2,
       duration_max: 6,
+      vat_rate: 6
+    },
+    {
+      key: 'plafonnage_facade',
+      category: 'murs',
+      name: 'Plafonnage de façade (ciment/chaux)',
+      icon: 'bi-house-fill',
+      unit: 'm²',
+      unit_label: 'm²',
+      forfait: false,
+      price_min: 40,
+      price_max: 80,
+      duration_min: 3,
+      duration_max: 8,
       vat_rate: 6
     },
     {
