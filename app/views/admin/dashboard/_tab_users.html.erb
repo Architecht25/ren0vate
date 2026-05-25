@@ -83,7 +83,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <% @users.includes(:simulations, :properties, :projects, :requests, :documents, :subscriptions, :project_members).order(created_at: :desc).each do |user| %>
+                    <% @users.includes(:simulations, :properties, :projects, :requests, :documents, :subscriptions, :project_members).order(created_at: :desc).limit(50).each do |user| %>
                       <%
                         # Détecter le type utilisateur selon son activité
                         is_architect    = user.project_members.any? { |pm| pm.role == 'architect' && pm.status == 'active' }

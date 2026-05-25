@@ -9,16 +9,16 @@ class AdminController < ApplicationController
 
     # ✅ Les données admin doivent montrer TOUTES les données du système
     # Mais seulement si l'utilisateur est admin (déjà vérifié par before_action :ensure_admin)
-    @primes = Prime.all
-    @categories = Category.all
-    @documents = Document.all
-    @notifications = Notification.all
-    @properties = Property.all
-    @projects = Project.all
-    @requests = Request.all
+    @primes            = Prime.all
+    @categories        = Category.all
+    @documents         = Document.all
+    @notifications     = Notification.order(created_at: :desc).limit(100)
+    @properties        = Property.all
+    @projects          = Project.all
+    @requests          = Request.all
     @request_progresses = RequestProgress.all
-    @simulations = Simulation.all
-    @users = User.all
+    @simulations       = Simulation.all
+    @users             = User.all
     @backup_status = BackupStatusService.call
     @admin_stats = AdminStatsService.call
     @system_info = SystemInfoService.collect_system_info
@@ -30,7 +30,7 @@ class AdminController < ApplicationController
       user_count:        User.user.count,
       confirmed_count:   User.where.not(confirmed_at: nil).count,
       unconfirmed_count: User.where(confirmed_at: nil).count,
-      total_users:       @users.size,
+      total_users:       @users_count,
       csp_enforced:      Rails.env.production?,
       ssl_active:        Rails.application.config.force_ssl,
       hsts_active:       Rails.env.production?,

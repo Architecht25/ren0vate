@@ -9,22 +9,23 @@
           <h6 class="text-muted fw-semibold text-uppercase mb-3" style="font-size: 11px; letter-spacing: 0.5px;">
             <i class="bi bi-pie-chart me-1"></i>Répartition par statut
           </h6>
-          <% statuts = @projects.group_by(&:statut) %>
+          <% statuts_count = Project.group(:statut).count %>
+          <% total_projects = @projects.count %>
           <% statut_colors = { 'preparation' => '#667eea', 'en_cours' => '#ea580c', 'pause' => '#f59e0b', 'termine' => '#10b981', 'annule' => '#6b7280', nil => '#9ca3af' } %>
           <% statut_labels = { 'preparation' => 'Préparation', 'en_cours' => 'En cours', 'pause' => 'En pause', 'termine' => 'Terminé', 'annule' => 'Annulé' } %>
           <% if @projects.empty? %>
             <p class="text-muted small">Aucun projet</p>
           <% else %>
-            <% statuts.sort_by { |s, _| statut_colors.keys.index(s) || 99 }.each do |statut, projs| %>
+            <% statuts_count.sort_by { |s, _| statut_colors.keys.index(s) || 99 }.each do |statut, count| %>
               <div class="d-flex align-items-center justify-content-between mb-2">
                 <div class="d-flex align-items-center gap-2">
                   <div class="rounded-circle flex-shrink-0" style="width: 10px; height: 10px; background: <%= statut_colors[statut] || '#9ca3af' %>;"></div>
                   <span class="small"><%= statut_labels[statut] || statut&.humanize || 'Non défini' %></span>
                 </div>
-                <span class="badge bg-light text-dark"><%= projs.count %></span>
+                <span class="badge bg-light text-dark"><%= count %></span>
               </div>
               <div class="progress mb-2" style="height: 4px;">
-                <div class="progress-bar" style="width: <%= (projs.count.to_f / @projects.count * 100).round %>%; background: <%= statut_colors[statut] || '#9ca3af' %>;"></div>
+                <div class="progress-bar" style="width: <%= total_projects > 0 ? (count.to_f / total_projects * 100).round : 0 %>%; background: <%= statut_colors[statut] || '#9ca3af' %>;"></div>
               </div>
             <% end %>
           <% end %>

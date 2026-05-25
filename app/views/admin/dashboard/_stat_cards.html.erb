@@ -1,7 +1,7 @@
   <!-- KPI Cards — activité réelle de la plateforme -->
   <% active_users_30d = User.where('updated_at >= ? OR created_at >= ?', 30.days.ago, 30.days.ago).count %>
   <% new_users_7d = User.where('created_at >= ?', 7.days.ago).count %>
-  <% projects_en_cours = @projects.select { |p| p.statut.present? && !['termine', 'annule'].include?(p.statut) }.count %>
+  <% projects_en_cours = Project.where.not(statut: [nil, 'termine', 'annule']).count %>
   <% reserves_ouvertes = @reserves_stats[:ouvertes] + @reserves_stats[:en_cours] %>
   <div class="row mb-4">
 
@@ -29,7 +29,7 @@
             <div>
               <h3 class="mb-0 fw-bold text-white" style="text-shadow: 0 1px 3px rgba(0,0,0,0.3);"><%= @properties.count %></h3>
               <small class="text-white d-block" style="opacity: 0.9; font-weight: 500;">Propriétés</small>
-              <small class="text-white" style="opacity: 0.7;"><%= @properties.select { |p| p.latitude.present? }.count %> géocodées</small>
+              <small class="text-white" style="opacity: 0.7;"><%= Property.where.not(latitude: nil).count %> géocodées</small>
             </div>
             <i class="bi bi-house fs-1 text-white" style="opacity: 0.7;"></i>
           </div>
@@ -61,7 +61,7 @@
             <div>
               <h3 class="mb-0 fw-bold text-white" style="text-shadow: 0 1px 3px rgba(0,0,0,0.3);"><%= @simulations.count %></h3>
               <small class="text-white d-block" style="opacity: 0.9; font-weight: 500;">Simulations</small>
-              <small class="text-white" style="opacity: 0.7;"><%= @simulations.where('created_at >= ?', 30.days.ago).count %> ce mois</small>
+              <small class="text-white" style="opacity: 0.7;"><%= Simulation.where('created_at >= ?', 30.days.ago).count %> ce mois</small>
             </div>
             <i class="bi bi-calculator fs-1 text-white" style="opacity: 0.7;"></i>
           </div>
@@ -109,7 +109,7 @@
             <div>
               <h3 class="mb-0 fw-bold text-white" style="text-shadow: 0 1px 3px rgba(0,0,0,0.3);"><%= @request_progresses.count %></h3>
               <small class="text-white d-block" style="opacity: 0.9; font-weight: 500;">Suivis de primes</small>
-              <small class="text-white" style="opacity: 0.7;"><%= @request_progresses.select { |rp| rp.status_administratif == 'accorde' }.count %> accordées</small>
+              <small class="text-white" style="opacity: 0.7;"><%= RequestProgress.where(status_administratif: 'accorde').count %> accordées</small>
             </div>
             <i class="bi bi-clipboard-check fs-1 text-white" style="opacity: 0.7;"></i>
           </div>
