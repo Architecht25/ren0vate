@@ -1,7 +1,7 @@
 class DocumentsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_document, only: [:show, :edit, :update, :download, :preview, :view, :debug, :destroy, :ocr_view]
-  before_action :set_context, only: [:index, :new, :create]
+  before_action :set_context, only: [:index, :new, :create, :download_zip]
 
   # GET /documents ou /properties/:property_id/documents ou /projects/:project_id/documents
   def index
@@ -301,6 +301,61 @@ class DocumentsController < ApplicationController
     @photos_by_project = all_photos.select(&:project_id).group_by(&:project)
     @photos_no_project = all_photos.reject(&:project_id)
     @total_photos = all_photos.size
+  end
+
+  # GET /documents/download_zip?project_id=X&type_document=photo_pendant
+  def download_zip
+    require 'zip'
+
+    photo_types = %w[photo_avant photo_pendant photo_apres photo_chassis]
+    requested_types = Array(params[:type_document]).flatten.select { |t| photo_types.include?(t) }
+
+    if requested_types.empty?
+      redirect_back fallback_location: documents_path, alert: "Type de document non valide."
+      return
+    end
+
+    unless @project
+      redirect_back fallback_location: documents_path, alert: "Projet non spécifié."
+      return
+    end
+
+    documents = @project.documents
+                        .where(type_document: requested_types)
+                        .order(created_at: :asc)
+                        .select { |d| d.file.attached? }
+
+    if documents.empty?
+      redirect_back fallback_location: project_documents_path(@project, type_document: params[:type_document]),
+                    alert: "Aucune photo disponible au téléchargement."
+      return
+    end
+
+    type_label = requested_types.size == 1 ? requested_types.first : "photos"
+    zip_filename = "#{@project.nom.parameterize}_#{type_label}_#{Date.today.iso8601}.zip"
+
+    zip_data = Zip::OutputStream.write_buffer do |zip|
+      seen_names = Hash.new(0)
+      documents.each do |doc|
+        base_name = doc.file.filename.to_s
+        seen_names[base_name] += 1
+        entry_name = if seen_names[base_name] > 1
+          "#{File.basename(base_name, '.*')}_#{seen_names[base_name]}#{File.extname(base_name)}"
+        else
+          base_name
+        end
+        zip.put_next_entry(entry_name)
+        zip.write(doc.file.download)
+      end
+    end
+
+    zip_data.rewind
+    send_data zip_data.read,
+              type: 'application/zip',
+              filename: zip_filename,
+              disposition: 'attachment'
+  rescue ActiveRecord::RecordNotFound
+    redirect_to documents_path, alert: "Projet non trouvé."
   end
 
   # GET /documents/:id/download

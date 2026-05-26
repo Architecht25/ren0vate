@@ -157,7 +157,8 @@ Rails.application.routes.draw do
       get :ocr_view
     end
     collection do
-      get :photos  # Galerie photos de suivi (sidebar section 6)
+      get :photos       # Galerie photos de suivi (sidebar section 6)
+      get :download_zip # Télécharger toutes les photos d'un type en ZIP
     end
   end
 

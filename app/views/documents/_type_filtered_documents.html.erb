@@ -3,9 +3,18 @@
   <div class="container-fluid px-4 py-4">
     <% if @documents.any? %>
       <!-- Affichage des documents filtrés par type -->
-      <h6 class="text-primary mb-3 d-flex align-items-center">
-        <i class="bi bi-files me-2"></i>
-        Photos du chantier (<%= @documents.count %>)
+      <h6 class="text-primary mb-3 d-flex align-items-center justify-content-between">
+        <span>
+          <i class="bi bi-files me-2"></i>
+          Photos du chantier (<%= @documents.count %>)
+        </span>
+        <% if @project %>
+          <%= link_to download_zip_documents_path(project_id: @project.id, type_document: params[:type_document]),
+                class: "btn btn-outline-success btn-sm",
+                title: "Télécharger toutes les photos en ZIP" do %>
+            <i class="bi bi-file-zip me-1"></i>Télécharger tout (ZIP)
+          <% end %>
+        <% end %>
       </h6>
       <div class="row">
         <% @documents.each do |document| %>
