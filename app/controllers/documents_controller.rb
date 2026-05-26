@@ -304,9 +304,8 @@ class DocumentsController < ApplicationController
   end
 
   # GET /documents/download_zip?project_id=X&type_document=photo_pendant
+  # Génère un ZIP via l'API Cloudinary (pas de téléchargement sur le dyno)
   def download_zip
-    require 'zip'
-
     photo_types = %w[photo_avant photo_pendant photo_apres photo_chassis]
     requested_types = Array(params[:type_document]).flatten.select { |t| photo_types.include?(t) }
 
@@ -323,7 +322,7 @@ class DocumentsController < ApplicationController
     documents = @project.documents
                         .where(type_document: requested_types)
                         .order(created_at: :asc)
-                        .select { |d| d.file.attached? }
+                        .select { |d| d.file.attached? && d.file.service_name.to_s.include?('cloudinary') }
 
     if documents.empty?
       redirect_back fallback_location: project_documents_path(@project, type_document: params[:type_document]),
@@ -331,29 +330,17 @@ class DocumentsController < ApplicationController
       return
     end
 
-    type_label = requested_types.size == 1 ? requested_types.first : "photos"
-    zip_filename = "#{@project.nom.parameterize}_#{type_label}_#{Date.today.iso8601}.zip"
+    public_ids = documents.map { |doc| doc.file.key }
+    type_label  = requested_types.size == 1 ? requested_types.first : "photos"
+    archive_name = "#{@project.nom.parameterize}_#{type_label}_#{Date.today.iso8601}"
 
-    zip_data = Zip::OutputStream.write_buffer do |zip|
-      seen_names = Hash.new(0)
-      documents.each do |doc|
-        base_name = doc.file.filename.to_s
-        seen_names[base_name] += 1
-        entry_name = if seen_names[base_name] > 1
-          "#{File.basename(base_name, '.*')}_#{seen_names[base_name]}#{File.extname(base_name)}"
-        else
-          base_name
-        end
-        zip.put_next_entry(entry_name)
-        zip.write(doc.file.download)
-      end
-    end
+    zip_url = Cloudinary::Utils.download_zip_url(
+      public_ids: public_ids,
+      resource_type: "image",
+      target_public_id: archive_name
+    )
 
-    zip_data.rewind
-    send_data zip_data.read,
-              type: 'application/zip',
-              filename: zip_filename,
-              disposition: 'attachment'
+    redirect_to zip_url, allow_other_host: true
   rescue ActiveRecord::RecordNotFound
     redirect_to documents_path, alert: "Projet non trouvé."
   end
