@@ -330,7 +330,12 @@ class DocumentsController < ApplicationController
       return
     end
 
-    public_ids = documents.map { |doc| doc.file.key }
+    public_ids = documents.filter_map do |doc|
+      # Extraire le public_id réel depuis l'URL Cloudinary
+      # URL: .../upload/v1/production/KEY.EXT → public_id = production/KEY
+      url = doc.file.url.to_s.split('?').first
+      url.match(%r{/upload/v?\d*/(.+?)(?:\.[^./]+)?$})&.send(:[], 1)
+    end
     type_label  = requested_types.size == 1 ? requested_types.first : "photos"
     archive_name = "#{@project.nom.parameterize}_#{type_label}_#{Date.today.iso8601}"
 
