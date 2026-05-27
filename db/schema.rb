@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_24_160000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_27_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -659,6 +659,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_160000) do
     t.index ["project_id", "user_id"], name: "index_project_members_on_project_id_and_user_id", unique: true
     t.index ["project_id"], name: "index_project_members_on_project_id"
     t.index ["user_id"], name: "index_project_members_on_user_id"
+  end
+
+  create_table "project_notes", force: :cascade do |t|
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.bigint "project_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id", "created_at"], name: "index_project_notes_on_project_id_and_created_at"
+    t.index ["project_id"], name: "index_project_notes_on_project_id"
   end
 
   create_table "projects", force: :cascade do |t|
@@ -1364,6 +1373,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_160000) do
   add_foreign_key "project_checklists", "projects"
   add_foreign_key "project_members", "projects"
   add_foreign_key "project_members", "users"
+  add_foreign_key "project_notes", "projects"
   add_foreign_key "projects", "properties"
   add_foreign_key "projects", "users"
   add_foreign_key "properties", "users"

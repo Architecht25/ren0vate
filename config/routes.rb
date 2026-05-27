@@ -358,6 +358,9 @@ Rails.application.routes.draw do
     # Checklists d'inspection par phase
     resources :project_checklists, only: %i[create show destroy]
 
+    # Carnet de bord — notes libres
+    resources :project_notes, only: %i[create destroy]
+
     # PV de réception numérique
     resource :pv_reception, only: %i[show create destroy] do
       member do

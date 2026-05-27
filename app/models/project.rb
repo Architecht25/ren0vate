@@ -35,6 +35,9 @@ class Project < ApplicationRecord
   # Checklists d'inspection par phase
   has_many :project_checklists, dependent: :destroy
 
+  # Carnet de bord — notes libres du user sur le chantier
+  has_many :project_notes, dependent: :destroy
+
   validates :nom, presence: true
   validates :property_id, presence: true
   validates :project_type, presence: true, inclusion: { in: %w[renovation investment],

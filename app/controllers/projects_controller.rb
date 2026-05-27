@@ -34,6 +34,9 @@ class ProjectsController < ApplicationController
     @photos = @project.documents.where(type_document: photo_types).order(created_at: :desc)
     @photos_by_type = @photos.group_by(&:type_document)
 
+    # Carnet de bord
+    @project_notes = @project.project_notes
+
     # Devis scannés par OCR
     @devis_scanne_architecte  = @project.devis_ocr_architecte
     @devis_scanne_entrepreneur = @project.devis_ocr_entrepreneur

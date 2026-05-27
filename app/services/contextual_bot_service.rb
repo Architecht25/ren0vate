@@ -366,6 +366,15 @@ class ContextualBotService
             lines << "      • [#{f.type_facture}] #{amount_bracket(f.montant)} | #{f.statut_paiement || 'N/A'}#{expire}"
           end
         end
+
+        # Carnet de bord — notes libres du propriétaire sur ce chantier
+        notes = pr.project_notes.order(created_at: :desc).limit(10)
+        if notes.any?
+          lines << "    📓 Carnet de bord du chantier (#{notes.count} note(s) récentes) :"
+          notes.each do |n|
+            lines << "      [#{n.created_at.strftime('%d/%m/%Y')}] #{n.content}"
+          end
+        end
       end
     end
 
