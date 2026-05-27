@@ -7,17 +7,23 @@
     []
   end
 %>
-<div class="card shadow-sm border-0 p-3 mb-3 h-100" id="card-communales-bruxelles">
-  <div class="card-body d-flex flex-column gap-3">
+<div class="card shadow-sm border-0 rounded-4 overflow-hidden h-100" id="card-communales-bruxelles">
+
+  <%# En-tête terracotta %>
+  <div class="p-3 text-white" style="background: linear-gradient(135deg, #D97706 0%, #b45309 100%);">
     <div class="d-flex align-items-center gap-2">
-      <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px;">
-        <i class="bi bi-building fs-6 text-warning"></i>
+      <div class="bg-white bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center"
+           style="width:40px;height:40px;flex-shrink:0;">
+        <i class="bi bi-building fs-5"></i>
       </div>
       <div>
-        <h6 class="card-title mb-0">Primes Communales</h6>
-        <small class="text-muted">Bruxelles-Capitale</small>
+        <div class="fw-bold">Primes Communales</div>
+        <div class="small opacity-75">Bruxelles-Capitale</div>
       </div>
     </div>
+  </div>
+
+  <div class="card-body d-flex flex-column gap-3 p-3">
 
     <!-- Code postal -->
     <div>
@@ -30,7 +36,8 @@
                pattern="[0-9]{4}"
                maxlength="4"
                value="<%= cp %>">
-        <button class="btn btn-warning btn-sm" type="button" id="btn_detect_commune_brx">
+        <button class="btn btn-sm text-white" type="button" id="btn_detect_commune_brx"
+                style="background:#D97706;">
           <i class="bi bi-search"></i>
         </button>
       </div>
@@ -38,8 +45,8 @@
 
     <!-- Commune détectée -->
     <div id="commune_detected_brx" style="display:none;">
-      <div class="d-flex align-items-center gap-2 p-2 rounded" style="background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.3);">
-        <i class="bi bi-geo-alt-fill text-warning"></i>
+      <div class="d-flex align-items-center gap-2 p-2 rounded" style="background: rgba(217,119,6,0.08); border: 1px solid rgba(217,119,6,0.25);">
+        <i class="bi bi-geo-alt-fill" style="color:#D97706;"></i>
         <span class="small fw-medium" id="commune_name_brx"></span>
       </div>
     </div>
@@ -65,10 +72,10 @@
 
     <!-- Récap sélection -->
     <div id="recap_communales_brx" style="display:none;">
-      <div class="alert alert-warning alert-sm mb-0 p-2">
+      <div class="p-2 rounded-3" style="background:rgba(217,119,6,0.1); border:1px solid rgba(217,119,6,0.3);">
         <div class="d-flex justify-content-between align-items-center">
           <small class="fw-bold">Total primes communales :</small>
-          <span class="fw-bold text-warning" id="total_communales_brx">0 €</span>
+          <span class="fw-bold" style="color:#b45309;" id="total_communales_brx">0 €</span>
         </div>
       </div>
     </div>
@@ -80,7 +87,7 @@
       <div class="d-grid gap-2">
         <% if @simulation.property_id.present? %>
         <a href="<%= new_request_path(form_type: 'communal_bruxelles', property_id: @simulation.property_id, simulation_id: @simulation.id) %>"
-           class="btn btn-warning btn-sm fw-semibold">
+           class="btn btn-sm fw-semibold text-white" style="background:#D97706;">
           <i class="bi bi-file-earmark-text me-1"></i>Créer ma demande de prime
         </a>
         <% end %>
