@@ -20,7 +20,32 @@
     <%= render 'decision_hub/sections/preparation_technique/formulaires_wallonie' %>
   <% end %>
 
-  <%# Vue d'ensemble de la préparation %>
+  <%# Monuments & Sites classés — Bruxelles-Capitale %>
+  <% if @default_simulation&.region&.downcase == 'bruxelles' &&
+        @default_simulation&.property&.bien_classe? %>
+    <%= render 'decision_hub/sections/preparation_technique/monuments_bruxelles',
+               technical_data: technical_data %>
+  <%# Pour Bruxelles sans bien classé, aucune préparation technique générique n'est nécessaire %>
+  <% elsif @default_simulation&.region&.downcase == 'bruxelles' %>
+    <div class="alert alert-info border-0 rounded-4 mb-4">
+      <div class="d-flex align-items-start gap-2">
+        <i class="bi bi-info-circle-fill text-info flex-shrink-0 mt-1"></i>
+        <div>
+          <p class="fw-semibold mb-1">Bruxelles — Monuments & Sites classés</p>
+          <p class="mb-2 small">
+            À Bruxelles-Capitale, les subventions patrimoniales concernent uniquement les biens
+            <strong>classés, sauvegardés ou situés en zone de protection</strong> selon le COBAT.
+          </p>
+          <p class="mb-0 small">
+            Si votre bien est classé, activez l'option "Bien classé" dans la fiche du bien
+            pour accéder au guide de préparation Monuments & Sites.
+          </p>
+        </div>
+      </div>
+    </div>
+  <% else %>
+
+  <%# Vue d'ensemble de la préparation (Wallonie / Flandre) %>
   <div class="preparation-overview mb-4">
     <h5 class="fw-bold mb-3">
       <i class="bi bi-tools me-2"></i>
@@ -72,6 +97,8 @@
     </div>
 
   </div>
+
+  <% end # /else bruxelles non classé ou wallonie/flandre %>
 
 </div>
 
