@@ -156,14 +156,18 @@ class RequestsController < ApplicationController
           @request.submitted_at = Time.current
           @request.save!
 
-          # URL selon la région
+          # URL selon la région et le type de formulaire
           official_url = case @request.region
                         when 'flandre'
                           'https://www.vlaanderen.be/premies-pour-renovation/mijn-verbouwpremie'
                         when 'wallonie'
                           'https://energie.wallonie.be/fr/aides-et-primes.html?IDC=10717'
                         when 'bruxelles'
-                          'https://www.brussels.be/logement-et-energie/renovation-de-mon-logement/primes'
+                          if @request.form_type == 'monuments_bruxelles'
+                            'https://monument.heritage.brussels/fr/formulaire-de-demande/'
+                          else
+                            'https://www.brussels.be/logement-et-energie/renovation-de-mon-logement/primes'
+                          end
                         else
                           requests_path
                         end
@@ -492,7 +496,11 @@ class RequestsController < ApplicationController
                       when 'wallonie'
                         'https://energie.wallonie.be/fr/aides-et-primes.html?IDC=10717'
                       when 'bruxelles'
-                        'https://www.brussels.be/logement-et-energie/renovation-de-mon-logement/primes'
+                        if @request.form_type == 'monuments_bruxelles'
+                          'https://monument.heritage.brussels/fr/formulaire-de-demande/'
+                        else
+                          'https://www.brussels.be/logement-et-energie/renovation-de-mon-logement/primes'
+                        end
                       else
                         requests_path
                       end

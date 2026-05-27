@@ -1289,7 +1289,9 @@ class SimulationsController < ApplicationController
     when 'flandre'
       check_flandre_real_eligibility(user)
     when 'bruxelles'
-      { eligible: false, reason: "Primes Renolution supprimées à Bruxelles" }
+      # Les primes Renolution ont été supprimées, mais Monuments & Sites reste actif
+      # L'éligibilité spécifique est gérée dans chaque carte de simulation
+      { eligible: true }
     else
       { eligible: false, reason: "Région non supportée" }
     end

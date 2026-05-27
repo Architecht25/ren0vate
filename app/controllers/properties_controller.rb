@@ -571,6 +571,7 @@ class PropertiesController < ApplicationController
       :type_bien_bruxelles, :certificat_peb_bruxelles,
       :domiciliation, :nouvelle_construction, :bien_classe, :petit_patrimoine, :facade_patrimoine,
       :bce_number,
+      :statut_patrimonial, :denomination_monument, :date_classement, :numero_dossier_monument,
       elements_petit_patrimoine: []
     )
   end

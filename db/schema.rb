@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_27_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_27_110000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -753,10 +753,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_27_100000) do
     t.string "commune"
     t.datetime "created_at", null: false
     t.date "date_achat"
+    t.date "date_classement"
     t.date "date_mise_en_vente"
     t.date "date_peb_apres_travaux"
     t.date "date_peb_avant_travaux"
     t.integer "date_raccordement_electrique"
+    t.string "denomination_monument"
     t.boolean "domiciliation"
     t.boolean "domicilie_flandre"
     t.string "ean_flandre"
@@ -771,6 +773,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_27_100000) do
     t.boolean "nouvelle_construction"
     t.string "numero"
     t.string "numero_cadastre"
+    t.string "numero_dossier_monument"
     t.string "numero_ean"
     t.string "occupation"
     t.string "parcelle_flandre"
@@ -783,6 +786,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_27_100000) do
     t.string "reconstruit"
     t.string "region"
     t.string "rue"
+    t.string "statut_patrimonial"
     t.string "statut_vente", default: "actif", null: false
     t.integer "surface_habitable"
     t.integer "surface_habitable_wallonie"

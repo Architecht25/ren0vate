@@ -1,76 +1,197 @@
-<div class="card shadow-sm border-0 p-3 text-center mb-3 h-100">
-    <div class="card-body d-flex flex-column align-items-center gap-3">
-      <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-        <i class="bi bi-bank fs-5 text-info"></i>
+<%# Carte simulation Monuments & Sites — Bruxelles-Capitale
+   Vérifie le statut patrimonial via Brussels Heritage (ArcGIS) + estime la subvention %>
+<div class="card shadow-sm border-0 rounded-4 overflow-hidden h-100">
+
+  <%# En-tête coloré %>
+  <div class="p-3 text-white" style="background: linear-gradient(135deg, #0d6efd 0%, #084298 100%);">
+    <div class="d-flex align-items-center gap-2">
+      <div class="bg-white bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center"
+           style="width:40px;height:40px;flex-shrink:0;">
+        <i class="bi bi-bank fs-5"></i>
       </div>
-      <h6 class="card-title mb-2">Vérifier si le bien est classé</h6>
-      <p class="small text-muted mb-0">Monuments &amp; Sites — Région de Bruxelles-Capitale</p>
-
-      <div class="w-100" style="max-width: 360px;">
-
-        <!-- Champs adresse -->
-        <div class="row g-2 mb-2 text-start">
-          <div class="col-8">
-            <label class="form-label small mb-1">Rue</label>
-            <input type="text" class="form-control form-control-sm" id="mon_rue_bruxelles" placeholder="ex: Rue de la Loi">
-          </div>
-          <div class="col-4">
-            <label class="form-label small mb-1">Numéro</label>
-            <input type="text" class="form-control form-control-sm" id="mon_numero_bruxelles" placeholder="ex: 16">
-          </div>
-          <div class="col-4">
-            <label class="form-label small mb-1">Code postal</label>
-            <input type="text" class="form-control form-control-sm" id="mon_cp_bruxelles" placeholder="1000" maxlength="4">
-          </div>
-          <div class="col-8">
-            <label class="form-label small mb-1">Commune</label>
-            <input type="text" class="form-control form-control-sm" id="mon_commune_bruxelles" placeholder="ex: Bruxelles">
-          </div>
-        </div>
-
-        <!-- Bouton de vérification -->
-        <button type="button" id="btn-verif-monuments-bruxelles"
-                class="btn btn-info btn-sm w-100 rounded-3 mb-3">
-          <i class="bi bi-search me-1"></i>Vérifier le statut patrimonial
-        </button>
-
-        <!-- Loader -->
-        <div id="mon-loading-bruxelles" class="d-none mb-3">
-          <div class="d-flex align-items-center justify-content-center gap-2">
-            <div class="spinner-border spinner-border-sm text-info" role="status"></div>
-            <small class="text-muted">Recherche en cours…</small>
-          </div>
-        </div>
-
-        <!-- Résultat -->
-        <div id="mon-result-bruxelles" class="d-none mb-2 p-3 rounded-3 text-start">
-          <div class="d-flex align-items-start gap-2">
-            <i id="mon-result-icon" class="bi fs-5 mt-1"></i>
-            <div>
-              <p id="mon-result-title" class="fw-bold mb-1 small"></p>
-              <p id="mon-result-detail" class="mb-0 small text-muted"></p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Lien externe -->
-        <a href="https://monument.heritage.brussels/fr/recherche/" target="_blank" rel="noopener"
-           class="btn btn-outline-secondary btn-sm w-100 rounded-3">
-          <i class="bi bi-box-arrow-up-right me-1"></i>Consulter la carte officielle
-        </a>
+      <div>
+        <div class="fw-bold">Monuments &amp; Sites</div>
+        <div class="small opacity-75">Région de Bruxelles-Capitale</div>
       </div>
     </div>
   </div>
 
+  <div class="card-body d-flex flex-column gap-3 p-3">
+
+    <%# Étape 1 : vérification patrimoniale %>
+    <div>
+      <p class="small text-muted mb-2">
+        <i class="bi bi-info-circle me-1"></i>
+        Les subventions Monuments &amp; Sites (AGovt 2 mai 2024) sont réservées aux biens
+        <strong>classés ou protégés</strong> en Région bruxelloise.
+      </p>
+
+      <%# Pré-remplissage adresse property %>
+      <% if @simulation&.property %>
+        <% _mon_prop = @simulation.property %>
+      <% end %>
+
+      <div class="row g-2 mb-2">
+        <div class="col-8">
+          <label class="form-label small mb-1">Rue</label>
+          <input type="text" class="form-control form-control-sm" id="mon_rue_bruxelles"
+                 placeholder="ex: Rue de la Loi"
+                 value="<%= _mon_prop&.rue.to_s %>">
+        </div>
+        <div class="col-4">
+          <label class="form-label small mb-1">Numéro</label>
+          <input type="text" class="form-control form-control-sm" id="mon_numero_bruxelles"
+                 placeholder="16"
+                 value="<%= _mon_prop&.numero.to_s %>">
+        </div>
+        <div class="col-4">
+          <label class="form-label small mb-1">Code postal</label>
+          <input type="text" class="form-control form-control-sm" id="mon_cp_bruxelles"
+                 placeholder="1000" maxlength="4"
+                 value="<%= _mon_prop&.code_postal.to_s %>">
+        </div>
+        <div class="col-8">
+          <label class="form-label small mb-1">Commune</label>
+          <input type="text" class="form-control form-control-sm" id="mon_commune_bruxelles"
+                 placeholder="Bruxelles"
+                 value="<%= _mon_prop&.commune.to_s %>">
+        </div>
+      </div>
+
+      <button type="button" id="btn-verif-monuments-bruxelles"
+              class="btn btn-primary btn-sm w-100 rounded-3">
+        <i class="bi bi-search me-1"></i>Vérifier le statut patrimonial
+      </button>
+
+      <div id="mon-loading-bruxelles" class="d-none mt-2">
+        <div class="d-flex align-items-center justify-content-center gap-2">
+          <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+          <small class="text-muted">Recherche en cours…</small>
+        </div>
+      </div>
+
+      <div id="mon-result-bruxelles" class="d-none mt-2 p-3 rounded-3">
+        <div class="d-flex align-items-start gap-2">
+          <i id="mon-result-icon" class="bi fs-5 mt-1"></i>
+          <div>
+            <p id="mon-result-title" class="fw-bold mb-1 small"></p>
+            <p id="mon-result-detail" class="mb-0 small text-muted"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# Étape 2 : estimation subvention (visible seulement si bien classé) %>
+    <div id="mon-estimation-section" class="d-none border-top pt-3">
+      <p class="small fw-semibold text-primary mb-2">
+        <i class="bi bi-calculator me-1"></i>Estimer ma subvention
+      </p>
+
+      <div class="mb-2">
+        <label class="form-label small mb-1">Type de bénéficiaire</label>
+        <select class="form-select form-select-sm" id="mon_type_beneficiaire">
+          <option value="">— Sélectionner —</option>
+          <option value="prive_bas_revenus">Personne physique — revenus ≤ 40 000 € (+ 2 500 €/pers. à charge)</option>
+          <option value="prive">Personne physique — revenus normaux</option>
+          <option value="asbl">ASBL / Fondation / Association</option>
+          <option value="public">Bénéficiaire public (Commune, CPAS, SISP, Enseignement, Culte)</option>
+        </select>
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label small mb-1">Type de travaux</label>
+        <div class="d-flex gap-2 flex-wrap">
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="mon_type_travaux" id="mon_travaux_conservation"
+                   value="conservation" checked>
+            <label class="form-check-label small" for="mon_travaux_conservation">Conservation / restauration</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="mon_type_travaux" id="mon_travaux_etudes"
+                   value="etudes">
+            <label class="form-check-label small" for="mon_travaux_etudes">Études préalables (max 12 000 €)</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small mb-1">Montant estimé des travaux éligibles (€ HTVA)</label>
+        <div class="input-group input-group-sm">
+          <input type="number" class="form-control" id="mon_montant_travaux"
+                 placeholder="ex: 150000" min="0" step="1000">
+          <span class="input-group-text">€</span>
+        </div>
+      </div>
+
+      <button type="button" id="btn-calcul-monuments"
+              class="btn btn-primary btn-sm w-100 rounded-3 mb-3">
+        <i class="bi bi-calculator me-1"></i>Calculer l'estimation
+      </button>
+
+      <div id="mon-calcul-result" class="d-none p-3 rounded-3 border border-primary bg-primary bg-opacity-10 mb-3">
+        <div class="row g-2 align-items-center">
+          <div class="col-7">
+            <div class="small text-muted">Taux de subvention</div>
+            <div class="h6 mb-0 fw-bold text-primary" id="mon-taux-display">—</div>
+          </div>
+          <div class="col-5 text-end">
+            <div class="small text-muted">Subvention estimée</div>
+            <div class="h5 mb-0 fw-bold text-primary" id="mon-montant-display">—</div>
+          </div>
+        </div>
+        <hr class="my-2">
+        <p class="small text-muted mb-0" id="mon-note-legale"></p>
+      </div>
+
+      <% if @simulation&.property&.projects&.any? %>
+        <% _mon_project = @simulation.property.projects.order(created_at: :desc).first %>
+        <%= link_to new_request_path(project_id: _mon_project.id, form_type: :monuments_bruxelles),
+              class: "btn btn-success btn-sm w-100 rounded-3 mb-2" do %>
+          <i class="bi bi-file-earmark-plus me-1"></i>Créer ma demande officielle
+        <% end %>
+      <% end %>
+
+      <a href="https://monument.heritage.brussels/fr/subventions/" target="_blank" rel="noopener"
+         class="btn btn-outline-secondary btn-sm w-100 rounded-3">
+        <i class="bi bi-box-arrow-up-right me-1"></i>Conditions officielles (heritage.brussels)
+      </a>
+    </div>
+
+    <%# Lien carte officielle — toujours visible %>
+    <div class="mt-auto">
+      <a href="https://monument.heritage.brussels/fr/recherche/" target="_blank" rel="noopener"
+         class="btn btn-outline-primary btn-sm w-100 rounded-3">
+        <i class="bi bi-map me-1"></i>Carte officielle du patrimoine bruxellois
+      </a>
+    </div>
+
+  </div>
+</div>
+
 <script nonce="<%= content_security_policy_nonce %>">
 (function() {
-  var btn = document.getElementById('btn-verif-monuments-bruxelles');
-  if (!btn) return;
+  var TAUX = {
+    prive_bas_revenus: 0.50,
+    prive:             0.40,
+    asbl:              0.60,
+    public:            0.80
+  };
+  var PLAFOND_ETUDES  = 12000;
+  var PLAFOND_TRAVAUX = 1500000;
 
-  btn.addEventListener('click', function() {
-    var rue    = (document.getElementById('mon_rue_bruxelles').value || '').trim();
-    var num    = (document.getElementById('mon_numero_bruxelles').value || '').trim();
-    var cp     = (document.getElementById('mon_cp_bruxelles').value || '').trim();
+  function formatEur(n) {
+    return new Intl.NumberFormat('fr-BE', { style:'currency', currency:'EUR', maximumFractionDigits:0 }).format(n);
+  }
+
+  // ---- Vérification patrimoniale ----
+  var btnVerif  = document.getElementById('btn-verif-monuments-bruxelles');
+  var estimSect = document.getElementById('mon-estimation-section');
+  if (!btnVerif) return;
+
+  btnVerif.addEventListener('click', function() {
+    var rue     = (document.getElementById('mon_rue_bruxelles').value    || '').trim();
+    var num     = (document.getElementById('mon_numero_bruxelles').value || '').trim();
+    var cp      = (document.getElementById('mon_cp_bruxelles').value     || '').trim();
     var commune = (document.getElementById('mon_commune_bruxelles').value || '').trim();
 
     if (!rue || !cp) {
@@ -86,56 +207,86 @@
 
     loader.classList.remove('d-none');
     result.classList.add('d-none');
-    btn.disabled = true;
+    estimSect.classList.add('d-none');
+    btnVerif.disabled = true;
 
-    // Étape 1 : géocodage via Nominatim
     var query = encodeURIComponent([num, rue, cp, commune, 'Belgique'].filter(Boolean).join(' '));
     fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + query, {
       headers: { 'Accept-Language': 'fr', 'User-Agent': 'Ren0vate/1.0' }
     })
     .then(function(r) { return r.json(); })
     .then(function(geo) {
-      if (!geo || !geo.length) throw new Error('Adresse introuvable. Vérifiez les champs.');
+      if (!geo || !geo.length) throw new Error('Adresse introuvable. Vérifiez les champs saisis.');
       var lat = parseFloat(geo[0].lat);
       var lon = parseFloat(geo[0].lon);
-
-      // Étape 2 : proxy Rails → Brussels Heritage ArcGIS (évite CORS)
       return fetch('/properties/check_heritage?lat=' + lat + '&lon=' + lon, {
         headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content }
       }).then(function(r) { return r.json(); });
     })
     .then(function(data) {
       loader.classList.add('d-none');
-      btn.disabled = false;
+      btnVerif.disabled = false;
       result.classList.remove('d-none');
 
       if (data.features && data.features.length > 0) {
         var f = data.features[0].attributes;
         icon.className = 'bi bi-shield-fill-check fs-5 mt-1 text-success';
-        result.style.background = '#d4edda';
-        result.style.borderLeft = '4px solid #28a745';
-        title.textContent = 'Bien classé ou protégé';
+        result.style.cssText = 'background:#d4edda;border-left:4px solid #28a745;';
+        title.textContent = 'Bien classé ou protégé \u2713';
         detail.textContent = (f.DENOMINATION || 'Monument répertorié')
           + (f.DATE_ARRETE ? ' — Arrêté : ' + f.DATE_ARRETE : '')
           + (f.STATUT ? ' (' + f.STATUT + ')' : '');
+        estimSect.classList.remove('d-none');
       } else {
         icon.className = 'bi bi-shield-x fs-5 mt-1 text-secondary';
-        result.style.background = '#f8f9fa';
-        result.style.borderLeft = '4px solid #6c757d';
+        result.style.cssText = 'background:#f8f9fa;border-left:4px solid #6c757d;';
         title.textContent = 'Non classé';
         detail.textContent = 'Aucun bien classé ou protégé trouvé à cette adresse dans la base Brussels Heritage.';
       }
     })
     .catch(function(err) {
       loader.classList.add('d-none');
-      btn.disabled = false;
+      btnVerif.disabled = false;
       result.classList.remove('d-none');
       icon.className = 'bi bi-exclamation-triangle fs-5 mt-1 text-warning';
-      result.style.background = '#fff3cd';
-      result.style.borderLeft = '4px solid #ffc107';
+      result.style.cssText = 'background:#fff3cd;border-left:4px solid #ffc107;';
       title.textContent = 'Vérification impossible';
       detail.textContent = err.message || 'Erreur lors de la requête. Consultez la carte officielle.';
     });
   });
+
+  // ---- Calcul estimation subvention ----
+  var btnCalc = document.getElementById('btn-calcul-monuments');
+  if (btnCalc) {
+    btnCalc.addEventListener('click', function() {
+      var typeBenef   = document.getElementById('mon_type_beneficiaire').value;
+      var typeTravaux = (document.querySelector('input[name="mon_type_travaux"]:checked') || {}).value || 'conservation';
+      var montant     = parseFloat(document.getElementById('mon_montant_travaux').value);
+
+      if (!typeBenef) { alert('Veuillez sélectionner votre type de bénéficiaire.'); return; }
+      if (!montant || montant <= 0) { alert('Veuillez saisir un montant de travaux valide.'); return; }
+
+      var taux        = TAUX[typeBenef];
+      var montantBrut = montant * taux;
+      var plafond     = typeTravaux === 'etudes' ? PLAFOND_ETUDES : PLAFOND_TRAVAUX;
+      var montantNet  = Math.min(montantBrut, plafond);
+      var plafonné    = montantNet < montantBrut;
+
+      var libelles = {
+        prive_bas_revenus: 'Personne physique à revenus réduits (ménage ≤ 40 000 € + 2 500 €/pers. à charge)',
+        prive:             'Personne physique (revenus standards)',
+        asbl:              'ASBL / Fondation / Association sans but lucratif',
+        public:            'Bénéficiaire public (Commune, CPAS, SISP, Enseignement, Culte…)'
+      };
+      var noteTravaux = typeTravaux === 'etudes'
+        ? 'Études préalables — plafond de subvention : 12 000 €'
+        : "Conservation / restauration — les travaux ne peuvent débuter qu'après accord du Gouvernement.";
+
+      document.getElementById('mon-taux-display').textContent  = (taux * 100) + '%';
+      document.getElementById('mon-montant-display').textContent = formatEur(montantNet) + (plafonné ? ' (plafonné)' : '');
+      document.getElementById('mon-note-legale').textContent   = libelles[typeBenef] + ' — ' + noteTravaux;
+      document.getElementById('mon-calcul-result').classList.remove('d-none');
+    });
+  }
 })();
 </script>

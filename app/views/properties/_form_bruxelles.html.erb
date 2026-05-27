@@ -606,12 +606,61 @@
                      class="mt-3 p-3 border rounded-3"
                      style="background: #f0fff4; border-color: #28a745 !important; <%= property&.bien_classe? ? '' : 'display:none;' %>">
                   <p class="small fw-semibold mb-3 text-success">
-                    <i class="bi bi-bank me-1"></i>Vérifier le statut patrimonial de ce bien
+                    <i class="bi bi-bank me-1"></i>Informations patrimoniales du bien classé
+                  </p>
+
+                  <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                      <%= f.input :denomination_monument,
+                          label: '<i class="bi bi-card-text me-1 text-success"></i>Dénomination officielle'.html_safe,
+                          placeholder: "ex. Hôtel de Ville de Bruxelles",
+                          wrapper_html: { class: "mb-0" },
+                          label_html: { class: "form-label small fw-medium mb-1" },
+                          input_html: { class: "form-control form-control-sm" } %>
+                    </div>
+                    <div class="col-md-6">
+                      <%= f.input :statut_patrimonial,
+                          as: :select,
+                          collection: [
+                            ["Classé", "classe"],
+                            ["Sauvegardé", "sauvegarde"],
+                            ["Zone de protection", "zone_protection"],
+                            ["Inscription (inventaire)", "inscription"]
+                          ],
+                          include_blank: "— Statut patrimonial —",
+                          label: '<i class="bi bi-shield-fill-check me-1 text-success"></i>Statut de protection'.html_safe,
+                          wrapper_html: { class: "mb-0" },
+                          label_html: { class: "form-label small fw-medium mb-1" },
+                          input_html: { class: "form-select form-select-sm" } %>
+                    </div>
+                    <div class="col-md-6">
+                      <%= f.input :date_classement,
+                          as: :date,
+                          start_year: 1900,
+                          end_year: Date.current.year,
+                          label: '<i class="bi bi-calendar-event me-1 text-success"></i>Date de l\'arrêté de classement'.html_safe,
+                          wrapper_html: { class: "mb-0" },
+                          label_html: { class: "form-label small fw-medium mb-1" },
+                          input_html: { class: "form-control form-control-sm" } %>
+                    </div>
+                    <div class="col-md-6">
+                      <%= f.input :numero_dossier_monument,
+                          label: '<i class="bi bi-hash me-1 text-success"></i>N° de dossier Brussels Heritage'.html_safe,
+                          placeholder: "ex. 2076-0027/0",
+                          wrapper_html: { class: "mb-0" },
+                          label_html: { class: "form-label small fw-medium mb-1" },
+                          input_html: { class: "form-control form-control-sm" } %>
+                    </div>
+                  </div>
+
+                  <hr class="my-3">
+                  <p class="small fw-semibold mb-2 text-success">
+                    <i class="bi bi-search me-1"></i>Vérifier ou confirmer le statut patrimonial
                   </p>
 
                   <button type="button" id="btn-verif-monuments-bruxelles"
                           class="btn btn-success btn-sm w-100 rounded-3 mb-3">
-                    <i class="bi bi-search me-1"></i>Vérifier le statut patrimonial
+                    <i class="bi bi-search me-1"></i>Vérifier via Brussels Heritage (ArcGIS)
                   </button>
 
                   <div id="mon-loading-bruxelles" class="d-none mb-2">
