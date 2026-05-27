@@ -4,13 +4,16 @@
 # Référence légale : AGovt 2 mai 2024 (COBAT — patrimoine architectural bruxellois)
 # https://monument.heritage.brussels/fr/subventions/
 class Regions::Bruxelles::MonumentsBruxellesCalculatorService
-  # Taux de subvention selon le type de bénéficiaire
+  # Taux de subvention selon le type de bénéficiaire (travaux hors études)
   TAUX = {
     "prive_bas_revenus" => 0.50,   # Personne physique, revenus ménage ≤ 40 000 € (+2 500 €/pers. à charge)
-    "prive"             => 0.40,   # Personne physique (revenus normaux)
+    "prive"             => 0.40,   # Personne physique (revenus normaux) — enveloppe extérieure
     "asbl"              => 0.60,   # ASBL, fondation, association
     "public"            => 0.80    # Commune, CPAS, SISP, institution d'enseignement, culte
   }.freeze
+
+  # Études préalables : taux fixe 80% pour TOUS les types de bénéficiaires (AGovt 2 mai 2024, art. 22)
+  TAUX_ETUDES = 0.80
 
   # Plafond subvention études préalables
   PLAFOND_ETUDES = 12_000
@@ -28,7 +31,8 @@ class Regions::Bruxelles::MonumentsBruxellesCalculatorService
     return ineligible("Type de bénéficiaire inconnu") unless TAUX.key?(@type_beneficiaire)
     return ineligible("Montant des travaux invalide") if @montant_travaux <= 0
 
-    taux            = TAUX[@type_beneficiaire]
+    # Études préalables : toujours subventionnées à 80%, quel que soit le type de bénéficiaire
+    taux            = @type_travaux == "etudes" ? TAUX_ETUDES : TAUX[@type_beneficiaire]
     montant_brut    = (@montant_travaux * taux).round(2)
     montant_estime  = apply_caps(montant_brut)
 
@@ -57,9 +61,9 @@ class Regions::Bruxelles::MonumentsBruxellesCalculatorService
 
   def note_legale
     if @type_travaux == "etudes"
-      "Études préalables — subvention max #{number_to_currency(PLAFOND_ETUDES)}"
+      "Études préalables — taux fixe 80% pour tous les bénéficiaires, subvention max #{number_to_currency(PLAFOND_ETUDES)}"
     else
-      "Conservation / restauration — taux #{(TAUX[@type_beneficiaire] * 100).to_i}% des coûts éligibles. " \
+      "Conservation / restauration (enveloppe extérieure) — taux #{(TAUX[@type_beneficiaire] * 100).to_i}%. " \
         "Les travaux ne peuvent débuter qu'après accord du Gouvernement."
     end
   end

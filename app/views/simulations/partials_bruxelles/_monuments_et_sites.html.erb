@@ -104,12 +104,12 @@
           <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="mon_type_travaux" id="mon_travaux_conservation"
                    value="conservation" checked>
-            <label class="form-check-label small" for="mon_travaux_conservation">Conservation / restauration</label>
+            <label class="form-check-label small" for="mon_travaux_conservation">Conservation / restauration <span class="text-muted">(enveloppe extérieure)</span></label>
           </div>
           <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="mon_type_travaux" id="mon_travaux_etudes"
                    value="etudes">
-            <label class="form-check-label small" for="mon_travaux_etudes">Études préalables (max 12 000 €)</label>
+            <label class="form-check-label small" for="mon_travaux_etudes">Études préalables <span class="badge bg-success text-white">80% fixe — max 12 000 €</span></label>
           </div>
         </div>
       </div>
@@ -266,7 +266,7 @@
       if (!typeBenef) { alert('Veuillez sélectionner votre type de bénéficiaire.'); return; }
       if (!montant || montant <= 0) { alert('Veuillez saisir un montant de travaux valide.'); return; }
 
-      var taux        = TAUX[typeBenef];
+      var taux        = typeTravaux === 'etudes' ? 0.80 : TAUX[typeBenef]; // études : 80% fixe pour tous
       var montantBrut = montant * taux;
       var plafond     = typeTravaux === 'etudes' ? PLAFOND_ETUDES : PLAFOND_TRAVAUX;
       var montantNet  = Math.min(montantBrut, plafond);
@@ -279,8 +279,8 @@
         public:            'Bénéficiaire public (Commune, CPAS, SISP, Enseignement, Culte…)'
       };
       var noteTravaux = typeTravaux === 'etudes'
-        ? 'Études préalables — plafond de subvention : 12 000 €'
-        : "Conservation / restauration — les travaux ne peuvent débuter qu'après accord du Gouvernement.";
+        ? 'Études préalables — taux fixe 80% pour tous les bénéficiaires, plafond 12 000 €'
+        : "Conservation / restauration (enveloppe extérieure) — les travaux ne peuvent débuter qu'après accord du Gouvernement.";
 
       document.getElementById('mon-taux-display').textContent  = (taux * 100) + '%';
       document.getElementById('mon-montant-display').textContent = formatEur(montantNet) + (plafonné ? ' (plafonné)' : '');
