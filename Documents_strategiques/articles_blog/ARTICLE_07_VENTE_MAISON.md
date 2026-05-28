@@ -1,3 +1,21 @@
+# Métadonnées (à copier dans le formulaire admin)
+
+- **Titre** : Comment j'ai utilisé Ren0vate pour préparer la vente de ma maison
+- **Slug** : preparer-vente-maison-belgique-documentation
+- **Catégorie** : Vente & transmission
+- **Auteur** : Robin Duparc
+- **Durée de lecture** : 6 min
+- **Résumé** : Huit ans de travaux, quatre chantiers, une vente prévue en 2027. Comment j'ai reconstitué l'historique complet de ma maison en quelques heures avec Ren0vate — et ce que j'aurais fait différemment depuis le début.
+- **Meta description** : Préparer la vente de sa maison en Belgique : reconstituer 8 ans de chantiers, constituer le DIU, préparer ses arguments — témoignage avec Ren0vate.
+
+> ⚠️ **À finaliser avant publication** : adapter les détails réels (durée de l'exercice, documents retrouvés ou manquants, noms d'entrepreneurs si pertinent).
+
+---
+
+# Contenu de l'article (à coller dans l'éditeur)
+
+---
+
 # Comment j'ai utilisé Ren0vate pour préparer la vente de ma maison
 
 > **Note de rédaction :** Article à finaliser après l'exercice réel (session du 24 mai 2026).

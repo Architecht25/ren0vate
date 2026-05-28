@@ -4,9 +4,9 @@
 - **Slug** : architecte-clients-desorganises-temps-perdu
 - **Catégorie** : Pour les professionnels
 - **Auteur** : L'équipe Ren0vate
-- **Durée de lecture** : 6 min
+- **Durée de lecture** : 5 min
 - **Résumé** : Relances, documents manquants, questions répétitives, réunions inutiles : les professionnels de la construction passent une journée entière par semaine à gérer l'administratif client. Voici pourquoi — et comment l'éviter.
-- **Meta description** : Architectes et entrepreneurs belges : 6h/semaine perdues en gestion client désorganisée. Comment Ren0vate structure vos clients avant même le premier rendez-vous.
+- **Meta description** : Architectes belges : 6h/semaine perdues en gestion client désorganisée. Comment Ren0vate structure vos clients dès le premier rendez-vous.
 
 ---
 

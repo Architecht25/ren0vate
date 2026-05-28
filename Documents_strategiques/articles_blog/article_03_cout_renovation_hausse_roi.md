@@ -4,9 +4,9 @@
 - **Slug** : cout-renovation-belgique-hausse-2026-roi
 - **Catégorie** : Conseils pratiques
 - **Auteur** : L'équipe Ren0vate
-- **Durée de lecture** : 8 min
+- **Durée de lecture** : 6 min
 - **Résumé** : Matériaux, main d'œuvre, produits pétroliers, taux d'intérêt : tout monte. Mais un chantier bien piloté peut encore être rentable. Voici comment calculer votre ROI réel avant de vous lancer.
-- **Meta description** : Coût rénovation Belgique 2026 : matériaux +40%, main d'œuvre rare, taux en hausse. Comment calculer votre ROI et éviter la dérive budgétaire avant même le premier coup de marteau.
+- **Meta description** : Coût rénovation Belgique 2026 : +40% matériaux, main d'œuvre rare, taux élevés. Comment calculer votre ROI et éviter la dérive budgétaire.
 
 ---
 

@@ -6,7 +6,7 @@
 - **Auteur** : L'équipe Ren0vate
 - **Durée de lecture** : 5 min
 - **Résumé** : Permis d'urbanisme, primes, choix d'entrepreneur, délais de chantier : voici les vraies questions que les propriétaires posent à l'Expert IA Ren0vate — et pourquoi les réponses changent tout.
-- **Meta description** : Assistant IA rénovation Belgique : permis, primes, entrepreneurs, PEB. Découvrez comment l'Expert IA Ren0vate répond aux vraies questions des propriétaires belges en 2026.
+- **Meta description** : Expert IA rénovation Belgique : permis, primes, entrepreneurs, PEB. Comment l'IA Ren0vate répond aux vraies questions des propriétaires en 2026.
 
 ---
 

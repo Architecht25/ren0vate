@@ -16,21 +16,23 @@ Prérequis : vérifier `primes_services_client = true` sur les 75 clients en pro
 
 ---
 
-Bonjour [prénom],
+Bonjour,
 
-Vous vous souvenez peut-être de nos échanges autour de vos primes de rénovation. J'ai vu de près à quel point gérer un chantier en Belgique pouvait être épuisant — les documents à rassembler, les délais à respecter, les entrepreneurs à coordonner.
+Je me permets de revenir vers vous au sujet de Ren0vate, outil que nous avons utilisé ensemble dans le cadre de la gestion de votre dossier de primes.
 
-C'est exactement pour résoudre ça que j'ai construit Ren0vate.
+J'ai bien conscience que vous avez fait appel à Primes-Services pour ne pas avoir à vous occuper de votre dossier. Sauf que vous faites malgré vous partie des premiers utilisateurs de l'app 😄
 
-Ren0vate, c'est une plateforme qui centralise tout ce dont vous avez besoin pour piloter votre rénovation : suivi de chantier, gestion des devis et factures, simulation des primes disponibles, et un assistant IA qui répond à vos questions en temps réel.
+Alors voilà pourquoi je vous écris.
 
-Depuis nos premiers échanges, la plateforme a évolué bien au-delà du chantier. Vos travaux réalisés constituent déjà une partie de votre Dossier d'Intervention Ultérieure — le document légalement requis lors d'une vente. Ren0vate le construit automatiquement, et vous permet aussi de préparer une mise en vente ou de gérer une location si votre situation change.
+Depuis nos premiers échanges, Ren0vate est devenu une plateforme de gestion de patrimoine immobilier : suivi de chantier, gestion des devis et factures, DIU exportable, gestion locative — avec un assistant IA qui vous aide à chiffrer des travaux, comparer des devis ou trouver des alternatives de matériaux sans toujours devoir demander l'avis de votre entrepreneur.
 
-Vous faites déjà partie des premiers utilisateurs. Votre compte est actif sur ren0vate.be.
+Ce sont 15 années d'expertise et plus de 10 000 chantiers accompagnés que nous avons mis en boîte.
 
-Ce que j'attends de vous en ce moment, c'est simple : utilisez-le, et dites-moi ce qui manque. Pas d'abonnement, pas de carte de crédit — c'est gratuit pour vous pendant cette phase de test.
+Ce que j'attends de vous : 5 à 10 minutes pour un retour d'expérience. Voir si ce dont vous auriez eu besoin s'y trouve.
 
-À très vite,
+Votre compte est gratuit, stockage inclus. Commencez par la checklist DIU — vous serez surpris de ce que vous avez déjà 😉
+
+À très vite,\
 Robin
 
 *PS : Si vous avez un ami ou voisin qui rénove en ce moment, je serais heureux que vous lui parliez de l'outil.*
@@ -44,22 +46,20 @@ Robin
 
 ---
 
-**Objet :** Vous êtes parmi les 128 premiers sur Ren0vate
+**Objet :** Ren0vate — honnêtement, qu'est-ce qui s'est passé ?
 
 ---
 
-Bonjour [prénom],
+Bonjour,
 
-Vous vous êtes inscrit sur Ren0vate il y a quelques semaines. Je voulais prendre un moment pour vous écrire personnellement.
+Vous vous êtes inscrit sur Ren0vate il y a quelques semaines. Depuis, plus de nouvelles.
 
-Vous faites partie des 128 premières personnes à avoir créé un compte. Ce n'est pas anodin — vous avez découvert l'outil par vous-même, sans campagne publicitaire, et ça compte beaucoup pour moi.
+Je ne vous en veux pas. Mais j'aimerais vraiment comprendre pourquoi.
 
-Ren0vate est encore en phase de test, mais ce n'est plus une simple app de rénovation. L'idée est de centraliser toute la vie de votre logement en un seul endroit : devis, factures, primes, suivi de chantier, assistant IA — mais aussi le Dossier d'Intervention Ultérieure (obligatoire à la vente), la préparation à la mise en vente, et la gestion locative. Ce que les Belges appellent bientôt un "passeport numérique du logement" — c'est ce que Ren0vate construit pour vous, dès maintenant.
+Vous faites partie des 50 premières personnes à avoir découvert l'outil par vous-même. Quelque chose vous a bloqué ? L'outil ne correspondait pas à ce que vous cherchiez ? Il manquait quelque chose d'évident ?
 
-Ce que je vous demande : explorez l'outil, et si quelque chose vous manque ou vous bloque, répondez directement à cet email. Je lis tout.
+15 minutes par téléphone ou visio, ou simplement une réponse à cet email — pas de démo, pas de pitch. Juste une conversation.
 
-Le lancement officiel est prévu pour l'automne. D'ici là, votre accès est entièrement gratuit.
-
-Merci d'être là,
-Robin
+À très vite,\
+Robin\
 Fondateur de Ren0vate

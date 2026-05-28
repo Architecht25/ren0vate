@@ -6,7 +6,7 @@
 - **Auteur** : L'équipe Ren0vate
 - **Durée de lecture** : 5 min
 - **Résumé** : Laine de verre, PVC, membranes d'étanchéité, peintures : une partie significative des matériaux de rénovation contient des dérivés pétroliers — et leur prix monte. Ren0vate analyse vos devis et identifie les alternatives moins chères à performance équivalente.
-- **Meta description** : Matériaux rénovation Belgique 2026 : isolants, PVC, peintures sous pression pétrolière. Comment l'IA Ren0vate propose des alternatives moins chères sur vos devis en 20 secondes.
+- **Meta description** : Matériaux rénovation 2026 : isolants, PVC, peintures sous pression pétrolière. L'IA Ren0vate propose des alternatives moins chères sur vos devis en 20 secondes.
 
 ---
 

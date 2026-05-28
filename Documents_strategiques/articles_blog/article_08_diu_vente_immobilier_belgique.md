@@ -4,9 +4,9 @@
 - **Slug** : diu-dossier-vente-immobilier-belgique
 - **Catégorie** : Vente & transmission
 - **Auteur** : L'équipe Ren0vate
-- **Durée de lecture** : 6 min
+- **Durée de lecture** : 5 min
 - **Résumé** : Certificat PEB, attestation électrique, DIU, factures des travaux réalisés : vendre un bien en Belgique implique une obligation de transmission documentaire que la plupart des vendeurs découvrent trop tard. Ren0vate introduit un mode « Mise en vente » qui prépare ce dossier au fil de l'eau.
-- **Meta description** : Vendre un bien en Belgique : DIU obligatoire, attestation électrique, certificat PEB, factures travaux. Ce qu'on doit transmettre à l'acheteur — et comment Ren0vate vous prépare avant le compromis.
+- **Meta description** : Vendre en Belgique : DIU obligatoire, attestation électrique, certificat PEB. Ce qu'on doit transmettre à l'acheteur — comment Ren0vate vous prépare avant le compromis.
 
 ---
 
