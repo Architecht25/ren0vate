@@ -1,0 +1,215 @@
+<div class="container py-4" style="max-width: 820px;">
+
+  <%# Header %>
+  <div class="text-center mb-4">
+    <div class="mb-3" style="font-size:2.5rem;">🏛️</div>
+    <h1 class="h3 fw-bold mb-1" style="color: var(--ren0vate-primary);">Expert Subsides Belgique</h1>
+    <p class="text-muted mb-0">
+      Primes de rénovation — Flandre · Wallonie · Bruxelles
+    </p>
+    <% unless user_signed_in? %>
+      <div class="alert alert-info mt-3 py-2 px-3 d-inline-block small">
+        <i class="bi bi-info-circle me-1"></i>
+        Posez votre question librement.
+        <%= link_to "Créez un compte", new_user_registration_path, class: "alert-link" %>
+        pour des conseils personnalisés selon votre profil et votre région.
+      </div>
+    <% end %>
+  </div>
+
+  <%# Chat widget %>
+  <div class="card border-0 shadow-sm" style="min-height: 500px; display: flex; flex-direction: column;">
+
+    <%# Messages %>
+    <div class="card-body flex-grow-1 overflow-auto p-3" id="subsidyChatMessages" style="max-height: 460px; overflow-y: auto;">
+      <%# Message d'accueil %>
+      <div class="d-flex mb-3" id="welcomeMessage">
+        <div class="flex-shrink-0">
+          <div style="width:36px;height:36px;background:var(--ren0vate-primary);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+            <i class="bi bi-patch-check-fill text-white" style="font-size:1rem;"></i>
+          </div>
+        </div>
+        <div class="flex-grow-1 ms-2">
+          <div class="rounded-3 p-3" style="background:#f0f4ff;max-width:90%;">
+            <p class="mb-1 fw-semibold small" style="color:var(--ren0vate-primary);">Expert Subsides</p>
+            <p class="mb-2">Bonjour ! Je suis votre expert en primes de rénovation belges.</p>
+            <p class="mb-2">Je peux vous aider sur :</p>
+            <ul class="mb-2 ps-3 small">
+              <li><strong>Flandre</strong> — Mijn Verbouwpremie, éligibilité, dossier complet</li>
+              <li><strong>Wallonie</strong> — Délais urgents (fin 30/09/2026), transition prêts 0%</li>
+              <li><strong>Bruxelles</strong> — Petit patrimoine, alternatives de financement</li>
+            </ul>
+            <p class="mb-0 small text-muted">Posez votre question — je vous réponds avec précision.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# Suggestions rapides %>
+    <div class="px-3 pb-2" id="subsidySuggestions">
+      <div class="d-flex flex-wrap gap-2">
+        <button class="btn btn-sm btn-outline-secondary rounded-pill subsidy-suggestion"
+                data-question="Suis-je éligible aux primes en Flandre ?">
+          Éligibilité Flandre
+        </button>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill subsidy-suggestion"
+                data-question="Quels documents dois-je préparer pour Mijn Verbouwpremie ?">
+          Dossier Flandre
+        </button>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill subsidy-suggestion"
+                data-question="J'ai un chantier en cours en Wallonie, que dois-je faire avant le 30 septembre ?">
+          Urgence Wallonie
+        </button>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill subsidy-suggestion"
+                data-question="Mon bien est à Bruxelles, quelles aides puis-je obtenir ?">
+          Bruxelles
+        </button>
+      </div>
+    </div>
+
+    <%# Zone de saisie %>
+    <div class="card-footer bg-white border-top p-3">
+      <div class="d-flex gap-2 align-items-end">
+        <textarea
+          id="subsidyChatInput"
+          class="form-control"
+          placeholder="Posez votre question sur les primes..."
+          rows="2"
+          style="resize:none; border-radius: 12px;"
+        ></textarea>
+        <button id="subsidySendBtn" class="btn btn-primary px-3 py-2" style="border-radius:12px; flex-shrink:0;">
+          <i class="bi bi-send-fill"></i>
+        </button>
+      </div>
+      <div class="text-end mt-1">
+        <small class="text-muted" style="font-size:0.7rem;">
+          <i class="bi bi-shield-check me-1"></i>Conseils indicatifs — pour les cas complexes,
+          <%= user_signed_in? ? link_to("ouvrez un ticket support", new_support_ticket_path, class: "text-muted") : "créez un compte et ouvrez un ticket" %>.
+        </small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script nonce="<%= content_security_policy_nonce %>">
+(function() {
+  const chatMessages  = document.getElementById('subsidyChatMessages');
+  const chatInput     = document.getElementById('subsidyChatInput');
+  const sendBtn       = document.getElementById('subsidySendBtn');
+  const suggestions   = document.querySelectorAll('.subsidy-suggestion');
+  const csrfToken     = document.querySelector('meta[name="csrf-token"]')?.content;
+  const userRegion    = '<%= user_signed_in? ? (current_user.region || "") : "" %>';
+
+  function scrollToBottom() {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function appendMessage(role, content) {
+    const isBot   = role === 'bot';
+    const wrapper = document.createElement('div');
+    wrapper.className = 'd-flex mb-3' + (isBot ? '' : ' justify-content-end');
+
+    const avatar = isBot ? `
+      <div class="flex-shrink-0">
+        <div style="width:36px;height:36px;background:var(--ren0vate-primary);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+          <i class="bi bi-patch-check-fill text-white" style="font-size:1rem;"></i>
+        </div>
+      </div>` : '';
+
+    const bubble = `
+      <div class="${isBot ? 'flex-grow-1 ms-2' : ''}">
+        <div class="rounded-3 p-3" style="background:${isBot ? '#f0f4ff' : 'var(--ren0vate-primary)'};max-width:90%;${isBot ? '' : 'margin-left:auto;'}">
+          ${isBot ? '<p class="mb-1 fw-semibold small" style="color:var(--ren0vate-primary);">Expert Subsides</p>' : ''}
+          <div class="${isBot ? '' : 'text-white'} small" style="white-space:pre-wrap;line-height:1.6;">${escapeHtml(content)}</div>
+        </div>
+      </div>`;
+
+    wrapper.innerHTML = avatar + bubble;
+    chatMessages.appendChild(wrapper);
+    scrollToBottom();
+  }
+
+  function appendTyping() {
+    const div = document.createElement('div');
+    div.className = 'd-flex mb-3';
+    div.id = 'typingIndicator';
+    div.innerHTML = `
+      <div class="flex-shrink-0">
+        <div style="width:36px;height:36px;background:var(--ren0vate-primary);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+          <i class="bi bi-patch-check-fill text-white" style="font-size:1rem;"></i>
+        </div>
+      </div>
+      <div class="flex-grow-1 ms-2">
+        <div class="rounded-3 p-3" style="background:#f0f4ff;display:inline-block;">
+          <div class="d-flex gap-1 align-items-center" style="height:20px;">
+            <div class="rounded-circle bg-secondary" style="width:7px;height:7px;animation:bounce 1s infinite 0s;"></div>
+            <div class="rounded-circle bg-secondary" style="width:7px;height:7px;animation:bounce 1s infinite 0.2s;"></div>
+            <div class="rounded-circle bg-secondary" style="width:7px;height:7px;animation:bounce 1s infinite 0.4s;"></div>
+          </div>
+        </div>
+      </div>`;
+    chatMessages.appendChild(div);
+    scrollToBottom();
+  }
+
+  function removeTyping() {
+    document.getElementById('typingIndicator')?.remove();
+  }
+
+  function escapeHtml(str) {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^## (.+)$/gm, '<strong>$1</strong>')
+      .replace(/^[-•] (.+)$/gm, '• $1');
+  }
+
+  async function sendMessage(message) {
+    if (!message.trim()) return;
+
+    document.getElementById('subsidySuggestions').style.display = 'none';
+    appendMessage('user', message);
+    chatInput.value = '';
+    sendBtn.disabled = true;
+    appendTyping();
+
+    try {
+      const res = await fetch('/api/subsidy_bot/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
+        body: JSON.stringify({ message: message, region: userRegion })
+      });
+
+      const data = await res.json();
+      removeTyping();
+      appendMessage('bot', data.response?.content || 'Réponse indisponible.');
+    } catch (e) {
+      removeTyping();
+      appendMessage('bot', 'Problème de connexion. Réessayez dans quelques secondes.');
+    } finally {
+      sendBtn.disabled = false;
+      chatInput.focus();
+    }
+  }
+
+  sendBtn.addEventListener('click', () => sendMessage(chatInput.value));
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(chatInput.value); }
+  });
+  suggestions.forEach(btn => {
+    btn.addEventListener('click', () => sendMessage(btn.dataset.question));
+  });
+})();
+</script>
+
+<style>
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-5px); }
+}
+</style>

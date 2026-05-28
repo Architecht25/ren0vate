@@ -577,6 +577,11 @@ Rails.application.routes.draw do
   # Routes globales pour les gestionnaires (admin/modérateur)
   # complement_requests sont gérées uniquement via request_progresses (nested)
 
+  # Expert Subsides — accessible pre-login (outil de conversion GTM)
+  get  '/expert-subsides',          to: 'subsidy_expert#show',       as: :subsidy_expert
+  post '/api/subsidy_bot/chat',      to: 'api/subsidy_bot#chat',      as: :api_subsidy_bot_chat
+  post '/api/subsidy_bot/clear',     to: 'api/subsidy_bot#clear_history', as: :api_subsidy_bot_clear
+
   end # Fin du scope locale
 
   # Sitemap XML (hors scope locale pour éviter les conflits de langue)
