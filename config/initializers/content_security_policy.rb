@@ -125,8 +125,11 @@ Rails.application.configure do
     request.session[:csp_nonce] ||= SecureRandom.base64(16)
   }
 
-  # Appliquer les nonces aux directives script-src et style-src
-  config.content_security_policy_nonce_directives = %w(script-src script-src-elem style-src)
+  # Nonces sur script-src uniquement — ne pas inclure style-src :
+  # quand un nonce est présent dans style-src, unsafe-inline est ignoré (CSP Level 2+)
+  # ce qui bloque les styles injectés dynamiquement par SweetAlert2, Bootstrap, Mapbox
+  # sur Firefox/Safari. Chrome est plus permissif, d'où le bug cross-browser.
+  config.content_security_policy_nonce_directives = %w(script-src script-src-elem)
 
   # Configuration environment-specific
   if Rails.env.development?

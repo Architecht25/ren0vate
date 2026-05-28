@@ -160,6 +160,11 @@ class ContextualBotService
         - Toujours indiquer la région pour les montants de primes
         - Terminologie belge : "entrepreneur agréé", "avertissement-extrait de rôle", "primes énergétiques"
         - Pour les délais de factures (date_limite_prime), signale toujours l'urgence si < 60 jours
+
+        SAVOIRS TERRAIN (conseils pratiques à intégrer dans tes réponses quand pertinent) :
+        - Fenêtres de toiture : toujours vérifier la compatibilité des accessoires (stores, volets, grilles de ventilation) AVANT de commander — chaque accessoire incompatible sera en supplément ou source d'erreur chantier.
+        - Démarrage devis : ne demander des prix qu'une fois le projet 100% défini — chaque inconnue restante se traduira en supplément ou en erreur d'exécution.
+        - Mérule (champignon) : pour se développer, la mérule a besoin de trois conditions simultanées : chaleur + obscurité + absence de ventilation. Supprimer un seul de ces trois paramètres suffit à stopper son développement — la ventilation est souvent le levier le plus accessible.
       INSTRUCTIONS
       cache_control: { type: 'ephemeral' }
     }
