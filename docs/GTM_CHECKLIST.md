@@ -11,7 +11,7 @@ PRODUIT               ███████████████████�
 LÉGAL & CONFORMITÉ    ████████████████████ 100% ✅
 INFRA/MONITORING      ████████████████████ 100% ✅
 ACQUISITION/MARKETING ████████████████░░░░  80% ⚠️
-CONVERSION/PRICING    ████████████████░░░░  80% ✅
+CONVERSION/PRICING    ████████████████████ 100% ✅
 SUPPORT/CS            ████████████████████ 100% ✅
 ANALYTICS             ████████████████████ 100% ✅
 ```
@@ -100,8 +100,8 @@ ANALYTICS             ███████████████████�
 | Toggle mensuel / annuel (-17%) | ✅ | |
 | Pricing page + checkout convertissants | ✅ | Sticky résumé, réassurance, étapes 1→2→3→4 |
 | Politique de remboursement 14j | ✅ | Droit de rétractation belge art. VI.53 CDE |
-| **Email de lancement aux 124 early adopters** | ❌ | 0 subscription active — à envoyer au lancement |
-| Offre early adopter à durée limitée | ❓ | À décider — levier de conversion fort |
+| **Email de lancement aux 124 early adopters** | ✅ | Envoyé — mai 2026 |
+| **Offre early adopter à durée limitée** | ✅ | Activée — mai 2026 |
 
 ---
 
@@ -141,8 +141,8 @@ ANALYTICS             ███████████████████�
 | 🟠 | LinkedIn page entreprise + posts de lancement | Acquisition |
 | 🟠 | Vidéo démo Loom (3-4 min) | Acquisition |
 | 🟠 | Programme Ambassadors | Acquisition |
-| 🟠 | Email de lancement aux 124 early adopters | Conversion |
-| ❓ | Offre early adopter à durée limitée | Conversion |
+| ✅ | Email de lancement aux 124 early adopters | Conversion — mai 2026 |
+| ✅ | Offre early adopter à durée limitée | Conversion — mai 2026 |
 | 🟡 | Migration Cloudinary → Scaleway | Produit (post-lancement) |
 
 ---

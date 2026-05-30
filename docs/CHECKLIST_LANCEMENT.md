@@ -53,11 +53,23 @@ Opérations à effectuer le jour de la mise en vente (commercialisation publique
   - Entité : ArchiTecht SRL — BCE BE 1020.345.473
   - *(Pas d'obligation stricte art. 37 à ce stade, mais recommandé dès la commercialisation)*
 
-### Médiation consommateur (CPMA / ODR belge)
-- [ ] S'inscrire au Service de Médiation pour le Consommateur via [mediationconsommateur.be](https://www.mediationconsommateur.be)
+### Médiation consommateur (Service de Médiation pour le Consommateur)
+- [ ] S'inscrire via [mediationconsommateur.be](https://www.mediationconsommateur.be)
   - Coût : ~150 €/an
   - Obligation légale avant d'accepter des consommateurs B2C
-- [ ] Ajouter le lien ODR dans les CGU / footer : `https://ec.europa.eu/consumers/odr/`
+- [ ] Vérifier que le lien ODR figure dans les CGU / footer : `https://ec.europa.eu/consumers/odr/` *(déjà dans mentions légales v5.1 — vérifier la présence effective le jour J)*
+
+### Anthropic — transfert compte
+- [ ] Recevoir et archiver la confirmation écrite du transfert vers ArchiTecht SRL (email envoyé le 11 mai 2026 + relance le 30 mai 2026 à privacy@anthropic.com)
+
+---
+
+## Assurances
+
+- [ ] Contacter un courtier spécialisé Tech/SaaS (Hiscox Belgique, Marsh, ou Aon) pour souscrire :
+  - **RC Professionnelle** — extension "conseils et informations erronés", plafond ≥ 1 M€
+  - **Cyber assurance** — notification APD, frais juridiques, restauration données, plafond ≥ 500 k€
+  - ⚠️ Mentionner explicitement le traitement de données AER (revenus fiscaux) dans le dossier de souscription — obligatoire sous peine de nullité de la garantie
 
 ---
 

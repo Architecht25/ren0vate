@@ -28,6 +28,7 @@ class IntelligenceReportJob < ApplicationJob
       report.update!(status: 'completed', analysis: analysis)
       Rails.logger.info "IntelligenceReportJob — analyse complétée (#{analysis.length} chars)"
       AdminMailer.intelligence_report_digest(report).deliver_later
+      export_for_marketing_agent(report)
     else
       report.update!(status: 'failed', error_message: 'Analyse Claude vide ou timeout')
       Rails.logger.error "IntelligenceReportJob — analyse échouée"
@@ -37,5 +38,27 @@ class IntelligenceReportJob < ApplicationJob
     report&.update(status: 'failed', error_message: e.message.truncate(500))
     Rails.logger.error "IntelligenceReportJob — erreur: #{e.message}"
     raise e if Rails.env.development?
+  end
+
+  private
+
+  # Exporte le rapport vers ~/agents-hub/ pour l'Agent Marketing.
+  # Silencieux si le répertoire n'existe pas (production Heroku).
+  def export_for_marketing_agent(report)
+    export_dir = File.expand_path('~/agents-hub/Ren0vate/acquisition/outputs/veille')
+    return unless Dir.exist?(export_dir)
+
+    filename = "#{report.week_of}.json"
+    path     = File.join(export_dir, filename)
+    payload  = {
+      week_of:       report.week_of,
+      sources_count: report.sources_count,
+      analysis:      report.analysis,
+      exported_at:   Time.current.iso8601
+    }
+    File.write(path, JSON.pretty_generate(payload))
+    Rails.logger.info "IntelligenceReportJob — export agents-hub : #{filename}"
+  rescue => e
+    Rails.logger.warn "IntelligenceReportJob — export agents-hub échoué : #{e.message}"
   end
 end

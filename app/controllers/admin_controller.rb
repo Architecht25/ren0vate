@@ -85,9 +85,13 @@ class AdminController < ApplicationController
     }
 
     # Onglet Intelligence — veille hebdomadaire IA
-    @intelligence_reports   = IntelligenceReport.recent.limit(10)
-    @intelligence_latest    = IntelligenceReport.completed.recent.first
+    @intelligence_reports      = IntelligenceReport.recent.limit(10)
+    @intelligence_latest       = IntelligenceReport.completed.recent.first
     @intelligence_current_week = IntelligenceReport.current_week_key
+
+    # Onglet Marketing — drafts agent
+    @marketing_weeks  = MarketingWeek.recent.includes(:article).limit(10)
+    @marketing_latest = @marketing_weeks.first
   end
 
   def geocode_properties

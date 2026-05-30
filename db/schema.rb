@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_27_110000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_30_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -464,6 +464,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_27_110000) do
     t.index ["property_id"], name: "index_leases_on_property_id"
     t.index ["status"], name: "index_leases_on_status"
     t.index ["tenant_id"], name: "index_leases_on_tenant_id"
+  end
+
+  create_table "marketing_weeks", force: :cascade do |t|
+    t.integer "article_id"
+    t.datetime "created_at", null: false
+    t.text "facebook_post"
+    t.text "facebook_visual_brief"
+    t.datetime "generated_at"
+    t.text "instagram_post"
+    t.text "instagram_visual_brief"
+    t.text "linkedin_post"
+    t.string "status", default: "draft", null: false
+    t.datetime "updated_at", null: false
+    t.string "week_of", null: false
+    t.index ["article_id"], name: "index_marketing_weeks_on_article_id"
+    t.index ["status"], name: "index_marketing_weeks_on_status"
+    t.index ["week_of"], name: "index_marketing_weeks_on_week_of", unique: true
   end
 
   create_table "notifications", force: :cascade do |t|

@@ -1,0 +1,75 @@
+<div class="container-fluid px-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 fw-bold mb-1" style="color: var(--ren0vate-primary);">Marketing — Drafts</h1>
+      <p class="text-muted mb-0 small">Contenus générés par l'Agent Marketing · Validation et publication manuelles</p>
+    </div>
+    <div class="text-muted small">
+      <code>ruby marketing_agent.rb</code>
+    </div>
+  </div>
+
+  <% if @weeks.empty? %>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body text-center py-5 text-muted">
+        <p class="mb-1">Aucun draft disponible.</p>
+        <p class="small mb-0">Lance <code>ruby ~/agents-hub/Ren0vate/acquisition/marketing_agent.rb</code> après le rapport de veille du lundi.</p>
+      </div>
+    </div>
+  <% else %>
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Semaine</th>
+              <th>Statut</th>
+              <th>Article blog</th>
+              <th>Posts sociaux</th>
+              <th>Généré le</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @weeks.each do |week| %>
+              <tr>
+                <td><strong><%= week.week_label %></strong></td>
+                <td>
+                  <% case week.status %>
+                  <% when 'draft' %>
+                    <span class="badge bg-warning text-dark">À relire</span>
+                  <% when 'reviewed' %>
+                    <span class="badge bg-info">Relu</span>
+                  <% when 'published' %>
+                    <span class="badge bg-success">Publié</span>
+                  <% end %>
+                </td>
+                <td>
+                  <% if week.article %>
+                    <%= link_to week.article.title.truncate(40),
+                        edit_admin_article_path(week.article),
+                        class: "text-decoration-none small" %>
+                    <span class="badge bg-secondary ms-1">brouillon</span>
+                  <% else %>
+                    <span class="text-muted small">—</span>
+                  <% end %>
+                </td>
+                <td class="text-muted small"><%= week.social_posts_count %>/3 posts</td>
+                <td class="text-muted small">
+                  <% if week.generated_at %>
+                    <%= week.generated_at.strftime("%-d %b %Y à %H:%M") %>
+                  <% else %>
+                    <%= week.created_at.strftime("%-d %b %Y") %>
+                  <% end %>
+                </td>
+                <td class="text-end">
+                  <%= link_to "Voir", admin_marketing_week_path(week), class: "btn btn-sm btn-outline-primary" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% end %>
+</div>

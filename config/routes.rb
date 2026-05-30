@@ -469,6 +469,21 @@ Rails.application.routes.draw do
         post :run
       end
     end
+
+    # Marketing — drafts générés par l'Agent Marketing
+    resources :marketing_weeks, only: [:index, :show, :destroy] do
+      member do
+        patch :mark_reviewed
+        patch :mark_published
+      end
+    end
+  end
+
+  # API interne — réception des drafts depuis l'Agent Marketing (token Bearer)
+  namespace :api do
+    namespace :v1 do
+      post 'marketing_drafts', to: 'marketing_drafts#create'
+    end
   end
 
   resources :requests do

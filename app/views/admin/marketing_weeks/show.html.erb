@@ -1,0 +1,157 @@
+<div class="container-fluid px-4 py-4">
+
+  <%# Header -%>
+  <div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb small mb-1">
+          <li class="breadcrumb-item"><%= link_to "Marketing", admin_marketing_weeks_path %></li>
+          <li class="breadcrumb-item active"><%= @week.week_label %></li>
+        </ol>
+      </nav>
+      <h1 class="h3 fw-bold mb-0" style="color: var(--ren0vate-primary);"><%= @week.week_label %></h1>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+      <% case @week.status
+         when 'draft' %>
+        <span class="badge bg-warning text-dark fs-6 px-3 py-2">À relire</span>
+        <%= button_to "Marquer comme relu", mark_reviewed_admin_marketing_week_path(@week),
+            method: :patch, class: "btn btn-sm btn-outline-secondary" %>
+      <% when 'reviewed' %>
+        <span class="badge bg-info fs-6 px-3 py-2">Relu</span>
+        <%= button_to "Marquer comme publié", mark_published_admin_marketing_week_path(@week),
+            method: :patch, class: "btn btn-sm btn-outline-success" %>
+      <% when 'published' %>
+        <span class="badge bg-success fs-6 px-3 py-2">Publié</span>
+      <% end %>
+      <%= button_to "Supprimer", admin_marketing_week_path(@week),
+          method: :delete,
+          class: "btn btn-sm btn-outline-danger",
+          form: { data: { turbo_confirm: "Supprimer cette semaine et son article brouillon ?" } } %>
+    </div>
+  </div>
+
+  <%# Article blog -%>
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
+      <div>
+        <span class="fw-semibold">📝 Article blog SEO</span>
+        <% if @week.article %>
+          <span class="badge bg-secondary ms-2">brouillon créé</span>
+        <% end %>
+      </div>
+      <% if @week.article %>
+        <%= link_to "Éditer dans le blog admin →",
+            edit_admin_article_path(@week.article),
+            class: "btn btn-sm btn-primary", target: "_blank" %>
+      <% end %>
+    </div>
+    <div class="card-body">
+      <% if @week.article %>
+        <p class="mb-1"><strong>Titre :</strong> <%= @week.article.title %></p>
+        <p class="mb-1 text-muted small"><strong>Catégorie :</strong> <%= @week.article.category_label %></p>
+        <p class="mb-3 text-muted small"><strong>Extrait :</strong> <%= @week.article.excerpt %></p>
+        <div class="border rounded p-3 bg-light" style="max-height: 300px; overflow-y: auto;">
+          <pre class="mb-0 small" style="white-space: pre-wrap; font-family: inherit;"><%= @week.article.content.truncate(1500) %></pre>
+        </div>
+      <% else %>
+        <p class="text-muted mb-0">Aucun article créé pour cette semaine.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Posts sociaux -%>
+  <div class="row g-4">
+
+    <%# LinkedIn -%>
+    <div class="col-12 col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-bottom py-3">
+          <span class="fw-semibold">💼 LinkedIn B2B</span>
+        </div>
+        <div class="card-body d-flex flex-column">
+          <% if @week.linkedin_post.present? %>
+            <div class="border rounded p-3 bg-light flex-grow-1 mb-3" style="min-height: 200px;">
+              <pre class="mb-0 small" style="white-space: pre-wrap; font-family: inherit;"><%= @week.linkedin_post %></pre>
+            </div>
+            <button class="btn btn-sm btn-outline-secondary copy-btn"
+                    data-content="<%= CGI.escapeHTML(@week.linkedin_post) %>">
+              Copier le texte
+            </button>
+          <% else %>
+            <p class="text-muted small mb-0">Non généré.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# Instagram -%>
+    <div class="col-12 col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-bottom py-3">
+          <span class="fw-semibold">📸 Instagram B2C</span>
+        </div>
+        <div class="card-body d-flex flex-column">
+          <% if @week.instagram_post.present? %>
+            <div class="border rounded p-3 bg-light mb-2" style="min-height: 120px;">
+              <pre class="mb-0 small" style="white-space: pre-wrap; font-family: inherit;"><%= @week.instagram_post %></pre>
+            </div>
+            <button class="btn btn-sm btn-outline-secondary copy-btn mb-3"
+                    data-content="<%= CGI.escapeHTML(@week.instagram_post) %>">
+              Copier le post
+            </button>
+            <% if @week.instagram_visual_brief.present? %>
+              <div class="border rounded p-2 bg-warning bg-opacity-10">
+                <p class="small fw-semibold mb-1">Brief visuel :</p>
+                <p class="small mb-0 text-muted"><%= @week.instagram_visual_brief %></p>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="text-muted small mb-0">Non généré.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# Facebook -%>
+    <div class="col-12 col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-bottom py-3">
+          <span class="fw-semibold">👥 Facebook B2C</span>
+        </div>
+        <div class="card-body d-flex flex-column">
+          <% if @week.facebook_post.present? %>
+            <div class="border rounded p-3 bg-light mb-2" style="min-height: 120px;">
+              <pre class="mb-0 small" style="white-space: pre-wrap; font-family: inherit;"><%= @week.facebook_post %></pre>
+            </div>
+            <button class="btn btn-sm btn-outline-secondary copy-btn mb-3"
+                    data-content="<%= CGI.escapeHTML(@week.facebook_post) %>">
+              Copier le post
+            </button>
+            <% if @week.facebook_visual_brief.present? %>
+              <div class="border rounded p-2 bg-warning bg-opacity-10">
+                <p class="small fw-semibold mb-1">Brief visuel :</p>
+                <p class="small mb-0 text-muted"><%= @week.facebook_visual_brief %></p>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="text-muted small mb-0">Non généré.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      navigator.clipboard.writeText(btn.dataset.content).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = '✓ Copié !';
+        setTimeout(() => btn.textContent = orig, 2000);
+      });
+    });
+  });
+</script>
