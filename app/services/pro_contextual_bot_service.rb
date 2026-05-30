@@ -24,7 +24,7 @@ class ProContextualBotService
 
   ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
   ANTHROPIC_VERSION = '2023-06-01'
-  EXPERT_MODEL      = 'claude-sonnet-4-5-20250929'
+  EXPERT_MODEL      = 'claude-sonnet-4-6'
   GUIDE_MODEL       = 'claude-haiku-4-5-20251001'
   MAX_HISTORY       = 20
   HISTORY_TTL       = 2.hours

@@ -4,7 +4,7 @@ class ChantierVisionService
 
   ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
   ANTHROPIC_VERSION = '2023-06-01'
-  MODEL             = 'claude-sonnet-4-5-20250929'
+  MODEL             = 'claude-sonnet-4-6'
   MAX_PHOTOS        = 6   # limite pour garder le coût raisonnable
   MAX_TOKENS        = 1500
 

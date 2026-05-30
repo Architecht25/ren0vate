@@ -12,7 +12,7 @@ class DevisAvancementService
 
   ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
   ANTHROPIC_VERSION = '2023-06-01'
-  MODEL             = 'claude-sonnet-4-5-20250929'
+  MODEL             = 'claude-sonnet-4-6'
   MAX_TOKENS        = 4096
 
   # ── 15 thématiques canoniques de la rénovation belge ─────────────────────────
