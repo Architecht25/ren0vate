@@ -1,5 +1,7 @@
 class Api::V1::MarketingDraftsController < ApplicationController
   skip_before_action :verify_authenticity_token
+  skip_before_action :authenticate_user!
+  skip_before_action :require_admin_2fa
   before_action :authenticate_agent!
 
   def create
