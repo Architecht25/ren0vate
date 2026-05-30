@@ -1,4 +1,5 @@
 require "active_support/core_ext/integer/time"
+require_relative "../../app/middleware/force_https_redirect"
 
 Rails.application.configure do
   # Prepare the ingress controller used to receive mail
@@ -32,6 +33,11 @@ Rails.application.configure do
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   config.force_ssl = true
+
+  # Redirect plain HTTP → HTTPS before assume_ssl masks the real protocol.
+  # assume_ssl makes request.ssl? always return true, so ActionDispatch::SSL never redirects.
+  # This middleware checks X-Forwarded-Proto (set by Heroku) and issues a 301 redirect.
+  config.middleware.insert_before(ActionDispatch::SSL, ForceHttpsRedirect)
 
   # Skip http-to-https redirect for the default health check endpoint.
   # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
