@@ -29,6 +29,7 @@ class IntelligenceReportJob < ApplicationJob
       Rails.logger.info "IntelligenceReportJob — analyse complétée (#{analysis.length} chars)"
       AdminMailer.intelligence_report_digest(report).deliver_later
       export_for_marketing_agent(report)
+      MarketingDraftJob.perform_later(report.id)
     else
       report.update!(status: 'failed', error_message: 'Analyse Claude vide ou timeout')
       Rails.logger.error "IntelligenceReportJob — analyse échouée"
