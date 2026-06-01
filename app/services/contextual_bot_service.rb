@@ -165,11 +165,84 @@ class ContextualBotService
         - Fenêtres de toiture : toujours vérifier la compatibilité des accessoires (stores, volets, grilles de ventilation) AVANT de commander — chaque accessoire incompatible sera en supplément ou source d'erreur chantier.
         - Démarrage devis : ne demander des prix qu'une fois le projet 100% défini — chaque inconnue restante se traduira en supplément ou en erreur d'exécution.
         - Mérule (champignon) : pour se développer, la mérule a besoin de trois conditions simultanées : chaleur + obscurité + absence de ventilation. Supprimer un seul de ces trois paramètres suffit à stopper son développement — la ventilation est souvent le levier le plus accessible.
+
+        ═══════════════════════════════════════════════════════════════════════
+        OBLIGATIONS DE RÉNOVATION PAR RÉGION — BASE DE CONNAISSANCE EXPERTE
+        ═══════════════════════════════════════════════════════════════════════
+
+        🏛️ WALLONIE — Trajectoire PEB obligatoire vers label A en 2050 :
+        • 2025 : Certificat PEB obligatoire à chaque vente ou location > 18 ans
+        • 2033 : FIN DES PASSOIRES — label minimum E pour tous les biens résidentiels (F et G interdits)
+          → Propriétaires-occupants ET bailleurs concernés
+          → Sanction : impossibilité de louer ou vendre sans conformité
+        • 2040 : Progression obligatoire vers label D
+        • 2045 : Étape label C
+        • 2050 : Objectif final label A (bâtiment quasi nul énergie — NZEB)
+        Profils distincts :
+          - Propriétaire-occupant : délais plus souples mais même objectif final
+          - Bailleur : soumis aux obligations de rénovation avant toute reconduction de bail (dès 2028 progressivement)
+          - Vendeur : PEB obligatoire + trajectoire opposable à l'acheteur
+        Primes Wallonie actives : Renolution (isolation, châssis, chauffage, audit PAE), Écopack (prêt 0%)
+
+        🏴 FLANDRE — Renovatieverplichting (obligation de rénover) :
+        • À l'achat d'un bien étiqueté E ou F : obligation de rénover jusqu'au label D minimum dans les 5 ans
+        • 2028 : Biens loués classés F ou G → label D minimum obligatoire (Vlaams Energie- en Klimaatplan)
+        • 2030 : Label D minimum pour toute transaction (vente ou location)
+        • 2040 : Progression vers label C
+        • 2050 : Objectif label A (Bijna-energieneutraal gebouw — BENG)
+        Profils distincts :
+          - Acheteur d'un bien E/F : 5 ans pour atteindre D (délai court de l'acte notarial)
+          - Bailleur : 2028 pour les passoires F/G
+          - Vendeur : mention obligatoire du label PEB dans l'annonce + respect trajectoire
+        Primes Flandre actives : Mijn VerbouwPremie, Verbouwlening (0%), Fluvius primes réseau
+
+        🌆 BRUXELLES — Ordonnance PEB 2026-2050 :
+        • 2026 : Certificat PEB obligatoire pour chaque unité résidentielle et non-résidentielle
+        • 2031-2033 : Contrôles automatisés — liste ACP conformes/non-conformes publiée
+        • 2033 : FIN DES PASSOIRES F/G — label minimum E obligatoire
+        • 2033→2045 : Progression obligatoire de E vers D
+        • 2045→2050 : Objectif intermédiaire label C
+        • 2050 : Objectif final C+/B/A
+        Primes Bruxelles : Renolution supprimée (eligible: false) — orienter vers audits et REG-Bruxelles
+
+        ⚖️ LOI BREYNE — Garanties post-rénovation lourde :
+        • Applicable aux constructions neuves ET rénovations lourdes vendues sur plan (prix > ~18 000 €)
+        • Garantie décennale : 10 ans pour les vices graves affectant stabilité/étanchéité (art. 1792 Code civil)
+        • Garantie biennale : 2 ans pour les éléments d'équipement (chaudière, châssis, etc.)
+        • Obligations du vendeur : contrat écrit avec prix total + délai, acompte ≤ 5%, assurance achèvement
+        • Suite arrêt CJUE 2025 : renforcement des obligations d'information sur les garanties lors de la vente
+        • Conseiller : toujours demander l'attestation de l'assurance décennale de l'entrepreneur AVANT la réception
+
+        ❓ RÉPONDRE AUX QUESTIONS "SUIS-JE OBLIGÉ DE RÉNOVER ?" :
+        Utilise ce flow de décision :
+        1. Quelle région ? → Wallonie / Flandre / Bruxelles
+        2. Quel est le label PEB actuel ? → consulter le contexte utilisateur
+        3. Quel est le statut de l'utilisateur ? → propriétaire-occupant / bailleur / acheteur récent / vendeur
+        4. Quel est l'horizon temporel préoccupant ? → avant 2028 / avant 2033 / avant 2050
+        Ensuite : formuler la réponse avec le délai précis, les travaux prioritaires, les primes mobilisables
+        et le lien vers la simulation de primes dans Ren0vate.
       INSTRUCTIONS
       cache_control: { type: 'ephemeral' }
     }
 
     # ── Bloc dynamique — contexte utilisateur (spécifique à la session) ────
+    property_trajectory = if @property
+      traj = @property.peb_trajectory
+      if traj
+        urgent = traj[:milestones].select { |m| m[:status] == :urgent && !m[:compliant] }
+        upcoming = traj[:milestones].select { |m| m[:status] == :upcoming && !m[:compliant] }
+        lines = ["Trajectoire PEB : label actuel #{traj[:current_label]}"]
+        urgent.each  { |m| lines << "  🔴 URGENT #{m[:year]} — Atteindre #{m[:target]} : #{m[:description]}" }
+        upcoming.each { |m| lines << "  🟡 Jalon #{m[:year]} — Atteindre #{m[:target]} : #{m[:description]}" }
+        traj[:milestones].select { |m| m[:compliant] }.each { |m| lines << "  ✅ #{m[:year]} — Label #{m[:target]} : déjà conforme" }
+        lines.join("\n")
+      else
+        "Trajectoire PEB : région non supportée ou label non renseigné"
+      end
+    else
+      nil
+    end
+
     dynamic_block = {
       type: 'text',
       text: <<~CTX
@@ -177,6 +250,7 @@ class ContextualBotService
 
         DONNÉES COMPLÈTES DU DOSSIER :
         #{user_ctx}
+        #{property_trajectory ? "\nTRAJECTOIRE PEB RÉGLEMENTAIRE :\n#{property_trajectory}" : ""}
 
         PAGE ACTUELLE DE L'APP : #{current_page}
 
@@ -565,6 +639,9 @@ class ContextualBotService
     '💰 Comment maximiser mes primes énergétiques ?',
     '⚡ Quels travaux sont les plus rentables pour moi ?',
     '🏛️ Quelles réglementations 2025/2026 me concernent ?',
-    '🏛️ Quelles sont mes obligations PEB Bruxelles 2026-2050 ?'
+    '🏛️ Quelles sont mes obligations PEB Bruxelles 2026-2050 ?',
+    '📋 Suis-je obligé de rénover ? Avant quelle date ?',
+    '🔑 Je vends mon bien — qu\'est-ce que je dois prévoir ?',
+    '⚖️ La Loi Breyne s\'applique-t-elle à ma rénovation ?'
   ].freeze
 end

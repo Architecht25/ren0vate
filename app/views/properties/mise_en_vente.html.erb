@@ -146,6 +146,138 @@
         </div>
       </div>
 
+      <!-- Alerte Conformité Loi Breyne -->
+      <% loi_breyne_applicable = @projects.any? %>
+      <% if loi_breyne_applicable %>
+        <%
+          all_project_docs = Document.where(project_id: @projects.pluck(:id)).pluck(:type_document)
+          property_docs    = @property.documents.pluck(:type_document)
+          present_types    = (all_project_docs + property_docs).uniq
+
+          has_devis            = present_types.include?('devis') || @projects.any? { |p| p.contractor_devis_montant.to_f > 0 }
+          has_assurance_dec    = present_types.include?('assurance_decennale')
+          has_assurance_rc     = present_types.include?('assurance_rc_pro')
+          has_pv_reception     = @projects.any? { |p| p.respond_to?(:pv_reception) && p.pv_reception.present? }
+          has_attestation_conf = present_types.include?('attestation_conformite')
+          has_plan_diu         = present_types.include?('plan_diu')
+
+          breyne_items = [
+            {
+              label:       'Contrat écrit avec prix total et délai',
+              detail:      'Obligatoire : le devis signé ou contrat d\'entreprise doit stipuler le prix total et le délai de livraison.',
+              present:     has_devis,
+              type:        'devis',
+              required:    true
+            },
+            {
+              label:       'Garantie décennale de l\'entrepreneur',
+              detail:      'L\'entrepreneur doit être couvert par une assurance décennale pour les vices graves affectant la stabilité ou l\'étanchéité.',
+              present:     has_assurance_dec,
+              type:        'assurance_decennale',
+              required:    true
+            },
+            {
+              label:       'Assurance RC professionnelle entrepreneur',
+              detail:      'Responsabilité civile professionnelle de l\'entrepreneur — couvre les dommages causés à tiers pendant les travaux.',
+              present:     has_assurance_rc,
+              type:        'assurance_rc_pro',
+              required:    false
+            },
+            {
+              label:       'PV de réception des travaux',
+              detail:      'Le procès-verbal de réception (provisoire puis définitive) marque le départ de la garantie décennale.',
+              present:     has_pv_reception,
+              type:        nil,
+              required:    true
+            },
+            {
+              label:       'Attestation de conformité',
+              detail:      'Confirme que les travaux sont conformes au permis d\'urbanisme et aux règles de l\'art.',
+              present:     has_attestation_conf,
+              type:        'attestation_conformite',
+              required:    true
+            },
+            {
+              label:       'Plans DIU transmis à l\'acheteur',
+              detail:      'Le Dossier d\'Intervention Ultérieure (plans, fiches techniques, notices) est légalement dû à l\'acheteur.',
+              present:     has_plan_diu,
+              type:        'plan_diu',
+              required:    false
+            }
+          ]
+
+          breyne_done     = breyne_items.count { |i| i[:present] }
+          breyne_required = breyne_items.count { |i| i[:required] }
+          breyne_req_done = breyne_items.count { |i| i[:required] && i[:present] }
+          breyne_color    = breyne_req_done == breyne_required ? 'success' : breyne_req_done >= breyne_required / 2 ? 'warning' : 'danger'
+        %>
+        <div class="card border-0 shadow-sm mb-4 border-start border-4 border-<%= breyne_color %>">
+          <div class="card-header bg-transparent border-bottom py-3">
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-shield-exclamation text-<%= breyne_color %> me-2 fs-5"></i>
+                <div>
+                  <h6 class="mb-0 fw-semibold">Conformité Loi Breyne — Points de vigilance</h6>
+                  <small class="text-muted">
+                    Applicable aux rénovations lourdes — arrêt CJUE 2025 · <%= breyne_req_done %>/<%= breyne_required %> points obligatoires couverts
+                  </small>
+                </div>
+              </div>
+              <span class="badge bg-<%= breyne_color %>"><%= breyne_done %>/<%= breyne_items.count %></span>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <ul class="list-group list-group-flush">
+              <% breyne_items.each do |item| %>
+                <li class="list-group-item px-4 py-3">
+                  <div class="d-flex justify-content-between align-items-start gap-3">
+                    <div class="d-flex align-items-start gap-3 flex-grow-1">
+                      <% if item[:present] %>
+                        <i class="bi bi-check-circle-fill text-success fs-5 flex-shrink-0 mt-1"></i>
+                      <% elsif item[:required] %>
+                        <i class="bi bi-x-circle text-danger fs-5 flex-shrink-0 mt-1"></i>
+                      <% else %>
+                        <i class="bi bi-circle text-secondary fs-5 flex-shrink-0 mt-1"></i>
+                      <% end %>
+                      <div>
+                        <div class="fw-medium small <%= item[:present] ? '' : 'text-muted' %>">
+                          <%= item[:label] %>
+                          <% if item[:required] %>
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle ms-1" style="font-size: 0.6rem;">Obligatoire</span>
+                          <% end %>
+                        </div>
+                        <small class="text-muted" style="font-size: 0.75rem;"><%= item[:detail] %></small>
+                      </div>
+                    </div>
+                    <% if !item[:present] && item[:type].present? %>
+                      <%= link_to new_property_document_path(@property, type_document: item[:type]),
+                          class: "btn btn-outline-primary btn-sm flex-shrink-0" do %>
+                        <i class="bi bi-plus me-1"></i>Ajouter
+                      <% end %>
+                    <% elsif item[:present] %>
+                      <span class="badge bg-success-subtle text-success border border-success-subtle flex-shrink-0">OK</span>
+                    <% end %>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+          <div class="card-footer bg-transparent border-top py-3 px-4">
+            <div class="d-flex align-items-start gap-2">
+              <i class="bi bi-info-circle text-muted flex-shrink-0 mt-1"></i>
+              <p class="text-muted small mb-0">
+                La <strong>Loi Breyne</strong> (loi du 9 juillet 1971) s'applique aux constructions neuves et rénovations lourdes.
+                Suite à l'arrêt de la CJUE (2025), les garanties de conformité sont renforcées.
+                En cas de doute, consultez un notaire ou un architecte avant la signature du compromis.
+                <a href="https://economie.fgov.be/fr/themes/entreprises/secteur-de-la-construction/loi-breyne" target="_blank" rel="noopener" class="text-decoration-none">
+                  <i class="bi bi-box-arrow-up-right ms-1"></i>SPF Économie — Loi Breyne
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
       <!-- Chantiers associés -->
       <% if @projects.any? %>
         <div class="card border-0 shadow-sm">

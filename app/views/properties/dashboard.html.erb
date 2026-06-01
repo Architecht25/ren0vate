@@ -217,6 +217,90 @@
       </div>
     </div>
 
+    <!-- Trajectoire PEB obligatoire -->
+    <% trajectory = @property.peb_trajectory %>
+    <% if trajectory %>
+      <%
+        urgent_count = trajectory[:milestones].count { |m| m[:status] == :urgent && !m[:compliant] }
+        non_compliant = trajectory[:milestones].reject { |m| m[:compliant] }
+        header_color = urgent_count > 0 ? 'danger' : non_compliant.any? ? 'warning' : 'success'
+      %>
+      <div class="col" data-dashboard-tabs-target="panel" data-tab="mon-bien">
+        <div class="card border-0 shadow h-100 dashboard-module">
+          <div class="card-body p-4 d-flex flex-column">
+            <div class="d-flex align-items-center mb-3">
+              <div class="icon-circle me-3" style="background: var(--bs-<%= header_color %>-bg-subtle);">
+                <i class="bi bi-graph-up-arrow text-<%= header_color %>"></i>
+              </div>
+              <div>
+                <h5 class="card-title mb-0 fw-normal">Trajectoire PEB 2050</h5>
+                <small class="text-muted-custom">Obligations réglementaires — Label actuel : <strong><%= trajectory[:current_label] %></strong></small>
+              </div>
+            </div>
+
+            <% if trajectory[:current_label] == 'Non renseigné' %>
+              <div class="alert alert-warning border-0 py-2 mb-3">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <small>Renseignez votre label PEB pour voir votre trajectoire personnalisée.</small>
+              </div>
+            <% end %>
+
+            <!-- Timeline des jalons -->
+            <div class="flex-grow-1">
+              <% trajectory[:milestones].each_with_index do |m, i| %>
+                <%
+                  icon = m[:compliant] ? 'check-circle-fill' : m[:status] == :urgent ? 'exclamation-triangle-fill' : 'circle'
+                  color = m[:compliant] ? 'success' : m[:status] == :urgent ? 'danger' : m[:status] == :upcoming ? 'warning' : 'secondary'
+                  years_left = m[:year] - Date.current.year
+                %>
+                <div class="d-flex gap-3 mb-3 <%= i < trajectory[:milestones].length - 1 ? 'pb-3 border-bottom' : '' %>">
+                  <div class="text-center flex-shrink-0" style="width: 32px;">
+                    <i class="bi bi-<%= icon %> text-<%= color %> fs-5"></i>
+                    <% unless i == trajectory[:milestones].length - 1 %>
+                      <div class="border-start ms-2" style="height: 100%; min-height: 20px; margin-top: 4px;"></div>
+                    <% end %>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                      <span class="fw-semibold small"><%= m[:year] %></span>
+                      <span class="badge bg-<%= color %>-subtle text-<%= color %> border border-<%= color %>-subtle" style="font-size: 0.65rem;">
+                        Label <%= m[:target] %><%= m[:compliant] ? ' ✓' : '' %>
+                      </span>
+                    </div>
+                    <p class="text-muted small mb-1" style="font-size: 0.78rem;"><%= m[:description] %></p>
+                    <% unless m[:compliant] %>
+                      <div class="d-flex flex-wrap gap-1">
+                        <% m[:priority_works].first(2).each do |work| %>
+                          <span class="badge bg-light text-dark border" style="font-size: 0.65rem;">
+                            <i class="bi bi-tools me-1"></i><%= work %>
+                          </span>
+                        <% end %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+
+            <div class="mt-auto pt-3 border-top">
+              <div class="row g-2">
+                <div class="col-6">
+                  <%= link_to new_simulation_path(property_id: @property.id), class: "btn btn-outline-primary-custom btn-sm w-100" do %>
+                    <i class="bi bi-calculator me-1"></i>Simuler primes
+                  <% end %>
+                </div>
+                <div class="col-6">
+                  <%= link_to peb_recommandations_property_path(@property), class: "btn btn-outline-secondary btn-sm w-100" do %>
+                    <i class="bi bi-lightbulb me-1"></i>Conseils PEB
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
     <!-- État des chantiers -->
     <div class="col" data-dashboard-tabs-target="panel" data-tab="mes-travaux">
       <div class="card border-0 shadow h-100 dashboard-module">
