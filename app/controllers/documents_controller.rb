@@ -25,17 +25,6 @@ class DocumentsController < ApplicationController
     end
     @documents = @documents.where(request: @request) if @request
 
-    # Filtrage par phase si demandé
-    if params[:filter_phase].present? && @property
-      @selected_phase = DocumentPhase.find(params[:filter_phase])
-      @documents = @documents.by_phase(@selected_phase)
-    end
-
-        # Filtrage par type de document
-    if params[:type_document].present?
-      @documents = @documents.where(type_document: params[:type_document])
-    end
-
     # Groupement par type pour l'affichage
     @documents_by_type = @documents.group_by(&:type_document)
 
@@ -572,6 +561,8 @@ class DocumentsController < ApplicationController
     # Détecter le contexte depuis les paramètres
     @property = current_user.properties.find(params[:property_id]) if params[:property_id]
     @project = current_user.projects.find(params[:project_id]) if params[:project_id]
+    # Propager @property depuis @project si non fourni explicitement
+    @property ||= @project.property if @project&.property
     @request = current_user.requests.find(params[:request_id]) if params[:request_id]
     @simulation = current_user.simulations.find(params[:simulation_id]) if params[:simulation_id]
   end
