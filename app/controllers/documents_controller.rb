@@ -203,16 +203,19 @@ class DocumentsController < ApplicationController
           errors.concat(@document.errors.full_messages)
         end
       rescue ActiveStorage::IntegrityError => e
-        if e.message.include?("File size too large")
-          file_size_mb = (@document.file.byte_size.to_f / 1.megabyte).round(2) if @document.file.attached?
-          # Déterminer la limite selon le type de document
-          is_photo_type = %w[photo photo_avant photo_pendant photo_apres photo_chassis].include?(@document.type_document)
-          limit_mb = is_photo_type ? 100 : 30
-          filename = @document.file.filename.to_s if @document.file.attached?
+        Rails.logger.error "❌ ActiveStorage::IntegrityError: #{e.message} — #{e.backtrace.first(3).join(' | ')}"
+        filename = @document.file.attached? ? @document.file.filename.to_s : 'fichier inconnu'
+        file_size_mb = @document.file.attached? ? (@document.file.byte_size.to_f / 1.megabyte).round(2) : nil
+        is_photo_type = %w[photo photo_avant photo_pendant photo_apres photo_chassis].include?(@document.type_document)
+        limit_mb = is_photo_type ? 100 : 30
+
+        if e.message.include?("File size too large") && file_size_mb.to_f > limit_mb
           errors << "Le fichier '#{filename}' (#{file_size_mb} MB) dépasse la limite autorisée de #{limit_mb} MB. Veuillez réduire la taille du fichier ou le compresser."
         else
-          filename = @document.file.filename.to_s if @document.file.attached?
-          errors << "Erreur lors du téléchargement du fichier '#{filename}': #{e.message}"
+          # L'erreur peut venir d'une vérification interne Rails (re-téléchargement pour magic bytes)
+          # Le fichier a bien été uploadé — réessayez ou rafraîchissez la page
+          size_info = file_size_mb ? " (#{file_size_mb} MB)" : ''
+          errors << "Erreur technique lors du traitement du fichier '#{filename}'#{size_info}. Veuillez réessayer."
         end
       rescue => e
         errors << "Erreur inattendue lors du téléchargement: #{e.message}"
@@ -360,22 +363,16 @@ class DocumentsController < ApplicationController
       Rails.logger.info "📥 Envoi du fichier avec nom original: #{original_filename}"
 
       begin
-        # Pour les PDFs Cloudinary, rediriger directement vers l'URL Cloudinary
-        # afin d'éviter de bufferiser le fichier entier dans la mémoire Rails (timeout Heroku)
-        if @document.file.service_name.to_s == 'cloudinary' && @document.is_pdf?
-          cloudinary_direct_url = CloudinaryPdfService.generate_pdf_url(
-            @document.file.key,
-            filename: original_filename,
-            inline: disposition == 'inline'
-          )
-          if cloudinary_direct_url.present?
-            Rails.logger.info "✅ Redirection Cloudinary pour #{original_filename} (#{disposition})"
-            redirect_to cloudinary_direct_url, allow_other_host: true
-            return
-          end
+        # Pour les fichiers Cloudinary, utiliser une double redirection légère :
+        # Rails → Cloudinary CDN (via rails_blob_url qui résout le bon resource_type)
+        # Évite le buffering Rails (timeout Heroku) et le problème raw vs image resource_type
+        if @document.file.service_name.to_s == 'cloudinary'
+          Rails.logger.info "✅ Redirection rails_blob_url pour #{original_filename} (#{disposition})"
+          redirect_to rails_blob_url(@document.file, disposition: disposition), allow_other_host: true
+          return
         end
 
-        # Fallback : télécharger et envoyer via Rails (pour non-Cloudinary ou non-PDF)
+        # Fallback : télécharger et envoyer via Rails (stockage local/non-Cloudinary)
         file_data = @document.file.download
         send_data file_data,
                   filename: original_filename,

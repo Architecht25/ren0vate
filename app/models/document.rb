@@ -194,15 +194,11 @@ class Document < ApplicationRecord
     begin
       Rails.logger.info "🔗 Génération URL Cloudinary pour #{file.filename} (#{file.content_type})"
 
-      if file.content_type == 'application/pdf'
-        # Utiliser le service Cloudinary PDF spécialisé avec le nom de fichier original
-        url = CloudinaryPdfService.generate_pdf_url(file.key, filename: file.filename.to_s)
-        Rails.logger.info "📄 URL PDF Cloudinary générée: #{url}"
-        url
-      else
-        # URL standard Cloudinary pour les autres fichiers (non-PDF)
-        file.url
-      end
+      # Utiliser file.url pour tous les fichiers : le service Cloudinary natif
+      # résout automatiquement le bon resource_type (raw vs image)
+      url = file.url
+      Rails.logger.info "📄 URL Cloudinary générée (resource_type auto): #{url}"
+      url
     rescue => e
       Rails.logger.error "❌ Erreur génération URL Cloudinary pour document #{id}: #{e.message}"
       nil
@@ -419,8 +415,9 @@ class Document < ApplicationRecord
     return unless file.attached? && file.blob.persisted?
 
     begin
-      # Lire les 4 premiers Ko — suffisant pour tous les magic bytes connus
-      raw = file.blob.download.byteslice(0, 4096)
+      # Lire seulement les 4 premiers Ko via download_chunk (évite de télécharger
+      # le fichier entier et contourne le check max_file_size de blob.download)
+      raw = file.blob.service.download_chunk(file.blob.key, 0..4095)
       return unless raw.present?
 
       detected = Marcel::MimeType.for(StringIO.new(raw), name: file.blob.filename.to_s)
