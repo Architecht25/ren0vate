@@ -181,8 +181,10 @@ class DocumentsController < ApplicationController
       @document.property = @property if @property
       @document.project = @project if @project
       # Auto-propager le bien depuis le projet si non défini
-      if @project && @document.property.nil? && @project.property
-        @document.property = @project.property
+      # Couvre à la fois @project (URL param) et @document.project (form field project_id)
+      effective_project = @project || @document.project
+      if effective_project && @document.property.nil? && effective_project.property
+        @document.property = effective_project.property
       end
       @document.request = @request if @request
       @document.simulation = @simulation if @simulation

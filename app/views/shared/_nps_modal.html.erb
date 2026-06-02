@@ -67,15 +67,23 @@
 </div>
 
 <script nonce="<%= content_security_policy_nonce %>">
-  document.addEventListener('turbo:load', function() {
-    var npsKey = 'nps_modal_shown_<%= current_user.id %>';
-    if (!sessionStorage.getItem(npsKey)) {
-      sessionStorage.setItem(npsKey, '1');
-      setTimeout(function() {
-        var modal = new bootstrap.Modal(document.getElementById('npsModal'));
-        modal.show();
-      }, 3000);
-    }
-  });
+  (function() {
+    if (window._npsModalListenerAdded) return;
+    window._npsModalListenerAdded = true;
+    document.addEventListener('turbo:load', function() {
+      var el = document.getElementById('npsModal');
+      if (!el) return;
+      var npsKey = 'nps_modal_shown_<%= current_user.id %>';
+      if (!sessionStorage.getItem(npsKey)) {
+        sessionStorage.setItem(npsKey, '1');
+        setTimeout(function() {
+          var elNow = document.getElementById('npsModal');
+          if (elNow) {
+            new bootstrap.Modal(elNow).show();
+          }
+        }, 3000);
+      }
+    });
+  })();
 </script>
 <% end %>
