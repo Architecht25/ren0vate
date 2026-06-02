@@ -189,6 +189,7 @@ class DocumentsController < ApplicationController
 
       begin
         if @document.save
+          Rails.logger.info "✅ Document #{@document.id} sauvegardé avec succès"
           # Générer file_url après la sauvegarde si fichier attaché
           if @document.file.attached? && @document.file_url.blank?
             @document.update(file_url: rails_blob_url(@document.file))
@@ -200,6 +201,7 @@ class DocumentsController < ApplicationController
           end
           created_documents << @document
         else
+          Rails.logger.error "❌ Document save FAILED — errors: #{@document.errors.full_messages.inspect}"
           errors.concat(@document.errors.full_messages)
         end
       rescue ActiveStorage::IntegrityError => e

@@ -414,6 +414,14 @@ class Document < ApplicationRecord
   def file_magic_bytes_validation
     return unless file.attached? && file.blob.persisted?
 
+    # Pour Cloudinary : impossible de faire un range request fiable (resource_type
+    # image vs raw imprévisible selon le fichier). Le contenu a déjà été accepté
+    # par Cloudinary. La validation du content_type est faite par file_format_validation.
+    if file.blob.service_name.to_s == 'cloudinary'
+      Rails.logger.info "[MagicBytes] Skipped for Cloudinary service (key: #{file.blob.key})"
+      return
+    end
+
     begin
       # Lire seulement les 4 premiers Ko via download_chunk (évite de télécharger
       # le fichier entier et contourne le check max_file_size de blob.download)
