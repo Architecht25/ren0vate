@@ -13,21 +13,23 @@ class CloudinaryPdfService
     end
 
     def generate_pdf_url(public_id, options = {})
+      inline   = options.delete(:inline)
+      filename = options.delete(:filename)
+
       default_options = {
         resource_type: :raw,  # CORRECT: Utiliser :raw pour les PDFs comme à l'upload !
         secure: true,  # Forcer HTTPS même en développement
-        sign_url: false,  # URLs publiques pour les PDFs
-        flags: 'attachment'  # Force le téléchargement avec le nom original
+        sign_url: false  # URLs publiques pour les PDFs
       }
 
-      # Si un nom de fichier est fourni, l'ajouter à l'URL
-      if options[:filename].present?
-        default_options[:flags] = "attachment:#{options[:filename]}"
+      # Ajouter le flag 'attachment' uniquement pour le téléchargement, pas pour la vue inline
+      unless inline
+        default_options[:flags] = filename.present? ? "attachment:#{filename}" : 'attachment'
       end
 
       begin
         url = Cloudinary::Utils.cloudinary_url(public_id, default_options.merge(options))
-        Rails.logger.info "🔗 URL PDF générée avec resource_type: raw - #{url}"
+        Rails.logger.info "🔗 URL PDF générée (#{inline ? 'inline' : 'attachment'}) avec resource_type: raw - #{url}"
         url
       rescue => e
         Rails.logger.error "❌ Erreur génération URL PDF pour #{public_id}: #{e.message}"

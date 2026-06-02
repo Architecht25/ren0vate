@@ -360,8 +360,22 @@ class DocumentsController < ApplicationController
       Rails.logger.info "📥 Envoi du fichier avec nom original: #{original_filename}"
 
       begin
-        # Toujours télécharger le fichier et l'envoyer avec le nom original
-        # pour avoir un contrôle complet sur le nom de fichier
+        # Pour les PDFs Cloudinary, rediriger directement vers l'URL Cloudinary
+        # afin d'éviter de bufferiser le fichier entier dans la mémoire Rails (timeout Heroku)
+        if @document.file.service_name.to_s == 'cloudinary' && @document.is_pdf?
+          cloudinary_direct_url = CloudinaryPdfService.generate_pdf_url(
+            @document.file.key,
+            filename: original_filename,
+            inline: disposition == 'inline'
+          )
+          if cloudinary_direct_url.present?
+            Rails.logger.info "✅ Redirection Cloudinary pour #{original_filename} (#{disposition})"
+            redirect_to cloudinary_direct_url, allow_other_host: true
+            return
+          end
+        end
+
+        # Fallback : télécharger et envoyer via Rails (pour non-Cloudinary ou non-PDF)
         file_data = @document.file.download
         send_data file_data,
                   filename: original_filename,

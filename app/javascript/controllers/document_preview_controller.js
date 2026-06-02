@@ -18,10 +18,10 @@ export default class extends Controller {
     const file = this.inputTarget.files[0]
 
     if (file) {
-      // Validation de la taille (10MB max)
-      const maxSize = 10 * 1024 * 1024
+      // Validation de la taille (30MB max pour les documents, conforme à la limite serveur)
+      const maxSize = 30 * 1024 * 1024
       if (file.size > maxSize) {
-        this.showError('La taille du fichier ne peut pas dépasser 10MB. Veuillez choisir un fichier plus petit.')
+        this.showError('La taille du fichier ne peut pas dépasser 30 MB. Veuillez réduire la taille du fichier ou le compresser.')
         this.resetInput()
         return
       }
