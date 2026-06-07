@@ -54,7 +54,8 @@ Rails.application.configure do
                            "'sha256-66/hRq/pZaNOtfE4AadRDwCqTquAXAA3vt0X5xFhWSo='",
                            "'sha256-KgTFVOTAR06haNrZ9m/ea8WEAjUBIOE7QMDIB1waxfY='",
                            "'sha256-WHFe3NDoq2auiN7B1i/wxGpCweJJ8cJcXcJZ4U1nyvE='",
-                           "'sha256-BzNcgSQenaJbvARk9sUhkBjC6WaPeI7mDhmtjPUUqiQ='"
+                           "'sha256-BzNcgSQenaJbvARk9sUhkBjC6WaPeI7mDhmtjPUUqiQ='",
+                           "'sha256-ALUR19SQ295ZahRAzFD0CiB3GiEXOS5Q1/ObuLLllW0='"
 
     policy.script_src_attr "'unsafe-inline'" # Pour les event handlers onclick, onload, etc. dans les attributs
 
