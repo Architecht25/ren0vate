@@ -12,7 +12,7 @@ class TenantsController < ApplicationController
     @tenant.user = current_user
 
     if @tenant.save
-      redirect_to property_gestion_locative_path(@property),
+      redirect_to gestion_locative_property_path(@property),
                   notice: 'Locataire ajouté avec succès.'
     else
       render :new, status: :unprocessable_entity
@@ -27,7 +27,7 @@ class TenantsController < ApplicationController
 
   def update
     if @tenant.update(tenant_params)
-      redirect_to property_gestion_locative_path(@property),
+      redirect_to gestion_locative_property_path(@property),
                   notice: 'Locataire mis à jour.'
     else
       render :edit, status: :unprocessable_entity
@@ -36,7 +36,7 @@ class TenantsController < ApplicationController
 
   def destroy
     @tenant.destroy
-    redirect_to property_gestion_locative_path(@property),
+    redirect_to gestion_locative_property_path(@property),
                 notice: 'Locataire supprimé.'
   end
 
