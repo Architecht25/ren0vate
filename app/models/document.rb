@@ -4,6 +4,7 @@ class Document < ApplicationRecord
   belongs_to :request, optional: true
   belongs_to :project, optional: true
   belongs_to :simulation, optional: true
+  belongs_to :lease, optional: true
 
   # Relation avec les données de facture extraites
   has_one :facture,                   dependent: :destroy
@@ -68,7 +69,12 @@ class Document < ApplicationRecord
     certificat_garantie: 'certificat_garantie',
     instruction_entretien: 'instruction_entretien',
     assurance_decennale: 'assurance_decennale',
-    assurance_rc_pro: 'assurance_rc_pro'
+    assurance_rc_pro: 'assurance_rc_pro',
+    # Documents gestion locative
+    bail_signe: 'bail_signe',
+    etat_lieux_entrant: 'etat_lieux_entrant',
+    etat_lieux_sortant: 'etat_lieux_sortant',
+    assurance_locataire: 'assurance_locataire'
   }
 
   # Status est une colonne string dans la DB, pas un enum integer

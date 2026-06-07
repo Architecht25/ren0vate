@@ -110,7 +110,17 @@
 
 ---
 
-## 8. 🔵 Roadmap V2 — Fonctionnalités futures
+## 8. 🏠 Gestion locative — Complétions
+
+| # | Tâche | Priorité |
+|---|-------|----------|
+| 8.1 | **Documents attachés au bail** — upload bail signé, état des lieux entrant/sortant, attestation assurance locataire (Active Storage sur `Lease`) | 🟡 |
+| 8.2 | **Quittance de loyer PDF** — génération Prawn par `RentPayment` payé, téléchargeable depuis la fiche bail | 🟡 |
+| 8.3 | **Rappels carnet d'entretien** — les dates "Prochain" sont calculées mais aucun email n'est envoyé. À concevoir prudemment : éviter le spam mensuel. Pistes : email unique J-30 avant chaque échéance, opt-in par type de rappel, résumé annuel unique. À arbitrer avant d'implémenter le job. | 🟡 |
+
+---
+
+## 9. 🔵 Roadmap V2 — Fonctionnalités futures
 
 Ces fonctionnalités sont documentées dans `STRATEGIE_EVOLUTION_REN0VATE.md` et ne sont pas encore implémentées.
 
@@ -127,7 +137,7 @@ Ces fonctionnalités sont documentées dans `STRATEGIE_EVOLUTION_REN0VATE.md` et
 
 ---
 
-## 9. 📧 Emails & Notifications
+## 10. 📧 Emails & Notifications
 
 | # | Tâche | Priorité |
 |---|-------|----------|
@@ -137,7 +147,7 @@ Ces fonctionnalités sont documentées dans `STRATEGIE_EVOLUTION_REN0VATE.md` et
 
 ---
 
-## Ordre de traitement recommandé
+## Ordre de traitement recommandé (mis à jour 7 juin 2026)
 
 ```
 Avant 1er client payant :

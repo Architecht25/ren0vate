@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_30_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_07_144548) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -317,6 +317,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_30_090000) do
     t.string "document_source"
     t.json "donnees_extraites"
     t.string "file_url"
+    t.bigint "lease_id"
     t.text "notes"
     t.string "phase_chantier"
     t.bigint "project_id"
@@ -327,6 +328,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_30_090000) do
     t.string "type_document"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["lease_id"], name: "index_documents_on_lease_id"
     t.index ["project_id"], name: "index_documents_on_project_id"
     t.index ["property_id"], name: "index_documents_on_property_id"
     t.index ["request_id"], name: "index_documents_on_request_id"

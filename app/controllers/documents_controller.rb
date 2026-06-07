@@ -188,6 +188,7 @@ class DocumentsController < ApplicationController
       end
       @document.request = @request if @request
       @document.simulation = @simulation if @simulation
+      @document.lease = @lease if @lease
 
       begin
         if @document.save
@@ -580,10 +581,15 @@ class DocumentsController < ApplicationController
     @property ||= @project.property if @project&.property
     @request = current_user.requests.find(params[:request_id]) if params[:request_id]
     @simulation = current_user.simulations.find(params[:simulation_id]) if params[:simulation_id]
+    if params[:lease_id]
+      @lease = Lease.joins(:property).where(properties: { user_id: current_user.id }).find(params[:lease_id])
+      @tenant = @lease.tenant
+      @property ||= @lease.property
+    end
   end
 
   def document_params
-    params.require(:document).permit(:type_document, :status, :document_source, :file, :file_url, :notes, :property_id, :project_id, :request_id, :simulation_id)
+    params.require(:document).permit(:type_document, :status, :document_source, :file, :file_url, :notes, :property_id, :project_id, :request_id, :simulation_id, :lease_id)
   end
 
   def can_access_document?(document)
@@ -602,6 +608,9 @@ class DocumentsController < ApplicationController
 
     # 4. Document lié à une simulation de l'utilisateur
     return true if document.simulation&.user_id == current_user.id
+
+    # 5. Document lié à un bail d'une propriété de l'utilisateur
+    return true if document.lease&.property&.user_id == current_user.id
 
     false
   end
@@ -698,8 +707,14 @@ class DocumentsController < ApplicationController
     came_from_photo_upload = photo_types.include?(params.dig(:document, :type_document))
 
     # Récupérer le contexte depuis le document lui-même si non défini (ex: destroy)
+    @lease    ||= @document&.lease
     @project  ||= @document&.project
     @property ||= @document&.property
+
+    if @lease
+      redirect_to property_tenant_lease_path(@lease.property, @lease.tenant, @lease), options
+      return
+    end
 
     if @project
       # Après suppression ou upload photo → retour sur la fiche projet (widget photos)

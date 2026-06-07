@@ -2,6 +2,7 @@ class Lease < ApplicationRecord
   belongs_to :property
   belongs_to :tenant
   has_many :rent_payments, dependent: :destroy
+  has_many :documents, dependent: :destroy
 
   enum :lease_type, {
     residence_principale: 'residence_principale',

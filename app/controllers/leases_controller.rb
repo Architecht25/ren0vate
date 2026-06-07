@@ -30,6 +30,7 @@ class LeasesController < ApplicationController
     @rent_payments = @lease.rent_payments.order(due_date: :desc)
     @prochaine_indexation = @lease.mois_indexation_prochain
     @impaye_total = @lease.montant_impaye
+    @lease_documents = @lease.documents.to_a
   end
 
   def edit; end
