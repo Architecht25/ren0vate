@@ -94,7 +94,7 @@ class RequestProgress < ApplicationRecord
   DELAIS_REPONSE = {
     'flandre' => 5,
     'bruxelles' => 4,
-    'wallonie' => 18
+    'wallonie' => 24
   }.freeze
 
   # Méthodes pour le calcul du temps restant

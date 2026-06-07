@@ -47,7 +47,10 @@
             <% end %>
           </div>
           <% if @project.date_début && @project.date_fin %>
-            <small class="text-muted"><%= (@project.date_fin - @project.date_début).to_i %> jours</small>
+            <% duration_days = (@project.date_fin - @project.date_début).to_i %>
+            <% if duration_days > 0 %>
+              <small class="text-muted"><%= duration_days %> jours</small>
+            <% end %>
           <% end %>
         </div>
       </div>

@@ -204,10 +204,13 @@
               </div>
             <% end %>
             <% if @project.date_début && @project.date_fin %>
-              <div class="d-flex justify-content-between">
-                <span class="text-muted">Durée totale</span>
-                <span><%= (@project.date_fin - @project.date_début).to_i %> j</span>
-              </div>
+              <% gantt_duration = (@project.date_fin - @project.date_début).to_i %>
+              <% if gantt_duration > 0 %>
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted">Durée totale</span>
+                  <span><%= gantt_duration %> j</span>
+                </div>
+              <% end %>
             <% end %>
           </div>
         </div>
