@@ -38,14 +38,21 @@
   <% end %>
 
   <%= render 'filters' %>
-  <%= render 'phases_content' %>
 
-  <!-- Section pour les documents sans documents -->
-  <% if @documents.empty? && !params[:type_document].present? %>
-    <%= render 'empty_state' %>
+  <% if @property && !@project %>
+    <%# Vue bien : liste plate avec filtres chantier / type / phase %>
+    <%= render 'property_documents_list' %>
+  <% else %>
+    <%# Vue projet ou globale : organisation par phase %>
+    <%= render 'phases_content' %>
+    <% if @documents.empty? && !params[:type_document].present? %>
+      <%= render 'empty_state' %>
+    <% end %>
   <% end %>
 </div>
 
-<%= render 'type_filtered_documents' %>
+<% unless @property && !@project %>
+  <%= render 'type_filtered_documents' %>
+<% end %>
 <%= render 'modals_and_scripts' %>
 <%= render 'styles' %>

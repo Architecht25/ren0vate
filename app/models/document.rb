@@ -90,6 +90,12 @@ class Document < ApplicationRecord
   after_save :refresh_property_phase_statuses
   after_destroy :refresh_property_phase_statuses
 
+  # Tiers de traitement automatique à l'upload
+  CLAUDE_TYPES = %w[facture devis bordereau_chassis].freeze
+  OCR_TYPES    = %w[aer rib certificat_peb_avant certificat_peb_apres
+                    rapport_audit_energetique attestation_conformite
+                    certificat_label].freeze
+
   # Formats de fichiers autorisés
   ALLOWED_FORMATS = {
     images: %w[image/jpeg image/png image/gif image/webp],

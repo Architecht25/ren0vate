@@ -10,7 +10,14 @@
         <p class="text-muted mb-0"><%= @document.type_document %></p>
       </div>
     </div>
-    <%= link_to documents_path, class: "btn btn-outline-primary-custom px-4" do %>
+    <% back_path = if @document.property
+                      property_documents_path(@document.property)
+                    elsif @document.project
+                      project_documents_path(@document.project)
+                    else
+                      documents_path
+                    end %>
+    <%= link_to back_path, class: "btn btn-outline-primary-custom px-4" do %>
       <i class="bi bi-arrow-left me-2"></i>
       Retour aux documents
     <% end %>

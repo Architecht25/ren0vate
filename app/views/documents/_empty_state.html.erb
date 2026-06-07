@@ -10,12 +10,7 @@
         Aucun document de ce type n'a été trouvé.
       <% end %>
     </p>
-    <% if @property %>
-      <%= link_to new_property_document_path(@property),
-          class: "btn btn-primary-custom px-4" do %>
-        <i class="bi bi-plus-lg me-2"></i>Ajouter un document
-      <% end %>
-    <% elsif @project %>
+    <% if @project %>
       <%= link_to new_project_document_path(@project),
           class: "btn btn-primary-custom px-4" do %>
         <i class="bi bi-plus-lg me-2"></i>Ajouter un document
@@ -62,16 +57,17 @@
         </div>
       </div>
       <div class="text-center">
-        <% if @property %>
-          <%= link_to new_property_document_path(@property),
-              class: "btn btn-primary-custom px-5" do %>
-            <i class="bi bi-plus-lg me-2"></i>Ajouter mon premier document
-          <% end %>
-        <% elsif @project %>
+        <% if @project %>
           <%= link_to new_project_document_path(@project),
               class: "btn btn-primary-custom px-5" do %>
             <i class="bi bi-plus-lg me-2"></i>Ajouter mon premier document
           <% end %>
+        <% elsif @property %>
+          <p class="text-muted small">
+            <i class="bi bi-arrow-right me-1"></i>
+            Ajoutez vos documents depuis les onglets de votre projet ou depuis
+            <%= link_to 'la fiche du bien', dashboard_property_path(@property) %>.
+          </p>
         <% end %>
       </div>
     </div>

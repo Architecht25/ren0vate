@@ -45,6 +45,13 @@
       <i class="bi bi-file-earmark-ruled me-1"></i>Permis
     </button>
   </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link w-100" id="prep-media-tab"
+            data-bs-toggle="tab" data-bs-target="#prep-media"
+            type="button" role="tab" aria-selected="false">
+      <i class="bi bi-camera me-1"></i>Photos & Journal
+    </button>
+  </li>
 </ul>
 
 <div class="tab-content" id="prepTabsContent">
@@ -104,6 +111,50 @@
         </div>
       </div>
     <% end %>
+    <%# Preuve de paiement audit — visible si audit réalisé %>
+    <% preuve_audit_doc = @project.documents.where(type_document: 'preuve_paiement_audit').order(created_at: :desc).first %>
+    <div class="row g-3 mb-4">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4">
+          <div class="card-body p-3 d-flex align-items-center justify-content-between gap-3">
+            <div class="d-flex align-items-center gap-3">
+              <% if preuve_audit_doc %>
+                <i class="bi bi-receipt-cutoff text-success fs-4"></i>
+                <div>
+                  <span class="fw-semibold small">Preuve de paiement audit</span>
+                  <div class="text-muted" style="font-size:0.75rem;"><%= preuve_audit_doc.file.attached? ? preuve_audit_doc.file.filename.to_s.truncate(40) : '—' %></div>
+                </div>
+              <% else %>
+                <i class="bi bi-receipt-cutoff text-muted fs-4"></i>
+                <div>
+                  <span class="fw-semibold small">Preuve de paiement audit</span>
+                  <div class="text-muted" style="font-size:0.75rem;">Requis pour certaines primes (Wallonie, Flandre)</div>
+                </div>
+              <% end %>
+            </div>
+            <div class="d-flex gap-2 flex-shrink-0">
+              <% if preuve_audit_doc %>
+                <%= link_to download_document_path(preuve_audit_doc), class: 'btn btn-sm btn-outline-success', title: 'Télécharger' do %>
+                  <i class="bi bi-download"></i>
+                <% end %>
+                <%= link_to preuve_audit_doc, data: { turbo_method: :delete, turbo_confirm: 'Supprimer ce document ?' }, class: 'btn btn-sm btn-outline-danger' do %>
+                  <i class="bi bi-trash"></i>
+                <% end %>
+              <% else %>
+                <%= form_with url: project_documents_path(@project), method: :post, multipart: true do |f| %>
+                  <%= hidden_field_tag 'document[type_document]', 'preuve_paiement_audit' %>
+                  <%= hidden_field_tag 'document[status]', 'approved' %>
+                  <label class="btn btn-sm btn-outline-secondary mb-0">
+                    <i class="bi bi-upload me-1"></i>Ajouter
+                    <input type="file" name="document[file]" class="d-none" accept=".pdf,.jpg,.jpeg,.png" onchange="this.form.submit()">
+                  </label>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ── Sous-onglet 4 : Permis ── -->
@@ -123,13 +174,62 @@
     </div>
   </div>
 
-</div>
-
-<!-- Carnet de bord -->
-<div class="row mb-4">
-  <div class="col-12">
-    <%= render 'projects/partials_general/carnet_de_bord', project: @project, tab: 'preparation' %>
+  <!-- ── Sous-onglet 5 : Photos & Journal ── -->
+  <div class="tab-pane fade" id="prep-media" role="tabpanel" aria-labelledby="prep-media-tab">
+    <% photos_avant = @project.documents.where(type_document: 'photo_avant').order(created_at: :desc) %>
+    <div class="row g-3 mb-4">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4">
+          <div class="card-header bg-transparent border-bottom py-3 px-4 d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-camera text-secondary fs-5"></i>
+              <span class="fw-semibold" style="font-size:0.9rem;">Photos avant travaux</span>
+              <% if photos_avant.any? %>
+                <span class="badge bg-secondary-subtle text-secondary rounded-3" style="font-size:0.68rem;"><%= photos_avant.count %> photo<%= photos_avant.count > 1 ? 's' : '' %></span>
+              <% end %>
+            </div>
+            <%= form_with url: project_documents_path(@project), method: :post, multipart: true, class: 'd-inline' do |f| %>
+              <%= hidden_field_tag 'document[type_document]', 'photo_avant' %>
+              <%= hidden_field_tag 'document[status]', 'approved' %>
+              <label class="btn btn-sm btn-outline-secondary mb-0">
+                <i class="bi bi-plus me-1"></i>Ajouter
+                <input type="file" name="document[file]" class="d-none" accept=".jpg,.jpeg,.png,.webp" onchange="this.form.submit()">
+              </label>
+            <% end %>
+          </div>
+          <div class="card-body p-3">
+            <% if photos_avant.any? %>
+              <div class="row g-2">
+                <% photos_avant.first(6).each do |doc| %>
+                  <div class="col-4 col-md-2">
+                    <%= render 'projects/partials_general/doc_thumbnail', doc: doc, color: 'secondary' %>
+                  </div>
+                <% end %>
+                <% if photos_avant.count > 6 %>
+                  <div class="col-12 mt-1">
+                    <%= link_to project_documents_path(@project, type_document: 'photo_avant'), class: "btn btn-sm btn-outline-secondary", style: "font-size:0.78rem;" do %>
+                      <i class="bi bi-images me-1"></i>Voir toutes (<%= photos_avant.count %>)
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            <% else %>
+              <div class="text-center py-3 text-muted" style="font-size:0.82rem;">
+                <i class="bi bi-camera d-block mb-1 opacity-25" style="font-size:1.8rem;"></i>
+                Documentez l'état du bien avant le démarrage des travaux.
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row g-3 mb-4">
+      <div class="col-12">
+        <%= render 'projects/partials_general/carnet_de_bord', project: @project, tab: 'preparation' %>
+      </div>
+    </div>
   </div>
+
 </div>
 
 <!-- CTA transition → Suivi -->

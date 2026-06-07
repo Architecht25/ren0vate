@@ -1,18 +1,103 @@
-<!-- Sous-onglets de phases -->
-<% if @phases_data&.any? %>
+<%
+  phase_label_for = ->(name) {
+    case name
+    when 'Phase Administrative' then 'Docs Administratifs'
+    when 'Phase Technique'      then 'Préparation de chantier'
+    when 'Phase Exécution'      then 'Suivi de chantier'
+    when 'Phase Réception'      then 'Réception de chantier'
+    else name.gsub('Phase ', '')
+    end
+  }
+%>
+
+<% if @property && !@project %>
+  <%# ── Contexte bien : barre de filtres (chantier + type + phase) — pas de tabs ── %>
+  <div class="mb-4 p-3 rounded-3 d-flex flex-wrap align-items-center gap-2"
+       style="background:rgba(0,0,0,0.02); border:1px solid rgba(0,0,0,0.07);">
+    <%= form_with url: property_documents_path(@property), method: :get,
+          class: 'd-flex flex-wrap align-items-center gap-2 w-100' do |f| %>
+
+      <i class="bi bi-funnel text-muted flex-shrink-0" style="font-size:0.88rem;"></i>
+
+      <%# Filtre chantier %>
+      <% if @property_projects&.any? %>
+        <div class="d-flex align-items-center gap-1">
+          <label class="text-muted mb-0 flex-shrink-0" style="font-size:0.78rem;">Chantier</label>
+          <%= f.select :filter_project,
+                [['Tous', '']] + @property_projects.map { |p| [p.nom.presence || "Projet \##{p.id}", p.id] },
+                { selected: params[:filter_project] },
+                { class: 'form-select form-select-sm', style: 'min-width:155px;' } %>
+        </div>
+      <% end %>
+
+      <%# Filtre type de document %>
+      <% available_types = @documents_by_type.keys.compact.sort %>
+      <% if available_types.any? %>
+        <div class="d-flex align-items-center gap-1">
+          <label class="text-muted mb-0 flex-shrink-0" style="font-size:0.78rem;">Type</label>
+          <%= f.select 'type_document[]',
+                [['Tous les types', '']] + available_types.map { |t| [document_type_name(t), t] },
+                { selected: params[:type_document] },
+                { class: 'form-select form-select-sm', style: 'min-width:185px;' } %>
+        </div>
+      <% end %>
+
+      <%# Filtre phase %>
+      <% if @all_phases&.any? %>
+        <div class="d-flex align-items-center gap-1">
+          <label class="text-muted mb-0 flex-shrink-0" style="font-size:0.78rem;">Phase</label>
+          <%= f.select :filter_phase,
+                [['Toutes les phases', '']] + @all_phases.map { |ph| [phase_label_for.call(ph.name), ph.id] },
+                { selected: params[:filter_phase] },
+                { class: 'form-select form-select-sm', style: 'min-width:175px;' } %>
+        </div>
+      <% end %>
+
+      <button type="submit" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-search me-1"></i>Filtrer
+      </button>
+
+      <%# Badges actifs + reset %>
+      <% active_filters = params[:filter_project].present? || params[:type_document].present? || params[:filter_phase].present? %>
+      <% if active_filters %>
+        <div class="d-flex align-items-center gap-2 ms-auto flex-wrap">
+          <% if @selected_project_filter %>
+            <span class="badge rounded-pill border"
+                  style="font-size:0.7rem; background:rgba(var(--ren0vate-primary-rgb),0.08); color:var(--ren0vate-primary); border-color:rgba(var(--ren0vate-primary-rgb),0.25) !important;">
+              <i class="bi bi-building me-1"></i><%= @selected_project_filter.nom.presence || "Projet \##{@selected_project_filter.id}" %>
+            </span>
+          <% end %>
+          <% if params[:type_document].present? %>
+            <% types = Array(params[:type_document]).flatten.reject(&:blank?) %>
+            <% if types.any? %>
+              <span class="badge rounded-pill border"
+                    style="font-size:0.7rem; background:rgba(var(--ren0vate-primary-rgb),0.08); color:var(--ren0vate-primary); border-color:rgba(var(--ren0vate-primary-rgb),0.25) !important;">
+                <i class="bi bi-tag me-1"></i><%= document_type_name(types.first) %><%= " +#{types.size - 1}" if types.size > 1 %>
+              </span>
+            <% end %>
+          <% end %>
+          <% if params[:filter_phase].present? && @selected_phase %>
+            <span class="badge rounded-pill border"
+                  style="font-size:0.7rem; background:rgba(var(--ren0vate-primary-rgb),0.08); color:var(--ren0vate-primary); border-color:rgba(var(--ren0vate-primary-rgb),0.25) !important;">
+              <i class="bi bi-layers me-1"></i><%= phase_label_for.call(@selected_phase.name) %>
+            </span>
+          <% end %>
+          <%= link_to property_documents_path(@property),
+                class: 'btn btn-sm btn-link text-muted p-0 ms-1',
+                title: 'Réinitialiser les filtres' do %>
+            <i class="bi bi-x-circle"></i>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+<% elsif @phases_data&.any? %>
+  <%# ── Contexte projet ou global : onglets de phase ── %>
   <ul class="nav nav-pills nav-fill mb-4 gap-1 p-1 rounded-3" style="background: rgba(0,0,0,0.04);">
     <% @phases_data.each do |phase_data| %>
       <% phase = phase_data[:phase] %>
       <% is_active = @selected_phase == phase || (@selected_phase.nil? && phase == @phases_data.first[:phase]) %>
-      <%
-        btn_label = case phase.name
-        when 'Phase Administrative' then 'Docs Administratifs'
-        when 'Phase Technique'      then 'Préparation de chantier'
-        when 'Phase Exécution'      then 'Suivi de chantier'
-        when 'Phase Réception'      then 'Réception de chantier'
-        else phase.name.gsub('Phase ', '')
-        end
-      %>
       <li class="nav-item">
         <%= link_to documents_path(
                       property_id: @property&.id,
@@ -20,7 +105,7 @@
                       filter_phase: phase.id
                     ),
                    class: "nav-link w-100 #{'active' if is_active}" do %>
-          <%= phase.icon %> <%= btn_label %>
+          <%= phase.icon %> <%= phase_label_for.call(phase.name) %>
           <span class="badge ms-1 <%= is_active ? 'bg-white text-dark' : 'bg-light text-dark' %>"><%= phase_data[:count] %></span>
         <% end %>
       </li>

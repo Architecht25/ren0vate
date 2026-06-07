@@ -21,11 +21,28 @@ class DocumentsController < ApplicationController
         @documents = @documents.where(project: @project)
       end
     elsif @property
-      @documents = @documents.where(property: @property)
+      # Agréger tous les docs du bien : ceux liés directement (property_id) ET
+      # ceux liés à un projet du bien (project_id) même sans property_id explicite
+      project_ids = @property.projects.pluck(:id)
+      if project_ids.any?
+        @documents = @documents.where(
+          "documents.property_id = :pid OR documents.project_id IN (:pids)",
+          pid: @property.id, pids: project_ids
+        )
+      else
+        @documents = @documents.where(property: @property)
+      end
+      @property_projects = @property.projects.order(:nom)
+
+      # Filtre chantier (contexte property uniquement)
+      if params[:filter_project].present?
+        @selected_project_filter = @property_projects.find_by(id: params[:filter_project])
+        @documents = @documents.where(project_id: params[:filter_project]) if @selected_project_filter
+      end
     end
     @documents = @documents.where(request: @request) if @request
 
-    # Groupement par type pour l'affichage
+    # Groupement par type — calculé après filtre projet, avant filtre phase/type
     @documents_by_type = @documents.group_by(&:type_document)
 
     # Stats pour le dashboard - sécurisées
@@ -69,13 +86,14 @@ class DocumentsController < ApplicationController
     end
 
     # Filtrage par type de document spécifique
+    # Rejeter les valeurs vides (ex: type_document[]='' quand "Tous les types" est sélectionné)
     if params[:type_document].present?
-      types = Array(params[:type_document]).flatten
-      @documents = @documents.where(type_document: types)
-      # @selected_document_type reste nil si plusieurs types (tableau) — la vue affiche un titre générique
-      @selected_document_type = types.size == 1 ? types.first : nil
-      # Trouver la phase correspondante pour le breadcrumb (uniquement si type unique)
-      @selected_phase ||= DocumentPhase.find_phase_for_document_type(types.first) if types.size == 1
+      types = Array(params[:type_document]).flatten.reject(&:blank?)
+      if types.any?
+        @documents = @documents.where(type_document: types)
+        @selected_document_type = types.size == 1 ? types.first : nil
+        @selected_phase ||= DocumentPhase.find_phase_for_document_type(types.first) if types.size == 1
+      end
     end
   end
 
@@ -146,32 +164,36 @@ class DocumentsController < ApplicationController
       @document = current_user.documents.build(document_attrs)
       @document.file.attach(file)
 
-      # Si mode OCR, traiter le fichier avec OCR
+      # Dispatch automatique selon le tier du type de document
       facture_ocr_result = nil
-      if upload_mode == 'ocr'
-        begin
-          # Utiliser FactureOcrService pour les factures afin d'extraire les données structurées
-          if @document.type_document == 'facture'
+      type = @document.type_document.to_s
+      begin
+        ocr_result = nil
+        if Document::CLAUDE_TYPES.include?(type)
+          case type
+          when 'facture'
             facture_service = FactureClaudeService.new(file)
             facture_ocr_result = facture_service.extraire_donnees_facture
             ocr_result = facture_ocr_result
-          else
-            ocr_service = OcrService.new(file)
-            ocr_result = ocr_service.call
+          when 'devis'
+            service = DevisClaudeService.new(file)
+            ocr_result = service.extraire_donnees_devis
+          when 'bordereau_chassis'
+            service = BordereauChassisClaudeService.new(file)
+            ocr_result = service.extraire_donnees_bordereau
           end
-
-          if ocr_result[:success]
-            # Ajouter le contenu OCR aux notes
-            ocr_notes = build_ocr_notes(ocr_result)
-            @document.notes = ocr_notes
-          else
-            Rails.logger.warn "Échec OCR pour #{file.original_filename}: #{ocr_result[:error]}"
-            # Continuer sans OCR en cas d'échec
-          end
-        rescue => e
-          Rails.logger.error "Erreur OCR pour #{file.original_filename}: #{e.message}"
-          # Continuer sans OCR en cas d'erreur
+        elsif Document::OCR_TYPES.include?(type) || upload_mode == 'ocr'
+          ocr_service = OcrService.new(file)
+          ocr_result = ocr_service.call
         end
+
+        if ocr_result&.dig(:success)
+          @document.notes = build_ocr_notes(ocr_result)
+        elsif ocr_result && !ocr_result[:success]
+          Rails.logger.warn "Échec OCR pour #{file.original_filename}: #{ocr_result[:error]}"
+        end
+      rescue => e
+        Rails.logger.error "Erreur OCR/Claude pour #{file.original_filename}: #{e.message}"
       end
 
       # Définir le statut par défaut si non fourni

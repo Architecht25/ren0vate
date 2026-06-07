@@ -1,0 +1,139 @@
+<%
+  docs = @documents.order(created_at: :desc)
+  active_filters = params[:filter_project].present? || params[:type_document].present? || params[:filter_phase].present?
+
+  phase_label = ->(phase) {
+    case phase&.name
+    when 'Phase Administrative' then ['Admin.', 'secondary']
+    when 'Phase Technique'      then ['Prép.', 'primary']
+    when 'Phase Exécution'      then ['Suivi', 'warning']
+    when 'Phase Réception'      then ['Récept.', 'success']
+    else                             ['—', 'light']
+    end
+  }
+
+  file_icon = ->(doc) {
+    return 'bi-file-earmark text-muted' unless doc.file.attached?
+    case doc.file.content_type.to_s
+    when /image/ then 'bi-file-image text-success'
+    when /pdf/   then 'bi-file-earmark-pdf text-danger'
+    else              'bi-file-earmark-text text-secondary'
+    end
+  }
+%>
+
+<% if docs.any? %>
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+
+    <div class="d-flex align-items-center justify-content-between px-4 py-2 border-bottom"
+         style="background:rgba(0,0,0,0.02);">
+      <span class="text-muted" style="font-size:0.78rem;">
+        <%= docs.size %> document<%= 's' if docs.size > 1 %>
+        <% if active_filters %>
+          <span class="ms-1">· filtré<%= 's' if docs.size > 1 %></span>
+        <% end %>
+      </span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr style="font-size:0.72rem; color:#94a3b8; font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">
+            <th class="ps-4 py-3 border-0" style="width:36%;">Document</th>
+            <th class="py-3 border-0" style="width:18%;">Type</th>
+            <th class="py-3 border-0 d-none d-md-table-cell" style="width:20%;">Chantier</th>
+            <th class="py-3 border-0 d-none d-lg-table-cell" style="width:10%;">Phase</th>
+            <th class="py-3 border-0 d-none d-lg-table-cell" style="width:9%;">Date</th>
+            <th class="pe-4 py-3 border-0" style="width:7%;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% docs.each do |doc| %>
+            <% pl = phase_label.call(doc.document_phase) %>
+            <tr class="document-row" data-href="<%= document_path(doc) %>"
+                style="cursor:pointer; transition:background 0.1s;">
+              <td class="ps-4 py-3">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi <%= file_icon.call(doc) %> fs-5 flex-shrink-0"></i>
+                  <div class="min-w-0">
+                    <div class="fw-medium text-truncate"
+                         style="font-size:0.85rem; max-width:210px;"
+                         title="<%= doc.file.attached? ? doc.file.filename.to_s : '—' %>">
+                      <%= doc.file.attached? ? doc.file.filename.to_s : '(fichier manquant)' %>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td class="py-3">
+                <span style="font-size:0.82rem;"><%= document_type_name(doc.type_document) %></span>
+              </td>
+              <td class="py-3 d-none d-md-table-cell">
+                <% if doc.project %>
+                  <span class="text-truncate d-block"
+                        style="font-size:0.82rem; max-width:130px;"
+                        title="<%= doc.project.nom %>">
+                    <%= doc.project.nom.presence || "Projet ##{doc.project.id}" %>
+                  </span>
+                <% else %>
+                  <span class="text-muted" style="font-size:0.82rem;">—</span>
+                <% end %>
+              </td>
+              <td class="py-3 d-none d-lg-table-cell">
+                <span class="badge border"
+                      style="font-size:0.68rem;
+                             background:rgba(var(--bs-<%= pl[1] %>-rgb),0.1);
+                             color:var(--bs-<%= pl[1] %>);
+                             border-color:rgba(var(--bs-<%= pl[1] %>-rgb),0.3) !important;">
+                  <%= pl[0] %>
+                </span>
+              </td>
+              <td class="py-3 d-none d-lg-table-cell">
+                <span class="text-muted" style="font-size:0.8rem;">
+                  <%= doc.created_at.strftime('%-d %b %y') %>
+                </span>
+              </td>
+              <td class="pe-4 py-3">
+                <div class="d-flex gap-1 justify-content-end">
+                  <%= link_to document_path(doc),
+                        class: 'btn btn-sm btn-outline-secondary',
+                        title: 'Consulter',
+                        onclick: 'event.stopPropagation()' do %>
+                    <i class="bi bi-eye"></i>
+                  <% end %>
+                  <% if doc.file.attached? %>
+                    <%= link_to download_document_path(doc),
+                          class: 'btn btn-sm btn-outline-secondary',
+                          title: 'Télécharger',
+                          onclick: 'event.stopPropagation()',
+                          data: { turbo: false } do %>
+                      <i class="bi bi-download"></i>
+                    <% end %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<% else %>
+  <div class="text-center py-5">
+    <i class="bi bi-folder2-open d-block mb-2 opacity-25" style="font-size:2.5rem; color:#64748b;"></i>
+    <p class="text-muted mb-0" style="font-size:0.85rem;">
+      Aucun document<%= active_filters ? ' pour ces filtres' : '' %>.
+    </p>
+    <% if active_filters %>
+      <%= link_to property_documents_path(@property), class: 'btn btn-sm btn-outline-secondary mt-3' do %>
+        <i class="bi bi-x me-1"></i>Réinitialiser les filtres
+      <% end %>
+    <% end %>
+  </div>
+<% end %>
+
+<script nonce="<%= content_security_policy_nonce %>">
+  document.querySelectorAll('.document-row[data-href]').forEach(function(row) {
+    row.addEventListener('click', function() { window.location = row.dataset.href; });
+  });
+</script>

@@ -221,6 +221,81 @@
         </div>
       </div>
 
+      <!-- ─── Documents de clôture & garanties ───────────────────────────────── -->
+      <%
+        cloture_doc_types = [
+          { type: 'certificat_label',         label: 'Label énergétique',         icon: 'bi-award',                note: 'Label de performance de l\'équipement installé.' },
+          { type: 'plan_diu',                 label: 'Plan DIU',                  icon: 'bi-diagram-3',            note: 'Dossier d\'Intervention Ultérieure — plans de récolement.' },
+          { type: 'fiche_technique',          label: 'Fiche technique',           icon: 'bi-file-earmark-text',    note: 'Fiche technique des équipements et matériaux posés.' },
+          { type: 'notice_equipement',        label: "Notice d'équipement",       icon: 'bi-book',                 note: 'Notices d\'utilisation et d\'entretien des équipements.' },
+          { type: 'fiche_securite_materiaux', label: 'Fiche sécurité matériaux',  icon: 'bi-exclamation-triangle', note: 'Fiches de données de sécurité des matériaux utilisés.' },
+          { type: 'instruction_entretien',    label: "Instruction d'entretien",   icon: 'bi-tools',                note: 'Recommandations d\'entretien périodique.' },
+        ]
+        all_cloture_types   = cloture_doc_types.map { |d| d[:type] }
+        existing_cloture    = @project.documents.where(type_document: all_cloture_types).to_a
+        nb_presents_cloture = existing_cloture.map(&:type_document).uniq.count
+      %>
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-bottom py-3 px-4 d-flex align-items-center justify-content-between">
+          <h5 class="mb-0 text-primary-custom fw-normal">
+            <i class="bi bi-folder2-open me-2"></i>Documents DIU &amp; clôture
+          </h5>
+          <span class="badge bg-<%= nb_presents_cloture == cloture_doc_types.size ? 'success' : 'secondary' %>-subtle text-<%= nb_presents_cloture == cloture_doc_types.size ? 'success' : 'secondary' %> border">
+            <%= nb_presents_cloture %> / <%= cloture_doc_types.size %>
+          </span>
+        </div>
+        <div class="list-group list-group-flush">
+          <% cloture_doc_types.each do |doc_type| %>
+            <% existing = existing_cloture.find { |d| d.type_document == doc_type[:type] } %>
+            <div class="list-group-item px-4 py-3 d-flex align-items-start gap-3">
+              <!-- Icône état -->
+              <div class="flex-shrink-0 mt-1">
+                <% if existing %>
+                  <div class="rounded-circle bg-success d-flex align-items-center justify-content-center" style="width:26px;height:26px;">
+                    <i class="bi bi-check text-white" style="font-size:14px;"></i>
+                  </div>
+                <% else %>
+                  <div class="rounded-circle bg-secondary-subtle d-flex align-items-center justify-content-center" style="width:26px;height:26px;">
+                    <i class="bi bi-dash text-secondary" style="font-size:14px;"></i>
+                  </div>
+                <% end %>
+              </div>
+              <!-- Contenu -->
+              <div class="flex-grow-1">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <i class="bi <%= doc_type[:icon] %> text-<%= existing ? 'success' : 'secondary' %>"></i>
+                  <span class="fw-medium small"><%= doc_type[:label] %></span>
+                  <% if existing %>
+                    <small class="text-muted" style="font-size:0.7rem;"><%= existing.file.attached? ? existing.file.filename.to_s.truncate(30) : '—' %></small>
+                  <% end %>
+                </div>
+                <p class="text-muted mb-0 mt-1" style="font-size:0.78rem;"><%= doc_type[:note] %></p>
+              </div>
+              <!-- Action -->
+              <div class="flex-shrink-0 d-flex gap-1">
+                <% if existing %>
+                  <%= link_to download_document_path(existing), class: 'btn btn-sm btn-outline-success', title: 'Télécharger' do %>
+                    <i class="bi bi-download"></i>
+                  <% end %>
+                  <%= link_to existing, data: { turbo_method: :delete, turbo_confirm: 'Supprimer ce document ?' }, class: 'btn btn-sm btn-outline-danger' do %>
+                    <i class="bi bi-trash"></i>
+                  <% end %>
+                <% else %>
+                  <%= form_with url: project_documents_path(@project), method: :post, multipart: true do |f| %>
+                    <%= hidden_field_tag 'document[type_document]', doc_type[:type] %>
+                    <%= hidden_field_tag 'document[status]', 'approved' %>
+                    <label class="btn btn-sm btn-outline-primary mb-0">
+                      <i class="bi bi-plus"></i>
+                      <input type="file" name="document[file]" class="d-none" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="this.form.submit()">
+                    </label>
+                  <% end %>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
       <!-- ─── Photos après travaux ──────────────────────────────────────────── -->
       <% if @docs_photos_apres.any? %>
         <div class="card border-0 shadow-sm mb-4">
