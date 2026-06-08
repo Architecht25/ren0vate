@@ -251,6 +251,7 @@ class ContextualBotService
         DONNÉES COMPLÈTES DU DOSSIER :
         #{user_ctx}
         #{property_trajectory ? "\nTRAJECTOIRE PEB RÉGLEMENTAIRE :\n#{property_trajectory}" : ""}
+        #{veille_block}
 
         PAGE ACTUELLE DE L'APP : #{current_page}
 
@@ -259,6 +260,23 @@ class ContextualBotService
     }
 
     [static_block, dynamic_block]
+  end
+
+  def veille_block
+    articles = VeilleArticle.for_bot
+    return "" if articles.empty?
+
+    lines = ["\n═══════════════════════════════════════════════════════════════════════"]
+    lines << "VEILLE SECTORIELLE RÉCENTE (articles de presse belge — à utiliser comme contexte de marché)"
+    lines << "═══════════════════════════════════════════════════════════════════════"
+    articles.each do |a|
+      lines << "\n📰 #{a.source} — #{a.source_date&.strftime('%-d %b %Y')}#{a.region.present? && a.region != 'belgique' ? " (#{a.region_label})" : ''}"
+      lines << "Titre : #{a.titre}"
+      lines << "Thèmes : #{a.themes_list.join(', ')}" if a.themes_list.any?
+      lines << a.contenu.to_s.strip
+    end
+    lines << "═══════════════════════════════════════════════════════════════════════"
+    lines.join("\n")
   end
 
   def build_user_context

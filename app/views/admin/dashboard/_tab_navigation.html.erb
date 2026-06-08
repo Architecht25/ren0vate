@@ -81,6 +81,13 @@
         </button>
       </li>
     </ul>
+    <%= link_to admin_veille_articles_path, class: "btn btn-sm btn-outline-secondary ms-2" do %>
+      <i class="bi bi-newspaper me-1"></i>Veille presse
+      <% veille_count = VeilleArticle.active.count %>
+      <% if veille_count > 0 %>
+        <span class="badge bg-success ms-1"><%= veille_count %></span>
+      <% end %>
+    <% end %>
   </div>
 
   <%# Synchronisation des deux rangées de pills : désactiver l'autre rangée quand une tab est activée %>

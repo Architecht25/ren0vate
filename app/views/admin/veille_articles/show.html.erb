@@ -1,0 +1,51 @@
+<div class="container-fluid px-4 py-4" style="max-width: 900px;">
+  <div class="mb-4 d-flex justify-content-between align-items-start">
+    <div>
+      <%= link_to admin_veille_articles_path, class: "text-muted text-decoration-none small" do %>
+        <i class="bi bi-arrow-left me-1"></i>Retour à la veille presse
+      <% end %>
+      <h4 class="fw-bold mt-2 mb-1"><%= @article.titre %></h4>
+      <div class="d-flex align-items-center gap-2 text-muted small">
+        <span><%= @article.source %></span>
+        <span>&middot;</span>
+        <span><%= @article.source_date&.strftime("%-d %b %Y") %></span>
+        <% if @article.region.present? %>
+          <span>&middot;</span>
+          <span class="badge bg-light text-dark border"><%= @article.region_label %></span>
+        <% end %>
+        <span class="badge <%= @article.active? ? 'bg-success' : 'bg-secondary' %>">
+          <%= @article.active? ? "Actif" : "Inactif" %>
+        </span>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to edit_admin_veille_article_path(@article), class: "btn btn-sm btn-outline-primary" do %>
+        <i class="bi bi-pencil me-1"></i>Modifier
+      <% end %>
+    </div>
+  </div>
+
+  <% if @article.themes_list.any? %>
+    <div class="mb-3">
+      <% @article.themes_list.each do |t| %>
+        <span class="badge bg-secondary bg-opacity-10 text-secondary border me-1"><%= t %></span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="card border-0 shadow-sm mb-3">
+    <div class="card-header bg-white fw-semibold small text-muted">Contenu injecté dans le bot</div>
+    <div class="card-body">
+      <div class="text-pre-wrap small lh-lg"><%= @article.contenu %></div>
+    </div>
+  </div>
+
+  <% if @article.admin_notes.present? %>
+    <div class="card border-0 shadow-sm border-start border-warning border-3">
+      <div class="card-body">
+        <div class="fw-semibold small text-warning mb-1"><i class="bi bi-sticky me-1"></i>Notes internes</div>
+        <div class="small text-muted"><%= @article.admin_notes %></div>
+      </div>
+    </div>
+  <% end %>
+</div>

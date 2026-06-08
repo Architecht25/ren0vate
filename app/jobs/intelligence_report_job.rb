@@ -16,13 +16,19 @@ class IntelligenceReportJob < ApplicationJob
     scraper_result = IntelligenceScraperService.new.fetch_all
     Rails.logger.info "IntelligenceReportJob — #{scraper_result[:total_items]} articles récupérés"
 
+    # 1b. Ajouter les articles de veille presse importés manuellement
+    veille_text   = format_veille_articles
+    combined_text = [ scraper_result[:formatted_text], veille_text ].reject(&:blank?).join("\n\n")
+    veille_count  = VeilleArticle.active.count
+    Rails.logger.info "IntelligenceReportJob — #{veille_count} articles veille presse inclus" if veille_count > 0
+
     report.update!(
-      raw_content:   scraper_result[:formatted_text],
-      sources_count: scraper_result[:total_items]
+      raw_content:   combined_text,
+      sources_count: scraper_result[:total_items] + veille_count
     )
 
     # 2. Analyser avec Claude
-    analysis = IntelligenceAnalysisService.new.analyze(scraper_result[:formatted_text])
+    analysis = IntelligenceAnalysisService.new.analyze(combined_text)
 
     if analysis.present?
       report.update!(status: 'completed', analysis: analysis)
@@ -42,6 +48,20 @@ class IntelligenceReportJob < ApplicationJob
   end
 
   private
+
+  def format_veille_articles
+    articles = VeilleArticle.for_bot
+    return nil if articles.empty?
+
+    lines = [ "=== VEILLE PRESSE — Articles importés manuellement ===" ]
+    articles.each do |a|
+      lines << "\n[#{a.source} — #{a.source_date&.strftime('%-d %b %Y')}#{a.region.present? && a.region != 'belgique' ? " — #{a.region_label}" : ''}]"
+      lines << "Titre : #{a.titre}"
+      lines << "Thèmes : #{a.themes_list.join(', ')}" if a.themes_list.any?
+      lines << a.contenu.to_s.strip
+    end
+    lines.join("\n")
+  end
 
   # Exporte le rapport vers ~/agents-hub/ pour l'Agent Marketing.
   # Silencieux si le répertoire n'existe pas (production Heroku).

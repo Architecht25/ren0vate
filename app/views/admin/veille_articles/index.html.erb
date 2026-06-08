@@ -1,0 +1,101 @@
+<div class="container-fluid px-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h4 class="fw-bold mb-0"><i class="bi bi-newspaper me-2 text-primary"></i>Veille presse</h4>
+      <p class="text-muted small mb-0">Articles importés manuellement — injectés dans le contexte de l'agent IA</p>
+    </div>
+    <%= link_to new_admin_veille_article_path, class: "btn btn-primary btn-sm" do %>
+      <i class="bi bi-plus-lg me-1"></i>Ajouter un article
+    <% end %>
+  </div>
+
+  <%# Statistiques %>
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm text-center py-3">
+        <div class="fs-3 fw-bold text-primary"><%= @stats[:total] %></div>
+        <div class="text-muted small">Articles importés</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm text-center py-3">
+        <div class="fs-3 fw-bold text-success"><%= @stats[:active] %></div>
+        <div class="text-muted small">Actifs (injectés dans le bot)</div>
+      </div>
+    </div>
+  </div>
+
+  <% if notice.present? %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <%= notice %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <% end %>
+
+  <div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Titre</th>
+            <th>Source</th>
+            <th>Date</th>
+            <th>Région</th>
+            <th>Thèmes</th>
+            <th>Bot</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @articles.each do |article| %>
+            <tr>
+              <td class="fw-semibold" style="max-width: 300px;">
+                <%= link_to article.titre, admin_veille_article_path(article), class: "text-decoration-none text-dark" %>
+              </td>
+              <td class="text-muted small"><%= article.source %></td>
+              <td class="text-muted small"><%= article.source_date&.strftime("%-d %b %Y") %></td>
+              <td>
+                <% if article.region.present? %>
+                  <span class="badge bg-light text-dark border"><%= article.region_label %></span>
+                <% end %>
+              </td>
+              <td style="max-width: 180px;">
+                <% article.themes_list.first(3).each do |t| %>
+                  <span class="badge bg-secondary bg-opacity-10 text-secondary border me-1 mb-1" style="font-size: 0.7rem;"><%= t %></span>
+                <% end %>
+              </td>
+              <td>
+                <%= button_to toggle_active_admin_veille_article_path(article),
+                    method: :post,
+                    class: "btn btn-sm py-0 px-2 #{article.active? ? 'btn-success' : 'btn-outline-secondary'}",
+                    title: article.active? ? "Désactiver" : "Activer" do %>
+                  <i class="bi bi-<%= article.active? ? 'check-circle-fill' : 'circle' %>"></i>
+                <% end %>
+              </td>
+              <td class="text-end">
+                <%= link_to edit_admin_veille_article_path(article), class: "btn btn-sm btn-outline-primary py-0 px-2 me-1" do %>
+                  <i class="bi bi-pencil"></i>
+                <% end %>
+                <%= button_to admin_veille_article_path(article),
+                    method: :delete,
+                    class: "btn btn-sm btn-outline-danger py-0 px-2",
+                    form: { data: { turbo_confirm: "Supprimer cet article ?" } } do %>
+                  <i class="bi bi-trash"></i>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+          <% if @articles.empty? %>
+            <tr>
+              <td colspan="7" class="text-center text-muted py-5">
+                <i class="bi bi-newspaper fs-2 d-block mb-2 opacity-25"></i>
+                Aucun article encore importé.<br>
+                <%= link_to "Ajouter le premier article", new_admin_veille_article_path, class: "btn btn-primary btn-sm mt-3" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

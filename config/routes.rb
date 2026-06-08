@@ -470,6 +470,13 @@ Rails.application.routes.draw do
       end
     end
 
+    # Veille presse — articles importés manuellement pour le contexte IA
+    resources :veille_articles do
+      member do
+        post :toggle_active
+      end
+    end
+
     # Marketing — drafts générés par l'Agent Marketing
     resources :marketing_weeks, only: [:index, :show, :destroy] do
       member do
