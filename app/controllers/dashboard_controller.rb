@@ -124,6 +124,7 @@ class DashboardController < ApplicationController
     factures_pending = Facture.joins(:project)
                               .where(projects: { user_id: current_user.id })
                               .where(statut_paiement: 'non_paye')
+                              .where(valide_manuellement: true)
                               .where(type_facture: %w[facture acompte solde etat_avancement])
                               .includes(:project)
                               .order(created_at: :asc)

@@ -737,7 +737,15 @@
                           </div>
                         </div>
                         <% unless f.valide_manuellement? %>
-                          <span class="badge bg-warning-subtle text-warning-emphasis mt-1" style="font-size:0.6rem;"><i class="bi bi-exclamation-triangle me-1"></i>À valider</span>
+                          <div class="d-flex align-items-center gap-2 mt-1">
+                            <span class="badge bg-warning-subtle text-warning-emphasis" style="font-size:0.6rem;"><i class="bi bi-exclamation-triangle me-1"></i>À valider</span>
+                            <button type="button"
+                                    class="btn btn-link p-0 border-0 text-success"
+                                    style="font-size:0.65rem; line-height:1;"
+                                    data-validate-url="<%= validate_facture_project_facture_path(@project, f) %>">
+                              <i class="bi bi-check-circle me-1"></i>Valider
+                            </button>
+                          </div>
                         <% end %>
                       </div>
                     </div>
@@ -1015,6 +1023,24 @@
   );
 
   setupScanChassis();
+
+  // ── Validation manuelle des factures ───────────────────────────────────
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-validate-url]');
+    if (!btn) return;
+    btn.disabled = true;
+    fetch(btn.dataset.validateUrl, {
+      method: 'PATCH',
+      headers: { 'X-CSRF-Token': CSRF, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: '{}'
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.success) { window.location.reload(); }
+      else { btn.disabled = false; alert(data.error || 'Erreur lors de la validation.'); }
+    })
+    .catch(function () { btn.disabled = false; alert('Erreur réseau.'); });
+  });
 
   // ── Zone scan factures ──────────────────────────────────────────────────
   (function setupScanFacture() {

@@ -85,7 +85,9 @@ class FacturesController < ApplicationController
       render json: { error: "Accès non autorisé" }, status: :forbidden and return
     end
 
-    if @facture.update(facture_params.merge(valide_manuellement: true))
+    update_attrs = (params.key?(:facture) ? facture_params.to_h : {}).merge(valide_manuellement: true)
+
+    if @facture.update(update_attrs)
       # Recalculer les analyses après validation
       @validation_service = FactureValidationService.new(@project)
       @analyse = @validation_service.analyser_factures
