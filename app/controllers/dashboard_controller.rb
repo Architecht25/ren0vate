@@ -132,7 +132,9 @@ class DashboardController < ApplicationController
     @alerts = []
 
     user_projects.where.not(date_fin: nil).where('date_fin < ?', Date.current)
+                 .includes(:pv_reception)
                  .order(date_fin: :asc).limit(3).each do |project|
+      next if project.pv_reception.present?
       days = (Date.current - project.date_fin).to_i
       @alerts << { level: :urgent, message: "Date fin dépassée de #{days}j — #{project.name}", project: project }
     end
