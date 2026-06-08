@@ -198,7 +198,7 @@ class FactureValidationService
   def detecter_facture_solde
     factures_travaux.find(&:facture_solde?) ||
     factures_travaux.select { |f| f.type_facture == 'solde' }.first ||
-    factures_travaux.max_by(&:date_facture) # Dernière facture par date
+    factures_travaux.max_by { |f| f.date_facture || Date.new(0) }
   end
 
   def validation_globale
