@@ -322,15 +322,19 @@ class DocumentsController < ApplicationController
     @total_photos = all_photos.size
   end
 
-  # GET /documents/download_zip?project_id=X&type_document=photo_pendant
+  # GET /documents/download_zip?project_id=X&type_document[]=photo_pendant
+  # GET /documents/download_zip?project_id=X&document_ids[]=1&document_ids[]=2
   # Génère un ZIP via l'API Cloudinary (pas de téléchargement sur le dyno)
   def download_zip
     photo_types = %w[photo_avant photo_pendant photo_apres photo_chassis]
-    requested_types = Array(params[:type_document]).flatten.select { |t| photo_types.include?(t) }
+    using_ids = params[:document_ids].present?
 
-    if requested_types.empty?
-      redirect_back fallback_location: documents_path, alert: "Type de document non valide."
-      return
+    unless using_ids
+      requested_types = Array(params[:type_document]).flatten.select { |t| photo_types.include?(t) }
+      if requested_types.empty?
+        redirect_back fallback_location: documents_path, alert: "Type de document non valide."
+        return
+      end
     end
 
     unless @project
@@ -338,10 +342,16 @@ class DocumentsController < ApplicationController
       return
     end
 
-    documents = @project.documents
-                        .where(type_document: requested_types)
-                        .order(created_at: :asc)
-                        .select { |d| d.file.attached? && d.file.service_name.to_s.include?('cloudinary') }
+    documents = if using_ids
+      doc_ids = Array(params[:document_ids]).map(&:to_i)
+      @project.documents.where(id: doc_ids, type_document: photo_types)
+    else
+      @project.documents.where(type_document: requested_types)
+    end
+
+    documents = documents
+      .order(created_at: :asc)
+      .select { |d| d.file.attached? && d.file.service_name.to_s.include?('cloudinary') }
 
     if documents.empty?
       redirect_back fallback_location: project_documents_path(@project, type_document: params[:type_document]),
@@ -355,7 +365,13 @@ class DocumentsController < ApplicationController
       url = doc.file.url.to_s.split('?').first
       url.match(%r{/upload/v?\d*/(.+?)(?:\.[^./]+)?$})&.send(:[], 1)
     end
-    type_label  = requested_types.size == 1 ? requested_types.first : "photos"
+    type_label = if using_ids
+      "selection"
+    elsif requested_types.size == 1
+      requested_types.first
+    else
+      "photos"
+    end
     archive_name = "#{@project.nom.parameterize}_#{type_label}_#{Date.today.iso8601}"
 
     zip_url = Cloudinary::Utils.download_zip_url(
@@ -394,8 +410,13 @@ class DocumentsController < ApplicationController
         # Rails → Cloudinary CDN (via rails_blob_url qui résout le bon resource_type)
         # Évite le buffering Rails (timeout Heroku) et le problème raw vs image resource_type
         if @document.file.service_name.to_s == 'cloudinary'
-          Rails.logger.info "✅ Redirection rails_blob_url pour #{original_filename} (#{disposition})"
-          redirect_to rails_blob_url(@document.file, disposition: disposition), allow_other_host: true
+          Rails.logger.info "✅ Redirection Cloudinary pour #{original_filename} (#{disposition})"
+          cloudinary_url = @document.file.url.to_s.split('?').first
+          if disposition == 'attachment'
+            # Insérer fl_attachment dans la chaîne de transformation Cloudinary
+            cloudinary_url = cloudinary_url.sub(%r{/upload/}, '/upload/fl_attachment/')
+          end
+          redirect_to cloudinary_url, allow_other_host: true
           return
         end
 
@@ -551,6 +572,33 @@ class DocumentsController < ApplicationController
   end
 
   # DELETE /documents/:id
+  # DELETE /documents/destroy_multiple?document_ids[]=1&document_ids[]=2
+  def destroy_multiple
+    doc_ids = Array(params[:document_ids]).map(&:to_i)
+
+    if doc_ids.empty?
+      render json: { status: 'error', message: 'Aucun document sélectionné' }, status: :unprocessable_entity
+      return
+    end
+
+    documents = Document.where(id: doc_ids).select { |d| can_access_document?(d) }
+    deleted_ids = []
+    failed_ids  = []
+
+    documents.each do |doc|
+      if doc.destroy
+        deleted_ids << doc.id
+      else
+        failed_ids << doc.id
+      end
+    end
+
+    render json: { status: 'success', deleted_ids: deleted_ids, failed_ids: failed_ids }
+  rescue => e
+    Rails.logger.error "Erreur suppression groupée: #{e.message}"
+    render json: { status: 'error', message: 'Erreur lors de la suppression' }, status: :internal_server_error
+  end
+
   def destroy
     unless can_access_document?(@document)
       if request.xhr?

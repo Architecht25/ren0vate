@@ -3,24 +3,66 @@
   <div class="container-fluid px-4 py-4">
     <% if @documents.any? %>
       <!-- Affichage des documents filtrés par type -->
-      <h6 class="text-primary mb-3 d-flex align-items-center justify-content-between">
+      <h6 class="text-primary mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
         <span>
           <i class="bi bi-files me-2"></i>
           Photos du chantier (<%= @documents.count %>)
         </span>
-        <% if @project %>
-          <%= link_to download_zip_documents_path(project_id: @project.id, type_document: params[:type_document]),
-                class: "btn btn-outline-success btn-sm",
-                title: "Télécharger toutes les photos en ZIP",
-                data: { turbo: false } do %>
-            <i class="bi bi-file-zip me-1"></i>Télécharger tout (ZIP)
+        <div class="d-flex gap-2" id="photos-toolbar-default">
+          <% if @project %>
+            <%= link_to download_zip_documents_path(project_id: @project.id, type_document: params[:type_document]),
+                  class: "btn btn-outline-success btn-sm",
+                  title: "Télécharger toutes les photos en ZIP",
+                  data: { turbo: false } do %>
+              <i class="bi bi-file-zip me-1"></i>Tout télécharger (ZIP)
+            <% end %>
           <% end %>
-        <% end %>
+          <button type="button" id="toggle-selection-btn" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-check2-square me-1"></i>Sélectionner
+          </button>
+        </div>
       </h6>
-      <div class="row">
+
+      <!-- Barre de sélection (cachée par défaut) -->
+      <div id="selection-toolbar" class="d-none mb-3 p-3 bg-light rounded border">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+          <div class="form-check mb-0">
+            <input class="form-check-input" type="checkbox" id="select-all-photos">
+            <label class="form-check-label fw-semibold" for="select-all-photos">Tout sélectionner</label>
+          </div>
+          <span id="selection-count" class="text-muted small">0 photo sélectionnée</span>
+          <% if @project %>
+            <button id="download-selected-btn"
+                    class="btn btn-primary btn-sm"
+                    data-project-id="<%= @project.id %>"
+                    data-download-url="<%= download_zip_documents_path %>"
+                    disabled>
+              <i class="bi bi-download me-1"></i>Télécharger la sélection (ZIP)
+            </button>
+          <% end %>
+          <button id="delete-selected-btn"
+                  class="btn btn-danger btn-sm"
+                  data-delete-url="<%= destroy_multiple_documents_path %>"
+                  disabled>
+            <i class="bi bi-trash me-1"></i>Supprimer la sélection
+          </button>
+          <button type="button" id="cancel-selection-btn" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-x me-1"></i>Annuler
+          </button>
+        </div>
+      </div>
+
+      <div id="photos-grid" class="row">
         <% @documents.each do |document| %>
-          <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-3">
-            <div class="card border-0 shadow-sm h-100 document-card">
+          <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-3" data-photo-col="<%= document.id %>">
+            <div class="card border-0 shadow-sm h-100 document-card position-relative photo-item">
+              <!-- Checkbox de sélection (caché hors mode sélection) -->
+              <div class="photo-checkbox-wrapper position-absolute top-0 start-0 m-2 d-none" style="z-index: 10;">
+                <input class="form-check-input photo-checkbox shadow" type="checkbox"
+                       value="<%= document.id %>"
+                       id="photo-check-<%= document.id %>"
+                       style="width: 1.25rem; height: 1.25rem; cursor: pointer;">
+              </div>
               <div class="card-body">
                 <div class="d-flex align-items-start mb-2">
                   <div class="me-3">
@@ -154,7 +196,8 @@
                   <% end %>
                   <%= link_to download_document_path(document),
                       class: "btn btn-outline-primary btn-sm",
-                      title: "Télécharger le document" do %>
+                      title: "Télécharger le document",
+                      data: { turbo: false } do %>
                     <i class="bi bi-download me-1"></i>Télécharger
                   <% end %>
                   <%= link_to document_path(document,
@@ -212,6 +255,152 @@
         scanAllBtn.className = 'btn btn-success';
       });
     }
+
+    // ── Mode sélection photos ──────────────────────────────────────────────────
+    (function() {
+      const toggleBtn      = document.getElementById('toggle-selection-btn');
+      const cancelBtn      = document.getElementById('cancel-selection-btn');
+      const toolbar        = document.getElementById('selection-toolbar');
+      const defaultToolbar = document.getElementById('photos-toolbar-default');
+      const selectAllCb    = document.getElementById('select-all-photos');
+      const countLabel     = document.getElementById('selection-count');
+      const downloadBtn    = document.getElementById('download-selected-btn');
+      const deleteBtn      = document.getElementById('delete-selected-btn');
+
+      if (!toggleBtn) return;
+
+      function getCheckboxes() {
+        return Array.from(document.querySelectorAll('.photo-checkbox'));
+      }
+
+      function updateCount() {
+        const checked = getCheckboxes().filter(cb => cb.checked);
+        const n = checked.length;
+        countLabel.textContent = n === 0 ? 'Aucune photo sélectionnée' :
+          n === 1 ? '1 photo sélectionnée' : n + ' photos sélectionnées';
+        if (downloadBtn) downloadBtn.disabled = n === 0;
+        deleteBtn.disabled = n === 0;
+        selectAllCb.indeterminate = n > 0 && n < getCheckboxes().length;
+        selectAllCb.checked = n > 0 && n === getCheckboxes().length;
+      }
+
+      function enterSelectionMode() {
+        toolbar.classList.remove('d-none');
+        defaultToolbar.classList.add('d-none');
+        document.querySelectorAll('.photo-checkbox-wrapper').forEach(w => w.classList.remove('d-none'));
+        document.querySelectorAll('.photo-item').forEach(card => {
+          card.style.cursor = 'pointer';
+          card.dataset.selectable = 'true';
+        });
+        updateCount();
+      }
+
+      function exitSelectionMode() {
+        toolbar.classList.add('d-none');
+        defaultToolbar.classList.remove('d-none');
+        document.querySelectorAll('.photo-checkbox-wrapper').forEach(w => w.classList.add('d-none'));
+        document.querySelectorAll('.photo-checkbox').forEach(cb => { cb.checked = false; });
+        document.querySelectorAll('.photo-item').forEach(card => {
+          card.style.cursor = '';
+          delete card.dataset.selectable;
+        });
+        updateCount();
+      }
+
+      toggleBtn.addEventListener('click', enterSelectionMode);
+      cancelBtn.addEventListener('click', exitSelectionMode);
+
+      selectAllCb.addEventListener('change', function() {
+        getCheckboxes().forEach(cb => { cb.checked = selectAllCb.checked; });
+        updateCount();
+      });
+
+      document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('photo-checkbox')) updateCount();
+      });
+
+      // Clic sur la carte en mode sélection → toggle la checkbox
+      document.addEventListener('click', function(e) {
+        const card = e.target.closest('.photo-item[data-selectable]');
+        if (!card) return;
+        if (e.target.closest('a, button, input')) return; // laisser les actions intactes
+        const cb = card.querySelector('.photo-checkbox');
+        if (cb) { cb.checked = !cb.checked; updateCount(); }
+      });
+
+      if (downloadBtn) {
+        downloadBtn.addEventListener('click', function() {
+          const checked = getCheckboxes().filter(cb => cb.checked);
+          if (checked.length === 0) return;
+
+          const baseUrl = downloadBtn.dataset.downloadUrl;
+          const projectId = downloadBtn.dataset.projectId;
+          const url = new URL(baseUrl, window.location.origin);
+          url.searchParams.set('project_id', projectId);
+          checked.forEach(cb => url.searchParams.append('document_ids[]', cb.value));
+
+          window.location.href = url.toString();
+        });
+      }
+
+      deleteBtn.addEventListener('click', function() {
+        const checked = getCheckboxes().filter(cb => cb.checked);
+        if (checked.length === 0) return;
+
+        const n = checked.length;
+        const msg = n === 1
+          ? 'Supprimer cette photo définitivement ?'
+          : 'Supprimer ces ' + n + ' photos définitivement ?';
+        if (!confirm(msg)) return;
+
+        const deleteUrl = deleteBtn.dataset.deleteUrl;
+        const ids = checked.map(cb => cb.value);
+        const body = new URLSearchParams();
+        ids.forEach(id => body.append('document_ids[]', id));
+
+        deleteBtn.disabled = true;
+        deleteBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Suppression…';
+
+        fetch(deleteUrl, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json'
+          },
+          body: body.toString()
+        })
+        .then(r => r.json())
+        .then(data => {
+          if (data.status === 'success') {
+            data.deleted_ids.forEach(function(id) {
+              const col = document.querySelector('[data-photo-col="' + id + '"]');
+              if (col) col.remove();
+            });
+            // Mettre à jour le compteur de photos dans le titre
+            const remaining = document.querySelectorAll('.photo-item').length;
+            const titleSpan = document.querySelector('h6.text-primary span');
+            if (titleSpan) titleSpan.innerHTML = '<i class="bi bi-files me-2"></i>Photos du chantier (' + remaining + ')';
+
+            exitSelectionMode();
+            if (remaining === 0) {
+              document.getElementById('photos-grid').closest('.container-fluid').innerHTML =
+                '<div class="alert alert-warning"><i class="bi bi-info-circle me-2"></i>Aucun document trouvé pour ce filtre.</div>';
+            }
+          } else {
+            alert('Erreur lors de la suppression.');
+            deleteBtn.disabled = false;
+            deleteBtn.innerHTML = '<i class="bi bi-trash me-1"></i>Supprimer la sélection';
+          }
+        })
+        .catch(function() {
+          alert('Erreur réseau lors de la suppression.');
+          deleteBtn.disabled = false;
+          deleteBtn.innerHTML = '<i class="bi bi-trash me-1"></i>Supprimer la sélection';
+        });
+      });
+    })();
+    // ── Fin mode sélection ─────────────────────────────────────────────────────
 
     scanBtns.forEach(function(btn) {
       if (btn.dataset.ocrBound) return;
