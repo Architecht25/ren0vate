@@ -32,8 +32,17 @@ module Regions
         end
 
         Rails.logger.info "✅ Propriété à Bruxelles - Éligible"
-        # Toute propriété à Bruxelles est éligible
-        eligible_response(category: nil, message: "Éligible aux primes Bruxelles")
+        # Aucune prime générale de rénovation énergétique n'est ouverte depuis la suppression
+        # de Renolution (fin 2024) — seuls Petit Patrimoine et Monuments & Sites restent actifs.
+        # Un nouveau dispositif ciblé (Plan social climat) est annoncé sans modalités connues à ce jour.
+        eligible_response(
+          category: nil,
+          message: "Bien situé à Bruxelles. Aucune prime générale de rénovation énergétique n'est " \
+                    "actuellement ouverte (Renolution supprimé depuis fin 2024). Les primes Petit " \
+                    "Patrimoine et Monuments & Sites restent accessibles séparément selon éligibilité " \
+                    "spécifique. Un nouveau dispositif ciblé (Plan social climat) est annoncé sans " \
+                    "modalités connues à ce jour."
+        )
       end
 
       def get_property
