@@ -800,54 +800,12 @@ module Regions
         puts "  Data: #{data}" if data
       end
 
-      # Calcul spécifique pour la prime PEB Flandre
+      # Prime PEB/EPC-label supprimée définitivement (clôturée) — voir subsidy_bot_service.rb
       def calculate_peb_prime(peb_data)
-        Rails.logger.info "🏠 Calcul prime PEB avec: #{peb_data.inspect}"
-
-        required_fields = %w[label_initial type_logement label_final ventilation categorie]
-        missing_fields = required_fields.select { |field| peb_data[field].blank? }
-
-        if missing_fields.any?
-          Rails.logger.warn "⚠️ Champs PEB manquants: #{missing_fields.join(', ')}"
-          return {
-            success: false,
-            error: "Champs manquants: #{missing_fields.join(', ')}",
-            montant: 0.0
-          }
-        end
-
-        # Données de calcul PEB pour la Flandre
-        peb_data_matrix = get_peb_data_matrix
-
-        categorie = peb_data['categorie']
-        type_logement = peb_data['type_logement']
-        label_final = peb_data['label_final']
-        ventilation = peb_data['ventilation']
-
-        montant = peb_data_matrix.dig(categorie, type_logement, label_final, ventilation)
-
-        if montant.nil?
-          Rails.logger.warn "⚠️ Aucun montant PEB trouvé pour: cat=#{categorie}, type=#{type_logement}, label=#{label_final}, vent=#{ventilation}"
-          return {
-            success: false,
-            error: "Configuration PEB non trouvée",
-            montant: 0.0
-          }
-        end
-
-        Rails.logger.info "✅ Prime PEB calculée: #{montant}€"
-
         {
-          success: true,
-          montant: montant.to_f,
-          details: {
-            label_initial: peb_data['label_initial'],
-            label_final: label_final,
-            type_logement: type_logement,
-            ventilation: ventilation,
-            categorie: categorie
-          },
-          type: 'peb'
+          success: false,
+          error: "Prime PEB/EPC-label supprimée — plus de nouvelles demandes possibles",
+          montant: 0.0
         }
       end
 
@@ -896,56 +854,6 @@ module Regions
             tarif_murs: surface_toiture > 0 ? 12.0 : 4.0
           },
           type: 'amiante'
-        }
-      end
-
-      # Matrice des données PEB pour la Flandre
-      def get_peb_data_matrix
-        {
-          "1" => {
-            "maison" => {
-              "A" => { "avec_ventilation" => 4000, "sans_ventilation" => 3000 },
-              "B" => { "avec_ventilation" => 3000, "sans_ventilation" => 2000 },
-              "C" => { "avec_ventilation" => 2000, "sans_ventilation" => 1000 }
-            },
-            "appartement" => {
-              "A" => { "avec_ventilation" => 3000, "sans_ventilation" => 2250 },
-              "B" => { "avec_ventilation" => 2000, "sans_ventilation" => 1500 }
-            }
-          },
-          "2" => {
-            "maison" => {
-              "A" => { "avec_ventilation" => 5000, "sans_ventilation" => 4000 },
-              "B" => { "avec_ventilation" => 3750, "sans_ventilation" => 3000 },
-              "C" => { "avec_ventilation" => 2500, "sans_ventilation" => 2000 }
-            },
-            "appartement" => {
-              "A" => { "avec_ventilation" => 3750, "sans_ventilation" => 3000 },
-              "B" => { "avec_ventilation" => 2500, "sans_ventilation" => 2000 }
-            }
-          },
-          "3" => {
-            "maison" => {
-              "A" => { "avec_ventilation" => 6000, "sans_ventilation" => 5000 },
-              "B" => { "avec_ventilation" => 4500, "sans_ventilation" => 3750 },
-              "C" => { "avec_ventilation" => 3000, "sans_ventilation" => 2500 }
-            },
-            "appartement" => {
-              "A" => { "avec_ventilation" => 4500, "sans_ventilation" => 3750 },
-              "B" => { "avec_ventilation" => 3000, "sans_ventilation" => 2500 }
-            }
-          },
-          "4" => {
-            "maison" => {
-              "A" => { "avec_ventilation" => 7000, "sans_ventilation" => 6000 },
-              "B" => { "avec_ventilation" => 5250, "sans_ventilation" => 4500 },
-              "C" => { "avec_ventilation" => 3500, "sans_ventilation" => 3000 }
-            },
-            "appartement" => {
-              "A" => { "avec_ventilation" => 5250, "sans_ventilation" => 4500 },
-              "B" => { "avec_ventilation" => 3500, "sans_ventilation" => 3000 }
-            }
-          }
         }
       end
     end

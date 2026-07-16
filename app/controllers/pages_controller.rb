@@ -27,11 +27,8 @@ class PagesController < ApplicationController
       end
 
     @primes = Prime.where(region: "flandre")
-                  .where.not(slug: "certificat_peb_apres_travaux")  # Exclure la prime PEB des primes principales
+                  .where.not(slug: "certificat_peb_apres_travaux")  # Prime PEB/EPC-label supprimée (clôturée définitivement)
                   .order(:ordre_affichage)
-
-    # Récupération spécifique de la prime PEB
-    @prime_peb = Prime.find_by(slug: "certificat_peb_apres_travaux", region: "flandre")
 
     @plafonds_par_categorie = Prime.group(:category_id).maximum(:plafond)
     @groupes_plafond = Prime.distinct.pluck(:groupe)
