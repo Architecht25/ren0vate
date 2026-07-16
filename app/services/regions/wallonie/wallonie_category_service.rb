@@ -70,44 +70,18 @@ module Regions
         }
       end
 
-      # Méthodes de calcul des revenus
+      # Méthodes de calcul des revenus — déléguées à HouseholdIncomeCalculator
+      # (source unique partagée avec PretReduction::EligibilityService)
       def calculate_total_household_income
-        # Revenu du demandeur (obligatoire)
-        total = @user.revenu_demandeur || 0
-
-        # Ajouter le revenu du conjoint si marié/cohabitant/couple et si renseigné
-        if @user.situation_familiale.in?(%w[marie cohabitant couple]) && @user.revenu_conjoint
-          total += @user.revenu_conjoint
-        end
-
-        total
+        income_calculator.total_household_income
       end
 
-      def calculate_adjusted_income(base_income)
-        # Déduction de 5.000€ par enfant à charge, grossesse en cours ou personne > 60 ans
-        deductions = 0
+      def calculate_adjusted_income(_base_income)
+        income_calculator.adjusted_income
+      end
 
-        # Déduction enfants à charge
-        if @user.nombre_enfants && @user.nombre_enfants > 0
-          deductions += @user.nombre_enfants * 5000
-          Rails.logger.info "💰 Déduction enfants: #{@user.nombre_enfants} × 5.000€ = #{@user.nombre_enfants * 5000}€"
-        end
-
-        # Déduction personnes de 60 ans et plus
-        if @user.respond_to?(:personnes_60_ans_et_plus) && @user.personnes_60_ans_et_plus && @user.personnes_60_ans_et_plus > 0
-          deductions += @user.personnes_60_ans_et_plus * 5000
-          Rails.logger.info "👴 Déduction personnes 60+: #{@user.personnes_60_ans_et_plus} × 5.000€ = #{@user.personnes_60_ans_et_plus * 5000}€"
-        end
-
-        # Déduction femme enceinte
-        if @user.respond_to?(:femme_enceinte) && @user.femme_enceinte == true
-          deductions += 5000
-          Rails.logger.info "🤰 Déduction femme enceinte: 5.000€"
-        end
-
-        Rails.logger.info "📊 Total déductions: [masqué]€ (calcul catégorie revenus)"
-
-        [base_income - deductions, 0].max
+      def income_calculator
+        @income_calculator ||= Regions::Wallonie::HouseholdIncomeCalculator.new(@user)
       end
 
       def determine_income_category(adjusted_income)

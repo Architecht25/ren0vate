@@ -16,6 +16,12 @@ class Simulation < ApplicationRecord
     total_simule || 0
   end
 
+  # Régime wallon applicable ("primes_cash" ou "reduction_pret") — voir
+  # Regions::Wallonie::WallonieRegimeRouter. Pertinent uniquement pour region == "wallonie".
+  def regime_effectif
+    regime.presence || "primes_cash"
+  end
+
   # Calcul du total complet incluant PEB et amiante pour Flandre
   def total_complet_amount
     base_total = total_primes_amount
@@ -28,42 +34,9 @@ class Simulation < ApplicationRecord
     base_total
   end
 
-  # Calcul du montant PEB à partir des données sauvegardées
+  # Prime PEB/EPC-label Flandre supprimée définitivement (clôturée)
   def montant_peb_calcule
-    return 0 unless parameters.present?
-
-    begin
-      parsed_params = JSON.parse(parameters)
-      peb_data = parsed_params['peb_data']
-
-      return 0 unless peb_data.present?
-
-      # Logique de calcul PEB (même que côté frontend)
-      label_initial = peb_data['label_initial']
-      type_logement = peb_data['type_logement']
-      ventilation = peb_data['ventilation']
-      label_final = peb_data['label_final']
-
-      return 0 unless label_initial.present? && label_final.present? && type_logement.present?
-
-      # Calcul selon la matrice PEB Flandre
-      if label_initial == 'F' && label_final == 'A' && type_logement == 'maison'
-        if ventilation == 'avec_ventilation'
-          return 4000
-        else
-          return 2000
-        end
-      elsif label_initial == 'E' && label_final == 'A' && type_logement == 'maison'
-        return 3000
-      elsif label_initial == 'D' && label_final == 'A'
-        return 2000
-      # Ajouter d'autres conditions selon la matrice PEB
-      end
-
-      return 0
-    rescue JSON::ParserError, NoMethodError
-      0
-    end
+    0
   end
 
   # Calcul du montant amiante à partir des données sauvegardées

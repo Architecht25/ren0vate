@@ -1198,55 +1198,9 @@ class SimulationsController < ApplicationController
     structured
   end
 
-  # Calcul du montant PEB à partir des données
-  def calculate_peb_amount_from_data(peb_data)
-    return 0 unless peb_data.present?
-
-    label_initial = peb_data['label_initial']
-    type_logement = peb_data['type_logement']
-    ventilation    = peb_data['ventilation']
-    label_final    = peb_data['label_final']
-    categorie      = peb_data['categorie'].to_s.presence || '4'
-
-    return 0 unless label_initial.present? && label_final.present? && type_logement.present? && ventilation.present?
-
-    # Vérifier que le label final est strictement meilleur que le label initial
-    label_order = { 'A' => 1, 'B' => 2, 'C' => 3, 'D' => 4, 'E' => 5, 'F' => 6 }
-    return 0 unless (label_order[label_final] || 99) < (label_order[label_initial] || 99)
-
-    # Matrice PEB Flandre - identique au seed db/seeds/flandre/peb.rb et au peb_controller.js
-    peb_matrix = {
-      '4' => {
-        'maison'      => { 'A' => { 'avec_ventilation' => 7000, 'sans_ventilation' => 6000 },
-                           'B' => { 'avec_ventilation' => 5250, 'sans_ventilation' => 4500 },
-                           'C' => { 'avec_ventilation' => 3500, 'sans_ventilation' => 3000 } },
-        'appartement' => { 'A' => { 'avec_ventilation' => 5250, 'sans_ventilation' => 4500 },
-                           'B' => { 'avec_ventilation' => 3500, 'sans_ventilation' => 3000 } }
-      },
-      '3' => {
-        'maison'      => { 'A' => { 'avec_ventilation' => 6000, 'sans_ventilation' => 5000 },
-                           'B' => { 'avec_ventilation' => 4500, 'sans_ventilation' => 3750 },
-                           'C' => { 'avec_ventilation' => 3000, 'sans_ventilation' => 2500 } },
-        'appartement' => { 'A' => { 'avec_ventilation' => 4500, 'sans_ventilation' => 3750 },
-                           'B' => { 'avec_ventilation' => 3000, 'sans_ventilation' => 2500 } }
-      },
-      '2' => {
-        'maison'      => { 'A' => { 'avec_ventilation' => 5000, 'sans_ventilation' => 4000 },
-                           'B' => { 'avec_ventilation' => 3750, 'sans_ventilation' => 3000 },
-                           'C' => { 'avec_ventilation' => 2500, 'sans_ventilation' => 2000 } },
-        'appartement' => { 'A' => { 'avec_ventilation' => 3750, 'sans_ventilation' => 3000 },
-                           'B' => { 'avec_ventilation' => 2500, 'sans_ventilation' => 2000 } }
-      },
-      '1' => {
-        'maison'      => { 'A' => { 'avec_ventilation' => 4000, 'sans_ventilation' => 3000 },
-                           'B' => { 'avec_ventilation' => 3000, 'sans_ventilation' => 2000 },
-                           'C' => { 'avec_ventilation' => 2000, 'sans_ventilation' => 1000 } },
-        'appartement' => { 'A' => { 'avec_ventilation' => 3000, 'sans_ventilation' => 2250 },
-                           'B' => { 'avec_ventilation' => 2000, 'sans_ventilation' => 1500 } }
-      }
-    }
-
-    peb_matrix.dig(categorie, type_logement, label_final, ventilation).to_i
+  # Prime PEB/EPC-label Flandre supprimée définitivement (clôturée)
+  def calculate_peb_amount_from_data(_peb_data)
+    0
   end
 
   # Calcul du montant amiante à partir des données
@@ -1285,13 +1239,18 @@ class SimulationsController < ApplicationController
 
     case region
     when 'wallonie'
-      check_wallonie_real_eligibility(user)
+      check_wallonie_real_eligibility(user, simulation)
     when 'flandre'
       check_flandre_real_eligibility(user)
     when 'bruxelles'
       # Les primes Renolution ont été supprimées, mais Monuments & Sites reste actif
       # L'éligibilité spécifique est gérée dans chaque carte de simulation
-      { eligible: true }
+      {
+        eligible: true,
+        reason: "Aucune prime générale de rénovation énergétique n'est actuellement ouverte à " \
+                "Bruxelles (Renolution supprimé). Petit Patrimoine et Monuments & Sites restent " \
+                "accessibles séparément."
+      }
     else
       { eligible: false, reason: "Région non supportée" }
     end
@@ -1299,21 +1258,17 @@ class SimulationsController < ApplicationController
 
   private
 
-  def check_wallonie_real_eligibility(user)
+  def check_wallonie_real_eligibility(user, simulation)
     return { eligible: false, reason: "Revenus non renseignés" } unless user.revenu_demandeur
 
-    # Calcul du revenu total du ménage
-    total_income = user.revenu_demandeur
-    if user.situation_familiale.in?(%w[marie cohabitant couple]) && user.revenu_conjoint
-      total_income += user.revenu_conjoint
+    if simulation.regime_effectif == "reduction_pret"
+      params = { property_id: simulation.property_id, project_id: simulation.project_id }
+      result = Regions::Wallonie::PretReduction::EligibilityService.new(params, user: user).check_eligibility
+      return { eligible: result[:eligible], reason: result[:message] }
     end
 
-    # Déductions (5000€ par enfant)
-    deductions = (user.nombre_enfants || 0) * 5000
-    adjusted_income = [total_income - deductions, 0].max
-
-    # Seuil Wallonie
-    threshold = 114_400
+    adjusted_income = Regions::Wallonie::HouseholdIncomeCalculator.new(user).adjusted_income
+    threshold = Regions::Wallonie::WallonieCategoryService::ELIGIBILITY_THRESHOLD
 
     if adjusted_income > threshold
       {

@@ -118,4 +118,33 @@ class SimulationSmokeTest < ActionDispatch::IntegrationTest
     get simulations_path(locale: :fr)
     assert_response :redirect
   end
+
+  # ─── Régime wallon (réforme du 01/10/2026) ────────────────────────────────
+
+  test "simulation Wallonie créée avant le 01/10/2026 reste en regime primes_cash" do
+    travel_to Date.new(2026, 9, 15) do
+      simulation = Simulation.create!(
+        user: @user, property: @property_wallonie, project: @project_wallonie,
+        region: "wallonie", titre: "Sim avant réforme"
+      )
+      assert_equal "primes_cash", simulation.regime_effectif
+
+      get simulation_path(simulation, locale: :fr)
+      assert_response :success
+    end
+  end
+
+  test "simulation Wallonie créée après le 01/10/2026 passe en regime reduction_pret" do
+    travel_to Date.new(2026, 10, 15) do
+      simulation = Simulation.create!(
+        user: @user, property: @property_wallonie, project: @project_wallonie,
+        region: "wallonie", titre: "Sim après réforme",
+        regime: Regions::Wallonie::WallonieRegimeRouter.regime_for
+      )
+      assert_equal "reduction_pret", simulation.regime_effectif
+
+      get simulation_path(simulation, locale: :fr)
+      assert_response :success
+    end
+  end
 end

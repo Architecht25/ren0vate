@@ -193,14 +193,15 @@ class SubsidyBotService
     - Isolation sol/plancher bas (R ≥ 2,0)
     - Remplacement châssis et portes (Ug ≤ 1,0 ; ventilation obligatoire)
     - Pompe à chaleur : géothermique 4 000–8 000€, air/eau 1 500–6 000€,
-      air/air 300–600€, hybride 1 500–4 000€ (certification Rescert obligatoire)
-    - Boiler thermodynamique : 900–1 200€ forfaitaire
+      air/air 300–600€, hybride 800–4 000€ (certification Rescert obligatoire)
+    - Boiler thermodynamique : 450–1 200€ forfaitaire
+    - Isolation toiture/sol, châssis, désamiantage — cat. 3 et 4 uniquement depuis le 01/03/2026
+      (catégories 1 et 2 n'y ont plus accès du tout, seules PAC et boiler restent ouvertes)
     - Travaux préparatoires pour l'isolation — cat. 3 et 4 uniquement
     - Travaux préparatoires pour électricité et sanitaires — cat. 3 et 4 uniquement
-    - Travaux de rénovation toiture, murs, sol (liés à l'isolation correspondante)
-    - Désamiantage corrélé avec isolation toiture et/ou murs
+    - Travaux de rénovation toiture, murs, sol (liés à l'isolation correspondante) — cat. 3 et 4 uniquement
     - Prime pour monuments et sites classés
-    - Prime PEB ⚠️ DISPARAÎT LE 30 JUIN 2026 — agir immédiatement
+    - Prime PEB/EPC-label supprimée définitivement depuis le 30 juin 2026 — ne plus la mentionner comme option
 
     ### Montants indicatifs (catégorie 4 = maximum)
     - Isolation toiture : 50% des coûts, plafond 5 750€
@@ -248,9 +249,6 @@ class SubsidyBotService
     - Attestation conformité électrique : ACEG, APAVE ou organisme agréé équivalent
     - Label ErP européen : obligatoire pour PAC et boiler thermodynamique
     - Attestation Rescert : obligatoire pour PAC
-    - Certificat PEB avant travaux : uniquement pour la prime PEB
-    - Certificat PEB après travaux : commander après que TOUT soit terminé et raccordé,
-      doit être enregistré avant le 30/06/2026
     - Attestation désamiantage : document spécifique à remplir par l'entrepreneur
 
     ORGANISATION DU DOSSIER :
@@ -342,14 +340,21 @@ class SubsidyBotService
     - Paiement partiel possible : partie accordée payée même si recours sur le reste
     - Recours : 60 jours officiellement (communiquer 30 jours pour mettre la pression)
 
-    ### Ce qui vient après Wallonie
-    Le successeur annoncé est le prêt à taux 0%. Particularité importante :
-    le remboursement pourrait être partiellement effacé si :
-    - Un audit énergétique préalable a été réalisé avant les travaux
-    - Des travaux de salubrité sont inclus (ex : installation électrique)
-    - Des travaux énergétiques sont inclus (ex : isolation toiture)
-    Attendre les détails officiels des autorités wallonnes avant de conseiller
-    des montants ou conditions précises.
+    ### Ce qui vient après Wallonie (dès le 01/10/2026)
+    Le successeur validé en 1ère lecture : fin des primes cash, remplacées par une réduction
+    du solde à rembourser sur un prêt bonifié (Rénopack à taux 0% ou Rénoprêt à taux préférentiel
+    pour les revenus les plus faibles et les propriétaires-bailleurs).
+
+    - Éligibilité conditionnée au label PEB : E ou F (viser au minimum D), ou D (viser au minimum C)
+    - Calcul sur le projet de rénovation global, plus poste par poste
+    - Montant empruntable plafonné à 75 000€ (maison unifamiliale)
+    - Réduction du solde par tranche de revenu :
+      ≤ 28 900€ → 50% ; 28 900,01-41 100€ → 40% ; 41 100,01-67 100€ → 15% ;
+      67 100,01-122 800€ → taux variable, pas de réduction sur le montant à rembourser
+    ⚠️ L'enveloppe budgétaire annuelle réelle n'est fixée qu'au conclave budgétaire de la
+    rentrée (~septembre 2026) — présenter ces chiffres comme indicatifs, pas garantis, tant
+    que l'arrêté définitif n'est pas publié. Le régime transitoire (14-28/02/2025) reste
+    contesté devant le Conseil d'État — ne pas exclure un réexamen rétroactif.
 
     ─────────────────────────────────────────────────────────────────
     ## RÉGION BRUXELLES
@@ -457,7 +462,7 @@ class SubsidyBotService
        certitude. Je vous recommande de poser la question via le support de l'application,
        une réponse vous sera apportée dans les 24h."
     5. Ne jamais donner de montants garantis — utiliser "indicatif" ou "selon catégorie revenus"
-    6. Rappeler systématiquement l'urgence Wallonie (30/09/2026) et Prime PEB Flandre (30/06/2026)
+    6. Rappeler systématiquement l'urgence Wallonie (fin des primes cash le 30/09/2026)
        quand la région de l'utilisateur est connue
     7. Format : réponses concises, utilisez des listes à puces, maximum 400 mots
     8. Catégorie 1 Flandre qui s'étonne de ne pas voir de prime isolation :
@@ -505,7 +510,7 @@ class SubsidyBotService
       when 'wallonie'
         "\n⚠️ RÉGION UTILISATEUR : Wallonie — Rappeler systématiquement la deadline du 30/09/2026."
       when 'flandre'
-        "\n⚠️ RÉGION UTILISATEUR : Flandre — Rappeler la deadline Prime PEB 30/06/2026 si pertinent."
+        "\n⚠️ RÉGION UTILISATEUR : Flandre — Prime PEB/EPC-label supprimée définitivement. Catégories 1-2 : isolation/châssis/amiante plus accessibles, seules PAC et boiler thermodynamique restent ouvertes."
       when 'bruxelles'
         "\n⚠️ RÉGION UTILISATEUR : Bruxelles — Plus de primes Renolution. Mentionner Petit Patrimoine si applicable."
       else

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_08_074300) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_16_212135) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1097,6 +1097,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_074300) do
     t.text "parameters"
     t.bigint "project_id"
     t.bigint "property_id", null: false
+    t.string "regime", default: "primes_cash"
     t.string "region"
     t.string "source"
     t.string "titre"
@@ -1105,6 +1106,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_074300) do
     t.bigint "user_id", null: false
     t.index ["project_id"], name: "index_simulations_on_project_id"
     t.index ["property_id"], name: "index_simulations_on_property_id"
+    t.index ["regime"], name: "index_simulations_on_regime"
     t.index ["user_id"], name: "index_simulations_on_user_id"
   end
 
