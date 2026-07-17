@@ -8,6 +8,8 @@ class Simulation < ApplicationRecord
 
   validates :region, :titre, :property_id, presence: true
 
+  before_create :assign_wallonie_regime
+
   # Scope pour récupérer les simulations récentes
   scope :recent, -> { order(created_at: :desc) }
 
@@ -122,6 +124,19 @@ class Simulation < ApplicationRecord
     nil
   end
 
+  # Accès aux données du régime "reduction_pret" (Wallonie, dès le 01/10/2026) stockées dans parameters
+  def montant_projet_saisi
+    parsed_simulation_parameter('montant_projet')
+  end
+
+  def montant_projet_retenu_saisi
+    parsed_simulation_parameter('montant_projet_retenu') || 0
+  end
+
+  def taux_reduction_saisi
+    parsed_simulation_parameter('taux_reduction')
+  end
+
   # Méthode pour extraire les primes depuis le JSON parameters
   def primes
     @primes_collection ||= PrimesCollection.new(self)
@@ -168,5 +183,20 @@ class Simulation < ApplicationRecord
     def empty?
       count == 0
     end
+  end
+
+  # Fixé une fois pour toutes à la création, selon la date — une simulation
+  # wallonne gardera son régime même si on la rouvre après la bascule du 01/10/2026.
+  private def assign_wallonie_regime
+    return unless region&.downcase == 'wallonie'
+
+    self.regime = Regions::Wallonie::WallonieRegimeRouter.regime_for
+  end
+
+  private def parsed_simulation_parameter(key)
+    return nil unless parameters.present?
+    JSON.parse(parameters)[key]
+  rescue JSON::ParserError
+    nil
   end
 end

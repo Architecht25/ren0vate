@@ -306,6 +306,10 @@ class SimulationsController < ApplicationController
   def update_prime_inputs
     # @simulation est déjà définie et vérifiée par before_action
 
+    if @simulation.region&.downcase == 'wallonie' && @simulation.regime_effectif == 'reduction_pret'
+      return update_wallonie_pret_reduction_inputs
+    end
+
     # to_unsafe_h: user_inputs est stock\u00e9 dans une colonne JSON, pas en mass assignment AR
     Rails.logger.info "🔍 Params bruts reçus: #{params[:user_inputs].inspect}"
     user_inputs = if params[:user_inputs].present?
@@ -809,7 +813,15 @@ class SimulationsController < ApplicationController
     # Rails.logger.info "📋 Simulation project_id: #{simulation.project_id}"
 
     # Choisir le service d'éligibilité selon la région
-    if region == 'wallonie'
+    if region == 'wallonie' && simulation.regime_effectif == 'reduction_pret'
+      eligibility_service = Regions::Wallonie::PretReduction::EligibilityService.new(
+        {
+          property_id: simulation.property_id,
+          project_id: simulation.project_id
+        },
+        user: current_user
+      )
+    elsif region == 'wallonie'
       eligibility_service = Regions::Wallonie::WallonieEligibilityService.new(
         {
           property_id: simulation.property_id,
@@ -856,6 +868,10 @@ class SimulationsController < ApplicationController
   def perform_category_determination(simulation)
     region = simulation.region&.downcase
     return unless simulation.eligible? && ['wallonie', 'flandre'].include?(region)
+
+    if region == 'wallonie' && simulation.regime_effectif == 'reduction_pret'
+      return perform_wallonie_pret_reduction_category(simulation)
+    end
 
     # Choisir le service de catégorie selon la région
     if region == 'wallonie'
@@ -915,6 +931,10 @@ class SimulationsController < ApplicationController
   def perform_primes_calculation(simulation)
     region = simulation.region&.downcase
     return unless simulation.eligible? && simulation.category.present?
+
+    if region == 'wallonie' && simulation.regime_effectif == 'reduction_pret'
+      return perform_wallonie_pret_reduction_calculation(simulation)
+    end
 
     # Choisir le service de calcul selon la région
     if region == 'wallonie'
@@ -1001,6 +1021,75 @@ class SimulationsController < ApplicationController
         parameters: merged_params.to_json
       )
     end
+  end
+
+  # ÉTAPE 2 (regime "reduction_pret") : la catégorie R1-R5 n'existe plus, on stocke
+  # directement la tranche de revenu applicable (voir Regions::Wallonie::PretReduction::TrancheService)
+  def perform_wallonie_pret_reduction_category(simulation)
+    tranche_service = Regions::Wallonie::PretReduction::TrancheService.new(current_user)
+
+    unless tranche_service.eligible_income?
+      simulation.update(
+        eligible: false,
+        ineligibility_reason: "Revenus trop élevés pour ce régime (plafond 122 800€)"
+      )
+      return
+    end
+
+    taux_pct = (tranche_service.taux_reduction * 100).to_i
+    simulation.update(
+      category: "reduction_pret_#{taux_pct}",
+      category_description: "Réduction de #{taux_pct}% du solde à rembourser sur le prêt bonifié"
+    )
+    perform_primes_calculation(simulation)
+  end
+
+  # ÉTAPE 3 (regime "reduction_pret") : calcul sur le montant global du projet (pas de somme
+  # poste par poste) — voir Regions::Wallonie::PretReduction::CalculatorService
+  def perform_wallonie_pret_reduction_calculation(simulation)
+    existing_params = safe_parse_simulation_parameters(simulation)
+    montant_projet = existing_params['montant_projet'].to_f
+
+    result = Regions::Wallonie::PretReduction::CalculatorService.new(
+      current_user, montant_projet: montant_projet
+    ).calculate
+
+    merged_params = existing_params.merge(
+      'montant_projet'         => result[:montant_projet],
+      'montant_projet_retenu'  => result[:montant_projet_retenu],
+      'plafond_emprunt'        => result[:plafond_emprunt],
+      'taux_reduction'         => result[:taux_reduction],
+      'calculation_timestamp'  => Time.current
+    )
+
+    simulation.update(
+      total_simule: result[:reduction_solde],
+      parameters: merged_params.to_json
+    )
+  end
+
+  # Point d'entrée AJAX regime "reduction_pret" — un seul champ (montant du projet),
+  # pas de saisie poste par poste comme dans update_prime_inputs
+  def update_wallonie_pret_reduction_inputs
+    montant_projet = params[:montant_projet].to_f
+
+    existing_params = safe_parse_simulation_parameters(@simulation)
+    existing_params['montant_projet'] = montant_projet
+    @simulation.update!(parameters: existing_params.to_json)
+
+    perform_wallonie_pret_reduction_calculation(@simulation)
+    @simulation.reload
+    updated_params = safe_parse_simulation_parameters(@simulation)
+
+    render json: {
+      success: true,
+      total_amount: @simulation.total_simule || 0,
+      montant_projet: montant_projet,
+      montant_projet_retenu: updated_params['montant_projet_retenu'],
+      plafond_emprunt: updated_params['plafond_emprunt'],
+      taux_reduction: updated_params['taux_reduction'],
+      message: "Réduction recalculée"
+    }
   end
 
   # Calcule le total à partir des updated_cards

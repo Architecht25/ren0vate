@@ -3,36 +3,38 @@
 
 <% case region %>
 <% when 'wallonie' %>
-  <% simulation_category = simulation_category_data(@simulation) %>
-  <%= render 'simulations/partials_wallonie/cartes_primes_import', simulation_category: simulation_category %>
-
-  <!-- Résultats + Cartes spécialisées Wallonie -->
-  <div class="row g-4 mt-4 mb-5">
+  <% if @simulation.regime_effectif == 'reduction_pret' %>
+    <%= render 'simulations/partials_wallonie/pret_reduction_card' %>
+  <% else %>
+    <% simulation_category = simulation_category_data(@simulation) %>
+    <%= render 'simulations/partials_wallonie/cartes_primes_import', simulation_category: simulation_category %>
 
     <!-- Total estimé des primes -->
-    <div class="col-xl-4 col-lg-12">
-      <div class="border rounded-3 shadow-sm p-2 h-100">
-        <h6 class="text-primary-custom mb-2 text-center">
-          <i class="bi bi-calculator me-1"></i>Total estimé
-        </h6>
-        <div class="card border-0 h-100">
-          <div class="card-body p-3 d-flex flex-column">
-            <div class="text-center mb-3">
-              <p class="text-muted small mb-0">Les montants s'ajustent selon votre catégorie de revenus</p>
-            </div>
-            <div class="rounded-3 p-3 text-center mb-3" style="background-color: var(--ren0vate-background-light); border: 1px solid var(--ren0vate-border);">
-              <h3 class="fw-bold mb-1" style="color: var(--ren0vate-primary);" data-wallonie-simulation-target="grandTotal">0,00 €</h3>
-              <p class="text-muted small mb-0" data-wallonie-simulation-target="currentCategory">Estimation selon votre profil de revenus</p>
-            </div>
-            <div class="card border-0 bg-light flex-grow-1">
-              <div class="card-body p-3">
-                <h6 class="fw-bold text-dark mb-2 small">
-                  <i class="bi bi-list-check me-1"></i>Résumé des primes sélectionnées
-                </h6>
-                <div id="selected-primes-summary" data-wallonie-simulation-target="selectedPrimesSummary">
-                  <div class="text-muted text-center py-2 small">
-                    <i class="bi bi-info-circle me-1"></i>
-                    Sélectionnez des travaux pour voir le détail
+    <div class="row g-4 mt-4 mb-5">
+      <div class="col-xl-4 col-lg-12">
+        <div class="border rounded-3 shadow-sm p-2 h-100">
+          <h6 class="text-primary-custom mb-2 text-center">
+            <i class="bi bi-calculator me-1"></i>Total estimé
+          </h6>
+          <div class="card border-0 h-100">
+            <div class="card-body p-3 d-flex flex-column">
+              <div class="text-center mb-3">
+                <p class="text-muted small mb-0">Les montants s'ajustent selon votre catégorie de revenus</p>
+              </div>
+              <div class="rounded-3 p-3 text-center mb-3" style="background-color: var(--ren0vate-background-light); border: 1px solid var(--ren0vate-border);">
+                <h3 class="fw-bold mb-1" style="color: var(--ren0vate-primary);" data-wallonie-simulation-target="grandTotal">0,00 €</h3>
+                <p class="text-muted small mb-0" data-wallonie-simulation-target="currentCategory">Estimation selon votre profil de revenus</p>
+              </div>
+              <div class="card border-0 bg-light flex-grow-1">
+                <div class="card-body p-3">
+                  <h6 class="fw-bold text-dark mb-2 small">
+                    <i class="bi bi-list-check me-1"></i>Résumé des primes sélectionnées
+                  </h6>
+                  <div id="selected-primes-summary" data-wallonie-simulation-target="selectedPrimesSummary">
+                    <div class="text-muted text-center py-2 small">
+                      <i class="bi bi-info-circle me-1"></i>
+                      Sélectionnez des travaux pour voir le détail
+                    </div>
                   </div>
                 </div>
               </div>
@@ -41,32 +43,7 @@
         </div>
       </div>
     </div>
-
-    <!-- Monuments & Sites -->
-    <div class="col-xl-4 col-lg-6 col-md-6">
-      <div class="border rounded-3 shadow-sm p-2 h-100">
-        <h6 class="text-primary-custom mb-2 text-center">
-          <i class="bi bi-bank me-1"></i>Monuments
-        </h6>
-        <div class="h-100">
-          <%= render 'simulations/partials_wallonie/monuments_et_sites' %>
-        </div>
-      </div>
-    </div>
-
-    <!-- Primes Communales -->
-    <div class="col-xl-4 col-lg-6 col-md-6">
-      <div class="border rounded-3 shadow-sm p-2 h-100">
-        <h6 class="text-primary-custom mb-2 text-center">
-          <i class="bi bi-building me-1"></i>Communales
-        </h6>
-        <div class="h-100">
-          <%= render 'simulations/partials_wallonie/communes' %>
-        </div>
-      </div>
-    </div>
-
-  </div>
+  <% end %>
 
 <% when 'flandre' %>
   <%= render 'simulations/partials_flandre/cartes_primes_import' %>

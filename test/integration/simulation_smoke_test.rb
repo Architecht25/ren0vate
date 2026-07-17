@@ -119,10 +119,10 @@ class SimulationSmokeTest < ActionDispatch::IntegrationTest
     assert_response :redirect
   end
 
-  # ─── Régime wallon (réforme du 01/10/2026) ────────────────────────────────
+  # ─── Régime wallon (bascule Ren0vate le 17/07/2026, réforme légale le 01/10/2026) ──
 
-  test "simulation Wallonie créée avant le 01/10/2026 reste en regime primes_cash" do
-    travel_to Date.new(2026, 9, 15) do
+  test "simulation Wallonie créée avant la bascule reste en regime primes_cash" do
+    travel_to Date.new(2026, 7, 1) do
       simulation = Simulation.create!(
         user: @user, property: @property_wallonie, project: @project_wallonie,
         region: "wallonie", titre: "Sim avant réforme"
@@ -134,7 +134,7 @@ class SimulationSmokeTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "simulation Wallonie créée après le 01/10/2026 passe en regime reduction_pret" do
+  test "simulation Wallonie créée après la bascule passe en regime reduction_pret" do
     travel_to Date.new(2026, 10, 15) do
       simulation = Simulation.create!(
         user: @user, property: @property_wallonie, project: @project_wallonie,
@@ -145,6 +145,40 @@ class SimulationSmokeTest < ActionDispatch::IntegrationTest
 
       get simulation_path(simulation, locale: :fr)
       assert_response :success
+    end
+  end
+
+  test "création HTTP d'une simulation Wallonie après la bascule assigne automatiquement le regime reduction_pret" do
+    travel_to Date.new(2026, 10, 15) do
+      post simulations_path(locale: :fr), params: {
+        simulation: {
+          titre: "Simulation Wallonie post-réforme",
+          property_id: @property_wallonie.id,
+          project_id: @project_wallonie.id,
+          region: "wallonie"
+        }
+      }
+      simulation = Simulation.order(:created_at).last
+      assert_equal "reduction_pret", simulation.regime_effectif
+    end
+  end
+
+  test "update_prime_inputs recalcule la réduction de prêt pour une simulation en regime reduction_pret" do
+    travel_to Date.new(2026, 10, 15) do
+      @user.update!(revenu_demandeur: 28_900, situation_familiale: "celibataire", nombre_enfants: 0)
+      simulation = Simulation.create!(
+        user: @user, property: @property_wallonie, project: @project_wallonie,
+        region: "wallonie", titre: "Sim reduction pret",
+        regime: "reduction_pret"
+      )
+
+      patch update_prime_inputs_simulation_path(simulation, locale: :fr), params: { montant_projet: 20_000 }
+      assert_response :success
+
+      body = JSON.parse(response.body)
+      assert body["success"]
+      assert_equal 10_000.0, body["total_amount"].to_f
+      assert_equal 0.50, body["taux_reduction"]
     end
   end
 end

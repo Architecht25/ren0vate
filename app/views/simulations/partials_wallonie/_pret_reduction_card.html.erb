@@ -1,0 +1,79 @@
+<%# Nouveau régime wallon (dès le 01/10/2026) — réduction du solde d'un prêt bonifié
+    (Rénopack/Rénoprêt), plus de calcul poste par poste. Voir Regions::Wallonie::PretReduction. %>
+<% peb_label = @simulation.property&.peb_donnees&.avant_travaux&.order(created_at: :desc)&.first&.label_peb %>
+
+<div class="card border-0 shadow mb-4" data-controller="wallonie-pret-reduction"
+     data-wallonie-pret-reduction-simulation-id-value="<%= @simulation.id %>"
+     style="<%= @simulation.eligible? ? '' : 'display: none;' %>">
+  <div class="card-header" style="background-color: var(--ren0vate-background-light); border-bottom: 1px solid var(--ren0vate-border);">
+    <h5 class="card-title mb-1">
+      <i class="bi bi-bank2 me-2" style="color: var(--ren0vate-primary);"></i>
+      Étape 3 : Réduction de votre prêt bonifié
+    </h5>
+    <p class="text-muted small mb-0">
+      Depuis le 1er octobre 2026, les primes wallonnes prennent la forme d'une réduction du solde
+      à rembourser sur un prêt Rénopack (0%) ou Rénoprêt, et non plus d'un versement direct.
+    </p>
+  </div>
+
+  <div class="card-body p-4">
+    <div class="alert alert-info d-flex align-items-start" role="alert">
+      <i class="bi bi-info-circle me-3 fs-5"></i>
+      <div>
+        <strong>Label PEB actuel : <%= peb_label || "non renseigné" %></strong>
+        <p class="mb-0 small">Ce montant est une réduction de dette, pas un versement sur votre compte.
+          L'enveloppe budgétaire annuelle définitive n'est fixée qu'après le conclave budgétaire
+          wallon de la rentrée 2026 — considérez ce calcul comme indicatif.</p>
+      </div>
+    </div>
+
+    <div class="row g-3 align-items-end">
+      <div class="col-md-6">
+        <label for="montant_projet" class="form-label">Montant global du projet de rénovation</label>
+        <div class="input-group">
+          <input type="number" id="montant_projet" min="0" step="100" class="form-control"
+                 placeholder="Ex: 35000"
+                 value="<%= @simulation.montant_projet_saisi %>"
+                 data-wallonie-pret-reduction-target="montantProjet"
+                 data-action="input->wallonie-pret-reduction#montantChanged">
+          <span class="input-group-text">€</span>
+        </div>
+        <small class="text-muted">Plafonné à 75 000€ pour une maison unifamiliale.</small>
+      </div>
+
+      <div class="col-md-6">
+        <div class="rounded-3 p-3 text-center" style="background-color: var(--ren0vate-background-light); border: 1px solid var(--ren0vate-border);">
+          <h3 class="fw-bold mb-1" style="color: var(--ren0vate-primary);" data-wallonie-pret-reduction-target="reductionSolde">
+            <%= number_to_currency(@simulation.total_simule || 0, unit: '€', separator: ',', delimiter: ' ', precision: 0) %>
+          </h3>
+          <p class="text-muted small mb-0">Réduction du solde à rembourser</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3 mt-3 text-center">
+      <div class="col-md-4">
+        <div class="border rounded-3 p-2">
+          <div class="text-muted small">Montant retenu (plafonné)</div>
+          <div class="fw-bold" data-wallonie-pret-reduction-target="montantRetenu">
+            <%= number_to_currency(@simulation.montant_projet_retenu_saisi, unit: '€', separator: ',', delimiter: ' ', precision: 0) %>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="border rounded-3 p-2">
+          <div class="text-muted small">Plafond d'emprunt</div>
+          <div class="fw-bold"><%= number_to_currency(Regions::Wallonie::PretReduction::CalculatorService::PLAFOND_EMPRUNT, unit: '€', separator: ',', delimiter: ' ', precision: 0) %></div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="border rounded-3 p-2">
+          <div class="text-muted small">Taux de réduction</div>
+          <div class="fw-bold" data-wallonie-pret-reduction-target="tauxReduction">
+            <%= number_to_percentage((@simulation.taux_reduction_saisi || 0) * 100, precision: 0) %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
