@@ -35,8 +35,10 @@ class MarketingDraftJob < ApplicationJob
     - Un seul CTA par contenu — pas de multi-CTA
     - Phrases courtes, structure lisible (listes, chiffres en gras)
     - Urgences à intégrer selon contexte :
-      - Wallonie : fin des primes le 30/09/2026 — rappeler systématiquement
-      - Flandre : Prime PEB disparaît le 30/06/2026 — rappeler si pertinent
+      - Wallonie : fin des primes cash le 30/09/2026, remplacées dès le 01/10/2026 par une
+        réduction du solde d'un prêt bonifié (Rénopack/Rénoprêt) — rappeler systématiquement
+      - Flandre : depuis le 01/03/2026, catégories de revenus 1 et 2 limitées aux primes
+        pompe à chaleur/boiler — la prime PEB/EPC-label a disparu, ne plus la mentionner
       - Général : matériaux +40% depuis 2020, chaque mois de flottement = +0,4% de coût
 
     ---
@@ -69,7 +71,8 @@ class MarketingDraftJob < ApplicationJob
 
     ### Pilier 2 — Primes (Ne pas laisser expirer ses droits)
     Angle : Les primes existent encore mais se complexifient.
-    Urgences : Wallonie → 30/09/2026. Flandre Prime PEB → 30/06/2026.
+    Urgences : Wallonie → primes cash jusqu'au 30/09/2026, puis réduction de prêt bonifié
+    (plafond 75 000€, PEB E/F/D requis). Flandre → catégories 1-2 limitées à PAC/boiler depuis 01/03/2026.
 
     ### Pilier 3 — Automatisation (Récupérer son temps)
     Angle : 49 à 97h perdues par projet de rénovation sans outil. Ren0vate récupère 40h/projet.
@@ -252,7 +255,7 @@ class MarketingDraftJob < ApplicationJob
       - Longueur : 80–120 mots
       - 1ère phrase : accroche forte (chiffre ou fait surprenant)
       - Ton : direct, accessible, encourageant
-      - Urgences si pertinentes : Wallonie 30/09/2026, Flandre 30/06/2026
+      - Urgences si pertinentes : Wallonie (fin primes cash 30/09/2026, prêt bonifié ensuite)
       - 3–5 hashtags pertinents en fin de post
       - Un seul CTA : "lien en bio" ou "ren0vate.be"
 
@@ -277,7 +280,7 @@ class MarketingDraftJob < ApplicationJob
       - Longueur : 100–150 mots
       - 1ère phrase : accroche forte avec chiffre ou urgence concrète
       - Ton : informatif, rassurant, chiffré — pas de hashtags
-      - Urgences si pertinentes : Wallonie 30/09/2026, Flandre 30/06/2026
+      - Urgences si pertinentes : Wallonie (fin primes cash 30/09/2026, prêt bonifié ensuite)
       - Inclure l'URL ren0vate.be naturellement dans le texte
       - Un seul CTA explicite en dernière ligne
 

@@ -9,6 +9,14 @@
 #     priority: 2
 #     schedule: at 5am every day
 
+# Agent de veille réglementaire + production de contenu (MarketingDraftJob enchaîné
+# automatiquement à la fin de IntelligenceReportJob) — réactivé le 17/07/2026.
+production:
+  intelligence_report_weekly:
+    class: IntelligenceReportJob
+    queue: default
+    schedule: at 7am every monday
+
 # Vérifications des alertes factures
 # Désactivé — fermeture progressive Ren0vate (juin 2026)
 # production:
@@ -56,11 +64,6 @@
 #     class: NurturingSequenceJob
 #     queue: default
 #     schedule: at 11am every day
-#
-#   intelligence_report_weekly:
-#     class: IntelligenceReportJob
-#     queue: default
-#     schedule: at 7am every monday
 
 # development:
 #   facture_alerts_dev:
