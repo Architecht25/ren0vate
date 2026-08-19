@@ -62,11 +62,18 @@ class Subscription < ApplicationRecord
     return unless stripe_subscription_id
 
     stripe_subscription = Stripe::Subscription.retrieve(stripe_subscription_id)
+    subscription = JSON.parse(stripe_subscription.to_json)
+
+    # API 2024-09-30+ : current_period_start/end sont dans les items
+    period_start = subscription['current_period_start'] ||
+                   subscription.dig('items', 'data', 0, 'current_period', 'start')
+    period_end   = subscription['current_period_end'] ||
+                   subscription.dig('items', 'data', 0, 'current_period', 'end')
 
     update!(
       status: stripe_subscription.status,
-      current_period_start: Time.at(stripe_subscription.current_period_start),
-      current_period_end: Time.at(stripe_subscription.current_period_end)
+      current_period_start: period_start ? Time.at(period_start) : nil,
+      current_period_end: period_end ? Time.at(period_end) : nil
     )
 
     stripe_subscription
