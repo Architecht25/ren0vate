@@ -1049,16 +1049,21 @@ class SimulationsController < ApplicationController
   def perform_wallonie_pret_reduction_calculation(simulation)
     existing_params = safe_parse_simulation_parameters(simulation)
     montant_projet = existing_params['montant_projet'].to_f
+    ecomateriaux = existing_params['ecomateriaux']
 
     result = Regions::Wallonie::PretReduction::CalculatorService.new(
-      current_user, montant_projet: montant_projet
+      current_user, montant_projet: montant_projet, property: simulation.property, ecomateriaux: ecomateriaux
     ).calculate
 
     merged_params = existing_params.merge(
       'montant_projet'         => result[:montant_projet],
       'montant_projet_retenu'  => result[:montant_projet_retenu],
       'plafond_emprunt'        => result[:plafond_emprunt],
+      'ecomateriaux'           => result[:ecomateriaux],
+      'taux_reduction_base'    => result[:taux_reduction_base],
       'taux_reduction'         => result[:taux_reduction],
+      'taux_interet'           => result[:taux_interet],
+      'taux_interet_label'     => result[:taux_interet_label],
       'calculation_timestamp'  => Time.current
     )
 
@@ -1072,9 +1077,11 @@ class SimulationsController < ApplicationController
   # pas de saisie poste par poste comme dans update_prime_inputs
   def update_wallonie_pret_reduction_inputs
     montant_projet = params[:montant_projet].to_f
+    ecomateriaux = ActiveModel::Type::Boolean.new.cast(params[:ecomateriaux])
 
     existing_params = safe_parse_simulation_parameters(@simulation)
     existing_params['montant_projet'] = montant_projet
+    existing_params['ecomateriaux'] = ecomateriaux
     @simulation.update!(parameters: existing_params.to_json)
 
     perform_wallonie_pret_reduction_calculation(@simulation)
@@ -1087,7 +1094,10 @@ class SimulationsController < ApplicationController
       montant_projet: montant_projet,
       montant_projet_retenu: updated_params['montant_projet_retenu'],
       plafond_emprunt: updated_params['plafond_emprunt'],
+      ecomateriaux: updated_params['ecomateriaux'],
+      taux_reduction_base: updated_params['taux_reduction_base'],
       taux_reduction: updated_params['taux_reduction'],
+      taux_interet_label: updated_params['taux_interet_label'],
       message: "Réduction recalculée"
     }
   end

@@ -41,5 +41,21 @@ class PretReductionTrancheServiceTest < ActiveSupport::TestCase
     @user.update!(revenu_demandeur: 122_801)
     assert_not tranche_service.eligible_income?
     assert_equal 0.0, tranche_service.taux_reduction
+    assert_nil tranche_service.taux_interet
+  end
+
+  test "taux d'intérêt à 0% pour les trois tranches jusqu'à 67 100€" do
+    @user.update!(revenu_demandeur: 28_900)
+    assert_equal :zero, tranche_service.taux_interet
+    assert_equal "0%", tranche_service.taux_interet_label
+
+    @user.update!(revenu_demandeur: 67_100)
+    assert_equal :zero, tranche_service.taux_interet
+  end
+
+  test "taux d'intérêt réduit (non nul) entre 67 100,01€ et 122 800€" do
+    @user.update!(revenu_demandeur: 122_800)
+    assert_equal :reduit, tranche_service.taux_interet
+    assert_equal "Taux réduit", tranche_service.taux_interet_label
   end
 end

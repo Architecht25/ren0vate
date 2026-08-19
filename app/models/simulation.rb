@@ -137,6 +137,22 @@ class Simulation < ApplicationRecord
     parsed_simulation_parameter('taux_reduction')
   end
 
+  def plafond_emprunt_saisi
+    parsed_simulation_parameter('plafond_emprunt')
+  end
+
+  def ecomateriaux_saisi
+    ActiveModel::Type::Boolean.new.cast(parsed_simulation_parameter('ecomateriaux'))
+  end
+
+  def taux_reduction_base_saisi
+    parsed_simulation_parameter('taux_reduction_base')
+  end
+
+  def taux_interet_label_saisi
+    parsed_simulation_parameter('taux_interet_label')
+  end
+
   # Méthode pour extraire les primes depuis le JSON parameters
   def primes
     @primes_collection ||= PrimesCollection.new(self)

@@ -8,10 +8,11 @@ module Regions
       class EligibilityService < Regions::BaseService
         include Regions::Wallonie::CommonEligibilityChecks
 
-        # ⚠️ Le texte source (articles L'Echo) ne mentionne que E/F/D comme labels éligibles —
-        # G n'est pas cité, probablement un oubli du texte réglementaire plutôt qu'une exclusion
-        # volontaire. À valider avec le fondateur/le texte définitif avant mise en production.
-        LABELS_ELIGIBLES = %w[D E F].freeze
+        # Labels PEB E, F et G — confirmé par Le Vif (30/07/2026, tableau "Quels prêts et
+        # quelles aides pour quels ménages ?"). Le label D n'est PAS éligible : l'article
+        # précise que les logements PEB D ou mieux ne peuvent plus prétendre à aucune aide
+        # à la rénovation dans ce nouveau régime.
+        LABELS_ELIGIBLES = %w[E F G].freeze
 
         def check_eligibility
           log_calculation("Début vérification éligibilité Wallonie (régime réduction de prêt)", @params)
@@ -52,8 +53,9 @@ module Regions
           label_peb = current_label_peb(property)
           unless label_peb.in?(LABELS_ELIGIBLES)
             return ineligible_response(
-              "Ce régime est réservé aux logements avec un label PEB E ou F (viser au minimum D), " \
-              "ou D (viser au minimum C). Label actuel : #{label_peb || 'non renseigné'}."
+              "Ce régime est réservé aux logements avec un label PEB E, F ou G. " \
+              "Les logements de label D ou mieux ne sont plus éligibles à aucune aide à la rénovation. " \
+              "Label actuel : #{label_peb || 'non renseigné'}."
             )
           end
 

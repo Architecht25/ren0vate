@@ -47,10 +47,17 @@ class PretReductionEligibilityServiceTest < ActiveSupport::TestCase
     assert result[:eligible], result[:message]
   end
 
-  test "éligible avec label PEB D" do
-    create_peb("D")
+  test "éligible avec label PEB G" do
+    create_peb("G")
     result = service.check_eligibility
     assert result[:eligible], result[:message]
+  end
+
+  test "inéligible avec label PEB D (plus aucune aide pour D ou mieux)" do
+    create_peb("D")
+    result = service.check_eligibility
+    assert_not result[:eligible]
+    assert_match /PEB/, result[:message]
   end
 
   test "inéligible sans PEB renseigné" do

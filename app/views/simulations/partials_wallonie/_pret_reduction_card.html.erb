@@ -38,7 +38,21 @@
                  data-action="input->wallonie-pret-reduction#montantChanged">
           <span class="input-group-text">€</span>
         </div>
-        <small class="text-muted">Plafonné à 75 000€ pour une maison unifamiliale.</small>
+        <% is_appartement = @simulation.property&.type_bien_wallonie == "appartement_studio" %>
+        <small class="text-muted">
+          Plafonné à <%= number_to_currency(@simulation.plafond_emprunt_saisi || (is_appartement ? 60_000 : 75_000), unit: '€', separator: ',', delimiter: ' ', precision: 0) %>
+          pour <%= is_appartement ? "un appartement/studio" : "une maison unifamiliale" %>.
+        </small>
+
+        <div class="form-check mt-2">
+          <input type="checkbox" class="form-check-input" id="ecomateriaux"
+                 <%= "checked" if @simulation.ecomateriaux_saisi %>
+                 data-wallonie-pret-reduction-target="ecomateriaux"
+                 data-action="change->wallonie-pret-reduction#montantChanged">
+          <label class="form-check-label small" for="ecomateriaux">
+            Utilisation d'écomatériaux (+5 points de réduction sur le solde)
+          </label>
+        </div>
       </div>
 
       <div class="col-md-6">
@@ -52,7 +66,7 @@
     </div>
 
     <div class="row g-3 mt-3 text-center">
-      <div class="col-md-4">
+      <div class="col-md-3">
         <div class="border rounded-3 p-2">
           <div class="text-muted small">Montant retenu (plafonné)</div>
           <div class="fw-bold" data-wallonie-pret-reduction-target="montantRetenu">
@@ -60,13 +74,13 @@
           </div>
         </div>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-3">
         <div class="border rounded-3 p-2">
           <div class="text-muted small">Plafond d'emprunt</div>
-          <div class="fw-bold"><%= number_to_currency(Regions::Wallonie::PretReduction::CalculatorService::PLAFOND_EMPRUNT, unit: '€', separator: ',', delimiter: ' ', precision: 0) %></div>
+          <div class="fw-bold"><%= number_to_currency(@simulation.plafond_emprunt_saisi || 75_000, unit: '€', separator: ',', delimiter: ' ', precision: 0) %></div>
         </div>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-3">
         <div class="border rounded-3 p-2">
           <div class="text-muted small">Taux de réduction</div>
           <div class="fw-bold" data-wallonie-pret-reduction-target="tauxReduction">
@@ -74,6 +88,19 @@
           </div>
         </div>
       </div>
+      <div class="col-md-3">
+        <div class="border rounded-3 p-2">
+          <div class="text-muted small">Taux d'intérêt du prêt</div>
+          <div class="fw-bold" data-wallonie-pret-reduction-target="tauxInteret">
+            <%= @simulation.taux_interet_label_saisi || "0%" %>
+          </div>
+        </div>
+      </div>
     </div>
+    <p class="text-muted small mt-2 mb-0">
+      Taux de réduction indicatif : <%= number_to_percentage((@simulation.taux_reduction_base_saisi || 0) * 100, precision: 0) %>
+      selon votre tranche de revenu<%= " + 5 points écomatériaux" if @simulation.ecomateriaux_saisi %>.
+      Le taux d'intérêt réel du prêt (0% ou réduit) dépend de votre tranche de revenu et est fixé par la SWCS.
+    </p>
   </div>
 </div>
