@@ -3,102 +3,11 @@
 // Données de sécurité injectées depuis le serveur (via @security_stats)
 const SECURITY_DATA = <%= json_escape(@security_stats.to_json).html_safe %>;
 
-// Test immédiat du chargement
-console.log('🚀 Dashboard JavaScript loading...');
-console.log('🔒 Security stats loaded:', SECURITY_DATA);
-
-// Test SweetAlert2 après un délai
-setTimeout(function() {
-  console.log('🧪 Testing SweetAlert2 availability...');
-  if (typeof Swal !== 'undefined') {
-    console.log('✅ SweetAlert2 is available');
-
-    // Notification automatique de démarrage
-    Swal.fire({
-      title: 'Dashboard Loaded!',
-      text: 'Module sécurité prêt',
-      icon: 'success',
-      timer: 2000,
-      showConfirmButton: false,
-      toast: true,
-      position: 'top-end'
-    });
-  } else {
-    console.error('❌ SweetAlert2 is NOT available');
-  }
-}, 500);
-
 // Délégation d'événements pour tous les clics
 document.addEventListener('click', function(e) {
-  console.log('👆 Click detected on:', e.target.id, e.target.tagName);
-
-  // Test headers de sécurité
-  if (e.target.id === 'test-headers-btn') {
-    e.preventDefault();
-    console.log('🎯 Test headers button clicked!');
-
-    if (typeof Swal !== 'undefined') {
-      const cspMode = SECURITY_DATA.csp_enforced ? 'Enforcement' : 'Report-Only';
-      const cspBadgeClass = SECURITY_DATA.csp_enforced ? 'bg-success' : 'bg-warning text-dark';
-      const sslBadgeClass = SECURITY_DATA.ssl_active ? 'bg-success' : 'bg-danger';
-      Swal.fire({
-        title: '🛡️ Test Headers de Sécurité',
-        html: `
-          <div class="text-start">
-            <p><strong>État des headers de sécurité :</strong></p>
-            <ul class="list-unstyled mt-3">
-              <li>🔒 HTTPS/SSL : <span class="badge ${sslBadgeClass}">${SECURITY_DATA.ssl_active ? 'Actif' : 'Inactif'}</span></li>
-              <li>🛡️ HSTS : <span class="badge ${SECURITY_DATA.hsts_active ? 'bg-success' : 'bg-warning text-dark'}">${SECURITY_DATA.hsts_active ? 'Configuré' : 'Dev uniquement'}</span></li>
-              <li>👁️ CSP : <span class="badge ${cspBadgeClass}">${cspMode}</span></li>
-              <li>🖼️ X-Frame-Options : <span class="badge bg-success">SAMEORIGIN</span></li>
-              <li>📄 X-Content-Type-Options : <span class="badge bg-success">nosniff</span></li>
-              <li>🔗 Referrer-Policy : <span class="badge bg-success">strict-origin-when-cross-origin</span></li>
-            </ul>
-          </div>
-        `,
-        icon: SECURITY_DATA.ssl_active ? 'success' : 'warning',
-        confirmButtonText: 'OK'
-      });
-    } else {
-      alert('Headers: HTTPS ✓, CSP ✓, HSTS ✓');
-    }
-    return;
-  }
-
-  // Voir violations CSP
-  if (e.target.id === 'view-csp-violations-btn') {
-    e.preventDefault();
-    console.log('🎯 CSP violations button clicked!');
-
-    if (typeof Swal !== 'undefined') {
-      Swal.fire({
-        title: '📊 Violations CSP',
-        html: `
-          <div class="text-start">
-            <div class="alert alert-success">
-              <i class="bi bi-check-circle me-2"></i>
-              Aucune violation critique détectée
-            </div>
-            <p><strong>Monitoring actif :</strong></p>
-            <ul class="list-unstyled">
-              <li>• Endpoint : <code>/csp-violation-report-endpoint</code></li>
-              <li>• Mode : <strong>${SECURITY_DATA.csp_enforced ? 'Enforcement' : 'Report-Only (développement)'}</strong></li>
-              <li>• Logging : Automatique</li>
-            </ul>
-          </div>
-        `,
-        icon: 'info'
-      });
-    } else {
-      alert('CSP: Aucune violation détectée');
-    }
-    return;
-  }
-
   // Gestion confirmations
   if (e.target.id === 'manage-confirmations-btn') {
     e.preventDefault();
-    console.log('🎯 Manage confirmations button clicked!');
 
     if (typeof Swal !== 'undefined') {
       Swal.fire({
@@ -144,115 +53,9 @@ document.addEventListener('click', function(e) {
     return;
   }
 
-  // Test backup
-  if (e.target.id === 'test-backup-btn') {
-    e.preventDefault();
-    console.log('🎯 Test backup button clicked!');
-
-    if (typeof Swal !== 'undefined') {
-      Swal.fire({
-        title: '🗄️ Test du Système de Backup',
-        html: `
-          <div class="text-start">
-            <p><strong>Test des composants de backup...</strong></p>
-            <div class="mt-3">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span>Backup Heroku automatique</span>
-                <span class="badge bg-success">✓ Actif</span>
-              </div>
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span>Scripts manuels (bin/backup_production.sh)</span>
-                <span class="badge bg-success">✓ Disponible</span>
-              </div>
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span>Export JSON critiques</span>
-                <span class="badge bg-success">✓ Fonctionnel</span>
-              </div>
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span>Tâches Rake backup</span>
-                <span class="badge bg-success">✓ Opérationnel</span>
-              </div>
-            </div>
-            <div class="alert alert-success mt-3">
-              <i class="bi bi-check-circle me-2"></i>
-              Tous les systèmes de backup sont opérationnels
-            </div>
-          </div>
-        `,
-        icon: 'success',
-        confirmButtonText: 'Parfait!'
-      });
-    } else {
-      alert('Backup: Tous les systèmes opérationnels');
-    }
-    return;
-  }
-
-  // Statistiques backup
-  if (e.target.id === 'backup-stats-btn') {
-    e.preventDefault();
-    console.log('🎯 Backup stats button clicked!');
-
-    if (typeof Swal !== 'undefined') {
-      Swal.fire({
-        title: '📊 Statistiques de Backup',
-        html: `
-          <div class="text-start">
-            <div class="row mb-3">
-              <div class="col-6">
-                <div class="card bg-light">
-                  <div class="card-body text-center">
-                    <i class="bi bi-clock-history text-primary fs-1"></i>
-                    <h5 class="text-primary">Dernier backup</h5>
-                    <p class="mb-0">Il y a quelques heures</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="card bg-light">
-                  <div class="card-body text-center">
-                    <i class="bi bi-hdd text-success fs-1"></i>
-                    <h5 class="text-success">Taille totale</h5>
-                    <p class="mb-0">45 MB</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-6">
-                <div class="card bg-light">
-                  <div class="card-body text-center">
-                    <i class="bi bi-files text-info fs-1"></i>
-                    <h5 class="text-info">Backups locaux</h5>
-                    <p class="mb-0">3 fichiers</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="card bg-light">
-                  <div class="card-body text-center">
-                    <i class="bi bi-shield-check text-warning fs-1"></i>
-                    <h5 class="text-warning">Score santé</h5>
-                    <p class="mb-0">85%</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        `,
-        icon: 'info',
-        width: '800px'
-      });
-    } else {
-      alert('Stats: Score 85%, 3 backups locaux');
-    }
-    return;
-  }
-
   // Vérifier rôles admin
   if (e.target.id === 'check-admin-roles-btn') {
     e.preventDefault();
-    console.log('🎯 Check admin roles button clicked!');
 
     if (typeof Swal !== 'undefined') {
       const adminStatusBadge = SECURITY_DATA.admin_count === 1
@@ -307,7 +110,6 @@ document.addEventListener('click', function(e) {
   // Détail des rôles
   if (e.target.id === 'show-roles-detail-btn') {
     e.preventDefault();
-    console.log('🎯 Show roles detail button clicked!');
 
     if (typeof Swal !== 'undefined') {
       Swal.fire({
@@ -593,8 +395,6 @@ function testSystemHealth() {
   });
 }
 
-console.log('🔧 Event delegation setup complete');
-
 // Toggle Primes-Services AJAX — mise à jour instantanée sans rechargement de page
 document.addEventListener('click', function(e) {
   const btn = e.target.closest('.primes-services-toggle');
@@ -680,8 +480,6 @@ document.addEventListener('click', function(e) {
 
 // Fonction de test pour la modal
 function testModal(userId) {
-  console.log('🎯 Tentative d\'ouverture de la modal pour user:', userId);
-
   // Tester d'abord si la modal existe
   const modalElement = document.getElementById('userDetailsModal');
   if (!modalElement) {
@@ -690,14 +488,10 @@ function testModal(userId) {
     return;
   }
 
-  console.log('✅ Modal trouvée, tentative d\'ouverture...');
-
   try {
     // Ouvrir la modal d'abord
     const modal = new bootstrap.Modal(modalElement);
     modal.show();
-
-    console.log('✅ Modal ouverte, chargement du contenu...');
 
     // Charger le contenu simple
     const contentDiv = document.getElementById('user-details-content');

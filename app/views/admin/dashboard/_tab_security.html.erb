@@ -1,6 +1,18 @@
     <!-- ========== ONGLET SÉCURITÉ ========== -->
     <div class="tab-pane fade" id="security-panel" role="tabpanel">
 
+      <!-- ── 0. AVERTISSEMENT SNAPSHOT ──────────────────────────────────────── -->
+      <div class="alert alert-secondary d-flex align-items-center mb-4" role="alert">
+        <i class="bi bi-camera me-2"></i>
+        <div>
+          <strong>Rapport figé — snapshot manuel du 18/04/2026.</strong>
+          Les sections KPI/OWASP/Dépendances/Recommandations ci-dessous ne sont pas recalculées automatiquement
+          (pas de connexion à Brakeman, au Gemfile.lock ou aux vraies métriques). Seules les sections
+          "Vue d'ensemble", "Backups", "Rôles" et "Confirmations" plus bas dans cet onglet reflètent l'état réel de l'app.
+          À rafraîchir manuellement lors du prochain audit de sécurité.
+        </div>
+      </div>
+
       <!-- ── 1. KPI BRAKEMAN & ÉTAT GLOBAL ─────────────────────────────────── -->
       <div class="row g-3 mb-4">
         <!-- Brakeman warnings actifs -->
@@ -49,12 +61,12 @@
         </div>
         <!-- 2FA -->
         <div class="col-md-2">
-          <div class="card border-0 shadow-sm h-100 border-start border-danger border-4">
+          <div class="card border-0 shadow-sm h-100 border-start border-success border-4">
             <div class="card-body py-3 text-center">
-              <i class="bi bi-phone text-danger" style="font-size:2rem;"></i>
+              <i class="bi bi-phone text-success" style="font-size:2rem;"></i>
               <div class="small text-muted mt-1">2FA</div>
-              <span class="badge bg-danger mt-1">NON ACTIVÉE</span>
-              <div class="text-muted mt-1" style="font-size:11px;">Priorité 3 — recommandé admin</div>
+              <span class="badge bg-success mt-1">ACTIVÉE</span>
+              <div class="text-muted mt-1" style="font-size:11px;">OTP email — comptes admin (depuis mai 2026)</div>
             </div>
           </div>
         </div>
@@ -95,7 +107,7 @@
                     { code: 'A04', name: 'Insecure Design',               status: 'ok',      detail: 'Pseudonymisation IA · consentement RGPD · séparation rôles' },
                     { code: 'A05', name: 'Security Misconfiguration',     status: 'warn',    detail: "CSP : unsafe-inline, unsafe-eval présents · nonces à implémenter" },
                     { code: 'A06', name: 'Outdated Components',           status: 'ok',      detail: 'stripe 19 · Rails 8.1.3 · Devise 5.0.3 · brakeman 8.0.4' },
-                    { code: 'A07', name: 'Identification & Auth Failures', status: 'warn',   detail: 'Devise + Lockable ✅ · 2FA non implémentée (P3)' },
+                    { code: 'A07', name: 'Identification & Auth Failures', status: 'ok',     detail: 'Devise + Lockable ✅ · 2FA admin (OTP email) actif depuis mai 2026' },
                     { code: 'A08', name: 'Software & Data Integrity',     status: 'ok',      detail: 'Stripe webhook signé · importmap · Gemfile.lock versionné' },
                     { code: 'A09', name: 'Security Logging & Monitoring', status: 'danger',  detail: 'filter_params ✅ · pas de SIEM · endpoint CSP à vérifier en prod' },
                     { code: 'A10', name: 'SSRF',                          status: 'ok',      detail: 'TRUSTED_IMAGE_HOSTS whitelist · URLs API fixes' },
@@ -161,8 +173,8 @@
                     <span class="badge bg-success">✓ secure, httponly, no-store</span>
                   </div>
                   <div class="d-flex justify-content-between">
-                    <span class="small">2FA</span>
-                    <span class="badge bg-danger">✗ Non implémentée (P3)</span>
+                    <span class="small">2FA (admin)</span>
+                    <span class="badge bg-success">✓ OTP email — mai 2026</span>
                   </div>
                 </div>
 
@@ -399,7 +411,8 @@
                     { done: true,  text: 'Chiffrement national_number + IBAN (production)' },
                     { done: false, text: 'Chiffrer revenus (aer_donnees.revenu_*)' },
                     { done: false, text: 'Chiffrer OCR brut (texte_ocr_brut)' },
-                    { done: false, text: '2FA pour comptes admin et Expert/Platform' },
+                    { done: true,  text: '2FA pour comptes admin (OTP email — mai 2026)' },
+                    { done: false, text: '2FA pour comptes Expert/Platform (non-admin)' },
                     { done: false, text: 'Restreindre clé Mapbox par domaine' },
                     { done: false, text: 'Audit annuel + test de pénétration' },
                     { done: false, text: 'Vérifier logs revenus/AER non loggés en clair' },
