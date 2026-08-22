@@ -578,13 +578,15 @@ class Property < ApplicationRecord
   end
 
   # Détermine si cette propriété utilise les phases chantier ou investissement
+  #
+  # BUG PROD (22/08/2026) : cette méthode interrogeait `projects.finalite`, colonne
+  # supprimée par la migration RemoveEntrepriseColumnsFromPropertiesAndProjects
+  # (20260308164557) lors de l'abandon de la fonctionnalité "Entreprises Bruxelles".
+  # Provoquait un PG::UndefinedColumn (500) sur toute propriété où `is_entreprise?`
+  # est vrai — ex. /projects/:id/documents. La fonctionnalité étant abandonnée, les
+  # phases "investissement" ne sont plus jamais pertinentes : on retombe sur "chantier".
   def determine_phase_category
-    # Si c'est une entreprise avec des projets économiques, on utilise les phases investissement
-    if is_entreprise? && projects.where(finalite: 'economique').exists?
-      'investissement'
-    else
-      'chantier'
-    end
+    'chantier'
   end
 
   # Phases en cours ou bloquées nécessitant attention

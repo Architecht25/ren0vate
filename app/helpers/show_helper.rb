@@ -55,8 +55,12 @@ module ShowHelper
     saved_inputs
   end
 
-  def project_finalite(simulation)
-    simulation.project&.finalite || 'residentielle'
+  # NB : `finalite` a été supprimée de `projects` (migration 20260308164557,
+  # abandon de la fonctionnalité "Entreprises Bruxelles") — cette méthode n'est
+  # plus appelée nulle part, gardée résiliente pour éviter un crash si jamais
+  # ré-utilisée.
+  def project_finalite(_simulation)
+    "residentielle"
   end
 
   # ==========================================
