@@ -40,7 +40,7 @@ class OnboardingSmokeTest < ActionDispatch::IntegrationTest
 
   # ─── Tunnel Propriétaire ──────────────────────────────────────────────────
 
-  test "tunnel propriétaire : sélection profil → bien → projet → dashboard" do
+  test "tunnel propriétaire : sélection profil → bien → projet → préparation du projet" do
     user = fresh_user(email: "proprio_smoke@example.com")
     sign_in user
 
@@ -54,13 +54,18 @@ class OnboardingSmokeTest < ActionDispatch::IntegrationTest
     }
     assert_redirected_to onboarding_proprietaire_projet_path(locale: :fr)
 
-    # Étape 3 : créer le projet
+    # Étape 3 : créer le projet — redirection directe vers l'onglet "préparation" du
+    # projet créé (plutôt qu'un dashboard générique vide), voir
+    # OnboardingController#create_proprietaire_projet. Comportement intentionnel,
+    # pas une régression (cf. LAUNCH_CHECKLIST_OCT2026.md §2).
     post onboarding_create_proprietaire_projet_path(locale: :fr), params: {
       project: { nom: "Mon projet test", project_type: "renovation" }
     }
-    assert_redirected_to dashboard_path(locale: :fr)
 
     user.reload
+    project = user.properties.first.projects.first
+    assert_redirected_to project_path(project, locale: :fr, tab: :preparation)
+
     assert user.onboarding_done?, "L'onboarding doit être marqué terminé"
     assert_equal 1, user.properties.count
     assert_equal 1, user.properties.first.projects.count
