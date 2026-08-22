@@ -482,6 +482,13 @@ Rails.application.routes.draw do
       end
     end
 
+    # Veille réglementaire — pages officielles surveillées (RegulatoryWatchJob)
+    resources :regulatory_sources, only: [:index] do
+      collection do
+        post :check_now
+      end
+    end
+
     # Marketing — drafts générés par l'Agent Marketing
     resources :marketing_weeks, only: [:index, :show, :destroy] do
       member do

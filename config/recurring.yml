@@ -17,6 +17,13 @@ production:
     queue: default
     schedule: at 7am every monday
 
+  # Diff mensuel des pages réglementaires officielles (wallonie.be, vlaanderen.be...)
+  # — distinct de l'agent veille ci-dessus, voir RegulatoryWatchJob (22/08/2026).
+  regulatory_watch_monthly:
+    class: RegulatoryWatchJob
+    queue: default
+    schedule: "0 8 1 * *"
+
 # Vérifications des alertes factures
 # Désactivé — fermeture progressive Ren0vate (juin 2026)
 # production:

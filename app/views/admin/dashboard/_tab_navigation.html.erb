@@ -83,6 +83,13 @@
         <span class="badge bg-success ms-1"><%= veille_count %></span>
       <% end %>
     <% end %>
+    <%= link_to admin_regulatory_sources_path, class: "btn btn-sm btn-outline-secondary ms-2" do %>
+      <i class="bi bi-shield-check me-1"></i>Veille réglementaire
+      <% reg_changed_count = RegulatorySource.where.not(last_changed_at: nil).count %>
+      <% if reg_changed_count > 0 %>
+        <span class="badge bg-warning text-dark ms-1"><%= reg_changed_count %></span>
+      <% end %>
+    <% end %>
   </div>
 
   <%# Synchronisation des deux rangées de pills : désactiver l'autre rangée quand une tab est activée %>

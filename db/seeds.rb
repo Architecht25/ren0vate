@@ -74,4 +74,12 @@ if File.exist?(checklists_path)
   load checklists_path
 end
 
+# ➤ VEILLE RÉGLEMENTAIRE - Pages officielles surveillées (RegulatoryWatchJob)
+puts "\n⚖️ === VEILLE RÉGLEMENTAIRE ==="
+regulatory_sources_path = Rails.root.join("db", "seeds", "regulatory_sources.rb")
+if File.exist?(regulatory_sources_path)
+  puts "🔹 Chargement de : #{regulatory_sources_path}"
+  load regulatory_sources_path
+end
+
 puts "✅ Seeds terminés"

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+      .container { max-width: 640px; margin: 0 auto; padding: 20px; }
+      .header { background: linear-gradient(135deg, #7c2d12 0%, #9a3412 100%); color: white; padding: 24px 20px; border-radius: 8px 8px 0 0; }
+      .header h2 { margin: 0 0 4px 0; font-size: 20px; }
+      .header p  { margin: 0; opacity: 0.8; font-size: 13px; }
+      .content { background: #f9f9f9; padding: 24px 20px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; }
+      .source { background: white; padding: 16px; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 12px; }
+      .source h3 { margin: 0 0 4px 0; font-size: 15px; color: #1a1a2e; }
+      .source a { color: #9a3412; text-decoration: none; font-size: 13px; word-break: break-all; }
+      .source .notes { font-size: 13px; color: #555; margin-top: 8px; border-top: 1px solid #eee; padding-top: 8px; }
+      .footer { text-align: center; padding: 16px; color: #aaa; font-size: 11px; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h2>⚖️ Réglementation — changement détecté</h2>
+        <p><%= @sources.size %> page<%= 's' if @sources.size > 1 %> officielle<%= 's' if @sources.size > 1 %> modifiée<%= 's' if @sources.size > 1 %> depuis la dernière vérification</p>
+      </div>
+
+      <div class="content">
+        <p style="font-size: 13px; color: #666;">
+          Ceci ne dit pas <em>quoi</em> a changé — juste que le contenu de la page a bougé.
+          Va vérifier manuellement chaque page ci-dessous et compare avec le code concerné.
+        </p>
+
+        <% @sources.each do |source| %>
+          <div class="source">
+            <h3><%= source.label %> <% if source.region.present? %>— <%= source.region_label %><% end %></h3>
+            <a href="<%= source.url %>"><%= source.url %></a>
+            <% if source.notes.present? %>
+              <div class="notes">📁 <%= source.notes %></div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="footer">
+        Ren0vate — Veille réglementaire automatique (mensuelle)
+      </div>
+    </div>
+  </body>
+</html>

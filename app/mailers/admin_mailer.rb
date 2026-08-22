@@ -50,4 +50,14 @@ class AdminMailer < ApplicationMailer
       subject: "🔭 Veille Ren0vate — #{report.week_label} (#{report.sources_count} articles)"
     )
   end
+
+  # Alerte : une ou plusieurs pages réglementaires officielles suivies ont changé
+  # (RegulatoryWatchJob, mensuel) — signal "va vérifier", pas une analyse de contenu.
+  def regulatory_sources_changed(sources)
+    @sources = sources
+
+    mail(
+      subject: "⚖️ #{sources.size} page#{'s' if sources.size > 1} réglementaire#{'s' if sources.size > 1} modifiée#{'s' if sources.size > 1} — à vérifier"
+    )
+  end
 end

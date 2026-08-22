@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_22_163002) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_22_163003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -954,6 +954,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_22_163002) do
     t.bigint "user_id", null: false
     t.index ["property_id"], name: "index_quotes_on_property_id"
     t.index ["user_id"], name: "index_quotes_on_user_id"
+  end
+
+  create_table "regulatory_sources", force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.string "label", null: false
+    t.datetime "last_changed_at"
+    t.datetime "last_checked_at"
+    t.string "last_content_hash"
+    t.text "notes"
+    t.string "region"
+    t.datetime "updated_at", null: false
+    t.string "url", null: false
+    t.index ["url"], name: "index_regulatory_sources_on_url", unique: true
   end
 
   create_table "rent_payments", force: :cascade do |t|
