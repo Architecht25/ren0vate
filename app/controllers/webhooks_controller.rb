@@ -1,6 +1,10 @@
 class WebhooksController < ApplicationController
   skip_before_action :verify_authenticity_token
   skip_before_action :authenticate_user!
+  # Stripe (et tout autre webhook) ne suit jamais les redirections HTTP : si l'URL
+  # enregistrée côté fournisseur ne correspond pas exactement au domaine canonique,
+  # la 301 fait échouer silencieusement toute livraison de webhook.
+  skip_before_action :redirect_old_heroku_host
 
   def stripe
     payload = request.body.read
