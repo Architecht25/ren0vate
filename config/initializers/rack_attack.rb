@@ -11,6 +11,11 @@ class Rack::Attack
     end
   end
 
+  # Throttle : 3 inscriptions par IP sur 10 minutes (anti création de comptes en masse)
+  throttle("signups/ip", limit: 3, period: 10.minutes) do |req|
+    req.ip if req.path.match?(%r{\A/(fr|nl|en)/users/inscription\z}) && req.post?
+  end
+
   # Throttle : endpoints API (chatbot, IA) — 30 req/minute par IP
   throttle("api/ip", limit: 30, period: 1.minute) do |req|
     req.ip if req.path.start_with?("/api/")

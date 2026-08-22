@@ -15,6 +15,12 @@
         <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "auth-form" }) do |f| %>
           <%= f.error_notification %>
 
+          <%# Honeypot anti-bot : champ invisible pour un humain, que les bots remplissent souvent automatiquement %>
+          <div style="position:absolute; left:-9999px; top:-9999px;" aria-hidden="true">
+            <label for="user_website">Website</label>
+            <input type="text" name="user[website]" id="user_website" tabindex="-1" autocomplete="off">
+          </div>
+
           <%# Sélecteur de profil utilisateur %>
           <div class="mb-4">
             <label class="form-label fw-semibold mb-2">Je suis…</label>

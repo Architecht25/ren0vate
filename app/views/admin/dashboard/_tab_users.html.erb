@@ -83,7 +83,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <% @users.includes(:simulations, :properties, :projects, :requests, :documents, :subscriptions, :project_members).order(created_at: :desc).limit(50).each do |user| %>
+                    <% @users.includes(:simulations, :properties, :projects, :requests, :documents, :subscriptions, :project_members).order(created_at: :desc).each do |user| %>
                       <%
                         # Détecter le type utilisateur selon son activité
                         is_architect    = user.project_members.any? { |pm| pm.role == 'architect' && pm.status == 'active' }
@@ -260,6 +260,13 @@
                           <% end %>
                           <%= link_to admin_user_path(user), class: "btn btn-outline-secondary btn-sm d-block mt-1", style: "font-size: 11px;" do %>
                             <i class="bi bi-eye me-1"></i>Voir
+                          <% end %>
+                          <% unless user == current_user %>
+                            <%= button_to admin_user_path(user), method: :delete,
+                                form: { class: "d-block mt-1", data: { turbo_confirm: "Supprimer définitivement le compte #{user.email} ? Cette action est irréversible." } },
+                                class: "btn btn-outline-danger btn-sm w-100", style: "font-size: 11px;" do %>
+                              <i class="bi bi-trash me-1"></i>Supprimer
+                            <% end %>
                           <% end %>
                         </td>
                       </tr>
