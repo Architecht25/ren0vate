@@ -110,7 +110,7 @@ class PricingController < ApplicationController
         consent_collection: { terms_of_service: 'required' },
         custom_text: {
           terms_of_service_acceptance: {
-            message: "J'accepte les <a href=\"https://ren0vate.be/conditions-generales\">CGV d'ArchiTecht SRL</a> (BCE BE 1020.345.473) et reconnais avoir été informé de mon droit de rétractation de 14 jours calendrier (art. VI.47 Code de droit économique belge)."
+            message: "J'accepte les [CGV d'ArchiTecht SRL](https://ren0vate.be/conditions-generales) (BCE BE 1020.345.473) et reconnais avoir été informé de mon droit de rétractation de 14 jours calendrier (art. VI.47 Code de droit économique belge)."
           }
         },
 
