@@ -103,8 +103,6 @@ class PricingController < ApplicationController
 
         # Collecte adresse de facturation — requis pour auto_tax et conformité TVA belge
         billing_address_collection: 'required',
-        # Mise à jour du profil Stripe customer (adresse, nom)
-        customer_update: { address: 'auto', name: 'auto' },
         # Collecte numéro TVA (B2B) — optionnel, aucun blocage si absent
         tax_id_collection: { enabled: true },
 
@@ -157,7 +155,27 @@ class PricingController < ApplicationController
         session_params[:subscription_data][:trial_period_days] = 14
       end
 
-      session = Stripe::Checkout::Session.create(session_params)
+      # `customer_update` n'est valide que si un `customer` (id existant) est fourni —
+      # invalide avec `customer_email` (nouveau client, cas le plus fréquent : premier paiement)
+      if session_params[:customer].present?
+        session_params[:customer_update] = { address: 'auto', name: 'auto' }
+      end
+
+      session = begin
+        Stripe::Checkout::Session.create(session_params)
+      rescue Stripe::InvalidRequestError => e
+        # Le stripe_customer_id enregistré ne correspond à aucun customer dans le mode
+        # actuel (ex: id créé en test, clé live utilisée — ou customer supprimé côté Stripe).
+        # On nettoie la référence obsolète et on retente une seule fois avec customer_email.
+        raise unless e.message.include?('No such customer') && current_user&.stripe_customer_id.present?
+
+        Rails.logger.warn "⚠️ stripe_customer_id obsolète pour user #{current_user.id} (#{current_user.stripe_customer_id}) — reset et retry"
+        current_user.update_column(:stripe_customer_id, nil)
+        session_params.delete(:customer)
+        session_params.delete(:customer_update) # invalide sans `customer`
+        session_params[:customer_email] = current_user.email
+        Stripe::Checkout::Session.create(session_params)
+      end
 
       redirect_to session.url, allow_other_host: true
 
