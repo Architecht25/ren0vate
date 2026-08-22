@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_22_163000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_22_163002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -565,6 +565,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_22_163000) do
     t.index ["user_id"], name: "index_peb_donnees_on_user_id"
   end
 
+  create_table "pret_wallonie_dossiers", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.date "date_cloture"
+    t.date "date_depot"
+    t.date "date_limite_travaux"
+    t.date "date_signature"
+    t.boolean "ecomateriaux", default: false
+    t.string "label_peb_apres_travaux"
+    t.string "label_peb_cible"
+    t.string "label_peb_depart"
+    t.decimal "montant_emprunte", precision: 10, scale: 2
+    t.text "notes"
+    t.decimal "plafond_emprunt", precision: 10, scale: 2
+    t.bigint "project_id", null: false
+    t.bigint "simulation_id"
+    t.string "statut", default: "preparation", null: false
+    t.string "taux_interet"
+    t.decimal "taux_reduction", precision: 5, scale: 4
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["project_id"], name: "index_pret_wallonie_dossiers_on_project_id", unique: true
+    t.index ["simulation_id"], name: "index_pret_wallonie_dossiers_on_simulation_id"
+    t.index ["user_id"], name: "index_pret_wallonie_dossiers_on_user_id"
+  end
+
   create_table "prime_submissions", force: :cascade do |t|
     t.string "admin_reference"
     t.text "admin_response_data"
@@ -789,6 +814,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_22_163000) do
     t.decimal "longitude", precision: 10, scale: 6
     t.string "mode_chauffage_principal"
     t.string "mode_chauffage_wallonie"
+    t.integer "nombre_lots_copropriete"
     t.boolean "nouvelle_construction"
     t.string "numero"
     t.string "numero_cadastre"
@@ -1403,6 +1429,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_22_163000) do
   add_foreign_key "peb_donnees", "projects", on_delete: :nullify
   add_foreign_key "peb_donnees", "properties"
   add_foreign_key "peb_donnees", "users"
+  add_foreign_key "pret_wallonie_dossiers", "projects"
+  add_foreign_key "pret_wallonie_dossiers", "simulations"
+  add_foreign_key "pret_wallonie_dossiers", "users"
   add_foreign_key "prime_submissions", "properties"
   add_foreign_key "prime_submissions", "users"
   add_foreign_key "primes", "categories"

@@ -42,8 +42,11 @@ module Regions
             return ineligible_response("Vous devez être propriétaire du logement (plein propriétaire, nu-propriétaire, usufruitier ou co-propriétaire)")
           end
 
-          unless residence_principale?(property)
-            return ineligible_response("Le logement doit être occupé comme résidence principale dans les 24 mois suivant l'introduction de la demande")
+          unless occupant_requirement_satisfied?(property)
+            return ineligible_response(
+              "Le logement doit être occupé comme résidence principale dans les 24 mois suivant l'introduction de la demande " \
+              "(sauf propriétaires-bailleurs, syndics de copropriété ou bailleurs sociaux, éligibles au Rénoprêt)"
+            )
           end
 
           unless property_old_enough?(property)
@@ -67,6 +70,22 @@ module Regions
 
         def current_label_peb(property)
           property.peb_donnees.avant_travaux.order(created_at: :desc).first&.label_peb
+        end
+
+        # Le Rénoprêt (contrairement au Rénopack) est explicitement ouvert aux
+        # propriétaires-bailleurs, associations et syndics de copropriété
+        # (source : wallonie.be, décision gouvernementale du 16/07/2026) — ces profils
+        # ne sont donc pas soumis à l'obligation de résidence principale.
+        def occupant_requirement_satisfied?(property)
+          return true if bailleur_ou_syndic?(property)
+
+          residence_principale?(property)
+        end
+
+        def bailleur_ou_syndic?(property)
+          return true if property.occupation == "investissement"
+
+          property.profil_demandeur.in?(%w[syndic_copropriété bailleur_social])
         end
       end
     end

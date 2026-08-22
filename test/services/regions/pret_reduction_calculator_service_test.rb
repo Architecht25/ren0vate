@@ -14,7 +14,7 @@ class PretReductionCalculatorServiceTest < ActiveSupport::TestCase
     ).calculate
   end
 
-  def build_property(type_bien_wallonie:)
+  def build_property(type_bien_wallonie: nil, profil_demandeur: nil, nombre_lots_copropriete: nil)
     @user.properties.create!(
       titre: "Bien test",
       rue: "Rue de Namur",
@@ -27,6 +27,8 @@ class PretReductionCalculatorServiceTest < ActiveSupport::TestCase
       occupation: "residence_principale",
       type_propriete_wallonie: "proprietaire",
       type_bien_wallonie: type_bien_wallonie,
+      profil_demandeur: profil_demandeur,
+      nombre_lots_copropriete: nombre_lots_copropriete,
       skip_onboarding_validation: true
     )
   end
@@ -85,5 +87,25 @@ class PretReductionCalculatorServiceTest < ActiveSupport::TestCase
     result = calculate(20_000)
     assert_equal :zero, result[:taux_interet]
     assert_equal "0%", result[:taux_interet_label]
+  end
+
+  test "plafond parties communes copropriété à 600 000€ si moins de 20 lots" do
+    property = build_property(profil_demandeur: "syndic_copropriété", nombre_lots_copropriete: 12)
+    result = calculate(700_000, property: property)
+    assert_equal 600_000, result[:plafond_emprunt]
+    assert_equal 600_000, result[:montant_projet_retenu]
+  end
+
+  test "plafond parties communes copropriété à 750 000€ si 20 lots ou plus" do
+    property = build_property(profil_demandeur: "syndic_copropriété", nombre_lots_copropriete: 20)
+    result = calculate(800_000, property: property)
+    assert_equal 750_000, result[:plafond_emprunt]
+    assert_equal 750_000, result[:montant_projet_retenu]
+  end
+
+  test "plafond parties communes par défaut à 600 000€ si nombre de lots non renseigné" do
+    property = build_property(profil_demandeur: "syndic_copropriété")
+    result = calculate(700_000, property: property)
+    assert_equal 600_000, result[:plafond_emprunt]
   end
 end

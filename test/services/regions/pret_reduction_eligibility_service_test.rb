@@ -95,4 +95,33 @@ class PretReductionEligibilityServiceTest < ActiveSupport::TestCase
     assert_not result[:eligible]
     assert_match /non connecté/i, result[:message]
   end
+
+  test "inéligible si résidence secondaire (pas investissement, pas syndic/bailleur social)" do
+    @property.update!(occupation: "residence_secondaire", profil_demandeur: "propriétaire_occupant_ou_futur_occupant")
+    create_peb("F")
+    result = service.check_eligibility
+    assert_not result[:eligible]
+    assert_match /résidence principale/i, result[:message]
+  end
+
+  test "éligible pour un propriétaire-bailleur (Rénoprêt) malgré l'absence de résidence principale" do
+    @property.update!(occupation: "investissement")
+    create_peb("F")
+    result = service.check_eligibility
+    assert result[:eligible], result[:message]
+  end
+
+  test "éligible pour un syndic de copropriété malgré l'absence de résidence principale" do
+    @property.update!(occupation: "residence_secondaire", profil_demandeur: "syndic_copropriété")
+    create_peb("F")
+    result = service.check_eligibility
+    assert result[:eligible], result[:message]
+  end
+
+  test "éligible pour un bailleur social malgré l'absence de résidence principale" do
+    @property.update!(occupation: "residence_secondaire", profil_demandeur: "bailleur_social")
+    create_peb("F")
+    result = service.check_eligibility
+    assert result[:eligible], result[:message]
+  end
 end
