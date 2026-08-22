@@ -136,13 +136,12 @@ CLOUDINARY_URL        # Storage fichiers
 STRIPE_SECRET_KEY     # Paiements
 STRIPE_WEBHOOK_SECRET # Webhooks Stripe
 SMTP_*                # Envoi emails
-SOLID_QUEUE_IN_PUMA=true  # Active Solid Queue dans le processus Puma
 ```
 
 ## Points d'attention
 
 - **Bruxelles** : primes Renolution supprimées — `eligible: false` retourné par défaut
-- **Solid Queue** : tourne in-process (pas de worker dyno séparé). Jobs persistés en DB.
+- **Solid Queue** : tourne sur un **dyno worker dédié** (`worker: bundle exec bin/jobs` dans le Procfile, activé le 22/08/2026). Ne PAS repasser par `SOLID_QUEUE_IN_PUMA=true` (plugin Puma) : testé le 22/08/2026 sur le dyno web Basic (512 Mo), la RAM grimpait de 400→465 Mo en 1 minute à vide (Puma + Supervisor + Dispatcher + Worker + Scheduler dans le même process) — c'est cette config qui avait causé le R14 qui avait fait désactiver Solid Queue en premier lieu. Si le dyno worker est absent/scale à 0, les jobs (`deliver_later`, `FactureAlertJob`, etc.) s'accumulent silencieusement en base sans jamais s'exécuter — vérifier `SolidQueue::Process.all` et `SolidQueue::Job.where(finished_at: nil).count` en cas de doute.
 - **`:confirmable` Devise** : colonnes présentes en DB mais module désactivé dans `user.rb` — ne pas activer sans d'abord confirmer les comptes existants (`User.where(confirmed_at: nil).update_all(confirmed_at: Time.now)`)
 - **`config.assets.compile = true`** en production — warning Heroku connu, non bloquant
 - **Ruby 3.3.9** sur Heroku (3.3.11 disponible — à upgrader)
