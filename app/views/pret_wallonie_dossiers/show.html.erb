@@ -1,0 +1,118 @@
+<% content_for :title, "Suivi de mon prêt bonifié wallon" %>
+
+<div class="container py-4" style="max-width: 900px;">
+  <div class="d-flex align-items-center mb-4">
+    <%= link_to project_path(@project), class: "btn btn-outline-secondary btn-sm me-3" do %>
+      <i class="bi bi-arrow-left"></i>
+    <% end %>
+    <div>
+      <h3 class="mb-0">Suivi de mon prêt bonifié</h3>
+      <p class="text-muted small mb-0"><%= @project.nom %></p>
+    </div>
+  </div>
+
+  <% if @dossier.echeance_travaux_depassee? %>
+    <div class="alert alert-danger">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      L'échéance des 2 ans pour réaliser les travaux est dépassée (<%= l(@dossier.date_limite_travaux, format: :long) %>).
+      Contactez la SWCS pour connaître les conséquences sur votre dossier.
+    </div>
+  <% elsif @dossier.echeance_travaux_proche? %>
+    <div class="alert alert-warning">
+      <i class="bi bi-clock me-2"></i>
+      Il vous reste <strong><%= @dossier.jours_restants_travaux %> jours</strong> pour réaliser vos travaux
+      (échéance : <%= l(@dossier.date_limite_travaux, format: :long) %>).
+    </div>
+  <% end %>
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+      <h5 class="mb-3">Résumé du dossier</h5>
+      <div class="row g-3 text-center mb-3">
+        <div class="col-6 col-md-3">
+          <div class="border rounded-3 p-2">
+            <div class="text-muted small">Montant emprunté</div>
+            <div class="fw-bold"><%= number_to_currency(@dossier.montant_emprunte || 0, unit: '€', separator: ',', delimiter: ' ', precision: 0) %></div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="border rounded-3 p-2">
+            <div class="text-muted small">Réduction du solde</div>
+            <div class="fw-bold"><%= number_to_percentage((@dossier.taux_reduction || 0) * 100, precision: 0) %></div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="border rounded-3 p-2">
+            <div class="text-muted small">Label PEB actuel</div>
+            <div class="fw-bold"><%= @dossier.label_peb_depart || "—" %></div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="border rounded-3 p-2">
+            <div class="text-muted small">Label PEB cible</div>
+            <div class="fw-bold"><%= @dossier.label_peb_cible || "—" %></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-2"><strong>Statut actuel :</strong>
+        <span class="badge text-bg-primary"><%= t("pret_wallonie_dossier.statuts.#{@dossier.statut}", default: @dossier.statut.humanize) %></span>
+      </div>
+
+      <p class="text-muted small mb-0">
+        Ce suivi est déclaratif — Ren0vate n'a pas d'accès direct au système de la SWCS. Mets à jour le statut
+        toi-même au fil de l'avancement de ta demande.
+      </p>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+      <h5 class="mb-3">Pièces à préparer</h5>
+      <ul class="list-unstyled mb-0">
+        <li class="mb-2"><i class="bi bi-file-earmark-text me-2 text-muted"></i>Rapport d'audit énergétique préalable (obligatoire avant travaux)</li>
+        <li class="mb-2"><i class="bi bi-file-earmark-text me-2 text-muted"></i>Devis définitifs des travaux envisagés</li>
+        <li class="mb-2"><i class="bi bi-file-earmark-text me-2 text-muted"></i>Attestation de conformité électrique et/ou gaz</li>
+        <li class="mb-2"><i class="bi bi-file-earmark-text me-2 text-muted"></i>Factures finales des travaux (à la clôture)</li>
+        <li class="mb-0"><i class="bi bi-file-earmark-text me-2 text-muted"></i>Certificat PEB après travaux (à la clôture)</li>
+      </ul>
+      <%= link_to "Gérer mes documents", project_documents_path(@project), class: "btn btn-outline-primary btn-sm mt-3" %>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+      <h5 class="mb-3">Mettre à jour le suivi</h5>
+      <%= simple_form_for @dossier, url: project_pret_wallonie_dossier_path(@project), method: :patch do |f| %>
+        <%= f.input :statut,
+              collection: PretWallonieDossier::STATUTS.map { |s| [t("pret_wallonie_dossier.statuts.#{s}", default: s.humanize), s] },
+              label: "Statut du dossier" %>
+        <%= f.input :date_depot, label: "Date de dépôt du dossier auprès de la SWCS" %>
+        <%= f.input :date_signature, label: "Date de signature du contrat", hint: "L'échéance des 2 ans pour réaliser les travaux sera calculée automatiquement" %>
+
+        <% if @dossier.statut.in?(%w[travaux_en_cours cloture]) %>
+          <%= f.input :label_peb_apres_travaux,
+                collection: %w[G F E D C B A A+],
+                include_blank: "Non renseigné",
+                label: "Label PEB après travaux" %>
+          <%= f.input :date_cloture, label: "Date de clôture du dossier" %>
+        <% end %>
+
+        <%= f.input :notes, label: "Notes personnelles", input_html: { rows: 3 } %>
+
+        <% if @dossier.objectif_peb_atteint? == false %>
+          <div class="alert alert-warning small">
+            Le label après travaux renseigné n'atteint pas le label cible (<%= @dossier.label_peb_cible %>) —
+            vérifie ce point avec la SWCS avant la clôture définitive.
+          </div>
+        <% elsif @dossier.objectif_peb_atteint? == true %>
+          <div class="alert alert-success small">
+            Objectif PEB atteint (label cible <%= @dossier.label_peb_cible %>).
+          </div>
+        <% end %>
+
+        <%= f.submit "Enregistrer", class: "btn btn-primary" %>
+      <% end %>
+    </div>
+  </div>
+</div>

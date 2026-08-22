@@ -153,6 +153,10 @@ class Simulation < ApplicationRecord
     parsed_simulation_parameter('taux_interet_label')
   end
 
+  def taux_interet_saisi
+    parsed_simulation_parameter('taux_interet')
+  end
+
   # Méthode pour extraire les primes depuis le JSON parameters
   def primes
     @primes_collection ||= PrimesCollection.new(self)

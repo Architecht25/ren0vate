@@ -362,6 +362,9 @@ Rails.application.routes.draw do
     # Carnet de bord — notes libres
     resources :project_notes, only: %i[create destroy]
 
+    # Suivi du dossier de prêt bonifié wallon (régime "reduction_pret")
+    resource :pret_wallonie_dossier, only: %i[show create update]
+
     # PV de réception numérique
     resource :pv_reception, only: %i[show create destroy] do
       member do

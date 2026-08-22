@@ -6,6 +6,9 @@ class Project < ApplicationRecord
   has_many :chantier_analyses, dependent: :destroy
   has_many :simulations, dependent: :destroy  # Ajouter cette ligne
 
+  # Suivi du dossier de prêt bonifié wallon (régime "reduction_pret", dès le 01/10/2026)
+  has_one :pret_wallonie_dossier, dependent: :destroy
+
   # Collaboration — membres du projet
   has_many :project_members, dependent: :destroy
   has_many :member_users, through: :project_members, source: :user

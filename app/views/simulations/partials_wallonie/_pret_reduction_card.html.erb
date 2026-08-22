@@ -102,5 +102,16 @@
       selon votre tranche de revenu<%= " + 5 points écomatériaux" if @simulation.ecomateriaux_saisi %>.
       Le taux d'intérêt réel du prêt (0% ou réduit) dépend de votre tranche de revenu et est fixé par la SWCS.
     </p>
+
+    <% if @simulation.project.present? %>
+      <hr class="my-3">
+      <% if @simulation.project.pret_wallonie_dossier.present? %>
+        <%= link_to "Suivre ma demande de prêt", project_pret_wallonie_dossier_path(@simulation.project), class: "btn btn-primary" %>
+      <% else %>
+        <%= button_to "Démarrer le suivi de ma demande", project_pret_wallonie_dossier_path(@simulation.project),
+              method: :post, class: "btn btn-primary" %>
+        <p class="text-muted small mt-1 mb-0">Passe à la préparation de ton dossier : pièces justificatives, dépôt auprès de la SWCS et suivi jusqu'à la clôture.</p>
+      <% end %>
+    <% end %>
   </div>
 </div>

@@ -491,6 +491,67 @@
 
   </div><!-- /row -->
 
+  <!-- Wallonie — Prêt bonifié (régime "reduction_pret", dès le 01/10/2026) —
+       distinct du couple Formulaires/Suivi ci-dessus, conçu pour les primes cash
+       traitées par une administration régionale (voir PretWallonieDossier). -->
+  <% if @pret_wallonie_dossiers.any? || @pret_wallonie_eligible_simulations.any? %>
+    <div class="row g-3 mt-1">
+      <div class="col-12">
+        <div class="primes-hub-step step-suivi border-0">
+          <div class="step-banner">
+            <div class="d-flex align-items-center gap-3 mb-2">
+              <div class="step-icon-wrap">
+                <i class="bi bi-bank2"></i>
+              </div>
+              <div>
+                <div class="fs-5 fw-semibold lh-sm">Wallonie — Prêt bonifié (dès le 01/10/2026)</div>
+                <div class="step-subtitle">Suivi de votre demande auprès de la SWCS — préparation, dépôt et clôture</div>
+              </div>
+            </div>
+          </div>
+          <div class="step-body">
+            <% @pret_wallonie_dossiers.each do |dossier| %>
+              <div class="step-item">
+                <div class="min-w-0 flex-grow-1">
+                  <div class="fw-semibold small text-truncate" style="max-width: 220px;">
+                    <%= dossier.project&.nom || "Projet ##{dossier.project_id}" %>
+                  </div>
+                  <div class="text-muted mt-1" style="font-size:0.75rem;">
+                    Mis à jour le <%= l(dossier.updated_at, format: :short) %>
+                    <% if dossier.echeance_travaux_proche? %>
+                      · <span class="text-warning fw-semibold">échéance travaux proche</span>
+                    <% end %>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                  <span class="badge bg-primary" style="font-size:0.7rem;">
+                    <%= t("pret_wallonie_dossier.statuts.#{dossier.statut}", default: dossier.statut.humanize) %>
+                  </span>
+                  <%= link_to project_pret_wallonie_dossier_path(dossier.project), class: "btn btn-sm btn-outline-secondary py-0 px-2" do %>
+                    <i class="bi bi-arrow-right" style="font-size:0.75rem;"></i>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+
+            <% @pret_wallonie_eligible_simulations.each do |simulation| %>
+              <div class="step-item">
+                <div class="min-w-0 flex-grow-1">
+                  <div class="fw-semibold small text-truncate" style="max-width: 220px;">
+                    <%= simulation.property&.address || "Bien non précisé" %>
+                  </div>
+                  <div class="text-muted mt-1" style="font-size:0.75rem;">Simulation éligible — dossier pas encore démarré</div>
+                </div>
+                <%= button_to "Démarrer le suivi", project_pret_wallonie_dossier_path(simulation.project),
+                      method: :post, class: "btn btn-sm btn-primary py-1 px-2" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
   <!-- Documents dossier primes -->
   <%
     dossier_prime_docs = current_user.documents.where(type_document: 'dossier_prime').order(created_at: :desc)

@@ -28,5 +28,19 @@ class PrimesHubController < ApplicationController
       accordees: user_progresses.where(status_administratif: 'accorde').count,
       montant_total: user_progresses.where(status_administratif: 'accorde').sum(:montant_accorde).to_f
     }
+
+    # Wallonie — dossiers de prêt bonifié (régime "reduction_pret", dès le 01/10/2026).
+    # Distinct du couple Request/RequestProgress ci-dessus, conçu pour des primes cash
+    # traitées par une administration régionale — le prêt bonifié suit un cycle de vie
+    # propre (voir PretWallonieDossier).
+    @pret_wallonie_dossiers = current_user.pret_wallonie_dossiers.includes(:project).order(updated_at: :desc)
+    @pret_wallonie_dossiers_count = @pret_wallonie_dossiers.count
+
+    dossier_project_ids = @pret_wallonie_dossiers.map(&:project_id)
+    @pret_wallonie_eligible_simulations = current_user.simulations
+                                                       .where(region: "wallonie", regime: "reduction_pret", eligible: true)
+                                                       .where.not(project_id: nil)
+                                                       .where.not(project_id: dossier_project_ids)
+                                                       .order(created_at: :desc)
   end
 end
