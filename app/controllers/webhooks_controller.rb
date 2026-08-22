@@ -106,11 +106,11 @@ class WebhooksController < ApplicationController
       stripe_subscription_id: subscription['id']
     )
 
-    # API 2024-09-30+ : current_period_start/end sont dans les items
+    # API 2024-09-30+ : current_period_start/end sont sur l'item, pas nichés sous "current_period"
     period_start = subscription['current_period_start'] ||
-                   subscription.dig('items', 'data', 0, 'current_period', 'start')
+                   subscription.dig('items', 'data', 0, 'current_period_start')
     period_end   = subscription['current_period_end'] ||
-                   subscription.dig('items', 'data', 0, 'current_period', 'end')
+                   subscription.dig('items', 'data', 0, 'current_period_end')
 
     user_subscription.assign_attributes(
       tier: tier,

@@ -154,6 +154,7 @@ SOLID_QUEUE_IN_PUMA=true  # Active Solid Queue dans le processus Puma
 - **Webhook** : `POST /webhooks/stripe` — endpoint "ren0vate-production", 6 events configurés
 - **CSP** : `form_action :self, "https://checkout.stripe.com"` — nécessaire car Chrome bloque les redirects 302 vers Stripe
 - **Turbo** : désactivé sur le form checkout (`data: { turbo: false }`) — sinon fetch() intercepte et échoue CORS
-- **API Stripe version** : `2026-04-22.dahlia` — `current_period_start/end` désormais dans `items.data[0].current_period`, pas au root de la subscription. Les handlers webhook convertissent l'objet Stripe en Hash via `JSON.parse(subscription.to_json)` avant d'utiliser `dig`.
+- **API Stripe version** : `2026-04-22.dahlia` — `current_period_start/end` désormais sur `items.data[0]` directement (champs plats `current_period_start`/`current_period_end`, **pas** nichés sous un sous-objet `current_period`), plus au root de la subscription. Les handlers webhook convertissent l'objet Stripe en Hash via `JSON.parse(subscription.to_json)` avant d'utiliser `dig('items', 'data', 0, 'current_period_start')`.
+- **Webhooks vs redirection canonique** : `WebhooksController` doit `skip_before_action :redirect_old_heroku_host` — Stripe ne suit jamais les redirections HTTP, une 301 fait échouer silencieusement toute livraison de webhook. L'URL de l'endpoint Stripe doit pointer directement sur `https://www.ren0vate.be/webhooks/stripe` (pas le domaine Heroku brut).
 - **Pricing** : `tax_behavior: 'inclusive'` — les prix affichés (39€, 89€…) sont TTC, TVA 21% incluse
 - **Early adopters** : 124 comptes existants, 0 subscription active. Ne pas forcer les gates sur les données existantes avant communication.
