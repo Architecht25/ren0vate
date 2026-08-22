@@ -79,6 +79,7 @@
                       <th style="cursor:pointer;" onclick="sortTable(7)">Engagement <i class="bi bi-arrow-down-up small"></i></th>
                       <th>Activité</th>
                       <th>Segment</th>
+                      <th>Suivi</th>
                       <th>Profil</th>
                     </tr>
                   </thead>
@@ -248,6 +249,29 @@
                               <i class="bi bi-star" style="color:#ccc; font-size:1.2rem;"></i>
                             <% end %>
                           </button>
+                        </td>
+
+                        <%# Suivi relance (leads simulateurs non convertis) %>
+                        <td>
+                          <% if sub %>
+                            <span class="text-muted small">—</span>
+                          <% elsif user.contacted_at %>
+                            <div class="small"><%= user.contacted_at.strftime("%d/%m/%Y") %></div>
+                            <div class="text-muted" style="font-size: 11px;"><%= time_ago_in_words(user.contacted_at) %></div>
+                            <% if user.contacted_at <= 7.days.ago %>
+                              <span class="badge bg-danger" style="font-size: 10px;" title="Contacté il y a plus de 7 jours sans conversion">
+                                <i class="bi bi-exclamation-triangle me-1"></i>Relance/suppr.
+                              </span>
+                            <% else %>
+                              <span class="badge bg-info text-dark" style="font-size: 10px;">Contacté</span>
+                            <% end %>
+                          <% else %>
+                            <button type="button" class="btn btn-outline-primary btn-sm mark-contacted-btn"
+                                    data-mark-contacted-url="<%= mark_contacted_admin_user_path(user) %>"
+                                    style="font-size: 11px;">
+                              <i class="bi bi-telephone me-1"></i>Marquer contacté
+                            </button>
+                          <% end %>
                         </td>
 
                         <%# Profil %>

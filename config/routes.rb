@@ -447,6 +447,7 @@ Rails.application.routes.draw do
         get :projects       # Voir tous les projets d'un utilisateur
         post :impersonate             # Se connecter en tant qu'utilisateur (loggé dans AdminAuditLog)
         post :toggle_primes_services  # Basculer le flag client Primes-Services
+        post :mark_contacted          # Marquer un lead comme contacté (suivi relance à 7 jours)
       end
     end
 

@@ -640,6 +640,44 @@ document.addEventListener('click', function(e) {
   });
 });
 
+// Marquer un lead comme contacté (suivi relance J+7) — AJAX sans rechargement de page
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.mark-contacted-btn');
+  if (!btn) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  const url = btn.dataset.markContactedUrl;
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+  btn.disabled = true;
+  const originalHtml = btn.innerHTML;
+  btn.innerHTML = '<i class="bi bi-arrow-repeat"></i>';
+
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'X-CSRF-Token': csrfToken,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    const cell = btn.closest('td');
+    const datePart = data.contacted_at.split(' ')[0];
+    cell.innerHTML =
+      '<div class="small">' + datePart + '</div>' +
+      '<div class="text-muted" style="font-size: 11px;">à l\'instant</div>' +
+      '<span class="badge bg-info text-dark" style="font-size: 10px;">Contacté</span>';
+  })
+  .catch(function() {
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+  });
+});
+
 // Fonction de test pour la modal
 function testModal(userId) {
   console.log('🎯 Tentative d\'ouverture de la modal pour user:', userId);

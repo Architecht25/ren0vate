@@ -1,7 +1,7 @@
 class Admin::UsersController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_admin, except: [:stop_impersonating]
-  before_action :find_user, only: [:show, :details, :edit, :update, :destroy, :properties, :documents, :projects, :impersonate, :toggle_primes_services]
+  before_action :find_user, only: [:show, :details, :edit, :update, :destroy, :properties, :documents, :projects, :impersonate, :toggle_primes_services, :mark_contacted]
 
   def index
     @users = User.includes(:properties, :projects, :simulations, :requests, :documents, :notifications)
@@ -74,6 +74,16 @@ class Admin::UsersController < ApplicationController
     respond_to do |format|
       format.json { render json: { primes_services_client: @user.primes_services_client } }
       format.html { redirect_back fallback_location: admin_dashboard_path, notice: "Segment mis à jour pour #{@user.email}." }
+    end
+  end
+
+  def mark_contacted
+    @user.update!(contacted_at: Time.current)
+    AdminAuditLog.log(admin: current_user, action: "mark_contacted", target_user: @user, request: request,
+                      metadata: { email: @user.email })
+    respond_to do |format|
+      format.json { render json: { contacted_at: @user.contacted_at.strftime("%d/%m/%Y %H:%M") } }
+      format.html { redirect_back fallback_location: admin_dashboard_path, notice: "#{@user.email} marqué comme contacté." }
     end
   end
 
