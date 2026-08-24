@@ -35,21 +35,14 @@
     <button class="nav-link w-100" id="prep-primes-tab"
             data-bs-toggle="tab" data-bs-target="#prep-primes"
             type="button" role="tab" aria-selected="false">
-      <i class="bi bi-award me-1"></i>Primes & PEB
+      <i class="bi bi-award me-1"></i>Financement, PEB & Audit énergétique
     </button>
   </li>
   <li class="nav-item" role="presentation">
     <button class="nav-link w-100" id="prep-permis-tab"
             data-bs-toggle="tab" data-bs-target="#prep-permis"
             type="button" role="tab" aria-selected="false">
-      <i class="bi bi-file-earmark-ruled me-1"></i>Permis
-    </button>
-  </li>
-  <li class="nav-item" role="presentation">
-    <button class="nav-link w-100" id="prep-media-tab"
-            data-bs-toggle="tab" data-bs-target="#prep-media"
-            type="button" role="tab" aria-selected="false">
-      <i class="bi bi-camera me-1"></i>Photos & Journal
+      <i class="bi bi-file-earmark-ruled me-1"></i>Autorisations
     </button>
   </li>
 </ul>
@@ -94,7 +87,7 @@
     </div>
   </div>
 
-  <!-- ── Sous-onglet 3 : Primes & PEB ── -->
+  <!-- ── Sous-onglet 3 : Financement, PEB & Audit énergétique ── -->
   <div class="tab-pane fade" id="prep-primes" role="tabpanel" aria-labelledby="prep-primes-tab">
     <div class="row g-3 mb-4">
       <div class="col-lg-6">
@@ -157,7 +150,7 @@
     </div>
   </div>
 
-  <!-- ── Sous-onglet 4 : Permis ── -->
+  <!-- ── Sous-onglet 4 : Autorisations ── -->
   <div class="tab-pane fade" id="prep-permis" role="tabpanel" aria-labelledby="prep-permis-tab">
     <div class="row g-3 mb-4">
       <div class="col-lg-5">
@@ -174,61 +167,11 @@
     </div>
   </div>
 
-  <!-- ── Sous-onglet 5 : Photos & Journal ── -->
-  <div class="tab-pane fade" id="prep-media" role="tabpanel" aria-labelledby="prep-media-tab">
-    <% photos_avant = @project.documents.where(type_document: 'photo_avant').order(created_at: :desc) %>
-    <div class="row g-3 mb-4">
-      <div class="col-12">
-        <div class="card border-0 shadow-sm rounded-4">
-          <div class="card-header bg-transparent border-bottom py-3 px-4 d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center gap-2">
-              <i class="bi bi-camera text-secondary fs-5"></i>
-              <span class="fw-semibold" style="font-size:0.9rem;">Photos avant travaux</span>
-              <% if photos_avant.any? %>
-                <span class="badge bg-secondary-subtle text-secondary rounded-3" style="font-size:0.68rem;"><%= photos_avant.count %> photo<%= photos_avant.count > 1 ? 's' : '' %></span>
-              <% end %>
-            </div>
-            <%= form_with url: project_documents_path(@project), method: :post, multipart: true, class: 'd-inline' do |f| %>
-              <%= hidden_field_tag 'document[type_document]', 'photo_avant' %>
-              <%= hidden_field_tag 'document[status]', 'approved' %>
-              <label class="btn btn-sm btn-outline-secondary mb-0">
-                <i class="bi bi-plus me-1"></i>Ajouter
-                <input type="file" name="document[file]" class="d-none" accept=".jpg,.jpeg,.png,.webp" onchange="this.form.submit()">
-              </label>
-            <% end %>
-          </div>
-          <div class="card-body p-3">
-            <% if photos_avant.any? %>
-              <div class="row g-2">
-                <% photos_avant.first(6).each do |doc| %>
-                  <div class="col-4 col-md-2">
-                    <%= render 'projects/partials_general/doc_thumbnail', doc: doc, color: 'secondary' %>
-                  </div>
-                <% end %>
-                <% if photos_avant.count > 6 %>
-                  <div class="col-12 mt-1">
-                    <%= link_to project_documents_path(@project, type_document: 'photo_avant'), class: "btn btn-sm btn-outline-secondary", style: "font-size:0.78rem;" do %>
-                      <i class="bi bi-images me-1"></i>Voir toutes (<%= photos_avant.count %>)
-                    <% end %>
-                  </div>
-                <% end %>
-              </div>
-            <% else %>
-              <div class="text-center py-3 text-muted" style="font-size:0.82rem;">
-                <i class="bi bi-camera d-block mb-1 opacity-25" style="font-size:1.8rem;"></i>
-                Documentez l'état du bien avant le démarrage des travaux.
-              </div>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row g-3 mb-4">
-      <div class="col-12">
-        <%= render 'projects/partials_general/carnet_de_bord', project: @project, tab: 'preparation' %>
-      </div>
-    </div>
-  </div>
+  <%# Ancien sous-onglet "Photos & Journal" retiré (24/08/2026) : les deux
+      fonctionnalités (photos avant travaux, carnet de bord) existent déjà
+      dans l'onglet Suivi — 'photo_avant' est un des 4 types gérés par
+      partials_general/photos_suivi, et carnet_de_bord y est rendu avec
+      tab: 'suivi'. Rien n'est perdu en supprimant ce sous-onglet ici. %>
 
 </div>
 
