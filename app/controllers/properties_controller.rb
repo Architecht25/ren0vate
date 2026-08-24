@@ -2,7 +2,7 @@ require 'net/http'
 
 class PropertiesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_property, only: [:show, :dashboard, :edit, :update, :destroy, :purge_photo, :documents_dashboard, :peb_recommandations, :documents_phases_dashboard, :formulaire_miroir, :submit_prime, :select_form, :mise_en_vente, :activer_vente, :desactiver_vente, :marquer_vendu, :gestion_locative]
+  before_action :set_property, only: [:show, :dashboard, :edit, :update, :destroy, :purge_photo, :documents_dashboard, :peb_recommandations, :documents_phases_dashboard, :formulaire_miroir, :submit_prime, :select_form, :mise_en_vente, :activer_vente, :desactiver_vente, :marquer_vendu, :gestion_locative, :profil_bailleur]
 
   def index
     @properties = current_user.properties
@@ -527,6 +527,29 @@ class PropertiesController < ApplicationController
     @tenants  = @property.tenants.includes(:leases).order(:last_name, :first_name)
     @bail_actif = @leases.find { |l| l.actif? }
     @paiements_retard = @bail_actif&.rent_payments&.overdue || []
+  end
+
+  # GET /properties/:id/profil_bailleur
+  # Tableau de bord dédié propriétaire-bailleur (suggestion veille marketing, 24/08/2026) :
+  # centralise PEB actuel vs cible réglementaire, travaux réalisés/planifiés et conformité
+  # locative. Réutilise des données déjà présentes ailleurs (gestion locative + chantiers +
+  # trajectoire PEB) — pas de nouveau moteur de calcul.
+  def profil_bailleur
+    @leases     = @property.leases.includes(:tenant).order(created_at: :desc)
+    @bail_actif = @leases.find(&:actif?)
+
+    @peb_trajectory = @property.peb_trajectory
+    @peb_actuel     = @property.peb_donnees.order(created_at: :desc).first
+
+    @projets_en_cours   = @property.projects.where.not(statut: ['termine', 'annule', nil])
+    @projets_termines   = @property.projects.where(statut: 'termine')
+
+    # Conformité locative — checklist factuelle, pas de calcul juridique
+    @conformite = {
+      bail_actif:          @bail_actif.present?,
+      garantie_renseignee: @bail_actif&.rental_guarantee_amount.present?,
+      peb_valide:          @peb_actuel.present? && !@peb_actuel.perime?
+    }
   end
 
   private
