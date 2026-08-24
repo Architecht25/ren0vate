@@ -50,6 +50,11 @@ class Project < ApplicationRecord
   before_validation :set_default_status
   before_validation :set_default_project_type
 
+  # Rappel légal (30 jours, art. 473 CIR92) — chantier marqué "terminé" manuellement
+  # via le formulaire d'édition (voir _basic_fields.html.erb / project_params).
+  # Voir aussi PvReception#check_and_finalise! pour le second déclencheur possible.
+  after_update :notify_declaration_cadastrale, if: -> { saved_change_to_statut? && statut == 'termine' }
+
   # Sérialisation JSON pour les champs complexes
   serialize :architecte_specialites, coder: JSON
   serialize :entrepreneur_principal_certifications, coder: JSON
@@ -296,6 +301,10 @@ class Project < ApplicationRecord
 
   def set_default_project_type
     self.project_type ||= 'renovation'
+  end
+
+  def notify_declaration_cadastrale
+    Notification.create_declaration_cadastrale(user, self)
   end
 
   def update_type_travaux(type, should_include)

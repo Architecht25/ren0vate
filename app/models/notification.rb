@@ -33,6 +33,7 @@ class Notification < ApplicationRecord
 
     # Conformité réglementaire
     alerte_conformite_peb: 'alerte_conformite_peb',
+    declaration_cadastrale_requise: 'declaration_cadastrale_requise',
 
     # Notifications admin
     admin_info: 'admin_info',
@@ -106,6 +107,7 @@ class Notification < ApplicationRecord
     when 'verification_requise' then 'bi-shield-check'
     when 'suivi_projet' then 'bi-kanban'
     when 'alerte_conformite_peb' then 'bi-house-exclamation'
+    when 'declaration_cadastrale_requise' then 'bi-bank2'
     when 'admin_info' then 'bi-info-circle'
     when 'admin_legal' then 'bi-book'
     when 'admin_maintenance' then 'bi-tools'
@@ -271,6 +273,28 @@ class Notification < ApplicationRecord
         action_url: "/properties/#{property.id}",
         priority: urgency,
         expires_at: Date.new(deadline_year, 1, 1).to_datetime
+      )
+    end
+
+    # Déclaration cadastrale — obligatoire dans les 30 jours suivant la fin des
+    # travaux (article 473 CIR92). Déclenchée quand le chantier passe au statut
+    # "terminé" OU quand son PV de réception est finalisé (voir Project et
+    # PvReception) — selon l'événement survenu en premier.
+    def create_declaration_cadastrale(user, project)
+      return nil if where(user: user, project: project, type: 'declaration_cadastrale_requise').exists?
+
+      create!(
+        user: user,
+        project: project,
+        type: :declaration_cadastrale_requise,
+        category: :legal,
+        title: "Déclaration cadastrale à effectuer",
+        message: "Chantier terminé : la loi vous impose de déclarer ces travaux au cadastre (SPF Finances) " \
+                  "dans les 30 jours. Cette déclaration peut modifier le revenu cadastral de votre bien " \
+                  "(et donc votre précompte immobilier).",
+        action_url: "https://eservices.minfin.fgov.be/myminfin-web/pages/private/estates?openFragment=cadastral",
+        priority: :haute,
+        expires_at: 30.days.from_now
       )
     end
 
