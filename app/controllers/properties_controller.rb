@@ -51,8 +51,9 @@ class PropertiesController < ApplicationController
     Rails.logger.info "Property errors: #{@property.errors.full_messages}" unless @property.valid?
 
     if @property.save
-      # Redirection vers la liste des propriétés après création réussie
-      redirect_to properties_path, notice: t('notices.property_created')
+      # Redirection vers le dashboard du bien : le CTA "Compléter les informations"
+      # y est déjà visible, pour un remplissage au fil de l'eau plutôt qu'en bloc à la création.
+      redirect_to dashboard_property_path(@property), notice: t('notices.property_created')
     else
       # Préserver les paramètres région et type lors du rendu d'erreur
       @property.region = params[:region] if params[:region].present?

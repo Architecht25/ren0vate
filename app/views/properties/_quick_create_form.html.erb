@@ -1,0 +1,146 @@
+<% property ||= @property %>
+<div class="container-fluid px-0">
+  <%= simple_form_for property, local: true, html: { class: "needs-validation", novalidate: true } do |f| %>
+
+    <!-- Champ caché pour la région -->
+    <%= f.hidden_field :region, value: region %>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card rounded-4">
+          <div class="card-header bg-white border-0 py-3">
+            <div class="d-flex align-items-center">
+              <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                <i class="bi bi-geo-alt text-white fs-6"></i>
+              </div>
+              <div>
+                <h5 class="card-title mb-0 text-dark fw-normal">Adresse du bien</h5>
+                <p class="text-muted small mb-0">Les infos essentielles pour créer votre bien — le reste se complète plus tard</p>
+              </div>
+            </div>
+          </div>
+          <div class="card-body px-4 py-3">
+            <div class="row g-2">
+              <div class="col-md-8">
+                <%= f.input :rue,
+                    label: '<i class="bi bi-signpost me-2 text-info"></i>Rue'.html_safe,
+                    placeholder: "ex. Rue de l'Énergie",
+                    wrapper_html: { class: "mb-3" },
+                    label_html: { class: "form-label text-dark fw-medium mb-1" },
+                    input_html: { class: "form-control", required: true } %>
+              </div>
+              <div class="col-md-4">
+                <%= f.input :numero,
+                    label: '<i class="bi bi-hash me-2 text-info"></i>Numéro'.html_safe,
+                    placeholder: "ex. 24",
+                    wrapper_html: { class: "mb-3" },
+                    label_html: { class: "form-label text-dark fw-medium mb-1" },
+                    input_html: { class: "form-control", required: true } %>
+              </div>
+              <div class="col-md-4">
+                <%= f.input :code_postal,
+                    label: '<i class="bi bi-mailbox me-2 text-info"></i>Code postal'.html_safe,
+                    placeholder: "ex. 5000",
+                    wrapper_html: { class: "mb-3" },
+                    label_html: { class: "form-label text-dark fw-medium mb-1" },
+                    input_html: { class: "form-control", required: true } %>
+              </div>
+              <div class="col-md-8">
+                <%= f.input :commune,
+                    label: '<i class="bi bi-geo me-2 text-info"></i>Commune'.html_safe,
+                    placeholder: "ex. Namur",
+                    wrapper_html: { class: "mb-3" },
+                    label_html: { class: "form-label text-dark fw-medium mb-1" },
+                    input_html: { class: "form-control", required: true } %>
+              </div>
+
+              <% case region %>
+              <% when "wallonie" %>
+                <div class="col-12">
+                  <%= f.input :type_propriete_wallonie,
+                      label: '<i class="bi bi-building me-2 text-secondary"></i>Type de propriété'.html_safe,
+                      collection: [
+                        ["Unique propriétaire", "unique_proprietaire"],
+                        ["Copropriétaire avec mon conjoint (couple marié, cohabitants légaux, cohabitants de fait) figurant sur ma composition de ménage", "copropriete_conjoint"],
+                        ["Copropriétaire avec d'autres", "copropriete_autres"],
+                        ["Usufruitier", "usufruitier"],
+                        ["Nu-propriétaire", "nu_proprietaire"],
+                        ["Représentant d'une association de copropriétaires", "representant_association"],
+                        ["Autre (droit d'habitation, emphytéote...)", "autre"]
+                      ],
+                      include_blank: "Sélectionnez le type de propriété",
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: { class: "form-select", required: true } %>
+                </div>
+              <% when "flandre" %>
+                <div class="col-md-6">
+                  <%= f.input :type_bien_flandre,
+                      label: '<i class="bi bi-house me-2 text-warning"></i>Type de bien'.html_safe,
+                      as: :select,
+                      collection: [
+                        ["Maison unifamiliale", "maison"],
+                        ["Appartement en copropriété", "appartement_copro"],
+                        ["Appartement non en copropriété", "appartement"],
+                        ["Immeuble à plusieurs unités d'habitation", "immeuble_appartements"],
+                        ["Non logement", "non_logement"]
+                      ],
+                      prompt: "-- Sélectionnez le type de bien --",
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: { class: "form-select", required: true } %>
+                </div>
+                <div class="col-md-6">
+                  <%= f.input :usage_flandre,
+                      label: '<i class="bi bi-key me-2 text-warning"></i>Usage du bien'.html_safe,
+                      as: :select,
+                      collection: [
+                        ["Résidence principale", "residence_principale"],
+                        ["Logement loué", "location"],
+                        ["Autre", "autre"]
+                      ],
+                      prompt: "-- Sélectionnez l'usage --",
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: { class: "form-select", required: true } %>
+                </div>
+              <% when "bruxelles" %>
+                <div class="col-12">
+                  <%= f.input :type_bien_bruxelles,
+                      label: '<i class="bi bi-house me-2 text-secondary"></i>Type de bien'.html_safe,
+                      collection: [
+                        ["Maison unifamiliale", "maison"],
+                        ["Appartement", "appartement"],
+                        ["Immeuble avec plusieurs unités", "immeuble de rapport"]
+                      ],
+                      include_blank: "Sélectionnez le type de bien",
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: { class: "form-select", required: true } %>
+                </div>
+              <% end %>
+            </div>
+
+            <div class="alert alert-light border d-flex align-items-start gap-2 mt-2 mb-0" style="font-size: 0.85rem;">
+              <i class="bi bi-info-circle text-muted mt-1"></i>
+              <span class="text-muted">
+                Année de construction, PEB, valeur d'achat… Vous pourrez compléter ces informations plus tard,
+                depuis la fiche du bien, au fil de vos besoins (par exemple avant une simulation de primes).
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row justify-content-center mt-3">
+      <div class="col-lg-8 d-flex justify-content-between align-items-center">
+        <%= link_to properties_path, class: "btn btn-outline-secondary rounded-3 py-2" do %>
+          <i class="bi bi-arrow-left me-2"></i>Annuler
+        <% end %>
+        <%= f.submit "Créer mon bien", class: "btn btn-primary rounded-3 py-2 fw-medium px-4" %>
+      </div>
+    </div>
+
+  <% end %>
+</div>
