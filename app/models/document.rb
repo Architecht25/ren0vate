@@ -96,6 +96,13 @@ class Document < ApplicationRecord
                     rapport_audit_energetique attestation_conformite
                     certificat_label].freeze
 
+  # Types possédant déjà un flux de dépôt dédié ailleurs dans l'app (profil,
+  # fiche bien, sous-onglets du chantier) avec extraction/traitement métier.
+  # À exclure du formulaire générique d'ajout de document (menu déroulant +
+  # bouton "Ajouter" par type) pour éviter un dépôt "dégradé" (fichier
+  # attaché sans que le traitement associé ne s'exécute).
+  DEDICATED_FLOW_TYPES = (CLAUDE_TYPES + OCR_TYPES + %w[preuve_paiement_audit]).freeze
+
   # Formats de fichiers autorisés
   ALLOWED_FORMATS = {
     images: %w[image/jpeg image/png image/gif image/webp],

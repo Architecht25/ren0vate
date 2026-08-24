@@ -57,6 +57,7 @@
                   <i class="bi <%= file_icon.call(doc) %> fs-5 flex-shrink-0"></i>
                   <div class="min-w-0">
                     <div class="fw-medium text-truncate"
+                         data-doc-filename-for="<%= doc.id %>"
                          style="font-size:0.85rem; max-width:210px;"
                          title="<%= doc.file.attached? ? doc.file.filename.to_s : '—' %>">
                       <%= doc.file.attached? ? doc.file.filename.to_s : '(fichier manquant)' %>
@@ -108,6 +109,14 @@
                           data: { turbo: false } do %>
                       <i class="bi bi-download"></i>
                     <% end %>
+                    <button type="button"
+                            class="btn btn-sm btn-outline-secondary rename-doc-btn"
+                            title="Renommer"
+                            onclick="event.stopPropagation()"
+                            data-document-id="<%= doc.id %>"
+                            data-current-filename="<%= doc.file.filename.to_s %>">
+                      <i class="bi bi-pencil"></i>
+                    </button>
                   <% end %>
                 </div>
               </td>

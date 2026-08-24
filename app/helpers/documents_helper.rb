@@ -88,6 +88,34 @@ module DocumentsHelper
     end
   end
 
+  # Pour les types possédant un flux de dépôt dédié (cf. Document::DEDICATED_FLOW_TYPES),
+  # renvoie l'URL de la page où ce flux se trouve réellement (profil, fiche bien,
+  # sous-onglet du chantier), plutôt que le formulaire générique d'ajout de document.
+  # Retourne nil si aucune destination fiable n'existe (le bouton "Ajouter" est alors masqué).
+  #
+  # 'certificat_label' volontairement absent du case : son flux dépend d'une simulation
+  # (decision_hub), pas directement accessible depuis un chantier — bouton masqué.
+  def dedicated_upload_path_for(doc_type, project)
+    return nil unless project
+
+    case doc_type
+    when 'aer', 'rib'
+      profile_path
+    when 'certificat_peb_avant'
+      edit_property_path(project.property) if project.property
+    when 'devis', 'bordereau_chassis'
+      edit_budget_project_path(project)
+    when 'facture'
+      edit_budget_project_path(project, context: 'factures')
+    when 'certificat_peb_apres'
+      fin_chantier_project_path(project)
+    when 'attestation_conformite'
+      reception_chantier_project_path(project)
+    when 'rapport_audit_energetique', 'preuve_paiement_audit'
+      project_path(project, tab: 'preparation')
+    end
+  end
+
   # Badge de statut pour documents
   def document_status_badge(status)
     case status.to_s

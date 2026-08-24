@@ -155,6 +155,7 @@ Rails.application.routes.draw do
       get :view
       get :debug
       get :ocr_view
+      patch :rename
     end
     collection do
       get    :photos          # Galerie photos de suivi (sidebar section 6)

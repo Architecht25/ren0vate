@@ -84,8 +84,11 @@
               <!-- Sélection du type -->
               <div class="mb-4">
                 <%= form.label :type_document, "Type de document*", class: "form-label" %>
+                <%# Types à flux dédié (devis, factures, PEB, AER/RIB…) exclus : leur dépôt
+                    doit passer par le flux dédié (extraction/traitement métier), pas par
+                    ce formulaire générique qui se contente d'attacher le fichier. %>
                 <%= form.select :type_document,
-                    options_from_collection_for_select(Document.type_documents, :first, :first, @document.type_document),
+                    options_from_collection_for_select(Document.type_documents.except(*Document::DEDICATED_FLOW_TYPES), :first, :first, @document.type_document),
                     { include_blank: "-- Sélectionnez le type --" },
                     { class: "form-select", required: true } %>
                 <div class="invalid-feedback">
@@ -300,7 +303,7 @@
             <i class="bi bi-info-circle me-2"></i>Types de documents
           </h6>
           <div class="document-types-list">
-            <% Document.type_documents.each do |key, value| %>
+            <% Document.type_documents.except(*Document::DEDICATED_FLOW_TYPES).each do |key, value| %>
               <div class="d-flex align-items-center mb-2">
                 <i class="bi bi-file-earmark text-muted me-2"></i>
                 <small class="text-capitalize"><%= key.humanize %></small>

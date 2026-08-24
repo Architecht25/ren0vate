@@ -17,6 +17,29 @@
   </div>
 </div>
 
+<!-- Modal de renommage -->
+<div class="modal fade" id="renameDocModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Renommer le document</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label for="renameDocInput" class="form-label">Nom du fichier</label>
+        <input type="text" id="renameDocInput" class="form-control" maxlength="255">
+        <div id="renameDocError" class="text-danger small mt-2 d-none"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" id="renameDocConfirm" class="btn btn-primary">
+          <i class="bi bi-check2 me-1"></i>Renommer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <style>
 .card {
   transition: all 0.3s ease;
@@ -87,5 +110,72 @@ document.addEventListener('turbo:load', function() {
         });
     });
   });
+
+  // Gestion du renommage — délégation d'événements pour couvrir tous les boutons
+  // "Renommer" des différentes vues (liste bien, cartes chantier/global)
+  const renameModalEl = document.getElementById('renameDocModal');
+  if (renameModalEl) {
+    const renameModal   = new bootstrap.Modal(renameModalEl);
+    const renameInput   = document.getElementById('renameDocInput');
+    const renameError   = document.getElementById('renameDocError');
+    const renameConfirm = document.getElementById('renameDocConfirm');
+    let currentRenameBtn = null;
+
+    document.addEventListener('click', function(e) {
+      const btn = e.target.closest('.rename-doc-btn');
+      if (!btn) return;
+
+      currentRenameBtn = btn;
+      renameError.classList.add('d-none');
+      renameInput.value = btn.dataset.currentFilename || '';
+      renameModal.show();
+      setTimeout(function() { renameInput.focus(); renameInput.select(); }, 200);
+    });
+
+    renameConfirm.addEventListener('click', function() {
+      if (!currentRenameBtn) return;
+      const newName = renameInput.value.trim();
+      if (!newName) {
+        renameError.textContent = 'Le nom ne peut pas être vide.';
+        renameError.classList.remove('d-none');
+        return;
+      }
+
+      const documentId = currentRenameBtn.dataset.documentId;
+      renameConfirm.disabled = true;
+      renameConfirm.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Renommage…';
+
+      fetch(`/documents/${documentId}/rename`, {
+        method: 'PATCH',
+        headers: {
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json'
+        },
+        body: new URLSearchParams({ filename: newName }).toString()
+      })
+      .then(r => r.json())
+      .then(data => {
+        renameConfirm.disabled = false;
+        renameConfirm.innerHTML = '<i class="bi bi-check2 me-1"></i>Renommer';
+        if (data.success) {
+          document.querySelectorAll(`[data-doc-filename-for="${documentId}"]`).forEach(function(el) {
+            el.textContent = data.filename;
+          });
+          currentRenameBtn.dataset.currentFilename = data.filename;
+          renameModal.hide();
+        } else {
+          renameError.textContent = data.error || 'Erreur lors du renommage.';
+          renameError.classList.remove('d-none');
+        }
+      })
+      .catch(function() {
+        renameConfirm.disabled = false;
+        renameConfirm.innerHTML = '<i class="bi bi-check2 me-1"></i>Renommer';
+        renameError.textContent = 'Erreur réseau.';
+        renameError.classList.remove('d-none');
+      });
+    });
+  }
 });
 </script>
