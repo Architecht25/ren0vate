@@ -427,7 +427,7 @@ class PropertiesController < ApplicationController
 
     # Vérifier la complétude avant d'accéder au formulaire miroir
     unless @property.ready_for_submission?
-      redirect_to property_dashboard_path(@property),
+      redirect_to dashboard_property_path(@property),
                   alert: "Veuillez compléter toutes les informations avant d'accéder au formulaire miroir."
       return
     end
@@ -453,7 +453,7 @@ class PropertiesController < ApplicationController
 
     # Vérifier les conditions de soumission
     unless @property.ready_for_submission? && current_user.can_submit?
-      redirect_to property_dashboard_path(@property),
+      redirect_to dashboard_property_path(@property),
                   alert: "Conditions non remplies pour la soumission."
       return
     end
@@ -462,7 +462,7 @@ class PropertiesController < ApplicationController
     result = PrimeSubmissionService.new(@property, current_user, params).call
 
     if result.success?
-      redirect_to property_dashboard_path(@property),
+      redirect_to dashboard_property_path(@property),
                   notice: "Demande de prime soumise avec succès ! Numéro de dossier : #{result.dossier_number}"
     else
       redirect_to formulaire_miroir_property_path(@property),
@@ -511,14 +511,14 @@ class PropertiesController < ApplicationController
   # PATCH /properties/:id/desactiver_vente
   def desactiver_vente
     @property.update(statut_vente: 'actif', date_mise_en_vente: nil)
-    redirect_to property_dashboard_path(@property),
+    redirect_to dashboard_property_path(@property),
                 notice: 'Mode vente désactivé.'
   end
 
   # PATCH /properties/:id/marquer_vendu
   def marquer_vendu
     @property.update(statut_vente: 'vendu')
-    redirect_to property_dashboard_path(@property),
+    redirect_to dashboard_property_path(@property),
                 notice: 'Bien marqué comme vendu. Félicitations !'
   end
 
