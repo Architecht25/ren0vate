@@ -526,6 +526,10 @@ Rails.application.routes.draw do
     end
   end
 
+  # Hub Financer mes travaux — point d'entrée unique qui présente prêts et primes
+  # côte à côte, plutôt que de forcer un choix de menu en amont (sidebar simplifiée).
+  get 'financement', to: 'financement#index', as: :financement
+
   # Hub Estimer mes prêts
   get 'loans_hub',                    to: 'loans_hub#index',           as: :loans_hub
   get 'loans_hub/credit_classique',   to: 'loans_hub#credit_classique', as: :loans_hub_credit_classique
