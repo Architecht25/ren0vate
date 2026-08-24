@@ -40,24 +40,28 @@ class Property < ApplicationRecord
   # Callback pour initialiser les phases sur les propriétés existantes si nécessaire
   after_find :ensure_document_phases_exist
 
-  # Validations pour les champs obligatoires essentiels
+  # Validations pour les champs obligatoires essentiels — 5 champs communs à
+  # toutes les régions, requis à la création ET à la mise à jour.
   validates :rue, :numero, :code_postal, :commune, :region, presence: true
 
-  # Validations régionales conditionnelles - temporairement assouplies pour debugging
+  # Champ(s) régional/régionaux requis en plus des 5 champs communs ci-dessus,
+  # mais seulement à la création (`new_record?`) — pas à la mise à jour, pour ne
+  # pas bloquer l'édition de biens existants créés avant l'ajout de cette règle.
+  # `skip_onboarding_validation` permet au tunnel d'onboarding (voir
+  # OnboardingController#create_proprietaire_bien) de créer un bien avec les
+  # 5 champs communs uniquement, région comprise — le reste (dont ce champ
+  # régional) se complète ensuite depuis la fiche du bien.
+  # État stable depuis mai 2026 — ce ne sont plus des validations "temporaires".
   validates :type_bien_flandre, presence: true, if: -> { region == 'flandre' && new_record? && !skip_onboarding_validation }
   validates :usage_flandre, presence: true, if: -> { region == 'flandre' && new_record? && !skip_onboarding_validation }
-  # validates :ean_flandre, presence: true, if: -> { region == 'flandre' } # Temporairement désactivé
   validates :type_propriete_wallonie, presence: true, if: -> { region == 'wallonie' && new_record? && !skip_onboarding_validation }
   validates :type_bien_bruxelles, presence: true, if: -> { region == 'bruxelles' && new_record? && !skip_onboarding_validation }
 
-  # Validations optionnelles - à réactiver plus tard selon les besoins
-  # validates :type, :occupation, presence: true
-  # validates :annee_construction, :date_raccordement_electrique, :numero_ean, presence: true, if: :strict_validation_required?
-
-  # Validations pour les champs radio - temporairement désactivées
-  # validates :autre_bien, inclusion: { in: %w[oui non] }, allow_blank: true
-  # validates :peb, inclusion: { in: %w[ef autre] }, allow_blank: true
-  # validates :reconstruit, inclusion: { in: %w[oui non] }, allow_blank: true
+  # Le reste des champs (année de construction, occupation, EAN, infos d'achat,
+  # type de demandeur juridique...) n'a volontairement aucune validation de
+  # présence : ce sont des informations à compléter au fil de l'eau depuis la
+  # fiche du bien (`data_completeness_details`, `completion_percentage`), pas
+  # des conditions bloquantes à la création ou à l'édition.
 
   # Méthode pour l'adresse complète
   def full_address
@@ -740,12 +744,6 @@ class Property < ApplicationRecord
     end
 
     fields
-  end
-
-  def strict_validation_required?
-    # Pour l'instant, on désactive les validations strictes pour permettre la création
-    # Elles peuvent être activées plus tard selon la logique métier
-    false
   end
 
   private

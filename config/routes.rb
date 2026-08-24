@@ -220,6 +220,7 @@ Rails.application.routes.draw do
 
       # Gestion locative
       get :gestion_locative
+      get :profil_bailleur  # Tableau de bord dédié propriétaire-bailleur
 
       # Nouvelle route pour sélecteur formulaires
       get :select_form, to: 'requests#select_form'
@@ -525,6 +526,10 @@ Rails.application.routes.draw do
       patch :update_status_by_email  # Mise à jour par email de suivi
     end
   end
+
+  # Hub Financer mes travaux — point d'entrée unique qui présente prêts et primes
+  # côte à côte, plutôt que de forcer un choix de menu en amont (sidebar simplifiée).
+  get 'financement', to: 'financement#index', as: :financement
 
   # Hub Estimer mes prêts
   get 'loans_hub',                    to: 'loans_hub#index',           as: :loans_hub

@@ -1,0 +1,204 @@
+<div class="container-fluid px-4 py-4">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3" style="background: var(--bs-primary-bg-subtle);">
+        <i class="bi bi-person-vcard-fill text-primary"></i>
+      </div>
+      <div>
+        <h1 class="h3 mb-0 fw-normal">Profil bailleur</h1>
+        <small class="text-muted">
+          <i class="bi bi-house-door me-1"></i>
+          <%= @property.titre.presence || @property.name %> —
+          <%= @property.rue %> <%= @property.numero %>, <%= @property.commune %>
+        </small>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to gestion_locative_property_path(@property), class: "btn btn-outline-success" do %>
+        <i class="bi bi-key me-1"></i>Gestion locative
+      <% end %>
+      <%= link_to dashboard_property_path(@property), class: "btn btn-outline-secondary" do %>
+        <i class="bi bi-arrow-left me-1"></i>Dashboard
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+
+    <!-- PEB actuel vs cible réglementaire -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-transparent border-bottom py-3 px-4">
+          <span class="fw-semibold"><i class="bi bi-lightning-charge me-2 text-warning"></i>PEB actuel vs cible réglementaire</span>
+        </div>
+        <div class="card-body p-4">
+          <% if @peb_trajectory %>
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="rounded-3 d-flex align-items-center justify-content-center fw-bold fs-3"
+                   style="width:56px;height:56px;background:#f1f5f9;color:#334155;">
+                <%= @peb_trajectory[:current_label] %>
+              </div>
+              <div>
+                <div class="fw-semibold">Label PEB actuel</div>
+                <% if @peb_actuel&.perime? %>
+                  <small class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Certificat périmé</small>
+                <% elsif @peb_actuel %>
+                  <small class="text-muted">Établi le <%= l(@peb_actuel.date_certificat, format: :short) rescue '—' %></small>
+                <% else %>
+                  <small class="text-muted">Aucun certificat renseigné</small>
+                <% end %>
+              </div>
+            </div>
+            <div class="d-flex flex-column gap-2">
+              <% @peb_trajectory[:milestones].each do |m| %>
+                <% badge_class = case m[:status]
+                     when :compliant then 'bg-success'
+                     when :urgent    then 'bg-danger'
+                     when :upcoming  then 'bg-warning text-dark'
+                     else 'bg-secondary'
+                   end %>
+                <div class="d-flex align-items-center justify-content-between gap-2 p-2 rounded-3" style="background:#fafafa;">
+                  <div class="small">
+                    <span class="fw-semibold">Label <%= m[:target] %></span> requis d'ici <%= m[:year] %>
+                    <div class="text-muted" style="font-size:0.75rem;"><%= m[:description] %></div>
+                  </div>
+                  <span class="badge <%= badge_class %> flex-shrink-0">
+                    <%= m[:compliant] ? 'Conforme' : (m[:status] == :urgent ? 'Urgent' : 'À anticiper') %>
+                  </span>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="text-center py-4 text-muted">
+              <i class="bi bi-lightning-charge d-block mb-2" style="font-size:1.8rem;opacity:0.3;"></i>
+              Région non renseignée — impossible de calculer la trajectoire PEB.
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Travaux réalisés / planifiés -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-transparent border-bottom py-3 px-4">
+          <span class="fw-semibold"><i class="bi bi-hammer me-2 text-accent-ren0vate"></i>Travaux réalisés / planifiés</span>
+        </div>
+        <div class="card-body p-4">
+          <% if @projets_en_cours.any? || @projets_termines.any? %>
+            <% if @projets_en_cours.any? %>
+              <div class="mb-3">
+                <div class="text-muted text-uppercase mb-2" style="font-size:0.72rem;">En cours ou en préparation</div>
+                <% @projets_en_cours.each do |projet| %>
+                  <div class="d-flex align-items-center justify-content-between p-2 rounded-3 mb-1" style="background:#fffbeb;">
+                    <span class="small fw-semibold"><%= projet.nom %></span>
+                    <%= link_to "Voir", project_path(projet), class: "btn btn-sm btn-outline-secondary py-0 px-2" %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+            <% if @projets_termines.any? %>
+              <div>
+                <div class="text-muted text-uppercase mb-2" style="font-size:0.72rem;">Terminés</div>
+                <% @projets_termines.each do |projet| %>
+                  <div class="d-flex align-items-center justify-content-between p-2 rounded-3 mb-1" style="background:#f0fdf4;">
+                    <span class="small fw-semibold"><%= projet.nom %></span>
+                    <%= link_to "Voir", project_path(projet), class: "btn btn-sm btn-outline-secondary py-0 px-2" %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="text-center py-4 text-muted">
+              <i class="bi bi-hammer d-block mb-2" style="font-size:1.8rem;opacity:0.3;"></i>
+              Aucun chantier enregistré sur ce bien.
+              <div class="mt-2">
+                <%= link_to "Créer un chantier", new_project_path(property_id: @property.id), class: "btn btn-sm btn-outline-primary-custom" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+
+    <!-- Impact loyer / indexation — information qualitative, pas de calcul chiffré -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-transparent border-bottom py-3 px-4">
+          <span class="fw-semibold"><i class="bi bi-graph-up-arrow me-2 text-info"></i>Impact sur le loyer indexable</span>
+        </div>
+        <div class="card-body p-4">
+          <% peb_label = @peb_actuel&.label_peb&.upcase %>
+          <% if %w[F G].include?(peb_label) %>
+            <div class="alert alert-warning border-0 mb-3" style="background:#fffbeb;">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              Votre bien est classé PEB <%= peb_label %>. Dans plusieurs régions, l'indexation du loyer
+              est <strong>restreinte ou bloquée</strong> pour les logements les moins performants énergétiquement.
+            </div>
+          <% elsif peb_label.present? %>
+            <div class="alert alert-light border mb-3">
+              <i class="bi bi-info-circle me-2"></i>
+              Votre PEB (<%= peb_label %>) n'est a priori pas concerné par les restrictions
+              d'indexation visant les logements F/G, mais les règles varient selon la région et évoluent régulièrement.
+            </div>
+          <% else %>
+            <div class="alert alert-light border mb-3">
+              <i class="bi bi-info-circle me-2"></i>
+              Renseignez un certificat PEB pour évaluer l'impact potentiel sur l'indexation du loyer.
+            </div>
+          <% end %>
+          <p class="text-muted small mb-0">
+            Ren0vate n'effectue pas de calcul chiffré ici — les règles d'indexation liées au PEB
+            varient par région et changent régulièrement. Vérifiez votre situation exacte auprès du
+            <a href="https://www.wonenvlaanderen.be/" target="_blank" rel="noopener">Vlaams Woningfonds</a> (Flandre),
+            de <a href="https://logement.brussels/" target="_blank" rel="noopener">logement.brussels</a> (Bruxelles)
+            ou du <a href="https://www.wallonie.be/fr/demarches/louer-un-logement" target="_blank" rel="noopener">SPW Logement</a> (Wallonie).
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conformité locative -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-transparent border-bottom py-3 px-4">
+          <span class="fw-semibold"><i class="bi bi-shield-check me-2 text-success"></i>Conformité locative</span>
+        </div>
+        <div class="card-body p-4">
+          <ul class="list-unstyled d-flex flex-column gap-3 mb-0">
+            <li class="d-flex align-items-center justify-content-between">
+              <span class="small">Bail actif enregistré</span>
+              <% if @conformite[:bail_actif] %>
+                <span class="badge bg-success"><i class="bi bi-check-lg"></i></span>
+              <% else %>
+                <%= link_to "À faire", gestion_locative_property_path(@property), class: "badge bg-secondary text-decoration-none" %>
+              <% end %>
+            </li>
+            <li class="d-flex align-items-center justify-content-between">
+              <span class="small">Garantie locative renseignée</span>
+              <% if @conformite[:garantie_renseignee] %>
+                <span class="badge bg-success"><i class="bi bi-check-lg"></i></span>
+              <% else %>
+                <%= link_to "À faire", gestion_locative_property_path(@property), class: "badge bg-secondary text-decoration-none" %>
+              <% end %>
+            </li>
+            <li class="d-flex align-items-center justify-content-between">
+              <span class="small">Certificat PEB valide (non périmé)</span>
+              <% if @conformite[:peb_valide] %>
+                <span class="badge bg-success"><i class="bi bi-check-lg"></i></span>
+              <% else %>
+                <%= link_to "À faire", edit_property_path(@property), class: "badge bg-secondary text-decoration-none" %>
+              <% end %>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

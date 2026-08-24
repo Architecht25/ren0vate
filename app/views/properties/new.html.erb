@@ -83,18 +83,13 @@
         <div class="card border-0 bg-light-custom">
           <div class="card-body p-4">
             <% region = params[:region].presence || @property.region %>
-            <% case region %>
-            <% when "bruxelles" %>
-                <%= render partial: "form_bruxelles" %>
-              <% when "wallonie" %>
-                <%= render partial: "form_wallonie" %>
-              <% when "flandre" %>
-                <%= render partial: "form_flandre" %>
-              <% else %>
-                <div class="alert alert-warning">
-                  Région non reconnue. <%= link_to "Retour à la sélection", new_property_path %>
-                </div>
-              <% end %>
+            <% if %w[bruxelles wallonie flandre].include?(region) %>
+              <%= render partial: "quick_create_form", locals: { property: @property, region: region } %>
+            <% else %>
+              <div class="alert alert-warning">
+                Région non reconnue. <%= link_to "Retour à la sélection", new_property_path %>
+              </div>
+            <% end %>
           </div>
         </div>
       </div>

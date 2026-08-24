@@ -2,7 +2,7 @@ require 'net/http'
 
 class PropertiesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_property, only: [:show, :dashboard, :edit, :update, :destroy, :purge_photo, :documents_dashboard, :peb_recommandations, :documents_phases_dashboard, :formulaire_miroir, :submit_prime, :select_form, :mise_en_vente, :activer_vente, :desactiver_vente, :marquer_vendu, :gestion_locative]
+  before_action :set_property, only: [:show, :dashboard, :edit, :update, :destroy, :purge_photo, :documents_dashboard, :peb_recommandations, :documents_phases_dashboard, :formulaire_miroir, :submit_prime, :select_form, :mise_en_vente, :activer_vente, :desactiver_vente, :marquer_vendu, :gestion_locative, :profil_bailleur]
 
   def index
     @properties = current_user.properties
@@ -51,8 +51,9 @@ class PropertiesController < ApplicationController
     Rails.logger.info "Property errors: #{@property.errors.full_messages}" unless @property.valid?
 
     if @property.save
-      # Redirection vers la liste des propriétés après création réussie
-      redirect_to properties_path, notice: t('notices.property_created')
+      # Redirection vers le dashboard du bien : le CTA "Compléter les informations"
+      # y est déjà visible, pour un remplissage au fil de l'eau plutôt qu'en bloc à la création.
+      redirect_to dashboard_property_path(@property), notice: t('notices.property_created')
     else
       # Préserver les paramètres région et type lors du rendu d'erreur
       @property.region = params[:region] if params[:region].present?
@@ -426,7 +427,7 @@ class PropertiesController < ApplicationController
 
     # Vérifier la complétude avant d'accéder au formulaire miroir
     unless @property.ready_for_submission?
-      redirect_to property_dashboard_path(@property),
+      redirect_to dashboard_property_path(@property),
                   alert: "Veuillez compléter toutes les informations avant d'accéder au formulaire miroir."
       return
     end
@@ -452,7 +453,7 @@ class PropertiesController < ApplicationController
 
     # Vérifier les conditions de soumission
     unless @property.ready_for_submission? && current_user.can_submit?
-      redirect_to property_dashboard_path(@property),
+      redirect_to dashboard_property_path(@property),
                   alert: "Conditions non remplies pour la soumission."
       return
     end
@@ -461,7 +462,7 @@ class PropertiesController < ApplicationController
     result = PrimeSubmissionService.new(@property, current_user, params).call
 
     if result.success?
-      redirect_to property_dashboard_path(@property),
+      redirect_to dashboard_property_path(@property),
                   notice: "Demande de prime soumise avec succès ! Numéro de dossier : #{result.dossier_number}"
     else
       redirect_to formulaire_miroir_property_path(@property),
@@ -510,14 +511,14 @@ class PropertiesController < ApplicationController
   # PATCH /properties/:id/desactiver_vente
   def desactiver_vente
     @property.update(statut_vente: 'actif', date_mise_en_vente: nil)
-    redirect_to property_dashboard_path(@property),
+    redirect_to dashboard_property_path(@property),
                 notice: 'Mode vente désactivé.'
   end
 
   # PATCH /properties/:id/marquer_vendu
   def marquer_vendu
     @property.update(statut_vente: 'vendu')
-    redirect_to property_dashboard_path(@property),
+    redirect_to dashboard_property_path(@property),
                 notice: 'Bien marqué comme vendu. Félicitations !'
   end
 
@@ -526,6 +527,29 @@ class PropertiesController < ApplicationController
     @tenants  = @property.tenants.includes(:leases).order(:last_name, :first_name)
     @bail_actif = @leases.find { |l| l.actif? }
     @paiements_retard = @bail_actif&.rent_payments&.overdue || []
+  end
+
+  # GET /properties/:id/profil_bailleur
+  # Tableau de bord dédié propriétaire-bailleur (suggestion veille marketing, 24/08/2026) :
+  # centralise PEB actuel vs cible réglementaire, travaux réalisés/planifiés et conformité
+  # locative. Réutilise des données déjà présentes ailleurs (gestion locative + chantiers +
+  # trajectoire PEB) — pas de nouveau moteur de calcul.
+  def profil_bailleur
+    @leases     = @property.leases.includes(:tenant).order(created_at: :desc)
+    @bail_actif = @leases.find(&:actif?)
+
+    @peb_trajectory = @property.peb_trajectory
+    @peb_actuel     = @property.peb_donnees.order(created_at: :desc).first
+
+    @projets_en_cours   = @property.projects.where.not(statut: ['termine', 'annule', nil])
+    @projets_termines   = @property.projects.where(statut: 'termine')
+
+    # Conformité locative — checklist factuelle, pas de calcul juridique
+    @conformite = {
+      bail_actif:          @bail_actif.present?,
+      garantie_renseignee: @bail_actif&.rental_guarantee_amount.present?,
+      peb_valide:          @peb_actuel.present? && !@peb_actuel.perime?
+    }
   end
 
   private

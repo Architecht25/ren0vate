@@ -83,6 +83,10 @@ class PvReception < ApplicationRecord
   def check_and_finalise!
     if toutes_signatures_recues? && !finalise?
       update!(statut: "finalise", legal_archive_until: Date.today + 10.years)
+      # Second déclencheur possible du rappel légal (voir Project#notify_declaration_cadastrale) —
+      # un PV signé équivaut à une fin de chantier même si `project.statut` n'a pas été
+      # manuellement basculé sur "termine". La dédup est gérée dans Notification.create_declaration_cadastrale.
+      Notification.create_declaration_cadastrale(project.user, project)
     end
   end
 

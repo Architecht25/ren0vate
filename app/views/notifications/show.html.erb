@@ -49,9 +49,9 @@
             <% end %>
           </div>
 
-          <% if @notification.respond_to?(:link) && @notification.link.present? %>
+          <% if @notification.action_url.present? %>
             <div class="mt-4">
-              <%= link_to @notification.link, class: "btn btn-primary-custom" do %>
+              <%= link_to @notification.action_url, class: "btn btn-primary-custom", target: (@notification.action_url.start_with?('http') ? '_blank' : nil), rel: (@notification.action_url.start_with?('http') ? 'noopener' : nil) do %>
                 <i class="bi bi-link-45deg me-2"></i>Voir les détails
               <% end %>
             </div>
