@@ -1,6 +1,6 @@
 class DocumentsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_document, only: [:show, :edit, :update, :download, :preview, :view, :debug, :destroy, :ocr_view]
+  before_action :set_document, only: [:show, :edit, :update, :download, :preview, :view, :debug, :destroy, :ocr_view, :rename]
   before_action :set_context, only: [:index, :new, :create, :download_zip]
 
   # GET /documents ou /properties/:property_id/documents ou /projects/:project_id/documents
@@ -56,13 +56,25 @@ class DocumentsController < ApplicationController
     @all_phases = DocumentPhase.all.order(:position)
 
     # Filtrer les phases selon le contexte utilisateur
-    if @property
+    # (même garde que la vue index.html.erb : @property seul => vue bien à part,
+    # @project présent => phases de chantier même si @property est aussi défini
+    # via set_context qui le déduit du projet)
+    if @property && !@project
       # Dans le contexte d'une propriété spécifique, utiliser ses phases
       @phases_data = @property.phases_with_status
       @phase_calculator = DocumentPhaseCalculatorService.new(@property)
     else
-      # Navigation globale : afficher uniquement les phases de chantier
+      # Navigation chantier ou globale : afficher les phases de chantier
       phases_to_show = @all_phases.chantier
+
+      # Dans le contexte d'un chantier précis, la Phase Administrative (AER, RIB,
+      # PEB avant travaux) n'a pas sa place : ce sont des documents niveau
+      # utilisateur/bien, pas chantier. Elle reste visible sur la page bien
+      # (property.phases_with_status, qui sait aller chercher ces docs) et sur
+      # la page globale /documents. Le compteur y serait de toute façon faux :
+      # la requête @documents scopée au projet ne remonte pas les documents
+      # orphelins niveau user (aer/rib).
+      phases_to_show = phases_to_show.where.not(name: 'Phase Administrative') if @project
 
       # Créer des données de phases génériques pour la navigation globale
       @phases_data = phases_to_show.map do |phase|
@@ -306,6 +318,33 @@ class DocumentsController < ApplicationController
     else
       render :edit, status: :unprocessable_entity
     end
+  end
+
+  # PATCH /documents/:id/rename — renomme le fichier attaché (nom d'affichage uniquement,
+  # le blob ActiveStorage sous-jacent n'est pas déplacé). Utilisé par le bouton "Renommer"
+  # des listes de documents.
+  def rename
+    unless can_access_document?(@document)
+      render json: { success: false, error: "Accès non autorisé" }, status: :forbidden
+      return
+    end
+
+    unless @document.file.attached?
+      render json: { success: false, error: "Aucun fichier attaché à ce document" }, status: :unprocessable_entity
+      return
+    end
+
+    new_name = params[:filename].to_s.strip
+    if new_name.blank?
+      render json: { success: false, error: "Le nom ne peut pas être vide" }, status: :unprocessable_entity
+      return
+    end
+
+    extension = File.extname(@document.file.filename.to_s)
+    base_name = new_name.delete_suffix(extension) # évite de dupliquer l'extension si l'utilisateur la retape
+    @document.file.blob.update!(filename: "#{base_name}#{extension}")
+
+    render json: { success: true, filename: @document.file.filename.to_s }
   end
 
   # GET /documents/photos — Galerie photos de suivi (sidebar section 6)

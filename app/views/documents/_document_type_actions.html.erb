@@ -40,8 +40,21 @@
 
 <% # Bouton d'ajout — uniquement via contexte chantier (property = consultation pure) %>
 <% if @project %>
-  <%= link_to new_project_document_path(@project, type_document: doc_type),
-             class: "btn btn-#{is_required ? 'primary' : 'outline-secondary'} btn-sm" do %>
-    <i class="bi bi-plus me-1"></i>Ajouter
+  <% if Document::DEDICATED_FLOW_TYPES.include?(doc_type) %>
+    <%# Ce type a un flux de dépôt dédié ailleurs (avec extraction/traitement métier) —
+        on y redirige plutôt que d'ouvrir le formulaire générique, pour éviter un dépôt
+        "dégradé" (fichier attaché sans que le traitement associé ne s'exécute). %>
+    <% if (dedicated_path = dedicated_upload_path_for(doc_type, @project)) %>
+      <%= link_to dedicated_path,
+                 class: "btn btn-#{is_required ? 'primary' : 'outline-secondary'} btn-sm",
+                 title: "Déposer via le flux dédié" do %>
+        <i class="bi bi-box-arrow-up-right me-1"></i>Ajouter
+      <% end %>
+    <% end %>
+  <% else %>
+    <%= link_to new_project_document_path(@project, type_document: doc_type),
+               class: "btn btn-#{is_required ? 'primary' : 'outline-secondary'} btn-sm" do %>
+      <i class="bi bi-plus me-1"></i>Ajouter
+    <% end %>
   <% end %>
 <% end %>

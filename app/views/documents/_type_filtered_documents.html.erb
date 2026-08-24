@@ -75,7 +75,7 @@
                     <% end %>
                   </div>
                   <div class="flex-grow-1">
-                    <h6 class="card-title mb-1">
+                    <h6 class="card-title mb-1" data-doc-filename-for="<%= document.id %>">
                       <%= if document.file.attached?
                             document.file.filename.to_s
                           else
@@ -199,6 +199,15 @@
                       title: "Télécharger le document",
                       data: { turbo: false } do %>
                     <i class="bi bi-download me-1"></i>Télécharger
+                  <% end %>
+                  <% if document.file.attached? %>
+                    <button type="button"
+                            class="btn btn-outline-secondary btn-sm rename-doc-btn"
+                            title="Renommer le document"
+                            data-document-id="<%= document.id %>"
+                            data-current-filename="<%= document.file.filename.to_s %>">
+                      <i class="bi bi-pencil me-1"></i>Renommer
+                    </button>
                   <% end %>
                   <%= link_to document_path(document,
                         type_document: params[:type_document],
