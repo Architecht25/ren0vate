@@ -1,8 +1,14 @@
 <%# Audit énergétique Walloreno — Wallonie uniquement %>
 <% _audit = @project.property&.audit_energ_donnees&.order(created_at: :desc)&.first rescue nil %>
 <% _upload_url = scan_audit_energ_project_path(@project) %>
+<% _statut_url = audit_energ_statut_project_path(@project) %>
 
-<div class="card border-0 shadow-sm rounded-4 h-100" id="audit-energ-card">
+<%# L'extraction Claude tourne en arrière-plan (AuditEnergExtractionJob) — data-audit-statut
+    permet au JS de reprendre le polling si la page est rechargée pendant que ça tourne encore. %>
+<div class="card border-0 shadow-sm rounded-4 h-100" id="audit-energ-card"
+     data-statut-url="<%= _statut_url %>"
+     data-audit-id="<%= _audit&.id %>"
+     data-audit-statut="<%= _audit&.statut %>">
   <%# ─────────────────────────── Header ──────────────────────────────────── %>
   <div class="card-header border-0 py-3 px-4 d-flex align-items-center justify-content-between"
        style="background:linear-gradient(135deg,#064e3b,#065f46); border-radius: 1rem 1rem 0 0 !important;">
@@ -42,14 +48,36 @@
       </div>
     <% end %>
 
-    <%# ── Spinner OCR (caché par défaut) ── %>
+    <%# ── État : analyse en cours (persiste après un rechargement de page) ── %>
+    <% if _audit&.en_cours? %>
+      <div class="text-center py-4" id="audit-energ-processing">
+        <div class="spinner-border text-success mb-2" role="status" style="width:2rem;height:2rem;"></div>
+        <p class="small text-muted mb-1">Analyse du rapport en cours par l'IA…</p>
+        <p class="text-muted mb-0" style="font-size:0.68rem;">Jusqu'à 1-2 minutes pour un audit complet — cette page se
+          mettra à jour automatiquement.</p>
+      </div>
+    <% end %>
+
+    <%# ── État : échec de l'analyse ── %>
+    <% if _audit&.echec? %>
+      <div class="text-center py-4" id="audit-energ-echec">
+        <i class="bi bi-exclamation-circle fs-3 d-block mb-2 text-danger"></i>
+        <p class="small text-muted mb-3">L'analyse de ce document a échoué.</p>
+        <button class="btn btn-sm rounded-3 text-white" style="background:#1a7a4a;"
+                onclick="document.getElementById('audit-energ-file-input').click()">
+          <i class="bi bi-upload me-1"></i>Réessayer
+        </button>
+      </div>
+    <% end %>
+
+    <%# ── Spinner transitoire JS (immédiatement après l'upload, avant le 1er poll) ── %>
     <div id="audit-energ-spinner" class="text-center py-4 d-none">
       <div class="spinner-border text-success mb-2" role="status" style="width:2rem;height:2rem;"></div>
-      <p class="small text-muted mb-0">Extraction en cours…</p>
+      <p class="small text-muted mb-0">Envoi du document…</p>
     </div>
 
     <%# ── Données extraites ── %>
-    <% if _audit %>
+    <% if _audit&.termine? %>
       <%# Badge confiance + méthode d'extraction %>
       <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom flex-wrap">
         <i class="bi bi-patch-check text-success"></i>
@@ -455,20 +483,62 @@
   </div>
 </div>
 
-<%# ── Script upload OCR ────────────────────────────────────────────────────── %>
+<%# ── Script upload + polling (extraction asynchrone) ────────────────────────── %>
 <script nonce="<%= content_security_policy_nonce %>">
+// L'extraction tourne dans AuditEnergExtractionJob (dyno worker) — on interroge
+// #audit_energ_statut toutes les 4s jusqu'à ce que ce ne soit plus "en_cours",
+// puis on recharge la page pour afficher le résultat (ou l'état d'échec).
+function auditEnergPoll(auditId) {
+  const card     = document.getElementById('audit-energ-card');
+  const statutUrl = card && card.dataset.statutUrl;
+  if (!statutUrl || !auditId) return;
+
+  const POLL_INTERVAL_MS = 4000;
+  const MAX_ATTEMPTS      = 45; // ~3 minutes
+
+  let attempts = 0;
+  const timer = setInterval(() => {
+    attempts += 1;
+    if (attempts > MAX_ATTEMPTS) {
+      clearInterval(timer);
+      return; // on abandonne le polling silencieusement ; un refresh manuel affichera l'état réel
+    }
+
+    fetch(`${statutUrl}?audit_id=${encodeURIComponent(auditId)}`, {
+      headers: { 'Accept': 'application/json' }
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.statut && data.statut !== 'en_cours') {
+          clearInterval(timer);
+          window.location.reload();
+        }
+      })
+      .catch(() => { /* erreur ponctuelle de polling — on retente au prochain tick */ });
+  }, POLL_INTERVAL_MS);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const card = document.getElementById('audit-energ-card');
+  if (card && card.dataset.auditStatut === 'en_cours' && card.dataset.auditId) {
+    auditEnergPoll(card.dataset.auditId);
+  }
+});
+
 function auditEnergScan(input) {
   if (!input.files || !input.files[0]) return;
 
   const uploadUrl = input.dataset.uploadUrl;
-  const card      = document.getElementById('audit-energ-card');
   const spinner   = document.getElementById('audit-energ-spinner');
   const emptyEl   = document.getElementById('audit-energ-empty');
   const errorEl   = document.getElementById('audit-energ-error');
+  const echecEl   = document.getElementById('audit-energ-echec');
 
-  // Afficher spinner
+  // Afficher le spinner transitoire (l'état "en cours" persistant apparaîtra
+  // au prochain rechargement, une fois le job réellement lancé côté serveur)
   if (spinner)  spinner.classList.remove('d-none');
   if (emptyEl)  emptyEl.classList.add('d-none');
+  if (echecEl)  echecEl.classList.add('d-none');
   if (errorEl)  errorEl.classList.add('d-none');
 
   const formData = new FormData();
@@ -478,11 +548,14 @@ function auditEnergScan(input) {
   fetch(uploadUrl, { method: 'POST', body: formData, headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content } })
     .then(r => r.json())
     .then(data => {
-      if (spinner) spinner.classList.add('d-none');
-      if (data.success) {
-        // Recharger la page pour afficher les données extraites
+      if (data.success && data.processing) {
+        // Le job est lancé — on garde le spinner visible et on lance le polling
+        auditEnergPoll(data.audit_id);
+      } else if (data.success) {
+        if (spinner) spinner.classList.add('d-none');
         window.location.reload();
       } else {
+        if (spinner) spinner.classList.add('d-none');
         if (errorEl) {
           errorEl.textContent = data.error || "Erreur lors de l'extraction.";
           errorEl.classList.remove('d-none');
