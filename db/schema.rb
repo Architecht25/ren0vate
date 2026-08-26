@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_25_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_26_100700) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -136,6 +136,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_25_120000) do
     t.bigint "property_id"
     t.jsonb "recommandations_json", default: []
     t.string "source_extraction", default: "ocr", null: false
+    t.string "statut", default: "termine", null: false
     t.decimal "subsides_total_scenario", precision: 10, scale: 2
     t.decimal "surface_deperdition_m2", precision: 8, scale: 2
     t.decimal "surface_plancher_chauffe_m2", precision: 8, scale: 2

@@ -295,6 +295,7 @@ Rails.application.routes.draw do
     get  :fin_chantier,         on: :member
     post :scan_peb_apres,       on: :member
     post :scan_audit_energ,     on: :member
+    get  :audit_energ_statut,   on: :member
     patch :update_fin_chantier, on: :member
 
     # Réception de chantier (7.1)
