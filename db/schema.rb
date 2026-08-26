@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_22_163003) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_25_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -111,25 +111,42 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_22_163003) do
 
   create_table "audit_energ_donnees", force: :cascade do |t|
     t.text "adresse_auditeur"
+    t.text "adresse_bien"
+    t.jsonb "alertes_json", default: [], null: false
+    t.string "annee_construction"
     t.jsonb "bilan_json", default: {}
     t.decimal "confiance_ocr", precision: 5, scale: 2
+    t.decimal "cout_total_scenario", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.date "date_enregistrement"
+    t.date "date_modification"
     t.string "denomination_auditeur"
     t.bigint "document_id"
     t.jsonb "donnees_extraites", default: {}
+    t.decimal "economie_annuelle_scenario", precision: 10, scale: 2
+    t.jsonb "etapes_json", default: [], null: false
     t.boolean "extraction_complete", default: false, null: false
     t.string "label_final"
     t.string "label_initial"
     t.string "numero_audit"
     t.string "numero_pae"
+    t.jsonb "peb_projection_json", default: {}, null: false
+    t.jsonb "performance_json", default: {}, null: false
     t.bigint "project_id"
     t.bigint "property_id"
     t.jsonb "recommandations_json", default: []
+    t.string "source_extraction", default: "ocr", null: false
+    t.decimal "subsides_total_scenario", precision: 10, scale: 2
+    t.decimal "surface_deperdition_m2", precision: 8, scale: 2
+    t.decimal "surface_plancher_chauffe_m2", precision: 8, scale: 2
+    t.string "temps_retour_scenario"
     t.text "texte_ocr_brut"
+    t.string "type_logement"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.date "valable_jusquau"
     t.boolean "valide_manuellement", default: false, null: false
+    t.decimal "volume_protege_m3", precision: 8, scale: 2
     t.index ["document_id"], name: "index_audit_energ_donnees_on_document_id"
     t.index ["numero_audit"], name: "index_audit_energ_donnees_on_numero_audit"
     t.index ["project_id"], name: "index_audit_energ_donnees_on_project_id"

@@ -50,17 +50,42 @@
 
     <%# ── Données extraites ── %>
     <% if _audit %>
-      <%# Badge confiance %>
-      <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+      <%# Badge confiance + méthode d'extraction %>
+      <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom flex-wrap">
         <i class="bi bi-patch-check text-success"></i>
-        <span class="small text-muted">Confiance OCR</span>
-        <span class="badge ms-auto <%= _audit.confiance_ocr.to_i >= 70 ? 'bg-success' : 'bg-warning text-dark' %>">
+        <span class="small text-muted">Confiance</span>
+        <span class="badge <%= _audit.confiance_ocr.to_i >= 70 ? 'bg-success' : 'bg-warning text-dark' %>">
           <%= _audit.confiance_ocr.to_i %> %
         </span>
+        <% if _audit.extrait_via_claude? %>
+          <span class="badge rounded-pill" style="background:rgba(124,58,237,0.12);color:#7c3aed;font-size:0.68rem;">
+            <i class="bi bi-stars me-1"></i>Extraction IA
+          </span>
+        <% elsif _audit.source_extraction == 'ocr_fallback' %>
+          <span class="badge rounded-pill bg-light text-secondary border" style="font-size:0.68rem;">
+            OCR (secours)
+          </span>
+        <% end %>
         <% if _audit.perime? %>
-          <span class="badge bg-danger">Périmé</span>
+          <span class="badge bg-danger ms-auto">Périmé</span>
         <% end %>
       </div>
+
+      <%# ── Bandeau alertes non-énergétiques (prérequis primes) ── %>
+      <% _alertes = _audit.alertes_non_conformes %>
+      <% if _alertes.any? %>
+        <div class="alert <%= _audit.alertes_bloquantes.any? ? 'alert-danger' : 'alert-warning' %> py-2 px-3 mb-3" style="font-size:0.78rem;">
+          <div class="fw-semibold mb-1">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+            <%= _audit.alertes_bloquantes.any? ? "Préalable bloquant pour les primes" : "Points d'attention avant travaux" %>
+          </div>
+          <ul class="mb-0 ps-3">
+            <% _alertes.first(5).each do |a| %>
+              <li><%= a[:description].presence || a[:categorie]&.humanize %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
 
       <%# ── Sections 1 + 2 : Identification & Labels côte à côte ── %>
       <div class="row gx-4 mb-3">
@@ -143,49 +168,40 @@
 
       </div>
 
-      <%# ── Section 3 : Bilan scénario complet ── %>
-      <% _bilan = _audit.bilan %>
-      <% if _bilan.present? && (_bilan[:cout_total].to_i > 0 || _bilan[:economie_an].to_i > 0) %>
+      <%# ── Section 2bis : Trajectoire vers le Label A (objectif 2050) ── %>
+      <% _peb = _audit.peb_projection %>
+      <% if _peb.present? || _audit.label_initial.present? %>
         <div class="mb-3 pt-2 border-top">
-          <div class="text-uppercase fw-semibold mb-2" style="font-size:0.68rem;color:#1a7a4a;letter-spacing:0.05em;">
-            <i class="bi bi-calculator me-1"></i>Scénario complet
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="text-uppercase fw-semibold" style="font-size:0.68rem;color:#1a7a4a;letter-spacing:0.05em;">
+              <i class="bi bi-globe-europe-africa me-1"></i>Trajectoire vers le Label A (objectif 2050)
+            </div>
+            <% if _audit.distance_label_a.present? %>
+              <span class="badge rounded-pill" style="background:rgba(26,122,74,0.12);color:#1a7a4a;font-size:0.68rem;">
+                <%= _audit.distance_label_a.zero? ? "Déjà au niveau A" : "#{_audit.distance_label_a} palier(s) à franchir" %>
+              </span>
+            <% end %>
           </div>
           <div class="row gx-2 gy-1">
-            <% if _bilan[:economie_an].to_i > 0 %>
-              <div class="col-6 col-lg-3">
-                <div class="p-2 rounded-3 text-center" style="background:rgba(26,122,74,0.07);">
-                  <div class="fw-bold text-success" style="font-size:0.95rem;">
-                    <%= number_with_delimiter(_bilan[:economie_an].to_i) %> €/an
-                  </div>
-                  <div class="text-muted" style="font-size:0.65rem;">Économie</div>
-                </div>
-              </div>
-            <% end %>
-            <% if _bilan[:cout_total].to_i > 0 %>
+            <% if _peb[:epw_initial].present? || _peb[:epw_apres].present? %>
               <div class="col-6 col-lg-3">
                 <div class="p-2 rounded-3 text-center" style="background:rgba(0,0,0,0.04);">
                   <div class="fw-bold" style="font-size:0.95rem;">
-                    <%= number_with_delimiter(_bilan[:cout_total].to_i) %> €
+                    <%= _peb[:epw_initial] || '—' %> → <%= _peb[:epw_apres] || '—' %>
                   </div>
-                  <div class="text-muted" style="font-size:0.65rem;">Coût total</div>
+                  <div class="text-muted" style="font-size:0.65rem;">Score Epw (PEB projeté)</div>
                 </div>
               </div>
             <% end %>
-            <% if _bilan[:subsides_total].to_i > 0 %>
+            <% %w[besoins_chaleur performance_chauffage performance_ecs ventilation].each do |cle| %>
+              <% _bloc = _peb[cle] %>
+              <% next unless _bloc.is_a?(Hash) && (_bloc[:initial].present? || _bloc[:apres].present?) %>
               <div class="col-6 col-lg-3">
-                <div class="p-2 rounded-3 text-center" style="background:rgba(13,110,253,0.07);">
-                  <div class="fw-bold text-primary" style="font-size:0.95rem;">
-                    <%= number_with_delimiter(_bilan[:subsides_total].to_i) %> €
+                <div class="p-2 rounded-3 text-center" style="background:rgba(26,122,74,0.05);">
+                  <div class="fw-semibold" style="font-size:0.75rem;">
+                    <%= _bloc[:initial]&.humanize || '—' %> → <%= _bloc[:apres]&.humanize || '—' %>
                   </div>
-                  <div class="text-muted" style="font-size:0.65rem;">Subsides</div>
-                </div>
-              </div>
-            <% end %>
-            <% if _bilan[:temps_retour].to_i > 0 %>
-              <div class="col-6 col-lg-3">
-                <div class="p-2 rounded-3 text-center" style="background:rgba(0,0,0,0.04);">
-                  <div class="fw-bold" style="font-size:0.95rem;"><%= _bilan[:temps_retour] %> ans</div>
-                  <div class="text-muted" style="font-size:0.65rem;">Retour invest.</div>
+                  <div class="text-muted" style="font-size:0.62rem;"><%= cle.humanize %></div>
                 </div>
               </div>
             <% end %>
@@ -193,11 +209,99 @@
         </div>
       <% end %>
 
-      <%# ── Section 4 : Recommandations par bouquet ── %>
+      <%# ── Section 3 : Feuille de route par étapes ── %>
+      <% _etapes = _audit.etapes.sort_by { |e| e[:numero].to_i } %>
+      <% if _etapes.any? %>
+        <div class="mb-3 pt-2 border-top">
+          <div class="text-uppercase fw-semibold mb-2" style="font-size:0.68rem;color:#1a7a4a;letter-spacing:0.05em;">
+            <i class="bi bi-signpost-split me-1"></i>Feuille de route par étapes
+          </div>
+          <div class="d-flex flex-nowrap gap-2 overflow-auto pb-1">
+            <% _etapes.each do |etape| %>
+              <% _montant_net = _audit.montant_net_etape(etape) %>
+              <div class="border rounded-3 p-2 flex-shrink-0" style="min-width:150px;<%= etape[:label_cible] == _audit.label_initial ? 'opacity:0.5;' : '' %>">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                  <span class="text-muted" style="font-size:0.62rem;">Étape <%= etape[:numero] %></span>
+                  <span class="badge bg-<%= AuditEnergDonnee::COULEURS_LABEL.fetch(etape[:label_cible].to_s.upcase, 'secondary') %>" style="font-size:0.68rem;">
+                    <%= etape[:label_cible] %>
+                  </span>
+                </div>
+                <% if etape[:cout_cumule_euro].present? %>
+                  <div class="fw-semibold" style="font-size:0.78rem;"><%= number_with_delimiter(etape[:cout_cumule_euro].to_i) %> €</div>
+                <% end %>
+                <% if etape[:primes_cumule_euro].present? %>
+                  <div class="text-primary" style="font-size:0.66rem;">− <%= number_with_delimiter(etape[:primes_cumule_euro].to_i) %> € primes</div>
+                <% end %>
+                <% if _montant_net.present? %>
+                  <div class="text-success fw-semibold" style="font-size:0.66rem;">net : <%= number_with_delimiter(_montant_net.to_i) %> €</div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <%# ── Section 4 : Bilan scénario complet + montant net à financer ── %>
+      <% _bilan = _audit.bilan %>
+      <% if _audit.cout_total_estime.to_i > 0 || _audit.gain_annuel_total.to_i > 0 %>
+        <div class="mb-3 pt-2 border-top">
+          <div class="text-uppercase fw-semibold mb-2" style="font-size:0.68rem;color:#1a7a4a;letter-spacing:0.05em;">
+            <i class="bi bi-calculator me-1"></i>Scénario complet
+          </div>
+          <div class="row gx-2 gy-1">
+            <% if _audit.gain_annuel_total.to_i > 0 %>
+              <div class="col-6 col-lg-3">
+                <div class="p-2 rounded-3 text-center" style="background:rgba(26,122,74,0.07);">
+                  <div class="fw-bold text-success" style="font-size:0.95rem;">
+                    <%= number_with_delimiter(_audit.gain_annuel_total.to_i) %> €/an
+                  </div>
+                  <div class="text-muted" style="font-size:0.65rem;">Économie</div>
+                </div>
+              </div>
+            <% end %>
+            <% if _audit.cout_total_estime.to_i > 0 %>
+              <div class="col-6 col-lg-3">
+                <div class="p-2 rounded-3 text-center" style="background:rgba(0,0,0,0.04);">
+                  <div class="fw-bold" style="font-size:0.95rem;">
+                    <%= number_with_delimiter(_audit.cout_total_estime.to_i) %> €
+                  </div>
+                  <div class="text-muted" style="font-size:0.65rem;">Coût total</div>
+                </div>
+              </div>
+            <% end %>
+            <% if _audit.primes_total.to_i > 0 %>
+              <div class="col-6 col-lg-3">
+                <div class="p-2 rounded-3 text-center" style="background:rgba(13,110,253,0.07);">
+                  <div class="fw-bold text-primary" style="font-size:0.95rem;">
+                    <%= number_with_delimiter(_audit.primes_total.to_i) %> €
+                  </div>
+                  <div class="text-muted" style="font-size:0.65rem;">Subsides</div>
+                </div>
+              </div>
+            <% end %>
+            <% if _audit.temps_retour_global.to_s.present? %>
+              <div class="col-6 col-lg-3">
+                <div class="p-2 rounded-3 text-center" style="background:rgba(0,0,0,0.04);">
+                  <div class="fw-bold" style="font-size:0.95rem;"><%= _audit.temps_retour_global %> ans</div>
+                  <div class="text-muted" style="font-size:0.65rem;">Retour invest.</div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+          <% if _audit.montant_net_a_financer.present? %>
+            <div class="mt-2 p-2 rounded-3 d-flex align-items-center justify-content-between" style="background:rgba(124,58,237,0.06);">
+              <span class="small" style="color:#5b21b6;"><i class="bi bi-piggy-bank me-1"></i>Montant net à financer (après primes)</span>
+              <span class="fw-bold" style="color:#5b21b6;"><%= number_with_delimiter(_audit.montant_net_a_financer.to_i) %> €</span>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <%# ── Section 5 : Recommandations par bouquet ── %>
       <% _recos = _audit.recommandations %>
       <% if _recos.any? %>
         <div class="pt-2 border-top">
-          <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="d-flex align-items-center justify-content-between mb-1">
             <div class="text-uppercase fw-semibold" style="font-size:0.68rem;color:#1a7a4a;letter-spacing:0.05em;">
               <i class="bi bi-list-check me-1"></i>Recommandations par bouquet
             </div>
@@ -205,63 +309,136 @@
               <%= _recos.size %> travaux
             </span>
           </div>
+          <div class="text-muted mb-2" style="font-size:0.68rem;">
+            <i class="bi bi-info-circle me-1"></i>Les travaux sont regroupés par bouquet (à réaliser ensemble, par ordre
+            de priorité) puis par type de travaux. Pour chacun : coût estimé, prime estimée,
+            <strong>reste à charge</strong> une fois la prime déduite, et économie annuelle attendue.
+          </div>
 
-          <%# Grille 4 bouquets par ligne (2 lignes × 4 = 8 bouquets) %>
+          <%# Légende des codes de référence du rapport (T1, F8, CC, ECS1…) ── %>
+          <div class="d-flex flex-wrap gap-2 mb-2 p-2 rounded-3" style="background:rgba(0,0,0,0.03);font-size:0.62rem;">
+            <% AuditEnergDonnee::REFERENCE_PREFIXES.each do |prefixe, (label, icone)| %>
+              <span class="text-muted">
+                <i class="bi <%= icone %> me-1" style="color:#1a7a4a;"></i><strong><%= prefixe %></strong> = <%= label %>
+              </span>
+            <% end %>
+          </div>
+
+          <%# Grille 2 bouquets par ligne — contenu plus riche, donc cartes plus larges %>
           <div class="row g-2">
             <% _recos.group_by { |r| r[:bouquet] }.sort.each do |bouquet_num, lignes| %>
-              <% _label_avant  = lignes.map { |l| l[:label_avant]  }.compact.first %>
-              <% _label_apres  = lignes.map { |l| l[:label_apres]  }.compact.last %>
-              <% _eco_bouquet  = lignes.sum { |l| l[:economie_euro_an].to_i } %>
-              <div class="col-6 col-lg-3">
+              <% _eco_bouquet    = lignes.sum { |l| l[:economie_euro_an].to_i } %>
+              <% _cout_bouquet   = lignes.sum { |l| l[:cout_estime_euro].to_i } %>
+              <% _prime_bouquet  = lignes.sum { |l| l[:subsides_euro].to_i } %>
+              <% _reste_bouquet  = _cout_bouquet - _prime_bouquet %>
+              <% _etape_bouquet  = _audit.etape_pour_bouquet(bouquet_num) %>
+              <% _label_avant_bq = _etape_bouquet && _audit.label_avant_etape(_etape_bouquet) %>
+              <% _label_apres_bq = _etape_bouquet && _etape_bouquet[:label_cible] %>
+              <div class="col-12 col-md-6 col-lg-4 col-xl-3">
                 <div class="border rounded-3 h-100 overflow-hidden">
                   <%# En-tête bouquet %>
-                  <div class="px-2 py-2 d-flex align-items-center justify-content-between" style="background:#1a7a4a;">
-                    <span class="text-white fw-semibold" style="font-size:0.72rem;">Bouquet <%= bouquet_num %></span>
-                    <% if _label_avant.present? && _label_apres.present? %>
-                      <div class="d-flex align-items-center gap-1">
-                        <span class="badge bg-white text-dark" style="font-size:0.6rem;opacity:0.85;"><%= _label_avant %></span>
-                        <i class="bi bi-arrow-right text-white" style="font-size:0.55rem;"></i>
-                        <span class="badge bg-warning text-dark" style="font-size:0.6rem;"><%= _label_apres %></span>
+                  <div class="px-3 py-2 d-flex align-items-center justify-content-between" style="background:#1a7a4a;">
+                    <span class="text-white fw-semibold" style="font-size:0.78rem;">Bouquet <%= bouquet_num %></span>
+                    <% if _label_avant_bq.present? && _label_apres_bq.present? %>
+                      <div class="d-flex align-items-center gap-1" title="Label énergétique atteint une fois ce bouquet réalisé (avec les bouquets précédents de cette étape)">
+                        <span class="badge bg-<%= AuditEnergDonnee::COULEURS_LABEL.fetch(_label_avant_bq.to_s.upcase, 'secondary') %>" style="font-size:0.65rem;"><%= _label_avant_bq %></span>
+                        <i class="bi bi-arrow-right text-white" style="font-size:0.6rem;"></i>
+                        <span class="badge bg-<%= AuditEnergDonnee::COULEURS_LABEL.fetch(_label_apres_bq.to_s.upcase, 'secondary') %>" style="font-size:0.65rem;"><%= _label_apres_bq %></span>
                       </div>
                     <% end %>
                   </div>
-                  <%# Sous-total économie %>
-                  <% if _eco_bouquet > 0 %>
-                    <div class="px-2 py-1 border-bottom text-center" style="background:rgba(26,122,74,0.06);">
-                      <span class="fw-semibold text-success" style="font-size:0.72rem;">
-                        <%= number_with_delimiter(_eco_bouquet) %> €/an
-                      </span>
-                    </div>
-                  <% end %>
-                  <%# Liste des travaux %>
+                  <%# Totaux du bouquet %>
+                  <div class="px-3 py-2 border-bottom d-flex flex-wrap gap-2" style="background:rgba(26,122,74,0.05);">
+                    <% if _eco_bouquet > 0 %>
+                      <div>
+                        <div class="text-muted" style="font-size:0.6rem;">Économie</div>
+                        <div class="fw-bold text-success" style="font-size:0.85rem;"><%= number_with_delimiter(_eco_bouquet) %> €/an</div>
+                      </div>
+                    <% end %>
+                    <% if _cout_bouquet > 0 %>
+                      <div>
+                        <div class="text-muted" style="font-size:0.6rem;">Coût total</div>
+                        <div class="fw-semibold" style="font-size:0.85rem;"><%= number_with_delimiter(_cout_bouquet) %> €</div>
+                      </div>
+                    <% end %>
+                    <% if _prime_bouquet > 0 %>
+                      <div>
+                        <div class="text-muted" style="font-size:0.6rem;">Primes</div>
+                        <div class="fw-semibold text-primary" style="font-size:0.85rem;">− <%= number_with_delimiter(_prime_bouquet) %> €</div>
+                      </div>
+                    <% end %>
+                    <% if _cout_bouquet > 0 %>
+                      <div class="ms-auto">
+                        <div class="text-muted" style="font-size:0.6rem;">Reste à charge</div>
+                        <div class="fw-bold" style="font-size:0.85rem;color:#5b21b6;"><%= number_with_delimiter(_reste_bouquet) %> €</div>
+                      </div>
+                    <% end %>
+                  </div>
+
+                  <%# Travaux regroupés par corps de métier ── %>
                   <div class="p-2">
-                    <% lignes.each_with_index do |reco, idx| %>
-                      <div class="<%= idx < lignes.size - 1 ? 'mb-2 pb-2 border-bottom' : '' %>">
-                        <div style="font-size:0.72rem;line-height:1.35;color:#333;">
-                          <% if reco[:reference].present? %>
-                            <span class="badge text-bg-light border me-1" style="font-size:0.58rem;font-family:monospace;vertical-align:middle;">
-                              <%= reco[:reference] %>
+                    <% _groupes = lignes.group_by { |l| l[:type_element].presence }
+                                         .sort_by { |type, _| AuditEnergDonnee.type_element_ordre_index(type) } %>
+                    <% _groupes.each_with_index do |(type, items), gidx| %>
+                      <div class="<%= gidx < _groupes.size - 1 ? 'mb-2 pb-2 border-bottom' : '' %>">
+                        <% if type.present? %>
+                          <div class="d-flex align-items-center gap-1 mb-1">
+                            <i class="bi <%= AuditEnergDonnee.type_element_icon(type) %>" style="font-size:0.7rem;color:#1a7a4a;"></i>
+                            <span class="text-uppercase fw-semibold" style="font-size:0.62rem;color:#1a7a4a;letter-spacing:0.03em;">
+                              <%= AuditEnergDonnee.type_element_label(type) %>
                             </span>
-                          <% end %>
-                          <%= truncate(reco[:recommandation].to_s, length: 55) %>
-                        </div>
-                        <div class="d-flex flex-wrap gap-1 mt-1">
-                          <% if reco[:economie_euro_an].to_i > 0 %>
-                            <span class="badge" style="background:rgba(26,122,74,0.12);color:#1a7a4a;font-size:0.6rem;">
-                              <%= number_with_delimiter(reco[:economie_euro_an].to_i) %> €/an
-                            </span>
-                          <% end %>
-                          <% if reco[:cout_estime_euro].to_i > 0 %>
-                            <span class="badge bg-light text-secondary border" style="font-size:0.6rem;">
-                              <%= number_with_delimiter(reco[:cout_estime_euro].to_i) %> €
-                            </span>
-                          <% end %>
-                          <% if reco[:subsides_euro].to_i > 0 %>
-                            <span class="badge" style="background:rgba(13,110,253,0.1);color:#0d6efd;font-size:0.6rem;">
-                              −<%= number_with_delimiter(reco[:subsides_euro].to_i) %> €
-                            </span>
-                          <% end %>
-                        </div>
+                          </div>
+                        <% end %>
+                        <% items.each_with_index do |reco, idx| %>
+                          <% _titre  = AuditEnergDonnee.reco_titre(reco) %>
+                          <% _avant  = AuditEnergDonnee.reco_avant(reco) %>
+                          <% _apres  = AuditEnergDonnee.reco_apres(reco) %>
+                          <% _reste  = AuditEnergDonnee.reco_reste_a_charge(reco) %>
+                          <div class="<%= idx < items.size - 1 ? 'mb-2 pb-2 border-bottom' : '' %>">
+                            <% if AuditEnergDonnee.reco_reference_affichable?(reco) %>
+                              <span class="d-inline-flex align-items-center gap-1 rounded-pill px-2 py-1 mb-1" style="background:rgba(26,122,74,0.1);">
+                                <i class="bi <%= AuditEnergDonnee.reco_reference_icon(reco) %>" style="font-size:0.68rem;color:#1a7a4a;"></i>
+                                <span class="fw-bold font-monospace" style="font-size:0.62rem;color:#1a7a4a;"><%= reco[:reference] %></span>
+                                <span style="font-size:0.62rem;color:#1a7a4a;">· <%= AuditEnergDonnee.reco_reference_label(reco) %></span>
+                              </span>
+                            <% end %>
+                            <div style="font-size:0.75rem;line-height:1.35;color:#333;">
+                              <%= truncate(_titre, length: 60) %>
+                            </div>
+                            <% if _avant.present? && _apres.present? %>
+                              <div class="text-muted mt-1" style="font-size:0.66rem;">
+                                <%= _avant %> <i class="bi bi-arrow-right mx-1"></i> <%= _apres %>
+                              </div>
+                            <% end %>
+                            <div class="d-flex flex-wrap gap-2 mt-1">
+                              <% if reco[:cout_estime_euro].to_i > 0 %>
+                                <div>
+                                  <span class="text-muted" style="font-size:0.6rem;">Coût </span>
+                                  <span class="fw-semibold" style="font-size:0.68rem;"><%= number_with_delimiter(reco[:cout_estime_euro].to_i) %> €</span>
+                                </div>
+                              <% end %>
+                              <% if reco[:subsides_euro].to_i > 0 %>
+                                <div>
+                                  <span class="text-muted" style="font-size:0.6rem;">Prime </span>
+                                  <span class="fw-semibold text-primary" style="font-size:0.68rem;">− <%= number_with_delimiter(reco[:subsides_euro].to_i) %> €</span>
+                                </div>
+                              <% end %>
+                              <% if _reste.present? %>
+                                <div>
+                                  <span class="text-muted" style="font-size:0.6rem;">Reste à charge </span>
+                                  <span class="fw-semibold" style="font-size:0.68rem;color:#5b21b6;"><%= number_with_delimiter(_reste.to_i) %> €</span>
+                                </div>
+                              <% end %>
+                              <% if reco[:economie_euro_an].to_i > 0 %>
+                                <div class="ms-auto">
+                                  <span class="badge" style="background:rgba(26,122,74,0.12);color:#1a7a4a;font-size:0.65rem;">
+                                    +<%= number_with_delimiter(reco[:economie_euro_an].to_i) %> €/an
+                                  </span>
+                                </div>
+                              <% end %>
+                            </div>
+                          </div>
+                        <% end %>
                       </div>
                     <% end %>
                   </div>

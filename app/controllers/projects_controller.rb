@@ -677,7 +677,7 @@ class ProjectsController < ApplicationController
     end
 
     begin
-      service = AuditEnergOcrService.new(params[:file])
+      service = AuditEnergClaudeService.new(params[:file])
       result  = service.extraire_donnees_audit
 
       unless result[:success]
@@ -705,15 +705,32 @@ class ProjectsController < ApplicationController
         project:              @project,
         numero_audit:         result[:numero_audit],
         date_enregistrement:  result[:date_enregistrement],
+        date_modification:    result[:date_modification],
+        valable_jusquau:      result[:valable_jusquau],
         numero_pae:           result[:numero_pae],
         denomination_auditeur: result[:denomination_auditeur],
         adresse_auditeur:     result[:adresse_auditeur],
+        adresse_bien:                result[:adresse_bien],
+        type_logement:               result[:type_logement],
+        annee_construction:          result[:annee_construction],
+        volume_protege_m3:           result[:volume_protege_m3],
+        surface_deperdition_m2:      result[:surface_deperdition_m2],
+        surface_plancher_chauffe_m2: result[:surface_plancher_chauffe_m2],
         label_initial:        result[:label_initial],
         label_final:          result[:label_final],
+        performance_json:     result[:performance_json] || {},
+        peb_projection_json:  result[:peb_projection_json] || {},
+        etapes_json:          result[:etapes_json] || [],
         recommandations_json: result[:recommandations_json] || [],
-        bilan_json:           result[:bilan_json] || {},
+        alertes_json:         result[:alertes_json] || [],
+        bilan_json:                 result[:bilan_json] || {},
+        cout_total_scenario:        result[:cout_total_scenario],
+        subsides_total_scenario:    result[:subsides_total_scenario],
+        economie_annuelle_scenario: result[:economie_annuelle_scenario],
+        temps_retour_scenario:      result[:temps_retour_scenario],
         confiance_ocr:        result[:confiance_ocr],
         extraction_complete:  result[:extraction_complete],
+        source_extraction:    result[:source_extraction] || 'ocr',
         texte_ocr_brut:       result[:texte_ocr_brut]
       )
 
@@ -736,6 +753,10 @@ class ProjectsController < ApplicationController
         label_initial:        result[:label_initial],
         label_final:          result[:label_final],
         nb_recommandations:   (result[:recommandations_json] || []).size,
+        nb_etapes:            (result[:etapes_json] || []).size,
+        nb_alertes:           (result[:alertes_json] || []).size,
+        montant_net_a_financer: audit.montant_net_a_financer,
+        source_extraction:    result[:source_extraction] || 'ocr',
         confiance_ocr:        result[:confiance_ocr],
         extraction_complete:  result[:extraction_complete]
       }
