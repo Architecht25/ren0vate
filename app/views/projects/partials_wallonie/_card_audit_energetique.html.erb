@@ -501,20 +501,25 @@ function auditEnergPoll(auditId) {
     attempts += 1;
     if (attempts > MAX_ATTEMPTS) {
       clearInterval(timer);
-      return; // on abandonne le polling silencieusement ; un refresh manuel affichera l'état réel
+      // On ne laisse plus l'utilisateur planté sur un spinner qui tourne sans fin :
+      // le traitement serveur est très probablement terminé depuis longtemps (il dure
+      // ~1-2 min en pratique) — on recharge automatiquement pour refléter l'état réel,
+      // au lieu d'abandonner silencieusement en attendant un refresh manuel.
+      window.location.reload();
+      return;
     }
 
     fetch(`${statutUrl}?audit_id=${encodeURIComponent(auditId)}`, {
       headers: { 'Accept': 'application/json' }
     })
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then(data => {
         if (data.statut && data.statut !== 'en_cours') {
           clearInterval(timer);
           window.location.reload();
         }
       })
-      .catch(() => { /* erreur ponctuelle de polling — on retente au prochain tick */ });
+      .catch(() => { /* erreur ponctuelle de polling (réseau, 500 transitoire…) — on retente au prochain tick */ });
   }, POLL_INTERVAL_MS);
 }
 

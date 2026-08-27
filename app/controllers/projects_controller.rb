@@ -1,6 +1,6 @@
 class ProjectsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :edit_budget, :update_budget, :edit_professionals, :update_professionals, :fin_chantier, :scan_peb_apres, :scan_audit_energ, :update_fin_chantier, :reception_chantier, :scan_attestation_conformite, :garanties, :check_contrat, :carnet_entretien, :roi_calculator, :analyze_photos, :vision_status, :score_sante, :validate_phase, :compare_devis, :upload_pv_externe]
+  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :edit_budget, :update_budget, :edit_professionals, :update_professionals, :fin_chantier, :scan_peb_apres, :scan_audit_energ, :audit_energ_statut, :update_fin_chantier, :reception_chantier, :scan_attestation_conformite, :garanties, :check_contrat, :carnet_entretien, :roi_calculator, :analyze_photos, :vision_status, :score_sante, :validate_phase, :compare_devis, :upload_pv_externe]
 
   def index
     # Récupérer les projets, filtrer par property_id si fourni
