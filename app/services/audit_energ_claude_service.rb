@@ -31,11 +31,15 @@ class AuditEnergClaudeService < OcrService
   MODEL             = 'claude-opus-4-5'
   # Un audit complet (8-9 bouquets, chacun avec plusieurs travaux + étapes +
   # alertes + performance détaillée x3 états) génère un JSON volumineux.
-  # 4000 tokens s'est révélé insuffisant en pratique (réponse tronquée en plein
-  # milieu d'un tableau → JSON invalide → bascule silencieuse sur l'OCR
-  # fallback, qui n'a pas de trajectoire de label). Voir aussi la consigne de
-  # concision dans le prompt système pour limiter le risque de troncature.
-  MAX_TOKENS        = 8192
+  # 4000 tokens s'est révélé insuffisant en pratique, puis 8192 également sur
+  # un audit à 56 travaux (réponse tronquée en plein milieu d'un tableau →
+  # JSON invalide → bascule silencieuse sur l'OCR fallback, qui n'a pas les
+  # champs structurés par intervention : type_element, reference, labels de
+  # performance avant/après). Voir aussi la consigne de concision dans le
+  # prompt système pour limiter le risque de troncature. Le job tourne sur le
+  # dyno worker (pas de timeout routeur Heroku) donc pas de contrainte de
+  # latence stricte côté requête sortante — cf. timeout du call_claude ci-dessous.
+  MAX_TOKENS        = 24_000
 
   def extraire_donnees_audit
     api_key = ENV['ANTHROPIC_API_KEY']
@@ -122,7 +126,7 @@ class AuditEnergClaudeService < OcrService
           ]
         }]
       }.to_json,
-      timeout: 120
+      timeout: 400 # généreux : tourne sur le worker Solid Queue, pas derrière le routeur Heroku (H12)
     )
 
     if response.success?
