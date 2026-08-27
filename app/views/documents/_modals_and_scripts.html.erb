@@ -66,13 +66,23 @@
 </style>
 
 <script nonce="<%= content_security_policy_nonce %>">
-document.addEventListener('turbo:load', function() {
-  // Gestion de la prévisualisation
-  const previewButtons = document.querySelectorAll('.preview-btn');
-  const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
-  const previewContent = document.getElementById('preview-content');
+// Ce script se réexécute (et donc rajoute un listener 'turbo:load') à chaque
+// rendu de cette partial par Turbo — sans garde, les listeners s'accumulent au
+// fil de la navigation, et le dernier ajouté finit par s'exécuter sur des pages
+// qui n'ont pas #previewModal dans le DOM, faisant planter `new bootstrap.Modal(null)`
+// (même bug déjà corrigé pour la modale NPS, cf. commit 563ac1a).
+if (!window._documentsModalsListenerAdded) {
+  window._documentsModalsListenerAdded = true;
+  document.addEventListener('turbo:load', function() {
+    const previewModalEl = document.getElementById('previewModal');
+    if (!previewModalEl) return;
 
-  previewButtons.forEach(button => {
+    // Gestion de la prévisualisation
+    const previewButtons = document.querySelectorAll('.preview-btn');
+    const previewModal = new bootstrap.Modal(previewModalEl);
+    const previewContent = document.getElementById('preview-content');
+
+    previewButtons.forEach(button => {
     button.addEventListener('click', function() {
       const documentId = this.dataset.documentId;
 
@@ -177,5 +187,6 @@ document.addEventListener('turbo:load', function() {
       });
     });
   }
-});
+  });
+}
 </script>
