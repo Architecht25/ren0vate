@@ -85,6 +85,26 @@ class PretWallonieDossier < ApplicationRecord
     update!(attrs.merge(statut: nouveau_statut))
   end
 
+  # Tant que le dossier est encore "en préparation" (pas déposé auprès de la SWCS),
+  # on considère que l'utilisateur peut encore ajuster sa simulation — on resynchronise
+  # donc le snapshot avec les dernières valeurs saisies. Dès que le statut avance
+  # (dossier_depose et suivants), le snapshot reste figé comme prévu par build_from_simulation.
+  def resync_from_simulation!
+    return unless statut == "preparation" && simulation.present?
+
+    simulation.reload
+    property = simulation.property
+
+    update!(
+      label_peb_depart: property&.peb_donnees&.avant_travaux&.order(created_at: :desc)&.first&.label_peb,
+      montant_emprunte: simulation.montant_projet_retenu_saisi,
+      plafond_emprunt: simulation.plafond_emprunt_saisi,
+      taux_reduction: simulation.taux_reduction_saisi,
+      taux_interet: simulation.taux_interet_saisi,
+      ecomateriaux: simulation.ecomateriaux_saisi
+    )
+  end
+
   # Construit un dossier à partir d'une simulation "reduction_pret" existante et
   # éligible — snapshot des montants/taux/labels au moment du dépôt, pour garder une
   # trace même si la simulation est recalculée ensuite.

@@ -251,7 +251,11 @@ document.addEventListener('keydown', function(e) {
 });
 
 // Indicateur de modifications non sauvegardées
-let hasUnsavedChanges = false;
+// `var` (pas `let`/`const`) : ce script se ré-exécute à chaque navigation Turbo
+// (le contexte JS de la page n'est pas réinitialisé) — une redéclaration `let`
+// plantait en SyntaxError à la 2e navigation, ce qui interrompait le rendu Turbo
+// en plein milieu et laissait la page dans un état à moitié initialisé.
+var hasUnsavedChanges = false;
 
 document.addEventListener('input', function(e) {
   if (e.target.matches('[data-controller*="prime-card"] input, [data-controller*="prime-card"] select')) {

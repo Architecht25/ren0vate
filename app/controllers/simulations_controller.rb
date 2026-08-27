@@ -1076,10 +1076,27 @@ class SimulationsController < ApplicationController
   # Point d'entrée AJAX regime "reduction_pret" — un seul champ (montant du projet),
   # pas de saisie poste par poste comme dans update_prime_inputs
   def update_wallonie_pret_reduction_inputs
-    montant_projet = params[:montant_projet].to_f
-    ecomateriaux = ActiveModel::Type::Boolean.new.cast(params[:ecomateriaux])
+    # Le calcul a besoin du revenu du ménage (current_user) — sans session active
+    # (ex: lien de simulation consulté en tant qu'invité), on ne peut pas déterminer
+    # la tranche de revenu. On échoue explicitement plutôt que de crasher en silence
+    # dans TrancheService/HouseholdIncomeCalculator (nil.nombre_enfants) et de laisser
+    # l'UI figée sur des valeurs à 0.
+    unless current_user
+      return render json: {
+        success: false,
+        error: "Connectez-vous pour calculer votre réduction de prêt (le taux dépend de votre revenu déclaré)."
+      }, status: :unauthorized
+    end
 
     existing_params = safe_parse_simulation_parameters(@simulation)
+
+    # ⚠️ Cet endpoint est partagé avec l'auto-save générique legacy (_simple_autosave.html.erb,
+    # wallonie_simulation_controller.js) qui ne connaît pas ces deux champs et les omet du
+    # payload. On ne touche donc à montant_projet/ecomateriaux QUE si le payload les fournit
+    # explicitement — sinon on garde la dernière valeur saisie plutôt que de la remettre à 0.
+    montant_projet = params.key?(:montant_projet) ? params[:montant_projet].to_f : existing_params['montant_projet'].to_f
+    ecomateriaux = params.key?(:ecomateriaux) ? ActiveModel::Type::Boolean.new.cast(params[:ecomateriaux]) : existing_params['ecomateriaux']
+
     existing_params['montant_projet'] = montant_projet
     existing_params['ecomateriaux'] = ecomateriaux
     @simulation.update!(parameters: existing_params.to_json)

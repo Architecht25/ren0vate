@@ -164,15 +164,30 @@
         }
       });
     </script>
-    <%# Enregistrement du Service Worker PWA %>
+    <%# Enregistrement du Service Worker PWA — production uniquement.
+        En dev, son cache-first sur les assets JS/CSS sert des versions périmées à
+        chaque modification de code, ce qui rend le débogage impossible (symptômes
+        fantômes, correctifs qui "ne s'appliquent jamais"). On le désenregistre et on
+        vide son cache hors production pour que le navigateur reparte propre. %>
     <script nonce="<%= content_security_policy_nonce %>">
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-          navigator.serviceWorker.register('/service-worker', { scope: '/' })
-            .catch(function(err) {
-              console.warn('Service Worker registration failed:', err);
+        <% if Rails.env.production? %>
+          window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/service-worker', { scope: '/' })
+              .catch(function(err) {
+                console.warn('Service Worker registration failed:', err);
+              });
+          });
+        <% else %>
+          navigator.serviceWorker.getRegistrations().then(function(regs) {
+            regs.forEach(function(reg) { reg.unregister(); });
+          });
+          if ('caches' in window) {
+            caches.keys().then(function(names) {
+              names.forEach(function(name) { caches.delete(name); });
             });
-        });
+          }
+        <% end %>
       }
     </script>
     <script nonce="<%= content_security_policy_nonce %>">

@@ -6,6 +6,8 @@ class PretWallonieDossiersController < ApplicationController
   # GET /projects/:project_id/pret_wallonie_dossier
   def show
     redirect_to new_dossier_redirect_path and return unless @dossier
+
+    @dossier.resync_from_simulation!
   end
 
   # POST /projects/:project_id/pret_wallonie_dossier

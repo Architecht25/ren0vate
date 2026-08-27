@@ -1,8 +1,12 @@
 <!-- Contenu principal selon la région -->
 <% region = @simulation.region&.downcase %>
+<%# Régime "reduction_pret" (dès le 01/10/2026) : plus de cartes primes poste par poste,
+    le contrôleur wallonie-simulation (autosave/fetch primes_wallonie.json legacy) n'a
+    plus lieu d'être et ne fait que générer un 404 silencieux + des listeners inutiles. %>
+<% wallonie_legacy = region == 'wallonie' && @simulation.regime_effectif != 'reduction_pret' %>
 
 <div class="container-fluid"
-     data-controller="<%= region == 'flandre' ? 'flandre-simulation' : region == 'wallonie' ? 'wallonie-simulation' : '' %>"
+     data-controller="<%= region == 'flandre' ? 'flandre-simulation' : wallonie_legacy ? 'wallonie-simulation' : '' %>"
      data-flandre-simulation-simulation-id-value="<%= @simulation.id %>"
      data-flandre-simulation-category-value="<%= @simulation.category %>"
      data-wallonie-simulation-simulation-id-value="<%= @simulation.id %>">
