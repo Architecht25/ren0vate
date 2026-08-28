@@ -223,12 +223,7 @@ class OcrController < ApplicationController
         return render json: { error: result[:error] }, status: :unprocessable_entity
       end
 
-      document = current_user.documents.create!(
-        file:          params[:file],
-        type_document: 'rib',
-        status:        'pending',
-        notes:         "RIB scanné le #{Date.today.strftime('%d/%m/%Y')} — confiance #{result[:confiance_extraction].to_f.round(1)} %"
-      )
+      document = create_rib_document_with_retry(result)
 
       if document.file.attached? && document.file_url.blank?
         document.update_column(:file_url, rails_blob_url(document.file))
@@ -270,6 +265,12 @@ class OcrController < ApplicationController
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error "RIB save error: #{e.message}"
       render json: { error: "Erreur lors de la sauvegarde des données RIB", details: e.record.errors.full_messages }, status: :unprocessable_entity
+    rescue CloudinaryException => e
+      Rails.logger.error "RIB OCR error (Cloudinary): #{e.message}"
+      render json: {
+        error:     "Le service de stockage est temporairement saturé. Réessayez dans quelques instants.",
+        retryable: true
+      }, status: :service_unavailable
     rescue StandardError => e
       Rails.logger.error "RIB OCR error: #{e.message}\n#{e.backtrace.first(5).join("\n")}"
       render json: {
@@ -277,6 +278,31 @@ class OcrController < ApplicationController
         details: Rails.env.development? ? e.message : nil
       }, status: :internal_server_error
     end
+  end
+
+  # Upload du RIB vers Cloudinary avec un retry court : Cloudinary répond parfois
+  # 429 "Slow Down, Out of Processing Capacity" en cas de pic de charge transitoire
+  # (throttling qui se résorbe en général en 1-2s). Le gem `cloudinary` lève une
+  # CloudinaryException brute pour tout statut hors [200,400,401,403,404,500]
+  # (cf. Cloudinary::Uploader#upload), donc on retente une fois avant d'abandonner.
+  def create_rib_document_with_retry(result)
+    current_user.documents.create!(
+      file:          params[:file],
+      type_document: 'rib',
+      status:        'pending',
+      notes:         "RIB scanné le #{Date.today.strftime('%d/%m/%Y')} — confiance #{result[:confiance_extraction].to_f.round(1)} %"
+    )
+  rescue CloudinaryException => e
+    raise unless e.message.include?('429')
+
+    Rails.logger.warn "RIB OCR: Cloudinary 429, nouvelle tentative dans 1.5s (#{e.message})"
+    sleep 1.5
+    current_user.documents.create!(
+      file:          params[:file],
+      type_document: 'rib',
+      status:        'pending',
+      notes:         "RIB scanné le #{Date.today.strftime('%d/%m/%Y')} — confiance #{result[:confiance_extraction].to_f.round(1)} %"
+    )
   end
 
   # POST /ocr/scan_aer
