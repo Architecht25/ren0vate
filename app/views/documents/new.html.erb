@@ -223,6 +223,22 @@
                 </div>
               </div>
 
+              <!-- Progression de l'envoi (fichiers envoyés un par un) -->
+              <div class="upload-progress-panel" id="upload-progress-panel" style="display: none;">
+                <div class="card border-0 shadow-sm mt-3">
+                  <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="fw-semibold" id="upload-progress-label">Envoi en cours…</span>
+                      <span class="text-muted small" id="upload-progress-count"></span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                      <div class="progress-bar" id="upload-progress-bar" role="progressbar" style="width: 0%;"></div>
+                    </div>
+                    <ul class="list-unstyled small mt-2 mb-0" id="upload-progress-log"></ul>
+                  </div>
+                </div>
+              </div>
+
               <!-- Zone de résultat OCR -->
               <div class="ocr-result" id="ocr-result" style="display: none;">
                 <div class="card border-0 bg-info-subtle mt-3">
@@ -286,8 +302,8 @@
             <div class="d-flex justify-content-end gap-2">
               <%= link_to "Annuler", documents_path, class: "btn btn-outline-secondary" %>
               <%= form.submit "Uploader le document",
-                  class: "btn btn-primary-custom",
-                  data: { disable_with: "Upload en cours..." } %>
+                  id: "upload-submit-btn",
+                  class: "btn btn-primary-custom" %>
             </div>
           <% end %>
         </div>
@@ -665,6 +681,182 @@ document.addEventListener('turbo:load', function() {
 
   // Remove file handler - géré maintenant dans displayFilePreview et showMultipleFilesPreview
   // Plus besoin d'un gestionnaire séparé
+
+  // ============================================================
+  // Envoi séquentiel fichier par fichier au lieu d'un seul gros POST
+  // multipart. Corrige deux problèmes constatés en prod (29/08/2026,
+  // signalement Kenneth Stewart) :
+  // - un lot de nombreuses photos dans une seule requête peut dépasser
+  //   le délai d'inactivité du routeur Heroku (H28) sur une connexion
+  //   chantier instable, sans qu'aucune photo ne soit sauvegardée ;
+  // - le bouton "Uploader" restait cliquable pendant l'envoi (aucun
+  // rails-ujs chargé dans l'app → data-disable-with ne faisait rien),
+  //   incitant à re-cliquer/re-uploader et créer des doublons.
+  // ============================================================
+  const uploadForm = fileInput.closest('form');
+  const submitBtn = document.getElementById('upload-submit-btn');
+  const progressPanel = document.getElementById('upload-progress-panel');
+  const progressBar = document.getElementById('upload-progress-bar');
+  const progressCount = document.getElementById('upload-progress-count');
+  const progressLabel = document.getElementById('upload-progress-label');
+  const progressLog = document.getElementById('upload-progress-log');
+  const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+  const submitBtnOriginalValue = submitBtn ? submitBtn.value : null;
+  let uploadInProgress = false;
+
+  if (uploadForm && submitBtn) {
+    uploadForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (uploadInProgress) return; // anti double-clic / double-soumission
+
+      if (!uploadForm.checkValidity()) {
+        uploadForm.classList.add('was-validated');
+        return;
+      }
+
+      const files = Array.from(fileInput.files || []);
+      if (files.length === 0) return;
+
+      startSequentialUpload(files);
+    });
+  }
+
+  function startSequentialUpload(files) {
+    uploadInProgress = true;
+    setSubmitLoading(true);
+    if (progressLog) progressLog.innerHTML = '';
+    if (progressPanel) progressPanel.style.display = 'block';
+    if (filePreview) filePreview.style.display = 'none';
+    uploadZone.style.display = 'none';
+
+    const successes = [];
+    const failures = [];
+    let redirectUrl = null;
+
+    const uploadNext = (index) => {
+      if (index >= files.length) {
+        finishSequentialUpload(successes, failures, redirectUrl);
+        return;
+      }
+
+      const file = files[index];
+      updateProgressUI(index, files.length, file.name);
+
+      uploadSingleFileWithRetry(file, 2).then((result) => {
+        if (result.ok) {
+          successes.push(file.name);
+          redirectUrl = result.redirectUrl || redirectUrl;
+          logProgressLine(file.name, 'success');
+        } else {
+          failures.push({ name: file.name, error: result.error });
+          logProgressLine(file.name, 'error', result.error);
+        }
+        updateProgressUI(index + 1, files.length, file.name);
+        uploadNext(index + 1);
+      });
+    };
+
+    uploadNext(0);
+  }
+
+  // Une photo qui échoue (coupure réseau passagère typique d'un chantier) est retentée
+  // 2 fois avant d'être définitivement marquée en échec, sans bloquer les fichiers suivants.
+  function uploadSingleFileWithRetry(file, retriesLeft) {
+    return uploadSingleFile(file).then((result) => {
+      if (!result.ok && retriesLeft > 0) {
+        return new Promise((resolve) => setTimeout(resolve, 1500))
+          .then(() => uploadSingleFileWithRetry(file, retriesLeft - 1));
+      }
+      return result;
+    });
+  }
+
+  function uploadSingleFile(file) {
+    const formData = new FormData(uploadForm);
+    formData.delete('document[file][]');
+    formData.append('document[file][]', file);
+
+    return fetch(uploadForm.action, {
+      method: 'POST',
+      headers: {
+        'X-CSRF-Token': csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : '',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json'
+      },
+      body: formData
+    }).then((response) => {
+      return response.json().catch(() => null).then((data) => {
+        if (response.ok && data && data.status === 'success') {
+          return { ok: true, redirectUrl: data.redirect_url };
+        }
+        const errorMsg = (data && data.errors && data.errors[0]) || `Erreur serveur (${response.status})`;
+        return { ok: false, error: errorMsg };
+      });
+    }).catch(() => ({ ok: false, error: 'Erreur de connexion' }));
+  }
+
+  function updateProgressUI(doneCount, total, currentName) {
+    if (!progressBar) return;
+    const pct = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+    progressBar.style.width = pct + '%';
+    if (progressCount) progressCount.textContent = `${doneCount}/${total}`;
+    if (progressLabel) {
+      progressLabel.textContent = doneCount < total
+        ? `Envoi de « ${currentName} »…`
+        : 'Envoi terminé';
+    }
+  }
+
+  function logProgressLine(name, status, error) {
+    if (!progressLog) return;
+    const li = document.createElement('li');
+    li.innerHTML = status === 'success'
+      ? `<i class="bi bi-check-circle text-success me-1"></i>${name}`
+      : `<i class="bi bi-x-circle text-danger me-1"></i>${name} — ${error || 'échec'}`;
+    progressLog.appendChild(li);
+  }
+
+  function setSubmitLoading(loading) {
+    if (!submitBtn) return;
+    submitBtn.disabled = loading;
+    submitBtn.value = loading ? 'Envoi en cours…' : submitBtnOriginalValue;
+  }
+
+  function finishSequentialUpload(successes, failures, redirectUrl) {
+    setSubmitLoading(false);
+    uploadInProgress = false;
+
+    const fallbackUrl = '<%= documents_path %>';
+
+    if (successes.length > 0 && failures.length === 0) {
+      Swal.fire({
+        icon: 'success',
+        title: `${successes.length} photo(s)/document(s) envoyé(s) !`,
+        toast: true,
+        position: 'top-end',
+        timer: 2500,
+        showConfirmButton: false
+      }).then(() => { window.location.href = redirectUrl || fallbackUrl; });
+    } else if (successes.length > 0 && failures.length > 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: `${successes.length} envoyé(s), ${failures.length} échoué(s)`,
+        html: `Fichiers en échec : ${failures.map(f => f.name).join(', ')}<br>Vous pouvez réessayer avec ces fichiers uniquement.`,
+        confirmButtonText: 'Compris'
+      }).then(() => { window.location.href = redirectUrl || fallbackUrl; });
+    } else {
+      if (progressPanel) progressPanel.style.display = 'none';
+      uploadZone.style.display = 'block';
+      Swal.fire({
+        icon: 'error',
+        title: "Aucun fichier n'a pu être envoyé",
+        html: failures.map(f => `${f.name} : ${f.error}`).join('<br>'),
+        confirmButtonText: 'Compris'
+      });
+    }
+  }
 
   // OCR buttons handlers
   if (copyOcrBtn) {

@@ -264,29 +264,40 @@ class DocumentsController < ApplicationController
     # Réponse basée sur le succès/échec
     if errors.empty? && created_documents.any?
       # Envoyer une notification par email à l'administrateur (synchrone pour garantir la livraison)
-      begin
-        AdminMailer.document_uploaded(
-          current_user,
-          created_documents,
-          {
-            property: @property,
-            project: @project,
-            request: @request,
-            simulation: @simulation
-          }
-        ).deliver_now
-      rescue => e
-        Rails.logger.error "[AdminMailer] ÉCHEC notification document_uploaded (user:#{current_user.id}): #{e.class} — #{e.message}"
-        # On continue même si l'email échoue
+      # Skip pour les photos de suivi de chantier : le front-end envoie désormais chaque photo
+      # dans une requête séparée (cf. documents/new.html.erb), un lot de N photos déclencherait
+      # sinon N emails identiques à l'admin. Les autres types de documents restent notifiés.
+      unless created_documents.all?(&:is_photo_type?)
+        begin
+          AdminMailer.document_uploaded(
+            current_user,
+            created_documents,
+            {
+              property: @property,
+              project: @project,
+              request: @request,
+              simulation: @simulation
+            }
+          ).deliver_now
+        rescue => e
+          Rails.logger.error "[AdminMailer] ÉCHEC notification document_uploaded (user:#{current_user.id}): #{e.class} — #{e.message}"
+          # On continue même si l'email échoue
+        end
       end
 
       # Si upload via AJAX
       if request.xhr?
+        # Le compteur de succès affiché à l'utilisateur est géré côté front (chaque
+        # photo/fichier arrive dans sa propre requête) — on pose seulement le message
+        # contextuel "prochaine étape" en session, restitué au prochain chargement de
+        # `redirect_url`. Pas de flash[:notice] ici : il serait écrasé à chaque fichier
+        # du lot et n'afficherait que le dernier, en contradiction avec le résumé JS.
+        flash[:next_action] = next_action_after_document_upload(created_documents.last)
         render json: {
           status: 'success',
           documents: created_documents.map { |doc| document_json(doc) },
           message: "#{created_documents.size} document(s) uploadé(s) avec succès",
-          redirect_url: documents_path
+          redirect_url: context_redirect_url
         }
       else
         flash[:next_action] = next_action_after_document_upload(created_documents.last)
@@ -776,21 +787,22 @@ class DocumentsController < ApplicationController
   end
 
   def redirect_to_context_or_default(options = {})
+    redirect_to context_redirect_url, options
+  end
+
+  # Calcule l'URL de retour contextuelle (projet/bien/bail/documents) sans effectuer
+  # la redirection — extrait de redirect_to_context_or_default pour être réutilisable
+  # à la fois par le flux HTML classique (redirect_to) et par la réponse JSON de
+  # l'upload XHR (chaque photo d'un lot est désormais envoyée dans sa propre requête,
+  # cf. documents/new.html.erb, mais doit renvoyer vers le même endroit qu'avant).
+  def context_redirect_url
     # Contextes nommés sûrs (pas d'open redirect)
     if params[:return_context].present? && @project
       case params[:return_context]
-      when 'budget'
-        redirect_to edit_budget_project_path(@project), options
-        return
-      when 'reception_chantier'
-        redirect_to reception_chantier_project_path(@project), options
-        return
-      when 'garanties'
-        redirect_to garanties_project_path(@project), options
-        return
-      when 'carnet_entretien'
-        redirect_to carnet_entretien_project_path(@project), options
-        return
+      when 'budget'             then return edit_budget_project_path(@project)
+      when 'reception_chantier' then return reception_chantier_project_path(@project)
+      when 'garanties'          then return garanties_project_path(@project)
+      when 'carnet_entretien'   then return carnet_entretien_project_path(@project)
       end
     end
 
@@ -801,10 +813,7 @@ class DocumentsController < ApplicationController
         carnet_entretien_project_path(@project),
         reception_chantier_project_path(@project)
       ]
-      if allowed_paths.include?(params[:return_to])
-        redirect_to params[:return_to], options
-        return
-      end
+      return params[:return_to] if allowed_paths.include?(params[:return_to])
     end
 
     # Préserver les paramètres de filtrage
@@ -821,21 +830,20 @@ class DocumentsController < ApplicationController
     @property ||= @document&.property
 
     if @lease
-      redirect_to property_tenant_lease_path(@lease.property, @lease.tenant, @lease), options
-      return
+      return property_tenant_lease_path(@lease.property, @lease.tenant, @lease)
     end
 
     if @project
       # Après suppression ou upload photo → retour sur la fiche projet (widget photos)
       if came_from_photo_upload || photo_types.include?(@document&.type_document)
-        redirect_to project_path(@project), options
+        project_path(@project)
       else
-        redirect_to project_documents_path(@project, redirect_params), options
+        project_documents_path(@project, redirect_params)
       end
     elsif @property
-      redirect_to property_documents_path(@property, redirect_params), options
+      property_documents_path(@property, redirect_params)
     else
-      redirect_to documents_path(redirect_params), options
+      documents_path(redirect_params)
     end
   end
 
