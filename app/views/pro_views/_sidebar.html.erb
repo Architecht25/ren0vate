@@ -119,11 +119,16 @@
           </div>
         </div>
 
-        <%# RETOUR VUE PROPRIÉTAIRE %>
+        <%# RETOUR ──────────────────────────────────────────── %>
         <% if @project.user_id == current_user.id %>
           <%= link_to project_path(@project), class: "btn btn-outline-secondary btn-sm w-100 mb-2",
                       style: "font-size:0.78rem;" do %>
             <i class="bi bi-arrow-left me-1"></i>Vue propriétaire complète
+          <% end %>
+        <% else %>
+          <%= link_to member_projects_path, class: "btn btn-outline-secondary btn-sm w-100 mb-2",
+                      style: "font-size:0.78rem;" do %>
+            <i class="bi bi-arrow-left me-1"></i>Mes projets
           <% end %>
         <% end %>
 

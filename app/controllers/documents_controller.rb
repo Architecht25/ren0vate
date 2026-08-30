@@ -834,9 +834,16 @@ class DocumentsController < ApplicationController
     end
 
     if @project
-      # Après suppression ou upload photo → retour sur la fiche projet (widget photos)
-      if came_from_photo_upload || photo_types.include?(@document&.type_document)
-        project_path(@project)
+      is_photo = came_from_photo_upload || photo_types.include?(@document&.type_document)
+
+      if is_photo && redirect_params[:type_document].present?
+        # Suppression/action depuis la galerie de documents filtrée (type_document[]=photo_xxx)
+        # → on reste sur cette même vue au lieu de repartir sur la fiche projet
+        project_documents_path(@project, redirect_params)
+      elsif is_photo
+        # Upload ou suppression depuis le widget photos de la fiche projet
+        # → le widget vit dans l'onglet "suivi", pas "preparation" (onglet par défaut)
+        project_path(@project, tab: 'suivi')
       else
         project_documents_path(@project, redirect_params)
       end

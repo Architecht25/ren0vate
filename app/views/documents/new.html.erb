@@ -7,7 +7,14 @@
       </div>
       <h1 class="h3 text-primary-custom mb-0 fw-normal">Upload Document</h1>
     </div>
-    <%= link_to documents_path, class: "btn btn-outline-primary-custom px-4" do %>
+    <% back_path = if @property
+                      property_documents_path(@property)
+                    elsif @project
+                      project_documents_path(@project)
+                    else
+                      documents_path
+                    end %>
+    <%= link_to back_path, class: "btn btn-outline-primary-custom px-4" do %>
       <i class="bi bi-arrow-left me-2"></i>
       Retour aux documents
     <% end %>

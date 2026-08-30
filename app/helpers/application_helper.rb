@@ -15,6 +15,24 @@ module ApplicationHelper
     }
   end
 
+  # Calcule le lien "Retour"/"Annuler" de projects#edit_budget selon le point d'entrée :
+  # - context: 'factures' → vient de la card "Factures" (onglet Suivi)
+  # - return_to: 'fin_chantier' → vient de fin_chantier (lui-même sous reception_chantier)
+  # - return_to: 'reception' → vient directement de reception_chantier (onglet Réception)
+  # - sinon (context: 'devis' ou aucun) → vient de la card "Suivi budgétaire" (onglet Préparation)
+  def edit_budget_back_path(project)
+    case
+    when params[:context] == 'factures'
+      project_path(project, tab: :suivi)
+    when params[:return_to] == 'fin_chantier'
+      fin_chantier_project_path(project)
+    when params[:return_to] == 'reception'
+      reception_chantier_project_path(project)
+    else
+      project_path(project)
+    end
+  end
+
   # Helper pour les URLs d'images Active Storage sans paramètre locale
   def image_url_without_locale(attachment)
     return nil unless attachment.attached?

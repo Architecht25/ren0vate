@@ -1,0 +1,99 @@
+<div class="container-fluid px-4 py-4">
+  <!-- Header épuré -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-receipt"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">Factures & devis</h1>
+        <small class="text-muted"><%= @project.display_name %></small>
+      </div>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <%= link_to project_factures_dashboard_path(@project), class: "btn btn-outline-secondary btn-sm" do %>
+        <i class="bi bi-arrow-left me-2"></i>Retour à l'analyse
+      <% end %>
+      <%= link_to edit_budget_project_path(@project, context: 'factures'), class: "btn btn-outline-primary btn-sm" do %>
+        <i class="bi bi-cloud-upload me-2"></i>Scanner une facture
+      <% end %>
+    </div>
+  </div>
+
+  <% if @factures.any? %>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Type</th>
+                <th>N° facture</th>
+                <th>Date</th>
+                <th>Entreprise</th>
+                <th class="text-end">Montant</th>
+                <th>Paiement</th>
+                <th class="text-center">Confiance OCR</th>
+                <th class="text-center">Validation</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @factures.each do |facture| %>
+                <tr>
+                  <td><span class="badge <%= facture.type_badge_class %>"><%= facture.type_facture_display %></span></td>
+                  <td><%= facture.numero_facture_display %></td>
+                  <td><%= facture.date_facture_display %></td>
+                  <td><%= facture.entreprise_display %></td>
+                  <td class="text-end fw-semibold"><%= facture.montant_formate %></td>
+                  <td><span class="badge <%= facture.statut_badge_class %>"><%= facture.statut_paiement&.humanize %></span></td>
+                  <td class="text-center">
+                    <span class="badge <%= facture.extraction_fiable? ? 'bg-success' : 'bg-warning' %>">
+                      <%= facture.confiance_display %>
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <% if facture.valide_manuellement? %>
+                      <i class="bi bi-check-circle-fill text-success" title="Validée"></i>
+                    <% else %>
+                      <span class="badge bg-warning-subtle text-warning-emphasis">À valider</span>
+                    <% end %>
+                  </td>
+                  <td class="text-end">
+                    <div class="d-flex justify-content-end gap-2">
+                      <%= link_to project_facture_path(@project, facture), class: "btn btn-sm btn-outline-secondary", title: "Voir" do %>
+                        <i class="bi bi-eye"></i>
+                      <% end %>
+                      <%= link_to edit_project_facture_path(@project, facture), class: "btn btn-sm btn-outline-secondary", title: "Modifier" do %>
+                        <i class="bi bi-pencil"></i>
+                      <% end %>
+                      <%= button_to project_facture_path(@project, facture), method: :delete,
+                            data: { turbo_confirm: "Supprimer cette facture ?" },
+                            form: { style: "display:inline;" },
+                            class: "btn btn-sm btn-outline-danger", title: "Supprimer" do %>
+                        <i class="bi bi-trash3"></i>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body text-center py-5">
+        <i class="bi bi-receipt fs-1 text-muted mb-3"></i>
+        <h6 class="text-muted mb-3">Aucune facture enregistrée</h6>
+        <p class="text-muted mb-4">
+          Scannez vos devis et factures depuis le suivi budgétaire pour les retrouver ici.
+        </p>
+        <%= link_to edit_budget_project_path(@project, context: 'factures'), class: "btn btn-primary" do %>
+          <i class="bi bi-cloud-upload me-2"></i>Scanner une facture
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

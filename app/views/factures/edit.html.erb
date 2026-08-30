@@ -1,0 +1,164 @@
+<div class="container-fluid px-4 py-4">
+  <!-- Header épuré -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-pencil-square"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">Modifier la facture</h1>
+        <small class="text-muted"><%= @project.display_name %></small>
+      </div>
+    </div>
+    <%= link_to project_facture_path(@project, @facture), class: "btn btn-outline-primary-custom px-4" do %>
+      <i class="bi bi-arrow-left me-2"></i>
+      Retour aux détails
+    <% end %>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary-custom mb-4">
+            <i class="bi bi-info-circle me-2"></i>Informations de la facture
+          </h5>
+
+          <%= form_with model: [@project, @facture], local: true, class: "needs-validation", novalidate: true do |form| %>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :type_facture, "Type", class: "form-label" %>
+                  <%= form.select :type_facture,
+                        options_for_select(
+                          { "Devis" => "devis", "Facture" => "facture", "Acompte" => "acompte",
+                            "Solde" => "solde", "État d'avancement" => "etat_avancement" },
+                          @facture.type_facture),
+                        {}, class: "form-select" %>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :type_intervenant, "Intervenant", class: "form-label" %>
+                  <%= form.select :type_intervenant,
+                        options_for_select(
+                          { "Architecte" => "architecte", "Entrepreneur" => "entrepreneur", "Autre" => "autre" },
+                          @facture.type_intervenant),
+                        { include_blank: "Non classifié" }, class: "form-select" %>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :numero_facture, "N° facture", class: "form-label" %>
+                  <%= form.text_field :numero_facture, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :nom_entreprise, "Entreprise", class: "form-label" %>
+                  <%= form.text_field :nom_entreprise, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :date_facture, "Date facture", class: "form-label" %>
+                  <%= form.date_field :date_facture, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :date_echeance, "Date échéance", class: "form-label" %>
+                  <%= form.date_field :date_echeance, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <%= form.label :montant, "Montant TTC (€)", class: "form-label" %>
+                  <%= form.number_field :montant, step: 0.01, min: 0, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <%= form.label :montant_ht, "Montant HTVA (€)", class: "form-label" %>
+                  <%= form.number_field :montant_ht, step: 0.01, min: 0, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <%= form.label :montant_tva, "Montant TVA (€)", class: "form-label" %>
+                  <%= form.number_field :montant_tva, step: 0.01, min: 0, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :statut_paiement, "Statut de paiement", class: "form-label" %>
+                  <%= form.select :statut_paiement,
+                        options_for_select(
+                          { "Non payé" => "non_paye", "Partiel" => "partiel", "Payé" => "paye" },
+                          @facture.statut_paiement),
+                        {}, class: "form-select" %>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3 form-check mt-4">
+                  <%= form.check_box :facture_solde, class: "form-check-input" %>
+                  <%= form.label :facture_solde, "Facture de solde", class: "form-check-label" %>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="mb-3">
+                  <%= form.label :adresse_entreprise, "Adresse entreprise", class: "form-label" %>
+                  <%= form.text_field :adresse_entreprise, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :numero_tva_entreprise, "N° TVA", class: "form-label" %>
+                  <%= form.text_field :numero_tva_entreprise, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :numero_bce_entreprise, "N° BCE", class: "form-label" %>
+                  <%= form.text_field :numero_bce_entreprise, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :telephone_entreprise, "Téléphone entreprise", class: "form-label" %>
+                  <%= form.text_field :telephone_entreprise, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :email_entreprise, "Email entreprise", class: "form-label" %>
+                  <%= form.email_field :email_entreprise, class: "form-control" %>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+              <%= link_to "Annuler", project_facture_path(@project, @facture), class: "btn btn-outline-secondary" %>
+              <%= form.submit "Enregistrer", class: "btn btn-primary-custom" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
