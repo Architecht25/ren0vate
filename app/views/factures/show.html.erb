@@ -1,0 +1,115 @@
+<div class="container-fluid px-4 py-4">
+  <!-- Header épuré -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-receipt"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal"><%= @facture.type_facture_display %></h1>
+        <small class="text-muted"><%= @project.display_name %></small>
+      </div>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <%= link_to project_factures_path(@project), class: "btn btn-outline-secondary btn-sm" do %>
+        <i class="bi bi-arrow-left me-2"></i>Retour aux factures
+      <% end %>
+      <%= link_to edit_project_facture_path(@project, @facture), class: "btn btn-outline-primary btn-sm" do %>
+        <i class="bi bi-pencil me-2"></i>Modifier
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-bottom py-3 px-4">
+          <h5 class="mb-0 text-primary-custom fw-normal">
+            <i class="bi bi-info-circle me-2"></i>Informations extraites
+          </h5>
+        </div>
+        <div class="card-body p-4">
+          <dl class="row mb-0">
+            <dt class="col-sm-5">Type</dt>
+            <dd class="col-sm-7"><span class="badge <%= @facture.type_badge_class %>"><%= @facture.type_facture_display %></span></dd>
+
+            <dt class="col-sm-5">N° facture</dt>
+            <dd class="col-sm-7"><%= @facture.numero_facture_display %></dd>
+
+            <dt class="col-sm-5">Date facture</dt>
+            <dd class="col-sm-7"><%= @facture.date_facture_display %></dd>
+
+            <dt class="col-sm-5">Date échéance</dt>
+            <dd class="col-sm-7"><%= @facture.date_echeance&.strftime("%d/%m/%Y") || "Non extraite" %></dd>
+
+            <dt class="col-sm-5">Entreprise</dt>
+            <dd class="col-sm-7"><%= @facture.entreprise_display %></dd>
+
+            <dt class="col-sm-5">Type d'intervenant</dt>
+            <dd class="col-sm-7"><%= @facture.type_intervenant_display %></dd>
+
+            <dt class="col-sm-5">Montant</dt>
+            <dd class="col-sm-7 fw-bold"><%= @facture.montant_formate %></dd>
+
+            <dt class="col-sm-5">Montant HTVA / TVA</dt>
+            <dd class="col-sm-7">
+              <%= number_to_currency(@facture.montant_ht, unit: "€ ", precision: 2) if @facture.montant_ht %>
+              <% if @facture.montant_tva %> / <%= number_to_currency(@facture.montant_tva, unit: "€ ", precision: 2) %><% end %>
+            </dd>
+
+            <dt class="col-sm-5">Statut de paiement</dt>
+            <dd class="col-sm-7"><span class="badge <%= @facture.statut_badge_class %>"><%= @facture.statut_paiement&.humanize %></span></dd>
+
+            <dt class="col-sm-5">Confiance OCR</dt>
+            <dd class="col-sm-7">
+              <span class="badge <%= @facture.extraction_fiable? ? 'bg-success' : 'bg-warning' %>">
+                <%= @facture.confiance_display %>
+              </span>
+            </dd>
+
+            <dt class="col-sm-5">Validation</dt>
+            <dd class="col-sm-7">
+              <% if @facture.valide_manuellement? %>
+                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Validée</span>
+              <% else %>
+                <span class="badge bg-warning-subtle text-warning-emphasis">À valider depuis le suivi budgétaire</span>
+              <% end %>
+            </dd>
+          </dl>
+        </div>
+      </div>
+
+      <%= button_to project_facture_path(@project, @facture), method: :delete,
+            data: { turbo_confirm: "Supprimer cette facture ?" },
+            class: "btn btn-outline-danger btn-sm" do %>
+        <i class="bi bi-trash3 me-2"></i>Supprimer cette facture
+      <% end %>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent border-bottom py-3 px-4">
+          <h5 class="mb-0 text-primary-custom fw-normal">
+            <i class="bi bi-file-earmark-text me-2"></i>Document source
+          </h5>
+        </div>
+        <div class="card-body p-4 text-center">
+          <% if @document&.file&.attached? %>
+            <% if @document.file.content_type.to_s.start_with?("image/") %>
+              <%= image_tag rails_blob_path(@document.file, only_path: true), class: "img-fluid rounded border mb-3" %>
+            <% else %>
+              <i class="bi bi-file-earmark-pdf text-danger" style="font-size: 3rem;"></i>
+            <% end %>
+            <div>
+              <%= link_to rails_blob_path(@document.file, only_path: true), target: "_blank", rel: "noopener noreferrer", class: "btn btn-outline-primary btn-sm" do %>
+                <i class="bi bi-box-arrow-up-right me-2"></i>Ouvrir le document
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-muted mb-0">Aucun document attaché.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
