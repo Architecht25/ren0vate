@@ -12,6 +12,16 @@
     </h2>
     <p class="text-muted mb-4">Ces informations permettront d'identifier les primes disponibles dans votre région.</p>
 
+    <%# Bandeau de reprise de simulation — rempli en JS si l'utilisateur a fait le test
+        d'éligibilité pré-connexion (résultat stocké en localStorage par
+        test_eligibilite_wallonie_controller.js / test_eligibilite_flandre_controller.js).
+        Le calcul officiel reste refait ici avec les vraies données du bien : ce bandeau ne
+        fait que reprendre le fil, il ne préjuge pas du résultat final. %>
+    <div id="pending-simulation-banner" class="alert alert-success alert-dismissible fade show d-none mb-4" role="alert">
+      <span id="pending-simulation-banner-text"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+    </div>
+
     <%= form_with model: @property, url: onboarding_create_proprietaire_bien_path(locale: I18n.locale), method: :post do |f| %>
       <% if @property.errors.any? %>
         <div class="alert alert-danger mb-4">
@@ -60,3 +70,46 @@
 
   </div>
 </div>
+
+<script nonce="<%= content_security_policy_nonce %>">
+  document.addEventListener('DOMContentLoaded', function () {
+    var banner = document.getElementById('pending-simulation-banner');
+    var bannerText = document.getElementById('pending-simulation-banner-text');
+    var regionSelect = document.getElementById('property_region');
+    if (!banner || !bannerText || !regionSelect) return;
+
+    // On ne relit la simulation pré-connexion que si le formulaire est encore vierge
+    // (pas de reprise en cas de retry après erreur de validation, pour ne pas écraser
+    // la région déjà choisie par l'utilisateur).
+    if (regionSelect.value) return;
+
+    var wallonieCategorie = localStorage.getItem('wallonie_categorie');
+    var flandreCategorie = localStorage.getItem('categorie');
+    var region = null;
+    var message = null;
+
+    if (wallonieCategorie) {
+      region = 'wallonie';
+      message = wallonieCategorie === 'R5'
+        ? "Nous avions estimé vos revenus au-dessus du plafond des primes Wallonie lors de votre simulation — complétez votre bien pour explorer les autres aides disponibles."
+        : "Bon retour ! Votre simulation Wallonie estimait la catégorie <strong>" + wallonieCategorie + "</strong> — complétez votre bien pour confirmer et débloquer vos primes.";
+    } else if (flandreCategorie) {
+      region = 'flandre';
+      message = "Bon retour ! Votre simulation Flandre estimait la catégorie <strong>" + flandreCategorie + "</strong> — complétez votre bien pour confirmer et débloquer vos primes.";
+    }
+
+    if (!region || !message) return;
+
+    regionSelect.value = region;
+    bannerText.innerHTML = message;
+    banner.classList.remove('d-none');
+
+    // Bandeau à usage unique : on ne veut pas qu'il ressurgisse indéfiniment à chaque visite.
+    // On ne touche pas à `selectedWallonieCategory` : cette clé est réutilisée comme valeur
+    // par défaut générique par le calculateur post-connexion (wallonie_simulation_controller.js),
+    // indépendamment de ce bandeau.
+    localStorage.removeItem('wallonie_categorie');
+    localStorage.removeItem('eligibiliteWallonieParticulier');
+    localStorage.removeItem('categorie');
+  });
+</script>
