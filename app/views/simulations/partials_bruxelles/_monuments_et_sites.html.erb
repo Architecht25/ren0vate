@@ -136,7 +136,7 @@
           </div>
           <div class="col-5 text-end">
             <div class="small text-muted">Subvention estimée</div>
-            <div class="h5 mb-0 fw-bold text-primary" id="mon-montant-display">—</div>
+            <div class="h5 mb-0 fw-bold text-primary prime-result" id="mon-montant-display">—</div>
           </div>
         </div>
         <hr class="my-2">
@@ -286,7 +286,20 @@
       document.getElementById('mon-montant-display').textContent = formatEur(montantNet) + (plafonné ? ' (plafonné)' : '');
       document.getElementById('mon-note-legale').textContent   = libelles[typeBenef] + ' — ' + noteTravaux;
       document.getElementById('mon-calcul-result').classList.remove('d-none');
+
+      // Recalcule le total général de la simulation Bruxelles et le sauvegarde
+      if (typeof window.updateTotalImmediate === 'function') window.updateTotalImmediate();
     });
   }
+
+  // Si l'utilisateur revérifie une autre adresse, on repart de zéro pour ne pas
+  // laisser une estimation périmée compter dans le total général.
+  btnVerif.addEventListener('click', function() {
+    var montantDisplay = document.getElementById('mon-montant-display');
+    if (montantDisplay) montantDisplay.textContent = '—';
+    var calculResult = document.getElementById('mon-calcul-result');
+    if (calculResult) calculResult.classList.add('d-none');
+    if (typeof window.updateTotalImmediate === 'function') window.updateTotalImmediate();
+  });
 })();
 </script>

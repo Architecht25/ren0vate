@@ -371,7 +371,9 @@
     totalSpan.textContent    = total.toLocaleString('fr-BE') + ' €';
     recapDiv.style.display   = total > 0 ? 'block' : 'none';
     if (ctaDiv) ctaDiv.style.display = total > 0 ? 'block' : 'none';
-    saveSelections(total);
+    // Recalcule le total général (toutes cartes Bruxelles confondues) et le sauvegarde
+    // via window.debounceSaveTotal, qui lit window.getBruxellesCommunalesSelection() ci-dessous.
+    if (typeof window.updateTotalImmediate === 'function') window.updateTotalImmediate();
   }
 
   btnDetect.addEventListener('click', function() {

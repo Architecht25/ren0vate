@@ -115,9 +115,19 @@ export default class extends Controller {
     detailsElement.textContent = details
 
     resultSection.style.display = "block"
+    this.notifyGlobalTotal()
   }
 
   hideResult() {
     document.getElementById("result_section_patrimoine").style.display = "none"
+    // Remettre le montant à 0 pour que le total général (qui additionne tous les
+    // spans .prime-result, y compris masqués) ne compte pas une valeur périmée.
+    document.getElementById("result_patrimoine").textContent = "0.00 €"
+    this.notifyGlobalTotal()
+  }
+
+  // Déclenche le recalcul + la sauvegarde du total général de la simulation Bruxelles
+  notifyGlobalTotal() {
+    if (typeof window.updateTotalImmediate === "function") window.updateTotalImmediate()
   }
 }
