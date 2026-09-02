@@ -15,43 +15,45 @@
         </div>
         <div class="card-body px-4 py-3">
           <% if @quote&.quote_items&.any? %>
-            <table class="table table-sm mb-0" style="font-size:0.85rem;">
-              <thead>
-                <tr class="text-muted" style="font-size:0.78rem;">
-                  <th class="fw-normal ps-0">Poste de travaux</th>
-                  <% if @membership.full_financial_access? || @membership.role == 'architect' %>
-                    <th class="fw-normal text-end">Fourchette</th>
-                  <% end %>
-                </tr>
-              </thead>
-              <tbody>
-                <% @quote.quote_items.each do |item| %>
-                  <tr>
-                    <td class="ps-0">
-                      <i class="bi bi-check-circle-fill text-success me-1" style="font-size:0.7rem;"></i>
-                      <%= item.work_type&.name || item.work_type_key.humanize %>
-                      <% if item.quantity && item.unit %>
-                        <span class="text-muted ms-1" style="font-size:0.75rem;">
-                          <%= item.quantity %> <%= item.unit %>
-                        </span>
-                      <% end %>
-                    </td>
+            <div class="table-responsive">
+              <table class="table table-sm mb-0" style="font-size:0.85rem;">
+                <thead>
+                  <tr class="text-muted" style="font-size:0.78rem;">
+                    <th class="fw-normal ps-0">Poste de travaux</th>
                     <% if @membership.full_financial_access? || @membership.role == 'architect' %>
-                      <td class="text-end text-muted" style="white-space:nowrap;">
-                        <% min_p = item.try(:unit_price_min) || item.try(:total_min) %>
-                        <% max_p = item.try(:unit_price_max) || item.try(:total_max) %>
-                        <% if min_p && max_p %>
-                          <%= number_to_currency(min_p, unit: "€", format: "%n %u") %> –
-                          <%= number_to_currency(max_p, unit: "€", format: "%n %u") %>
-                        <% elsif item.try(:total_price) %>
-                          <%= number_to_currency(item.total_price, unit: "€", format: "%n %u") %>
-                        <% end %>
-                      </td>
+                      <th class="fw-normal text-end">Fourchette</th>
                     <% end %>
                   </tr>
-                <% end %>
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  <% @quote.quote_items.each do |item| %>
+                    <tr>
+                      <td class="ps-0">
+                        <i class="bi bi-check-circle-fill text-success me-1" style="font-size:0.7rem;"></i>
+                        <%= item.work_type&.name || item.work_type_key.humanize %>
+                        <% if item.quantity && item.unit %>
+                          <span class="text-muted ms-1" style="font-size:0.75rem;">
+                            <%= item.quantity %> <%= item.unit %>
+                          </span>
+                        <% end %>
+                      </td>
+                      <% if @membership.full_financial_access? || @membership.role == 'architect' %>
+                        <td class="text-end text-muted" style="white-space:nowrap;">
+                          <% min_p = item.try(:unit_price_min) || item.try(:total_min) %>
+                          <% max_p = item.try(:unit_price_max) || item.try(:total_max) %>
+                          <% if min_p && max_p %>
+                            <%= number_to_currency(min_p, unit: "€", format: "%n %u") %> –
+                            <%= number_to_currency(max_p, unit: "€", format: "%n %u") %>
+                          <% elsif item.try(:total_price) %>
+                            <%= number_to_currency(item.total_price, unit: "€", format: "%n %u") %>
+                          <% end %>
+                        </td>
+                      <% end %>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
             <% if @membership.full_financial_access? %>
               <% total_min = @quote.quote_items.sum { |i| i.try(:total_min).to_f } %>
               <% total_max = @quote.quote_items.sum { |i| i.try(:total_max).to_f } %>
