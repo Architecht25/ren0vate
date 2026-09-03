@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_26_100700) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_03_113226) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -571,6 +571,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_100700) do
     t.bigint "property_id", null: false
     t.string "region"
     t.decimal "score_ep", precision: 8, scale: 2
+    t.string "statut", default: "termine", null: false
     t.decimal "surface_reference", precision: 8, scale: 2
     t.text "texte_ocr_brut"
     t.datetime "updated_at", null: false
