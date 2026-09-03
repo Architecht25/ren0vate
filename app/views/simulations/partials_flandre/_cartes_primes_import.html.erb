@@ -1,4 +1,10 @@
 <!-- Section Primes Flandre -->
+<% if @simulation.respond_to?(:eligible?) && !@simulation.eligible? %>
+  <!-- Aucune prime : le motif d'inéligibilité (ex. bâtiment non résidentiel depuis le
+       01/03/2026) est déjà affiché par l'étape éligibilité ci-dessus. Ne pas rendre les
+       cartes ici : sans catégorie, le contrôleur JS flandre-simulation retomberait sur la
+       catégorie 4 par défaut (la plus généreuse) faute de valeur. -->
+<% else %>
 <div class="primes-section-flandre" data-controller="flandre-simulation" data-flandre-simulation-simulation-id-value="<%= @simulation.id %>" data-flandre-simulation-category-value="<%= @simulation.category %>">
 
   <%= render 'simulations/partials_flandre/components/data_scripts' %>
@@ -58,5 +64,6 @@
   </div>
 
 </div>
+<% end %>
 
 <!-- End of Flandre primes section -->

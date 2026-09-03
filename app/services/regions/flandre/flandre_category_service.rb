@@ -25,6 +25,17 @@ module Regions
         property = get_property
         project = user_project
 
+        # Réforme flamande du 01/03/2026 : contrairement aux autres critères spéciaux
+        # ci-dessous (qui limitent seulement à la catégorie 1, encore éligible aux primes
+        # PAC/boiler), un bâtiment non résidentiel n'a plus AUCUN droit à Mijn VerbouwPremie.
+        # Vérifié avant tout calcul de revenu, qui n'a plus d'importance dans ce cas.
+        if usage_non_residentiel?(property)
+          return {
+            error: "Bâtiment non résidentiel : plus aucun droit à Mijn VerbouwPremie depuis le 01/03/2026 (réforme flamande)",
+            eligible: false
+          }
+        end
+
         # Calculer le revenu total du ménage
         total_household_income = calculate_total_household_income
 
@@ -92,10 +103,8 @@ module Regions
           return { category: "1", reason: "Propriétaire d'un autre bien - Catégorie 1" }
         end
 
-        # 6. Usage non résidentiel → Catégorie 1
-        if usage_non_residentiel?(property)
-          return { category: "1", reason: "Usage non résidentiel - Catégorie 1" }
-        end
+        # Usage non résidentiel : exclusion totale traitée en amont dans
+        # determine_category_post_login (réforme du 01/03/2026), pas ici.
 
         nil # Pas de critère spécial, utiliser les revenus
       end
