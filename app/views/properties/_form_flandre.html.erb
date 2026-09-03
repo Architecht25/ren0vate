@@ -769,19 +769,40 @@
     fetch('<%= ocr_scan_peb_path %>',{method:'POST',headers:{'X-CSRF-Token':document.querySelector('meta[name="csrf-token"]').content},body:fd})
     .then(function(r){return r.json();})
     .then(function(d){
-      spi.classList.add('d-none'); btn.disabled=false;
-      if(!d.success){show('danger','bi-exclamation-triangle-fill',d.error||'Extraction échouée.');return;}
-      set('peb-label-display-flandre', d.label_peb||'—');
-      set('peb-score-display-flandre', d.score_ep?d.score_ep+' kWh/(m².an)':'—');
-      set('peb-surface-display-flandre', d.surface_reference?d.surface_reference+' m²':'—');
-      set('peb-numero-display-flandre', d.numero_certificat||'—');
-      set('peb-date-cert-display-flandre', d.date_certificat||'—');
-      set('peb-date-valid-display-flandre', d.date_validite||'—');
-      show(d.extraction_complete?'success':'warning', d.extraction_complete?'bi-check-circle-fill':'bi-exclamation-circle-fill', d.message);
+      // L'extraction tourne désormais dans PebExtractionJob (dyno worker) — le
+      // fallback OCR page-par-page des PDFs VEKA peut prendre 10-30s, on poll.
+      if(d.processing && d.peb_donnee_id){poll(d.peb_donnee_id);return;}
+      finish(d);
     })
-    .catch(function(){spi.classList.add('d-none');btn.disabled=false;show('danger','bi-exclamation-triangle-fill','Erreur réseau.');});
+    .catch(function(){finish({success:false,error:'Erreur réseau.'});});
     inp.value='';
   });
+  function poll(pebDonneeId){
+    var attempts=0, MAX_ATTEMPTS=40; // ~2 minutes
+    var timer=setInterval(function(){
+      attempts+=1;
+      if(attempts>MAX_ATTEMPTS){clearInterval(timer);finish({success:false,error:'Analyse trop longue — réessayez.'});return;}
+      fetch('<%= ocr_scan_peb_statut_path %>?peb_donnee_id='+encodeURIComponent(pebDonneeId),{headers:{'Accept':'application/json'}})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.statut==='en_cours') return;
+        clearInterval(timer);
+        finish(d);
+      })
+      .catch(function(){ /* erreur ponctuelle de polling — on retente au prochain tick */ });
+    },3000);
+  }
+  function finish(d){
+    spi.classList.add('d-none'); btn.disabled=false;
+    if(!d.success){show('danger','bi-exclamation-triangle-fill',d.error||'Extraction échouée.');return;}
+    set('peb-label-display-flandre', d.label_peb||'—');
+    set('peb-score-display-flandre', d.score_ep?d.score_ep+' kWh/(m².an)':'—');
+    set('peb-surface-display-flandre', d.surface_reference?d.surface_reference+' m²':'—');
+    set('peb-numero-display-flandre', d.numero_certificat||'—');
+    set('peb-date-cert-display-flandre', d.date_certificat||'—');
+    set('peb-date-valid-display-flandre', d.date_validite||'—');
+    show(d.extraction_complete?'success':'warning', d.extraction_complete?'bi-check-circle-fill':'bi-exclamation-circle-fill', d.message);
+  }
   function set(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
   function show(t,ic,m){ale.className='alert border-0 rounded-3 py-2 mb-0 alert-'+t;ico.className='bi '+ic+' text-'+t;ico.classList.remove('d-none');msg.textContent=m;}
 })();

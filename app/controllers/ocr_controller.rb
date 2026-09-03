@@ -400,88 +400,48 @@ class OcrController < ApplicationController
   end
 
   # POST /ocr/scan_peb
-  # Scanne un certificat PEB (Flandre/Wallonie/Bruxelles) et persiste les données
-  # dans peb_donnees. Lie le document au bien property_id si fourni.
-  # Met à jour automatiquement le champ certificat_peb_* du bien si confiance >= 70.
+  # Scanne un certificat PEB (Flandre/Wallonie/Bruxelles). Pour les PDFs VEKA
+  # (Flandre), le fallback OCR page-par-page (pdftoppm + Tesseract) peut dépasser
+  # les 30s de timeout du routeur Heroku (H12) — on crée donc immédiatement la
+  # ligne "en_cours" et on délègue le traitement à PebExtractionJob (dyno worker
+  # Solid Queue) ; le front-end fait ensuite du polling via #scan_peb_statut.
   def scan_peb
     return render json: { error: 'Aucun fichier fourni' }, status: :bad_request unless params[:file]
 
     begin
-      peb_service = PebOcrService.new(params[:file])
-      result      = peb_service.extraire_donnees_peb
-
-      unless result[:success]
-        return render json: { error: result[:error] }, status: :unprocessable_entity
-      end
-
       # Propriété associée (optionnelle mais attendue depuis les formulaires de bien)
       property = nil
       if params[:property_id].present?
         property = current_user.properties.find_by(id: params[:property_id])
       end
 
-      # Créer le document PEB
       document = current_user.documents.create!(
         file:          params[:file],
         type_document: 'certificat_peb_avant',
         property:      property,
         status:        'pending',
-        notes:         "Certificat PEB scanné le #{Date.today.strftime('%d/%m/%Y')} — #{result[:region]&.capitalize} — confiance #{result[:confiance_ocr].to_i} %"
+        notes:         "Certificat PEB — analyse en cours…"
       )
 
       if document.file.attached? && document.file_url.blank?
         document.update_column(:file_url, rails_blob_url(document.file))
       end
 
-      # Persister les données extraites
       peb_donnee = PebDonnee.create!(
-        property:           property,
-        document:           document,
-        user:               current_user,
-        region:             result[:region],
-        numero_certificat:  result[:numero_certificat],
-        label_peb:          result[:label_peb],
-        score_ep:           result[:score_ep],
-        surface_reference:  result[:surface_reference],
-        date_certificat:    result[:date_certificat],
-        date_validite:      result[:date_validite],
-        confiance_ocr:      result[:confiance_ocr],
-        extraction_complete: result[:extraction_complete],
-        texte_ocr_brut:     result[:texte_ocr_brut],
-        donnees_extraites:  { 'recommandations' => result[:recommandations] || [] }
+        property: property,
+        document: document,
+        user:     current_user,
+        statut:   'en_cours'
       )
 
-      # Mise à jour automatique du champ certificat_peb_* de la propriété
-      if property && result[:confiance_ocr].to_i >= 70 && result[:label_peb].present?
-        champ_peb = case result[:region]
-                    when 'wallonie'  then :certificat_peb_wallonie
-                    when 'flandre'   then :certificat_peb_flandre
-                    when 'bruxelles' then :certificat_peb_bruxelles
-                    end
-        if champ_peb
-          updates = { champ_peb => result[:label_peb] }
-          updates[:date_peb_avant_travaux] = result[:date_certificat] if result[:date_certificat].present?
-          property.update(updates)
-        end
-      end
+      PebExtractionJob.perform_later(peb_donnee.id, document.id)
 
       render json: {
-        success:            true,
-        document_id:        document.id,
-        peb_donnee_id:      peb_donnee.id,
-        region:             result[:region],
-        numero_certificat:  result[:numero_certificat],
-        label_peb:          result[:label_peb],
-        score_ep:           result[:score_ep],
-        surface_reference:  result[:surface_reference],
-        date_certificat:    result[:date_certificat]&.strftime('%d/%m/%Y'),
-        date_validite:      result[:date_validite]&.strftime('%d/%m/%Y'),
-        confiance_ocr:      result[:confiance_ocr],
-        extraction_complete: result[:extraction_complete],
-        perime:             peb_donnee.perime?,
-        applied_to_property: property.present? && result[:confiance_ocr].to_i >= 70 && result[:label_peb].present?,
-        message:            message_retour_peb(result, peb_donnee)
-      }
+        success:       true,
+        processing:    true,
+        peb_donnee_id: peb_donnee.id,
+        document_id:   document.id
+      }, status: :accepted
 
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error "PEB save error: #{e.message}"
@@ -493,6 +453,40 @@ class OcrController < ApplicationController
         details: Rails.env.development? ? e.message : nil
       }, status: :internal_server_error
     end
+  end
+
+  # GET /ocr/scan_peb_statut?peb_donnee_id=123 — polling front-end
+  # Tant que le job tourne encore ({ statut: 'en_cours' }), le front-end
+  # réinterroge cette route ; une fois terminé (succès ou échec), la réponse a
+  # exactement la forme que #scan_peb renvoyait autrefois en synchrone.
+  def scan_peb_statut
+    peb_donnee = current_user.peb_donnees.find_by(id: params[:peb_donnee_id])
+    return render json: { error: 'Certificat PEB introuvable' }, status: :not_found unless peb_donnee
+
+    return render json: { statut: 'en_cours', processing: true } if peb_donnee.en_cours?
+
+    if peb_donnee.echec?
+      return render json: { statut: 'echec', success: false, error: 'Extraction échouée.' }
+    end
+
+    render json: {
+      statut:              'termine',
+      success:             true,
+      document_id:         peb_donnee.document_id,
+      peb_donnee_id:       peb_donnee.id,
+      region:              peb_donnee.region,
+      numero_certificat:   peb_donnee.numero_certificat,
+      label_peb:           peb_donnee.label_peb,
+      score_ep:            peb_donnee.score_ep,
+      surface_reference:   peb_donnee.surface_reference,
+      date_certificat:     peb_donnee.date_certificat&.strftime('%d/%m/%Y'),
+      date_validite:       peb_donnee.date_validite&.strftime('%d/%m/%Y'),
+      confiance_ocr:       peb_donnee.confiance_ocr,
+      extraction_complete: peb_donnee.extraction_complete,
+      perime:              peb_donnee.perime?,
+      applied_to_property: peb_donnee.property.present? && peb_donnee.confiance_ocr.to_i >= 70 && peb_donnee.label_peb.present?,
+      message:             message_retour_peb_donnee(peb_donnee)
+    }
   end
 
   # POST /ocr/scan_devis
@@ -807,15 +801,18 @@ class OcrController < ApplicationController
     "⚠️ Classe non détectée (confiance #{result[:confiance_ocr].to_i} %). Encodez manuellement la classe du label."
   end
 
-  def message_retour_peb(result, peb_donnee)
-    region_label = { 'wallonie' => 'Wallonie', 'flandre' => 'Flandre', 'bruxelles' => 'Bruxelles' }[result[:region]] || 'Région non détectée'
+  # Variante de message_retour_peb qui lit depuis le PebDonnee déjà persisté
+  # (appelée par #scan_peb_statut, une fois PebExtractionJob terminé — le
+  # résultat brut du service n'existe plus, seul l'enregistrement en base).
+  def message_retour_peb_donnee(peb_donnee)
+    region_label = { 'wallonie' => 'Wallonie', 'flandre' => 'Flandre', 'bruxelles' => 'Bruxelles' }[peb_donnee.region] || 'Région non détectée'
     if peb_donnee.perime?
-      return "⚠️ Certificat PEB #{region_label} expiré (validité : #{result[:date_validite]&.strftime('%d/%m/%Y')}) — veuillez le renouveler."
+      return "⚠️ Certificat PEB #{region_label} expiré (validité : #{peb_donnee.date_validite&.strftime('%d/%m/%Y')}) — veuillez le renouveler."
     end
-    if result[:extraction_complete]
-      return "✅ Certificat PEB #{region_label} extrait (label #{result[:label_peb]}, #{result[:score_ep].to_i} kWh/m².an). Vérifiez et sauvegardez."
+    if peb_donnee.extraction_complete
+      return "✅ Certificat PEB #{region_label} extrait (label #{peb_donnee.label_peb}, #{peb_donnee.score_ep.to_i} kWh/m².an). Vérifiez et sauvegardez."
     end
-    "⚠️ Extraction partielle #{region_label} (confiance #{result[:confiance_ocr].to_i} %). Complétez les champs manquants."
+    "⚠️ Extraction partielle #{region_label} (confiance #{peb_donnee.confiance_ocr.to_i} %). Complétez les champs manquants."
   end
 
   def message_retour_rib(result)

@@ -665,33 +665,61 @@
     })
     .then(function (r) { return r.json(); })
     .then(function (d) {
-      spinner.classList.add('d-none');
-      btn.disabled = false;
-
-      if (!d.success) {
-        showStatus('danger', 'bi-exclamation-triangle-fill', d.error || 'Extraction échouée.');
-        return;
-      }
-
-      // Mise à jour des affichages lecture seule
-      setDisplay('peb-label-display-wallonie',     d.label_peb || '—');
-      setDisplay('peb-score-display-wallonie',     d.score_ep ? d.score_ep + ' kWh/(m².an)' : '—');
-      setDisplay('peb-surface-display-wallonie',   d.surface_reference ? d.surface_reference + ' m²' : '—');
-      setDisplay('peb-numero-display-wallonie',    d.numero_certificat || '—');
-      setDisplay('peb-date-cert-display-wallonie', d.date_certificat || '—');
-      setDisplay('peb-date-valid-display-wallonie',d.date_validite || '—');
-
-      var type = d.extraction_complete ? 'success' : 'warning';
-      var ic   = d.extraction_complete ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill';
-      showStatus(type, ic, d.message);
+      // L'extraction tourne désormais dans PebExtractionJob (dyno worker) — la
+      // réponse immédiate ne fait que confirmer la mise en file, on poll ensuite.
+      if (d.processing && d.peb_donnee_id) { pollStatut(d.peb_donnee_id); return; }
+      finish(d);
     })
-    .catch(function () {
-      spinner.classList.add('d-none');
-      btn.disabled = false;
-      showStatus('danger', 'bi-exclamation-triangle-fill', 'Erreur réseau. Veuillez réessayer.');
-    });
+    .catch(function () { finish({ success: false, error: 'Erreur réseau. Veuillez réessayer.' }); });
     input.value = '';
   });
+
+  // Certains PDFs (VEKA Flandre) nécessitent un fallback OCR page-par-page qui
+  // peut prendre 10-30s — on interroge le statut toutes les 3s pendant ~2 minutes.
+  function pollStatut(pebDonneeId) {
+    var attempts = 0;
+    var MAX_ATTEMPTS = 40;
+    var timer = setInterval(function () {
+      attempts += 1;
+      if (attempts > MAX_ATTEMPTS) {
+        clearInterval(timer);
+        finish({ success: false, error: 'Analyse trop longue — réessayez.' });
+        return;
+      }
+      fetch('<%= ocr_scan_peb_statut_path %>?peb_donnee_id=' + encodeURIComponent(pebDonneeId), {
+        headers: { 'Accept': 'application/json' }
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d.statut === 'en_cours') return;
+        clearInterval(timer);
+        finish(d);
+      })
+      .catch(function () { /* erreur ponctuelle de polling — on retente au prochain tick */ });
+    }, 3000);
+  }
+
+  function finish(d) {
+    spinner.classList.add('d-none');
+    btn.disabled = false;
+
+    if (!d.success) {
+      showStatus('danger', 'bi-exclamation-triangle-fill', d.error || 'Extraction échouée.');
+      return;
+    }
+
+    // Mise à jour des affichages lecture seule
+    setDisplay('peb-label-display-wallonie',     d.label_peb || '—');
+    setDisplay('peb-score-display-wallonie',     d.score_ep ? d.score_ep + ' kWh/(m².an)' : '—');
+    setDisplay('peb-surface-display-wallonie',   d.surface_reference ? d.surface_reference + ' m²' : '—');
+    setDisplay('peb-numero-display-wallonie',    d.numero_certificat || '—');
+    setDisplay('peb-date-cert-display-wallonie', d.date_certificat || '—');
+    setDisplay('peb-date-valid-display-wallonie',d.date_validite || '—');
+
+    var type = d.extraction_complete ? 'success' : 'warning';
+    var ic   = d.extraction_complete ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill';
+    showStatus(type, ic, d.message);
+  }
 
   function setDisplay(id, val) {
     var el = document.getElementById(id);

@@ -512,47 +512,82 @@
     })
     .then(r => r.json())
     .then(data => {
-      spinner.classList.add('d-none');
-
-      if (data.success) {
-        const complet = data.extraction_complete;
-        alertDiv.className = `alert border-0 rounded-2 py-1 px-2 mb-0 small d-flex align-items-center gap-2 alert-${complet ? 'success' : 'warning'}`;
-        icon.className = `bi bi-${complet ? 'check-circle-fill' : 'exclamation-circle'} d-block`;
-        msg.textContent = complet ? 'Extraction complète !' : 'Extraction partielle — vérifiez les données.';
-
-        // Remplir les champs résultat
-        show('r-peb-label',    data.label_peb);
-        show('r-peb-score',    data.score_ep ? data.score_ep + ' kWh/(m².an)' : null);
-        show('r-peb-numero',   data.numero_certificat);
-        show('r-peb-region',   data.region ? data.region.charAt(0).toUpperCase() + data.region.slice(1) : null);
-        show('r-peb-date-cert',  data.date_certificat);
-        show('r-peb-date-valid', data.date_validite);
-
-        const bar = document.getElementById('r-peb-confiance');
-        if (bar) {
-          bar.style.width = (data.confiance_ocr || 0) + '%';
-          bar.className = 'progress-bar bg-' + (data.confiance_ocr >= 70 ? 'success' : data.confiance_ocr >= 40 ? 'warning' : 'danger');
-        }
-
-        const actionsDiv = document.getElementById('r-peb-actions');
-        if (actionsDiv) {
-          actionsDiv.innerHTML = '<button onclick="window.location.reload()" class="btn btn-primary btn-sm"><i class="bi bi-arrow-clockwise me-1"></i>Actualiser l\'analyse</button>';
-        }
-
-        resultDiv.classList.remove('d-none');
-      } else {
-        alertDiv.className = 'alert border-0 rounded-2 py-1 px-2 mb-0 small d-flex align-items-center gap-2 alert-danger';
-        icon.className = 'bi bi-x-circle-fill d-block';
-        msg.textContent = data.error || 'Erreur lors du traitement du certificat PEB.';
-      }
+      // L'extraction tourne désormais dans PebExtractionJob (dyno worker) — le
+      // fallback OCR page-par-page des PDFs VEKA peut prendre 10-30s, on poll.
+      if (data.processing && data.peb_donnee_id) { pollPeb(data.peb_donnee_id); return; }
+      finishPeb(data);
     })
     .catch(err => {
-      spinner.classList.add('d-none');
+      console.error('PEB OCR error:', err);
+      finishPeb({ success: false, error: 'Erreur réseau. Veuillez réessayer.' });
+    });
+  }
+
+  function pollPeb(pebDonneeId) {
+    let attempts = 0;
+    const MAX_ATTEMPTS = 40; // ~2 minutes
+    const timer = setInterval(() => {
+      attempts += 1;
+      if (attempts > MAX_ATTEMPTS) {
+        clearInterval(timer);
+        finishPeb({ success: false, error: 'Analyse trop longue — réessayez.' });
+        return;
+      }
+      fetch(`<%= ocr_scan_peb_statut_path %>?peb_donnee_id=${encodeURIComponent(pebDonneeId)}`, {
+        headers: { 'Accept': 'application/json' }
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.statut === 'en_cours') return;
+          clearInterval(timer);
+          finishPeb(data);
+        })
+        .catch(() => { /* erreur ponctuelle de polling — on retente au prochain tick */ });
+    }, 3000);
+  }
+
+  function finishPeb(data) {
+    const statusDiv = document.getElementById('status-peb-apres');
+    const alertDiv  = document.getElementById('alert-peb-apres');
+    const spinner   = document.getElementById('spinner-peb-apres');
+    const icon      = document.getElementById('icon-peb-apres');
+    const msg       = document.getElementById('msg-peb-apres');
+    const resultDiv = document.getElementById('result-peb-apres');
+
+    spinner.classList.add('d-none');
+
+    if (data.success) {
+      const complet = data.extraction_complete;
+      alertDiv.className = `alert border-0 rounded-2 py-1 px-2 mb-0 small d-flex align-items-center gap-2 alert-${complet ? 'success' : 'warning'}`;
+      icon.className = `bi bi-${complet ? 'check-circle-fill' : 'exclamation-circle'} d-block`;
+      msg.textContent = complet ? 'Extraction complète !' : 'Extraction partielle — vérifiez les données.';
+
+      // Remplir les champs résultat
+      show('r-peb-label',    data.label_peb);
+      show('r-peb-score',    data.score_ep ? data.score_ep + ' kWh/(m².an)' : null);
+      show('r-peb-numero',   data.numero_certificat);
+      show('r-peb-region',   data.region ? data.region.charAt(0).toUpperCase() + data.region.slice(1) : null);
+      show('r-peb-date-cert',  data.date_certificat);
+      show('r-peb-date-valid', data.date_validite);
+
+      const bar = document.getElementById('r-peb-confiance');
+      if (bar) {
+        bar.style.width = (data.confiance_ocr || 0) + '%';
+        bar.className = 'progress-bar bg-' + (data.confiance_ocr >= 70 ? 'success' : data.confiance_ocr >= 40 ? 'warning' : 'danger');
+      }
+
+      const actionsDiv = document.getElementById('r-peb-actions');
+      if (actionsDiv) {
+        actionsDiv.innerHTML = '<button onclick="window.location.reload()" class="btn btn-primary btn-sm"><i class="bi bi-arrow-clockwise me-1"></i>Actualiser l\'analyse</button>';
+      }
+
+      resultDiv.classList.remove('d-none');
+    } else {
+      statusDiv.classList.remove('d-none');
       alertDiv.className = 'alert border-0 rounded-2 py-1 px-2 mb-0 small d-flex align-items-center gap-2 alert-danger';
       icon.className = 'bi bi-x-circle-fill d-block';
-      msg.textContent = 'Erreur réseau. Veuillez réessayer.';
-      console.error('PEB OCR error:', err);
-    });
+      msg.textContent = data.error || 'Erreur lors du traitement du certificat PEB.';
+    }
   }
 
   document.addEventListener('DOMContentLoaded', setupScanPeb);

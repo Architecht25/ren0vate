@@ -591,72 +591,47 @@ class ProjectsController < ApplicationController
   end
 
   # POST /projects/:id/scan_peb_apres
+  # Même bascule asynchrone que #scan_peb (OcrController) : le fallback OCR
+  # page-par-page (PDFs VEKA) peut dépasser les 30s de timeout du routeur
+  # Heroku (H12) si fait en synchrone. On crée donc immédiatement la ligne
+  # "en_cours" et on délègue à PebExtractionJob ; le front-end fait ensuite du
+  # polling via OcrController#scan_peb_statut (route partagée avec le scan
+  # "avant travaux", PebDonnee appartenant à current_user dans les deux cas).
   def scan_peb_apres
     unless params[:file].present?
       return render json: { error: 'Aucun fichier fourni' }, status: :bad_request
     end
 
     begin
-      peb_service = PebOcrService.new(params[:file])
-      result      = peb_service.extraire_donnees_peb
-
-      unless result[:success]
-        return render json: { error: result[:error] }, status: :unprocessable_entity
-      end
-
-      # Document
       document = current_user.documents.create!(
         file:          params[:file],
         type_document: 'certificat_peb_apres',
         property:      @project.property,
         status:        'pending',
-        notes:         "Certificat PEB après travaux — projet #{@project.nom} " \
-                       "— #{result[:region]&.capitalize} — confiance #{result[:confiance_ocr].to_i} %"
+        notes:         "Certificat PEB après travaux — projet #{@project.nom} — analyse en cours…"
       )
 
       if document.file.attached? && document.file_url.blank?
         document.update_column(:file_url, rails_blob_url(document.file))
       end
 
-      # PebDonnee rattachée au projet (phase: apres_travaux)
       peb_donnee = PebDonnee.create!(
-        property:            @project.property,
-        project:             @project,
-        document:            document,
-        user:                current_user,
-        phase:               'apres_travaux',
-        region:              result[:region],
-        numero_certificat:   result[:numero_certificat],
-        label_peb:           result[:label_peb],
-        score_ep:            result[:score_ep],
-        surface_reference:   result[:surface_reference],
-        date_certificat:     result[:date_certificat],
-        date_validite:       result[:date_validite],
-        confiance_ocr:       result[:confiance_ocr],
-        extraction_complete: result[:extraction_complete],
-        texte_ocr_brut:      result[:texte_ocr_brut],
-        donnees_extraites:   { 'recommandations' => result[:recommandations] || [] }
+        property: @project.property,
+        project:  @project,
+        document: document,
+        user:     current_user,
+        phase:    'apres_travaux',
+        statut:   'en_cours'
       )
 
-      # MAJ automatique du champ date_peb_apres_travaux si suffisamment fiable
-      if @project.property && result[:confiance_ocr].to_i >= 70 && result[:date_certificat].present?
-        @project.property.update_column(:date_peb_apres_travaux, result[:date_certificat])
-      end
+      PebExtractionJob.perform_later(peb_donnee.id, document.id)
 
       render json: {
-        success:             true,
-        document_id:         document.id,
-        peb_donnee_id:       peb_donnee.id,
-        region:              result[:region],
-        numero_certificat:   result[:numero_certificat],
-        label_peb:           result[:label_peb],
-        score_ep:            result[:score_ep],
-        surface_reference:   result[:surface_reference],
-        date_certificat:     result[:date_certificat]&.strftime('%d/%m/%Y'),
-        date_validite:       result[:date_validite]&.strftime('%d/%m/%Y'),
-        confiance_ocr:       result[:confiance_ocr],
-        extraction_complete: result[:extraction_complete]
-      }
+        success:       true,
+        processing:    true,
+        peb_donnee_id: peb_donnee.id,
+        document_id:   document.id
+      }, status: :accepted
 
     rescue ActiveRecord::RecordInvalid => e
       render json: { error: "Erreur sauvegarde PEB", details: e.record.errors.full_messages }, status: :unprocessable_entity
