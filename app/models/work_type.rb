@@ -29,15 +29,15 @@ class WorkType
     {
       key: 'toiture_remplacement',
       category: 'toiture',
-      name: 'Remplacement toiture (tuiles/ardoises)',
+      name: 'Remplacement toiture complet (charpente + isolation + couverture)',
       icon: 'bi-house-door',
       unit: 'm²',
       unit_label: 'm²',
       forfait: false,
-      price_min: 80,
-      price_max: 160,
-      duration_min: 5,
-      duration_max: 12,
+      price_min: 150,
+      price_max: 300,
+      duration_min: 10,
+      duration_max: 20,
       vat_rate: 6
     },
     {
@@ -94,6 +94,34 @@ class WorkType
       price_max: 8_000,
       duration_min: 2,
       duration_max: 5,
+      vat_rate: 6
+    },
+    {
+      key: 'velux',
+      category: 'toiture',
+      name: 'Placement/remplacement de velux',
+      icon: 'bi-window-fullscreen',
+      unit: 'pièce',
+      unit_label: 'pièce',
+      forfait: false,
+      price_min: 800,
+      price_max: 2_500,
+      duration_min: 1,
+      duration_max: 2,
+      vat_rate: 6
+    },
+    {
+      key: 'echafaudage',
+      category: 'toiture',
+      name: 'Échafaudage (location + montage/démontage)',
+      icon: 'bi-bounding-box',
+      unit: 'forfait',
+      unit_label: 'chantier',
+      forfait: true,
+      price_min: 800,
+      price_max: 3_000,
+      duration_min: 1,
+      duration_max: 3,
       vat_rate: 6
     },
 
@@ -238,20 +266,6 @@ class WorkType
       price_max: 1_600,
       duration_min: 3,
       duration_max: 7,
-      vat_rate: 6
-    },
-    {
-      key: 'velux',
-      category: 'ouvertures',
-      name: 'Fenêtre de toiture (Velux/équivalent)',
-      icon: 'bi-window-fullscreen',
-      unit: 'forfait',
-      unit_label: 'pièce',
-      forfait: true,
-      price_min: 800,
-      price_max: 2_500,
-      duration_min: 1,
-      duration_max: 2,
       vat_rate: 6
     },
     {
