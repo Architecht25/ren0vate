@@ -6,10 +6,12 @@ class User < ApplicationRecord
          :lockable, :confirmable
 
   # Chiffrement at-rest des données personnelles sensibles (RGPD A02)
-  # support_unencrypted_data: true permet de lire les valeurs stockées en clair
-  # avant l'activation du chiffrement (migration transparente)
-  encrypts :national_number, support_unencrypted_data: true
-  encrypts :iban, support_unencrypted_data: true
+  # Toutes les données en clair ont été rechiffrées le 04/09/2026 (voir
+  # lib/tasks/encrypt_sensitive_data.rake) — plus de support_unencrypted_data
+  # ici, on retombe sur config.active_record.encryption.support_unencrypted_data
+  # (piloté par AR_ENCRYPTION_SUPPORT_UNENCRYPTED, déjà à false sur Heroku).
+  encrypts :national_number
+  encrypts :iban
 
   # Enum pour les rôles
   enum :role, { user: 0, moderator: 1, admin: 2 }, default: :user

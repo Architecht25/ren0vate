@@ -6,7 +6,8 @@ class RibDonnee < ApplicationRecord
   encrypts :iban
   encrypts :nom_titulaire
   # texte_ocr_brut peut contenir les coordonnées bancaires brutes de l’OCR — 22 avril 2026
-  encrypts :texte_ocr_brut, support_unencrypted_data: true
+  # Rechiffré le 04/09/2026, retombe désormais sur la config globale (déjà false sur Heroku).
+  encrypts :texte_ocr_brut
 
   validates :iban, format: {
     with: /\ABE\d{2}\d{12}\z/,

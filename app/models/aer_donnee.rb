@@ -5,15 +5,18 @@ class AerDonnee < ApplicationRecord
   # Chiffrement at-rest des données fiscales sensibles (RGPD A02) — 22 avril 2026
   # Les colonnes revenu_* ont été converties de decimal à text (migration 20260422100000).
   # attribute pré-déclaré pour préserver le comportement numérique (à la lecture, la valeur est un Decimal).
-  # support_unencrypted_data: true permet la lecture des enregistrements antérieurs non chiffrés.
+  # Toutes les données en clair ont été rechiffrées le 04/09/2026 (voir
+  # lib/tasks/encrypt_sensitive_data.rake) — plus de support_unencrypted_data
+  # ici, on retombe sur config.active_record.encryption.support_unencrypted_data
+  # (piloté par AR_ENCRYPTION_SUPPORT_UNENCRYPTED, déjà à false sur Heroku).
   attribute :revenu_imposable_global, :decimal, precision: 12, scale: 2
   attribute :revenu_demandeur,        :decimal, precision: 12, scale: 2
   attribute :revenu_conjoint,         :decimal, precision: 12, scale: 2
 
-  encrypts :revenu_imposable_global, support_unencrypted_data: true
-  encrypts :revenu_demandeur,        support_unencrypted_data: true
-  encrypts :revenu_conjoint,         support_unencrypted_data: true
-  encrypts :texte_ocr_brut,          support_unencrypted_data: true
+  encrypts :revenu_imposable_global
+  encrypts :revenu_demandeur
+  encrypts :revenu_conjoint
+  encrypts :texte_ocr_brut
 
   TYPES_DECLARATION = %w[isole couple isole_avec_enfant].freeze
 
