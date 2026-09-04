@@ -741,6 +741,8 @@ class Property < ApplicationRecord
     when 'bruxelles'
       # Pour les entreprises, ne pas exiger type_bien_bruxelles
       fields += [:type_bien_bruxelles] unless is_entreprise?
+    when 'espagne'
+      fields += [:type]
     end
 
     fields

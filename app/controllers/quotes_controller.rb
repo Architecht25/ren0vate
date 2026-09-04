@@ -45,7 +45,7 @@ class QuotesController < ApplicationController
 
   # GET /properties/:property_id/quotes/new
   def new
-    @work_types_by_category = WorkType.by_category
+    @work_types_by_category = WorkType.by_category(region: @property.region)
     @projects = @property.projects.order(updated_at: :desc).limit(5)
   end
 
@@ -67,11 +67,11 @@ class QuotesController < ApplicationController
     items_params = build_items_from_params
     if items_params.empty?
       flash[:alert] = "Veuillez sélectionner au moins un type de travaux avec une quantité."
-      @work_types_by_category = WorkType.by_category
+      @work_types_by_category = WorkType.by_category(region: @property.region)
       render :new, status: :unprocessable_entity and return
     end
 
-    calculator = Quotes::Calculator.new(items_params)
+    calculator = Quotes::Calculator.new(items_params, region: @property.region)
     result = calculator.calculate
 
     @quote = @property.quotes.new(
@@ -106,7 +106,7 @@ class QuotesController < ApplicationController
   rescue ActiveRecord::RecordInvalid => e
     Rails.logger.error "Erreur création devis: #{e.message}"
     flash[:alert] = "Une erreur est survenue lors de la création du devis."
-    @work_types_by_category = WorkType.by_category
+    @work_types_by_category = WorkType.by_category(region: @property.region)
     render :new, status: :unprocessable_entity
   end
 

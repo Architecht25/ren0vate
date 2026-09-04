@@ -71,6 +71,21 @@
                 <% end %>
               </div>
 
+              <!-- Carte pour l'Espagne -->
+              <div class="col-lg-4 col-md-6">
+                <%= link_to new_property_path(region: "espagne"), class: "text-decoration-none" do %>
+                  <div class="card h-100 region-card">
+                    <div class="card-body text-center p-4">
+                      <div class="icon-circle-large mx-auto mb-3">
+                        <i class="bi bi-globe-europe-africa"></i>
+                      </div>
+                      <h5 class="card-title mb-2">Espagne</h5>
+                      <p class="text-muted-custom small mb-0">Formulaire simplifié — gestion de chantier et documents, sans simulation de primes.</p>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+
             </div>
           </div>
         </div>
@@ -83,7 +98,7 @@
         <div class="card border-0 bg-light-custom">
           <div class="card-body p-4">
             <% region = params[:region].presence || @property.region %>
-            <% if %w[bruxelles wallonie flandre].include?(region) %>
+            <% if %w[bruxelles wallonie flandre espagne].include?(region) %>
               <%= render partial: "quick_create_form", locals: { property: @property, region: region } %>
             <% else %>
               <div class="alert alert-warning">

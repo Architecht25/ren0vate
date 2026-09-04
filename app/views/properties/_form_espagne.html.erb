@@ -1,0 +1,227 @@
+<% property ||= @property %>
+<div class="container-fluid px-0">
+  <%= simple_form_for property, local: true, html: { class: "needs-validation", novalidate: true } do |f| %>
+
+    <!-- Champ caché pour la région -->
+    <%= f.hidden_field :region, value: "espagne" %>
+
+    <div class="alert alert-light border d-flex align-items-start gap-2 mb-3" style="font-size: 0.85rem;">
+      <i class="bi bi-info-circle text-muted mt-1"></i>
+      <span class="text-muted">
+        Formulaire simplifié pour l'Espagne : gestion de chantier, documents et devis.
+        La simulation de primes et le certificat énergétique espagnol (CEE) ne sont pas encore disponibles pour cette région.
+      </span>
+    </div>
+
+    <div class="row justify-content-center mb-3">
+      <div class="col-lg-10">
+        <div class="row g-3">
+
+          <!-- Carte 1: Nom du bien -->
+          <div class="col-lg-6">
+            <div class="card rounded-4 h-100">
+              <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                    <i class="bi bi-tag text-white fs-6"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-0 text-dark fw-normal">Nom du bien</h5>
+                    <p class="text-muted small mb-0">Identification de votre propriété</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 py-3">
+                <%= f.input :titre,
+                    label: '<i class="bi bi-tag me-2 text-primary"></i>Nom ou titre du bien'.html_safe,
+                    placeholder: "ex. Casa Asturias, Piso Gijón...",
+                    wrapper_html: { class: "mb-3" },
+                    label_html: { class: "form-label text-dark fw-medium mb-1" },
+                    input_html: { class: "form-control" } %>
+
+                <div data-controller="image-preview">
+                  <%= f.input :photo,
+                      as: :file,
+                      label: '<i class="bi bi-camera me-2 text-primary"></i>Photo du bien'.html_safe,
+                      hint: '<i class="bi bi-info-circle me-1"></i>JPG, PNG, max 5MB'.html_safe,
+                      wrapper_html: { class: "mb-0" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: {
+                        class: "form-control",
+                        accept: "image/*",
+                        data: {
+                          image_preview_target: "input",
+                          action: "change->image-preview#previewImage"
+                        }
+                      } %>
+
+                  <!-- Zone de prévisualisation -->
+                  <div data-image-preview-target="preview" class="mt-2" style="display: none;">
+                    <img data-image-preview-target="previewImg" src="" alt="Aperçu" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
+                  </div>
+
+                  <!-- Photo existante -->
+                  <% if property.photo.attached? %>
+                    <div class="mt-2">
+                      <small class="form-text text-muted d-block">Photo actuelle:</small>
+                      <%= image_tag property.photo, class: "img-thumbnail", style: "max-width: 200px; max-height: 150px;" %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Carte 2: Adresse -->
+          <div class="col-lg-6">
+            <div class="card rounded-4 h-100">
+              <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                    <i class="bi bi-geo-alt text-white fs-6"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-0 text-dark fw-normal">Adresse du bien</h5>
+                    <p class="text-muted small mb-0">Localisation en Espagne</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 py-3">
+                <div class="row g-2">
+                  <div class="col-md-8">
+                    <%= f.input :rue,
+                        label: '<i class="bi bi-signpost me-2 text-info"></i>Rue / Calle'.html_safe,
+                        placeholder: "ex. Calle Mayor",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: { class: "form-control", required: true } %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= f.input :numero,
+                        label: '<i class="bi bi-hash me-2 text-info"></i>Numéro'.html_safe,
+                        placeholder: "ex. 24",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: { class: "form-control", required: true } %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= f.input :code_postal,
+                        label: '<i class="bi bi-mailbox me-2 text-info"></i>Código postal'.html_safe,
+                        placeholder: "ex. 33001",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: { class: "form-control", required: true } %>
+                  </div>
+                  <div class="col-md-8">
+                    <%= f.input :commune,
+                        label: '<i class="bi bi-geo me-2 text-info"></i>Ville / Municipio'.html_safe,
+                        placeholder: "ex. Oviedo",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: { class: "form-control", required: true } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="row justify-content-center mb-3">
+      <div class="col-lg-10">
+        <div class="card rounded-4">
+          <div class="card-header bg-white border-0 py-3">
+            <div class="d-flex align-items-center">
+              <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                <i class="bi bi-house-gear text-white fs-6"></i>
+              </div>
+              <div>
+                <h5 class="card-title mb-0 text-dark fw-normal">Caractéristiques du bien</h5>
+                <p class="text-muted small mb-0">Complétez au fil de vos besoins — rien n'est bloquant</p>
+              </div>
+            </div>
+          </div>
+          <div class="card-body px-4 py-3">
+            <div class="row g-2">
+              <div class="col-md-6">
+                <%= f.input :type,
+                    label: '<i class="bi bi-house me-2 text-secondary"></i>Type de bien'.html_safe,
+                    collection: [
+                      ["Maison individuelle (chalet/villa)", "maison"],
+                      ["Appartement (piso)", "appartement"],
+                      ["Immeuble avec plusieurs unités", "immeuble"],
+                      ["Local commercial", "local"]
+                    ],
+                    include_blank: "Sélectionnez le type de bien",
+                    wrapper_html: { class: "mb-3" },
+                    label_html: { class: "form-label text-dark fw-medium mb-1" },
+                    input_html: { class: "form-select" } %>
+              </div>
+              <div class="col-md-6">
+                <%= f.input :occupation,
+                    label: '<i class="bi bi-key me-2 text-secondary"></i>Occupation'.html_safe,
+                    collection: [
+                      ["Résidence principale", "residence_principale"],
+                      ["Résidence secondaire", "residence_secondaire"],
+                      ["Mise en location", "location"]
+                    ],
+                    include_blank: "Sélectionnez l'occupation",
+                    wrapper_html: { class: "mb-3" },
+                    label_html: { class: "form-label text-dark fw-medium mb-1" },
+                    input_html: { class: "form-select" } %>
+              </div>
+              <div class="col-md-4">
+                <%= f.input :surface_habitable,
+                    label: '<i class="bi bi-rulers me-2 text-secondary"></i>Surface habitable (m²)'.html_safe,
+                    wrapper_html: { class: "mb-3" },
+                    label_html: { class: "form-label text-dark fw-medium mb-1" },
+                    input_html: { class: "form-control", min: 0 } %>
+              </div>
+              <div class="col-md-4">
+                <%= f.input :annee_construction,
+                    label: '<i class="bi bi-calendar3 me-2 text-secondary"></i>Année de construction'.html_safe,
+                    wrapper_html: { class: "mb-3" },
+                    label_html: { class: "form-label text-dark fw-medium mb-1" },
+                    input_html: { class: "form-control", min: 1800, max: Date.current.year } %>
+              </div>
+              <div class="col-md-4">
+                <%= f.input :numero_cadastre,
+                    label: '<i class="bi bi-file-earmark-text me-2 text-secondary"></i>Référence cadastrale'.html_safe,
+                    placeholder: "ex. 1234567AB1234C0001XY",
+                    wrapper_html: { class: "mb-3" },
+                    label_html: { class: "form-label text-dark fw-medium mb-1" },
+                    input_html: { class: "form-control" } %>
+              </div>
+              <div class="col-md-6">
+                <%= f.input :valeur_achat,
+                    label: '<i class="bi bi-currency-euro me-2 text-secondary"></i>Valeur d\'achat'.html_safe,
+                    wrapper_html: { class: "mb-3" },
+                    label_html: { class: "form-label text-dark fw-medium mb-1" },
+                    input_html: { class: "form-control", min: 0 } %>
+              </div>
+              <div class="col-md-6">
+                <%= f.input :date_achat,
+                    label: '<i class="bi bi-calendar-event me-2 text-secondary"></i>Date d\'achat'.html_safe,
+                    wrapper_html: { class: "mb-3" },
+                    label_html: { class: "form-label text-dark fw-medium mb-1" },
+                    input_html: { class: "form-control" } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-10 d-flex justify-content-between align-items-center">
+        <%= link_to properties_path, class: "btn btn-outline-secondary rounded-3 py-2" do %>
+          <i class="bi bi-arrow-left me-2"></i>Annuler
+        <% end %>
+        <%= f.submit "Enregistrer", class: "btn btn-primary rounded-3 py-2 fw-medium px-4" %>
+      </div>
+    </div>
+
+  <% end %>
+</div>

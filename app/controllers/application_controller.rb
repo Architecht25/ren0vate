@@ -91,6 +91,8 @@ class ApplicationController < ActionController::Base
     when 'bruxelles', 'brussel', 'brussels'
       # Bruxelles est bilingue, garder le choix utilisateur ou défaut
       session[:locale]&.to_sym || :fr
+    when 'espagne'
+      :es
     else
       nil
     end

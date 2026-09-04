@@ -943,7 +943,7 @@ class ProjectsController < ApplicationController
     bars = []
 
     quote.quote_items.each do |item|
-      wt = WorkType.find(item.work_type_key)
+      wt = WorkType.find(item.work_type_key, region: quote.property.region)
       next unless wt
 
       duration = item.unit_price_min.present? ? (wt.duration_min + wt.duration_max) / 2.0 : wt.duration_min

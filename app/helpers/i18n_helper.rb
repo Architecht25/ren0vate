@@ -29,7 +29,8 @@ module I18nHelper
     {
       'fr' => { name: 'Français', flag: '🇫🇷' },
       'nl' => { name: 'Nederlands', flag: '🇧🇪' },  # Drapeau belge pour le flamand
-      'en' => { name: 'English', flag: '🇬🇧' }
+      'en' => { name: 'English', flag: '🇬🇧' },
+      'es' => { name: 'Español', flag: '🇪🇸' }
     }
   end
 
@@ -68,6 +69,8 @@ module I18nHelper
       number_to_currency(amount, unit: "€", format: "€ %n", **options)
     when :en
       number_to_currency(amount, unit: "€", format: "€%n", **options)
+    when :es
+      number_to_currency(amount, unit: "€", format: "%n %u", **options)
     else
       number_to_currency(amount, **options)
     end
@@ -82,6 +85,8 @@ module I18nHelper
       l(date, format: format, locale: :nl)
     when :en
       l(date, format: format, locale: :en)
+    when :es
+      l(date, format: format, locale: :es)
     else
       l(date, format: format)
     end

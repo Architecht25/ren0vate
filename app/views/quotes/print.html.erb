@@ -118,7 +118,7 @@
     </tbody>
     <tfoot style="background:#e9ecef; font-weight:bold;">
       <tr>
-        <td colspan="2">TOTAL ESTIMATIF — TVA 6% incluse</td>
+        <td colspan="2">TOTAL ESTIMATIF — TVA/IVA incluse</td>
         <td class="text-end text-success">
           <%= number_to_currency(@quote.total_min, unit: '', separator: ',', delimiter: '.', precision: 0) %>
         </td>
@@ -147,7 +147,7 @@
   <!-- Avertissement légal -->
   <div style="background:#fff8e1; border-left:4px solid #ffc107; padding:12px 16px; border-radius:4px; font-size:0.82rem; color:#555;">
     <strong>⚠️ Estimation indicative</strong> —
-    Ce document est une estimation basée sur les prix moyens du marché belge de la rénovation.
+    Ce document est une estimation basée sur les prix moyens du marché <%= WorkType.country_for_region(@property.region) == 'espagne' ? 'espagnol' : 'belge' %> de la rénovation.
     Les montants réels peuvent varier selon l'état du bâtiment, les matériaux choisis et les conditions du marché local.
     Obtenez toujours plusieurs devis formels auprès d'entrepreneurs agréés avant de prendre une décision.
   </div>

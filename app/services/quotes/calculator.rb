@@ -1,8 +1,9 @@
 module Quotes
   class Calculator
-    def initialize(items_params)
+    def initialize(items_params, region: nil)
       # items_params: array of { work_type_key:, quantity: }
       @items_params = items_params
+      @region = region
     end
 
     def calculate
@@ -22,7 +23,7 @@ module Quotes
     private
 
     def build_item(params)
-      work_type = WorkType.find(params[:work_type_key])
+      work_type = WorkType.find(params[:work_type_key], region: @region)
       return nil unless work_type
 
       qty = params[:quantity].to_f

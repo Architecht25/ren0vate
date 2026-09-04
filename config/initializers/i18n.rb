@@ -1,8 +1,8 @@
-# Configuration I18n pour la Belgique
-# Support du français, néerlandais (flamand) et anglais
+# Configuration I18n pour la Belgique + Espagne
+# Support du français, néerlandais (flamand), anglais et espagnol
 
 # Langues disponibles
-I18n.available_locales = [:fr, :nl, :en]
+I18n.available_locales = [:fr, :nl, :en, :es]
 
 # Langue par défaut (français)
 I18n.default_locale = :fr
@@ -11,7 +11,8 @@ I18n.default_locale = :fr
 I18n.fallbacks = {
   fr: [:fr, :en],          # Français -> Anglais si pas de traduction
   nl: [:nl, :fr, :en],     # Néerlandais -> Français -> Anglais
-  en: [:en, :fr]           # Anglais -> Français
+  en: [:en, :fr],          # Anglais -> Français
+  es: [:es, :en, :fr]      # Espagnol -> Anglais -> Français
 }
 
 # Configuration pour la détection automatique de la langue

@@ -19,7 +19,7 @@ Rails.application.routes.draw do
   get '/connexion', to: redirect('/fr/users/connexion')
 
   # Routes avec support multi-langues (y compris Devise)
-  scope "(:locale)", locale: /fr|nl|en/ do
+  scope "(:locale)", locale: /fr|nl|en|es/ do
     # Routes Devise dans le scope locale avec contrôleur personnalisé
     devise_for :users, path_names: {
       sign_in: 'connexion',

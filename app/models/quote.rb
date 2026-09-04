@@ -11,7 +11,7 @@ class Quote < ApplicationRecord
 
   def items_with_work_type
     quote_items.map do |item|
-      { item: item, work_type: WorkType.find(item.work_type_key) }
+      { item: item, work_type: WorkType.find(item.work_type_key, region: property.region) }
     end
   end
 end

@@ -27,17 +27,19 @@
     <%= render partial: "form_wallonie", locals: { property: @property } %>
   <% when "flandre" %>
     <%= render partial: "form_flandre", locals: { property: @property } %>
+  <% when "espagne" %>
+    <%= render partial: "form_espagne", locals: { property: @property } %>
   <% else %>
     <div class="alert alert-warning">
       <i class="bi bi-exclamation-triangle me-2"></i>
       Région non définie ou non reconnue : "<%= @property.region %>"<br>
-      <small>Régions supportées : Bruxelles, Wallonie, Flandre</small>
+      <small>Régions supportées : Bruxelles, Wallonie, Flandre, Espagne</small>
     </div>
     <%= form_with model: @property, local: true, class: "mt-3" do |form| %>
       <div class="mb-3">
         <%= form.label :region, "Sélectionner la région :", class: "form-label" %>
         <%= form.select :region,
-            [["Bruxelles", "bruxelles"], ["Wallonie", "wallonie"], ["Flandre", "flandre"]],
+            [["Bruxelles", "bruxelles"], ["Wallonie", "wallonie"], ["Flandre", "flandre"], ["Espagne", "espagne"]],
             { prompt: "-- Choisir une région --" },
             { class: "form-select" } %>
       </div>

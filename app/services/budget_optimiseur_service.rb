@@ -37,6 +37,14 @@ class BudgetOptimiseurService
     @project = project
   end
 
+  def region
+    @region ||= @project.property&.region
+  end
+
+  def country_label
+    WorkType.country_for_region(region) == 'espagne' ? 'espagnol' : 'belge'
+  end
+
   def analyser
     api_key = ENV['ANTHROPIC_API_KEY']
     return { success: false, error: 'API IA non configurée' } unless api_key.present?
@@ -104,13 +112,13 @@ class BudgetOptimiseurService
     surface       = devis.filter_map(&:surface_travaux).first
 
     postes = tous_types.filter_map do |key|
-      wt = WorkType.find(key)
+      wt = WorkType.find(key, region: region)
       next unless wt
 
       petrolier     = ITEMS_PETROLIERS.include?(key)
       prix_m2_label = wt.forfait? ? "forfait #{wt.price_min}–#{wt.price_max} €" : "#{wt.price_min}–#{wt.price_max} €/#{wt.unit}"
 
-      "- #{wt.name}: référence marché belge #{prix_m2_label}" \
+      "- #{wt.name}: référence marché #{country_label} #{prix_m2_label}" \
         "#{petrolier ? ' | ⚠️ SENSIBLE AU PÉTROLE' : ''}"
     end
 
@@ -122,17 +130,17 @@ class BudgetOptimiseurService
       "Nombre de devis entrepreneur : #{devis.count}",
       ("Surface de travaux : #{surface} m²" if surface.present?),
       "",
-      "Postes de travaux identifiés vs fourchettes de marché belge :",
+      "Postes de travaux identifiés vs fourchettes de marché #{country_label} :",
       postes.join("\n"),
       "",
-      "Postes exposés aux cours pétroliers : #{petroliers_detectes.map { |t| WorkType.find(t)&.name }.compact.join(', ').presence || 'aucun'}"
+      "Postes exposés aux cours pétroliers : #{petroliers_detectes.map { |t| WorkType.find(t, region: region)&.name }.compact.join(', ').presence || 'aucun'}"
     ]
 
     lines.compact.join("\n")
   end
 
   def system_prompt
-    catalogue_ref = WorkType::CATALOGUE.map do |item|
+    catalogue_ref = WorkType.catalogue_for(region).map do |item|
       flag = ITEMS_PETROLIERS.include?(item[:key].to_s) ? ' [PÉTROLIER]' : ''
       unit_label = item[:forfait] ? "forfait" : item[:unit]
       "#{item[:key]}: #{item[:name]} — #{item[:price_min]}–#{item[:price_max]} €/#{unit_label}#{flag}"
@@ -141,11 +149,11 @@ class BudgetOptimiseurService
     [{
       type: 'text',
       text: <<~PROMPT,
-        Tu es un expert belge en optimisation budgétaire de chantiers de rénovation résidentielle.
-        Tu connais les matériaux disponibles en Belgique, leurs alternatives moins chères à performance équivalente,
+        Tu es un expert #{country_label} en optimisation budgétaire de chantiers de rénovation résidentielle.
+        Tu connais les matériaux disponibles dans ce pays, leurs alternatives moins chères à performance équivalente,
         et les postes dont le prix est exposé aux fluctuations des matières premières pétrolières.
 
-        Catalogue de référence — fourchettes de marché belge 2026 :
+        Catalogue de référence — fourchettes de marché #{country_label} 2026 :
         #{catalogue_ref}
 
         Analyse le projet fourni et réponds UNIQUEMENT avec un objet JSON valide :
@@ -159,7 +167,7 @@ class BudgetOptimiseurService
               "alternative": "matériau ou solution alternative recommandée",
               "economie_estimee": "fourchette ex: 500–800 € ou 8–12%",
               "performance": "équivalente | supérieure | légèrement inférieure",
-              "remarque": "disponibilité belge, éligibilité prime, ou nuance importante"
+              "remarque": "disponibilité locale, éligibilité prime, ou nuance importante"
             }
           ],
           "risques_petroliers": [
@@ -177,7 +185,7 @@ class BudgetOptimiseurService
 
         Règles strictes :
         - score_optimisation : 100 = devis déjà très bien optimisé, 0 = fort potentiel inexploité. Sois réaliste.
-        - alternatives : max 4. Uniquement si économie significative (>5%) ET matériau disponible en Belgique en 2026.
+        - alternatives : max 4. Uniquement si économie significative (>5%) ET matériau disponible dans ce pays en 2026.
         - risques_petroliers : uniquement pour les postes marqués PÉTROLIER dans le catalogue.
         - optimisations_lots : max 3 conseils pratiques et actionnables.
         - economies_estimees : estimation conservative en euros entiers. Prudence > optimisme.

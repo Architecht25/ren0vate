@@ -5,6 +5,6 @@ class QuoteItem < ApplicationRecord
   validates :quantity, numericality: { greater_than: 0 }
 
   def work_type
-    WorkType.find(work_type_key)
+    WorkType.find(work_type_key, region: quote.property.region)
   end
 end
