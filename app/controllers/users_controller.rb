@@ -11,6 +11,7 @@ class UsersController < ApplicationController
 
   def update
     @user = current_user
+    @user.repair_undecryptable_encrypted_fields!
     if @user.update(user_params)
       redirect_to profile_path, notice: "Profil mis à jour avec succès."
     else

@@ -112,6 +112,11 @@
                             class: "form-control border-2 rounded-3 px-3",
                             style: "background: #f8f9fa; border-color: #e9ecef !important;",
                             placeholder: "Ex: 77.15.06.123.88" %>
+                        <% if current_user.national_number_undecryptable? %>
+                          <small class="form-text text-warning">
+                            <i class="bi bi-exclamation-triangle me-1"></i>Valeur existante illisible avec la clé de chiffrement actuelle — merci de la ressaisir.
+                          </small>
+                        <% end %>
                       </div>
                       <% rib_derniere = current_user.rib_donnees.order(created_at: :desc).first %>
                       <div class="col-md-4">
@@ -137,6 +142,11 @@
                         <small id="rib-nom-banque" class="text-muted mt-1 ms-1<%= rib_derniere&.nom_banque ? '' : ' d-none' %>">
                           <i class="bi bi-building me-1"></i><span id="rib-nom-banque-text"><%= rib_derniere&.nom_banque %></span>
                         </small>
+                        <% if current_user.iban_undecryptable? %>
+                          <small class="form-text text-warning d-block">
+                            <i class="bi bi-exclamation-triangle me-1"></i>Valeur existante illisible avec la clé de chiffrement actuelle — merci de la ressaisir.
+                          </small>
+                        <% end %>
                         <small class="mt-1 ms-1">
                           <%= link_to documents_path, class: "small" do %>
                             <i class="bi bi-folder2 me-1"></i>Voir mes documents administratifs

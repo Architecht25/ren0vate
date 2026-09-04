@@ -13,6 +13,47 @@ class User < ApplicationRecord
   encrypts :national_number
   encrypts :iban
 
+  # Ces deux champs peuvent contenir une valeur chiffrée avec une clé qui n'est plus
+  # la clé active de l'environnement courant (ex. donnée importée depuis un autre
+  # environnement sans ses clés AR_ENCRYPTION_*). Sans ce garde-fou, le simple fait
+  # d'afficher le formulaire de profil lève ActiveRecord::Encryption::Errors::Decryption
+  # et fait planter la page — on renvoie nil plutôt que de laisser planter la vue.
+  def national_number
+    super
+  rescue ActiveRecord::Encryption::Errors::Decryption
+    nil
+  end
+
+  def iban
+    super
+  rescue ActiveRecord::Encryption::Errors::Decryption
+    nil
+  end
+
+  # true si une valeur est présente en base mais illisible avec la clé de chiffrement
+  # actuelle (à distinguer d'un champ simplement vide) — utile pour prévenir l'utilisateur
+  # plutôt que de lui laisser croire que le champ n'a jamais été rempli.
+  def national_number_undecryptable?
+    read_attribute_before_type_cast(:national_number).present? && national_number.nil?
+  end
+
+  def iban_undecryptable?
+    read_attribute_before_type_cast(:iban).present? && iban.nil?
+  end
+
+  # À appeler avant tout update du profil : le simple fait de sauvegarder (même sans
+  # toucher à ces deux champs) déclenche le dirty-tracking d'ActiveRecord, qui tente de
+  # déchiffrer l'ANCIENNE valeur en base pour la comparer à la nouvelle — et plante avec
+  # ActiveRecord::Encryption::Errors::Decryption si cette ancienne valeur est illisible
+  # avec la clé actuelle. On la purge directement en base (update_column, hors cycle de
+  # dirty-tracking) pour repartir d'une base propre avant l'update normal.
+  def repair_undecryptable_encrypted_fields!
+    return if new_record?
+    %i[national_number iban].each do |attr|
+      update_column(attr, nil) if send("#{attr}_undecryptable?")
+    end
+  end
+
   # Enum pour les rôles
   enum :role, { user: 0, moderator: 1, admin: 2 }, default: :user
 
