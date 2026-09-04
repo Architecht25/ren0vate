@@ -211,6 +211,17 @@ class ApplicationController < ActionController::Base
   end
   helper_method :plan_exempt?
 
+  # Gating partagé pour le module gestion locative (Tenant/Lease/RentPayment),
+  # utilisé par TenantsController, LeasesController, RentPaymentsController
+  # et PropertiesController#gestion_locative/#profil_bailleur.
+  def check_gestion_locative_access!
+    return if plan_exempt?
+    unless current_user.can_access_feature?(:gestion_locative)
+      redirect_to pricing_select_path,
+                  alert: "La gestion locative (baux, locataires, loyers) est disponible à partir de l'offre Investisseur."
+    end
+  end
+
   # Valider qu'une URL externe pointe vers un hôte de confiance avant redirection
   TRUSTED_REDIRECT_HOSTS = %w[
     res.cloudinary.com

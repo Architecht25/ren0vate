@@ -297,6 +297,8 @@ class User < ApplicationRecord
       %w[enterprise].include?(tier)
     when :rapport_pdf
       %w[professional enterprise].include?(tier)
+    when :gestion_locative
+      %w[portfolio premium_mixed professional enterprise].include?(tier)
     else
       false
     end

@@ -1,5 +1,6 @@
 class LeasesController < ApplicationController
   before_action :authenticate_user!
+  before_action :check_gestion_locative_access!
   before_action :set_property
   before_action :set_tenant
   before_action :set_lease, only: [:show, :edit, :update, :destroy, :terminer, :activer_resiliation]

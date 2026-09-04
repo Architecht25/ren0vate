@@ -2,6 +2,7 @@ require 'net/http'
 
 class PropertiesController < ApplicationController
   before_action :authenticate_user!
+  before_action :check_gestion_locative_access!, only: [:gestion_locative, :profil_bailleur]
   before_action :set_property, only: [:show, :dashboard, :edit, :update, :destroy, :purge_photo, :documents_dashboard, :peb_recommandations, :documents_phases_dashboard, :formulaire_miroir, :submit_prime, :select_form, :mise_en_vente, :activer_vente, :desactiver_vente, :marquer_vendu, :gestion_locative, :profil_bailleur]
 
   def index
