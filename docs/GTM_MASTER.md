@@ -84,13 +84,17 @@
 
 ## 2. CE QUI RESTE À FAIRE
 
-### 🟠 Acquisition — les 3 items qui bloquent le 100% marketing
+### 🟢 Acquisition — nice-to-have, plus bloquant depuis le pivot audience chaude (04/09/2026)
+
+Ces items visaient une acquisition B2C froide ; ils ne bloquent plus rien depuis le pivot
+vers l'audience chaude Primes-Services (pas d'acquisition froide au lancement d'octobre).
 
 | # | Tâche | Détail |
 |---|-------|--------|
-| A1 | **LinkedIn page entreprise + posts de lancement** | Indispensable B2B — séquence connexion studios architecture, posts hebdo |
-| A2 | **Vidéo démo Loom (3–4 min)** | Indispensable SaaS B2C — parcours complet propriétaire, à mettre sur landing et en cold outreach |
-| A3 | **Programme Ambassadors** | 20 architectes → accès Pro gratuit en échange de 3 recommandations/mois — test démarré semaine du 19/05 |
+| A1 | **LinkedIn page entreprise + posts de lancement** | ✅ Fait — page déjà créée (confirmé par Robin le 04/09/2026) |
+| A2 | **Vidéo démo Loom (3–4 min)** | Nice-to-have — Robin penche pour la suppression, décision au cas par cas à confirmer |
+
+~~A3 — Programme Ambassadors~~ **Abandonné définitivement le 04/09/2026** (jamais implémenté en code — aucun mécanisme de tracking/récompense trouvé — et conçu pour une logique d'acquisition B2B incompatible avec le pivot audience chaude).
 
 ### 🟡 Contenu & croissance (juin–octobre 2026)
 
@@ -106,7 +110,7 @@
 
 | # | Tâche | Détail |
 |---|-------|--------|
-| P1 | **Migration Cloudinary → Scaleway** | Compte ouvert fin août, trial 750 GB gratuit sept/oct/nov — code prêt |
+| P1 | **Migration Cloudinary → Scaleway** | ⚠️ Corrigé le 04/09/2026 : zéro trace de code Scaleway trouvée dans le repo, contrairement à "code prêt". Tâche entière à faire (pas juste à activer), non bloquant pour octobre |
 | P2 | **Ruby 3.3.9 → 3.3.11** | Upgrade Heroku — non bloquant |
 | P3 | **Restreindre clé Mapbox** | Console Mapbox → domaine `ren0vate.be` |
 | P4 | **Notifications push ActionCable** | Activer Solid Cable quand ~500 users actifs avec collaboration quotidienne |
@@ -127,7 +131,17 @@
 
 ---
 
-## 3. CALENDRIER GTM
+## 3. CALENDRIER GTM — ⚠️ OBSOLÈTE, ARCHIVÉ LE 04/09/2026
+
+Le calendrier juin→octobre ci-dessous décrivait une acquisition B2C froide qui n'a pas eu lieu :
+la pause du 16/07/2026 puis le pivot vers l'audience chaude Primes-Services (confirmé le
+19/07, décision définitive le 31/08) ont rendu cette trajectoire caduque. Réalité au
+03/09/2026 : 108 comptes actifs, 1 seul abonnement payant (annuel) — très loin des
+"500 Freemium / 75 payants" visés fin août. Conservé ci-dessous à titre d'archive
+historique uniquement ; **le suivi réel se fait désormais dans `LAUNCH_CHECKLIST_OCT2026.md`**.
+
+<details>
+<summary>Ancien calendrier (juin 2026, périmé)</summary>
 
 ```
 Juin 2026 — Activation bêta + contenu
@@ -163,6 +177,8 @@ Octobre 2026 — Lancement commercial
   → P1     : Migration Cloudinary → Scaleway finalisée
   Objectif : 2 000 Freemium, 350 payants, 20 000€ MRR
 ```
+
+</details>
 
 ---
 
