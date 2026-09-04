@@ -68,12 +68,14 @@
 
 | Élément | Statut | Notes |
 |---------|--------|-------|
-| Sprint sécurité complet (rate limiting, CSP, chiffrement at-rest, audit log) | ✅ | 6 mai 2026 |
+| Sprint sécurité complet (rate limiting, CSP, chiffrement at-rest, audit log) | ✅ | 6 mai 2026 — chiffrement at-rest : override `support_unencrypted_data: true` codé en dur (IBAN/numéro national/revenus) rendait la config globale inopérante jusqu'au 04/09/2026, corrigé et données rechiffrées ce jour-là |
 | 2FA admin (OTP email, cookie 30j) | ✅ | 18 mai 2026 |
 | `:confirmable` Devise activé | ✅ | 18 mai 2026 — 120+ comptes confirmés automatiquement |
 | SMTP prod (Resend, domaine `ren0vate.be`) | ✅ | |
 | Tests (60 runs, 164 assertions, 0 failures) | ✅ | 4 mai 2026 |
-| RGPD complet (DPIA, registre, DPA, CGU, CPMA, cookie consent) | ✅ | Légal 100% |
+| RGPD (registre, DPA, CGU, cookie consent) | ✅ | |
+| DPIA | ⚠️ | `RGPD_DPIA.md` s'auto-qualifie d'« ébauche initiale — à compléter avant 250 utilisateurs actifs » (04/09/2026) — pas 100% |
+| Inscription médiation consommateur (CPMA) | ❌ | Toujours non fait (voir `docs/CHECKLIST_LANCEMENT.md`) — obligatoire avant d'accepter des consommateurs B2C |
 | Sentry, Plausible Analytics, UptimeRobot | ✅ | À configurer comptes externes (code déjà en prod) |
 | Heroku-24, PostgreSQL, Solid Queue, Cloudinary, Stripe Live | ✅ | |
 | Prompt caching Anthropic (~90% réduction coûts API) | ✅ | |
