@@ -6,7 +6,7 @@
 | Responsable du traitement | ArchiTecht SRL — BCE BE 1020.345.473 |
 | Contact RGPD / DPO | Robin Dupont — robin@architecht.be |
 | Date de création | Mai 2026 |
-| Dernière mise à jour | Mai 2026 |
+| Dernière mise à jour | 4 septembre 2026 — ajout Traitement 8 (liste Primes-Services) |
 
 ---
 
@@ -108,6 +108,22 @@
 | **Destinataires** | Stripe (EU + USA — DPF) |
 | **Transferts hors UE** | Stripe USA — DPF UE-USA |
 | **Durée de conservation** | 10 ans (obligation légale comptable) |
+
+---
+
+## Traitement 8 — Campagne de lancement vers la liste de contacts Primes-Services
+
+| Champ | Détail |
+|-------|--------|
+| **Finalité** | Continuité de service : informer les contacts historiques Primes-Services (mandat de gestion de primes) de la disponibilité de l'outil de simulation Ren0vate |
+| **Base légale** | Art. 6(1)(b) — exécution du mandat de gestion de primes existant, dans la limite de sa finalité initiale (CTA limité à la simulation gratuite). Le changement de responsable de traitement (Primes-Services SRL → ArchiTecht SRL, cession du 28/05/2026) est légitimé par l'art. 4 de la convention de cession, qui autorise Primes-Services à continuer d'exploiter Ren0vate jusqu'à la fin de ses activités (licence jusqu'au 31/12/2027) |
+| **Catégories de personnes** | ~12 000 contacts du CRM Odoo Primes-Services ayant signé un mandat de gestion de primes |
+| **Catégories de données** | Email, nom, historique de mandat — déjà détenues par Primes-Services, aucune nouvelle collecte |
+| **Destinataires** | CRM Odoo (Primes-Services SRL), module Email Marketing |
+| **Transferts hors UE** | Aucun nouveau — infrastructure Odoo existante |
+| **Durée de conservation** | Alignée sur la durée de conservation du mandat Primes-Services existant |
+| **Mesures de sécurité** | CTA unique limité à la simulation gratuite (pas de collecte de données sensibles à ce stade) ; disclosure explicite dans l'email — *« Ren0vate est développé et édité par ArchiTecht SRL (BCE 1020.345.473), en partenariat avec Primes-Services »* ; envoi progressif (1/12ᵉ de la base par mois, ~1 000 contacts en octobre) pour limiter le risque de délivrabilité |
+| **Statut** | 🟡 Mitigé pragmatiquement le 03/09/2026 (mesures ci-dessus) — avis juridique formel de l'avocat RGPD toujours recommandé en parallèle (`TODO_ROADMAP.md` §3.10), non bloquant pour le lancement d'octobre |
 
 ---
 
