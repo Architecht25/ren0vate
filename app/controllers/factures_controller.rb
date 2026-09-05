@@ -49,6 +49,8 @@ class FacturesController < ApplicationController
           @facture = creer_facture_depuis_ocr(@document, ocr_result)
           extraction_partielle = @facture.montant.to_f == 0 || !@facture.extraction_complete
 
+          notify_admin_document_uploaded(@document, project: @project, property: @project.property)
+
           render json: {
             success: true,
             document: document_json(@document),

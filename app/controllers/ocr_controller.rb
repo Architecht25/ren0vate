@@ -56,6 +56,8 @@ class OcrController < ApplicationController
           @document.update(file_url: rails_blob_url(@document.file))
         end
 
+        notify_admin_document_uploaded(@document, property: @document.property, project: @document.project)
+
         render json: {
           success: true,
           document: document_json(@document),
@@ -247,6 +249,8 @@ class OcrController < ApplicationController
         current_user.update(iban: result[:iban])
       end
 
+      notify_admin_document_uploaded(document)
+
       render json: {
         success:             true,
         document_id:         document.id,
@@ -366,6 +370,8 @@ class OcrController < ApplicationController
         current_user.update(user_updates) if user_updates.any?
       end
 
+      notify_admin_document_uploaded(document)
+
       render json: {
         success:                         true,
         document_id:                     document.id,
@@ -435,6 +441,8 @@ class OcrController < ApplicationController
       )
 
       PebExtractionJob.perform_later(peb_donnee.id, document.id)
+
+      notify_admin_document_uploaded(document, property: property)
 
       render json: {
         success:       true,
@@ -547,6 +555,8 @@ class OcrController < ApplicationController
         champ_montant = categorie == 'architecte' ? :architecte_devis_montant : :contractor_devis_montant
         project.update(champ_montant => result[:montant_total_htva])
       end
+
+      notify_admin_document_uploaded(document, project: project)
 
       render json: {
         success:                true,
@@ -677,6 +687,8 @@ class OcrController < ApplicationController
         donnees_extraites: result[:donnees_bordereau].to_h
       )
 
+      notify_admin_document_uploaded(document, project: project)
+
       render json: {
         success:             true,
         document_id:         document.id,
@@ -759,6 +771,8 @@ class OcrController < ApplicationController
       if document.file.attached? && document.file_url.blank?
         document.update_column(:file_url, rails_blob_url(document.file))
       end
+
+      notify_admin_document_uploaded(document, property: property, project: project)
 
       render json: {
         success:              true,

@@ -136,6 +136,8 @@ class ProViewsController < ApplicationController
     )
     facture.save
 
+    notify_admin_document_uploaded(document, project: @project, property: @project.property)
+
     redirect_to pro_view_project_path(@project),
                 notice: "#{type_facture == 'devis' ? 'Devis' : 'Facture'} envoyé#{type_facture == 'devis' ? '' : 'e'} au client ✓"
   end
@@ -163,6 +165,7 @@ class ProViewsController < ApplicationController
     document.file.attach(params[:photo_file])
 
     if document.save
+      notify_admin_document_uploaded(document, project: @project, property: @project.property)
       redirect_to pro_view_project_path(@project), notice: "Photo ajoutée ✓"
     else
       redirect_back fallback_location: pro_view_project_path(@project),
@@ -197,6 +200,7 @@ class ProViewsController < ApplicationController
     document.file.attach(params[:document_file])
 
     if document.save
+      notify_admin_document_uploaded(document, project: @project, property: @project.property)
       labels = { 'plan' => 'Plan', 'metre' => 'Métré', 'permis_urbanisme' => 'Document permis' }
       redirect_to pro_view_project_path(@project), notice: "#{labels[type_doc]} ajouté ✓"
     else

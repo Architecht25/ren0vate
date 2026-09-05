@@ -221,6 +221,8 @@ class ProjectsController < ApplicationController
         document.update_column(:file_url, rails_blob_url(document.file))
       end
 
+      notify_admin_document_uploaded(document, property: @project.property, project: @project)
+
       render json: {
         success:                true,
         document_id:            document.id,
@@ -626,6 +628,8 @@ class ProjectsController < ApplicationController
 
       PebExtractionJob.perform_later(peb_donnee.id, document.id)
 
+      notify_admin_document_uploaded(document, property: @project.property, project: @project)
+
       render json: {
         success:       true,
         processing:    true,
@@ -679,6 +683,8 @@ class ProjectsController < ApplicationController
       )
 
       AuditEnergExtractionJob.perform_later(audit.id, document.id)
+
+      notify_admin_document_uploaded(document, property: @project.property, project: @project)
 
       render json: {
         success:    true,

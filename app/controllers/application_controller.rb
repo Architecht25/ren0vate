@@ -222,6 +222,25 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  # Notifie l'admin par email lors d'un dépôt de document, quel que soit le
+  # contrôleur d'origine (formulaire générique, OCR, factures, vues pro...).
+  # Synchrone (deliver_now) : indépendant de Solid Queue, garantit la livraison
+  # même si le dyno worker est down. Skip pour les photos de suivi de chantier
+  # (cf. Document#is_photo_type?) : le front-end poste chaque photo dans sa
+  # propre requête, un lot de N photos déclencherait sinon N emails identiques.
+  def notify_admin_document_uploaded(documents, context = {})
+    documents = Array(documents).compact
+    return if documents.empty?
+    return if documents.all?(&:is_photo_type?)
+
+    begin
+      AdminMailer.document_uploaded(current_user, documents, context).deliver_now
+    rescue => e
+      Rails.logger.error "[AdminMailer] ÉCHEC notification document_uploaded (user:#{current_user&.id}): #{e.class} — #{e.message}"
+      # On continue même si l'email échoue
+    end
+  end
+
   # Valider qu'une URL externe pointe vers un hôte de confiance avant redirection
   TRUSTED_REDIRECT_HOSTS = %w[
     res.cloudinary.com

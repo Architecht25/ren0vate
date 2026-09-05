@@ -264,26 +264,12 @@ class DocumentsController < ApplicationController
     # Réponse basée sur le succès/échec
     if errors.empty? && created_documents.any?
       # Envoyer une notification par email à l'administrateur (synchrone pour garantir la livraison)
-      # Skip pour les photos de suivi de chantier : le front-end envoie désormais chaque photo
-      # dans une requête séparée (cf. documents/new.html.erb), un lot de N photos déclencherait
-      # sinon N emails identiques à l'admin. Les autres types de documents restent notifiés.
-      unless created_documents.all?(&:is_photo_type?)
-        begin
-          AdminMailer.document_uploaded(
-            current_user,
-            created_documents,
-            {
-              property: @property,
-              project: @project,
-              request: @request,
-              simulation: @simulation
-            }
-          ).deliver_now
-        rescue => e
-          Rails.logger.error "[AdminMailer] ÉCHEC notification document_uploaded (user:#{current_user.id}): #{e.class} — #{e.message}"
-          # On continue même si l'email échoue
-        end
-      end
+      notify_admin_document_uploaded(created_documents, {
+        property: @property,
+        project: @project,
+        request: @request,
+        simulation: @simulation
+      })
 
       # Si upload via AJAX
       if request.xhr?
