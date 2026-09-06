@@ -9,6 +9,9 @@ class Project < ApplicationRecord
   # Suivi du dossier de prêt bonifié wallon (régime "reduction_pret", dès le 01/10/2026)
   has_one :pret_wallonie_dossier, dependent: :destroy
 
+  # Plan de financement — fonds propres, emprunts, primes (voir sync_financing_sources!)
+  has_many :financing_sources, dependent: :destroy
+
   # Collaboration — membres du projet
   has_many :project_members, dependent: :destroy
   has_many :member_users, through: :project_members, source: :user
@@ -291,6 +294,54 @@ class Project < ApplicationRecord
 
   def total_facture
     architecte_factures_total + contractor_factures_total
+  end
+
+  # ── Plan de financement ───────────────────────────────────────────────────
+  def total_finance
+    financing_sources.sum(:amount)
+  end
+
+  def reste_a_financer
+    total_devis_montant - total_finance
+  end
+
+  # Fait converger les lignes "auto-synchronisées" (primes + prêt bonifié wallon) avec
+  # l'état actuel des Simulation/RequestProgress/PretWallonieDossier du projet — upsert
+  # idempotent, appelé en lecture (ProjectsController#show), pas via callback pour ne pas
+  # coupler ces modèles à FinancingSource.
+  def sync_financing_sources!
+    simulations.where("total_simule > 0").find_each do |sim|
+      fs = financing_sources.find_or_initialize_by(simulation_id: sim.id)
+      fs.source_type = :prime
+      fs.label = sim.titre
+
+      progresses = sim.request&.request_progresses || []
+      accorde = progresses.find { |rp| rp.status_administratif == "accorde" && rp.montant_accorde.present? }
+      en_cours = progresses.any? { |rp| %w[soumis en_cours complet].include?(rp.status_administratif) }
+
+      if accorde
+        fs.amount = accorde.montant_accorde
+        fs.status = :obtenu
+      else
+        fs.amount = sim.total_complet_amount
+        fs.status = en_cours ? :confirme : :simule
+      end
+      fs.save
+    end
+
+    if pret_wallonie_dossier.present?
+      fs = financing_sources.find_or_initialize_by(pret_wallonie_dossier_id: pret_wallonie_dossier.id)
+      fs.source_type = :pret_taux_zero
+      fs.label = "Prêt bonifié wallon (Rénopack)"
+      fs.amount = pret_wallonie_dossier.montant_emprunte || 0
+      fs.status =
+        case pret_wallonie_dossier.statut
+        when "cloture" then :obtenu
+        when "accepte", "travaux_en_cours" then :confirme
+        else :simule
+        end
+      fs.save
+    end
   end
 
   private

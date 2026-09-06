@@ -340,9 +340,6 @@ Rails.application.routes.draw do
     # Notification client depuis le dashboard intermédiaire (sans accès complet)
     post :notify_client, to: 'pro_views#notify_client', on: :member
 
-    # Comparateur de devis reçus par email (OCR)
-    get  :compare_devis, on: :member
-
     # États d'avancement structurés (bordereaux de paiement)
     resources :etats_avancement do
       member do
@@ -368,6 +365,9 @@ Rails.application.routes.draw do
 
     # Suivi du dossier de prêt bonifié wallon (régime "reduction_pret")
     resource :pret_wallonie_dossier, only: %i[show create update]
+
+    # Plan de financement — fonds propres, emprunts, primes vs coût total du chantier
+    resources :financing_sources, except: %i[index show]
 
     # PV de réception numérique
     resource :pv_reception, only: %i[show create destroy] do

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_03_113226) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_06_093200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -450,6 +450,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_03_113226) do
     t.index ["project_id"], name: "index_factures_on_project_id"
     t.index ["property_id"], name: "index_factures_on_property_id"
     t.index ["type_intervenant"], name: "index_factures_on_type_intervenant"
+  end
+
+  create_table "financing_sources", force: :cascade do |t|
+    t.decimal "amount", precision: 10, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.integer "duration_months"
+    t.string "label", null: false
+    t.text "notes"
+    t.bigint "pret_wallonie_dossier_id"
+    t.bigint "project_id", null: false
+    t.decimal "rate", precision: 5, scale: 3
+    t.bigint "simulation_id"
+    t.integer "source_type", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["pret_wallonie_dossier_id"], name: "index_financing_sources_on_pret_wallonie_dossier_id"
+    t.index ["project_id", "source_type"], name: "index_financing_sources_on_project_id_and_source_type"
+    t.index ["project_id"], name: "index_financing_sources_on_project_id"
+    t.index ["simulation_id"], name: "index_financing_sources_on_simulation_id"
   end
 
   create_table "intelligence_reports", force: :cascade do |t|
@@ -1450,6 +1469,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_03_113226) do
   add_foreign_key "factures", "documents"
   add_foreign_key "factures", "projects"
   add_foreign_key "factures", "properties"
+  add_foreign_key "financing_sources", "pret_wallonie_dossiers"
+  add_foreign_key "financing_sources", "projects"
+  add_foreign_key "financing_sources", "simulations"
   add_foreign_key "leases", "properties"
   add_foreign_key "leases", "tenants"
   add_foreign_key "notifications", "projects"

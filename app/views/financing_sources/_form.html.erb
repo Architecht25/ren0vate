@@ -1,0 +1,43 @@
+<%= simple_form_for [@project, @source] do |f| %>
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-transparent border-bottom py-3">
+      <h6 class="mb-0 fw-semibold">
+        <i class="bi bi-piggy-bank me-2"></i>
+        <%= @source.new_record? ? "Ajouter une source de financement" : "Modifier la source de financement" %>
+      </h6>
+    </div>
+    <div class="card-body p-4">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <%= f.input :source_type, label: "Type", as: :select,
+              collection: [["Fonds propres", "fonds_propres"], ["Emprunt bancaire classique", "emprunt_bancaire"], ["Prêt à taux 0", "pret_taux_zero"], ["Prime / subside", "prime"]],
+              input_html: { class: "form-select" } %>
+        </div>
+        <div class="col-md-6">
+          <%= f.input :status, label: "Statut", as: :select,
+              collection: [["Simulé", "simule"], ["Confirmé", "confirme"], ["Obtenu", "obtenu"]],
+              input_html: { class: "form-select" } %>
+        </div>
+        <div class="col-12">
+          <%= f.input :label, label: "Libellé", input_html: { class: "form-control" } %>
+        </div>
+        <div class="col-md-4">
+          <%= f.input :amount, label: "Montant (€)", input_html: { class: "form-control", step: "0.01" } %>
+        </div>
+        <div class="col-md-4">
+          <%= f.input :rate, label: "Taux annuel (%)", required: false, input_html: { class: "form-control", step: "0.01" } %>
+        </div>
+        <div class="col-md-4">
+          <%= f.input :duration_months, label: "Durée (mois)", required: false, input_html: { class: "form-control" } %>
+        </div>
+        <div class="col-12">
+          <%= f.input :notes, label: "Notes", required: false, input_html: { class: "form-control", rows: 2 } %>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer bg-transparent d-flex gap-2 justify-content-end">
+      <%= link_to "Annuler", project_path(@project, tab: "preparation"), class: "btn btn-outline-secondary" %>
+      <%= f.submit @source.new_record? ? "Ajouter" : "Mettre à jour", class: "btn btn-primary" %>
+    </div>
+  </div>
+<% end %>

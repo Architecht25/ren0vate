@@ -11,8 +11,11 @@ export default class extends Controller {
     "monthlyPayment", "totalCost", "totalInterest",
     "resultSection",
     "amortizationBody",
-    "rateBlock"
+    "rateBlock",
+    "saveForm", "saveLabel", "saveAmount", "saveRate", "saveDuration", "saveNotes"
   ]
+
+  static values = { loanTypeLabel: String }
 
   connect() {
     this.calculate()
@@ -127,6 +130,25 @@ export default class extends Controller {
     }
 
     this.amortizationBodyTarget.innerHTML = rows
+  }
+
+  // Pousse le résultat calculé (capital emprunté, pas le coût total avec intérêts —
+  // c'est bien le capital qui finance le chantier) comme FinancingSource du projet.
+  saveAsFinancingSource() {
+    if (!this.hasSaveFormTarget || !this.hasAmountTarget || !this.hasDurationTarget) return
+
+    const amount = parseFloat(this.amountTarget.value) || 0
+    const rate = this.hasRateTarget ? parseFloat(this.rateTarget.value) || 0 : 0
+    const years = parseInt(this.durationTarget.value) || 0
+    const label = this.loanTypeLabelValue || "Prêt"
+
+    this.saveLabelTarget.value = `${label} — ${this.formatCurrency(amount)} / ${years} an${years > 1 ? "s" : ""}`
+    this.saveAmountTarget.value = amount
+    this.saveRateTarget.value = rate
+    this.saveDurationTarget.value = years * 12
+    this.saveNotesTarget.value = `Mensualité ${this.monthlyPaymentTarget.textContent}, coût total ${this.totalCostTarget.textContent}`
+
+    this.saveFormTarget.requestSubmit()
   }
 
   formatCurrency(value) {

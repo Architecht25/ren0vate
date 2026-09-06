@@ -1,0 +1,105 @@
+<%# Plan de financement — proportion de chaque source (fonds propres, emprunt,
+    prêt à taux 0, primes) par rapport au coût total du chantier %>
+<% total_devis = @project.total_devis_montant %>
+<% sources_by_type = @project.financing_sources.by_type.group_by(&:source_type) %>
+<% reste = @project.reste_a_financer %>
+<div class="card border-0 shadow-sm rounded-4 h-100">
+  <div class="card-header border-0 py-3 px-4 d-flex align-items-center justify-content-between"
+       style="background:linear-gradient(135deg,#0f766e,#0d9488); border-radius: 1rem 1rem 0 0 !important;">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-piggy-bank text-white fs-5"></i>
+      <div>
+        <span class="fw-semibold text-white">Plan de financement</span>
+        <div class="text-white opacity-75" style="font-size:0.75rem;">Fonds propres, emprunts et primes vs coût total du chantier</div>
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="btn btn-sm text-white rounded-3 dropdown-toggle" type="button" data-bs-toggle="dropdown"
+              style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);">
+        <i class="bi bi-plus me-1"></i><span style="font-size:0.78rem;">Ajouter</span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><%= link_to "Fonds propres", new_project_financing_source_path(@project, source_type: "fonds_propres"), class: "dropdown-item" %></li>
+        <li><%= link_to "Emprunt bancaire classique", new_project_financing_source_path(@project, source_type: "emprunt_bancaire"), class: "dropdown-item" %></li>
+        <li><%= link_to "Prêt à taux 0 (saisie manuelle)", new_project_financing_source_path(@project, source_type: "pret_taux_zero"), class: "dropdown-item" %></li>
+        <li><%= link_to "Prime / subside (déjà obtenu ou hors simulateur)", new_project_financing_source_path(@project, source_type: "prime"), class: "dropdown-item" %></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><%= link_to loans_hub_path(project_id: @project.id, property_id: @project.property_id), class: "dropdown-item" do %>
+          <i class="bi bi-calculator me-1"></i>Simuler un prêt
+        <% end %></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card-body p-3">
+    <% if sources_by_type.blank? %>
+      <div class="text-center py-5">
+        <i class="bi bi-piggy-bank text-muted d-block mb-3" style="font-size:2rem;"></i>
+        <div class="text-muted small">Aucune source de financement renseignée</div>
+        <%= link_to new_project_financing_source_path(@project, source_type: "fonds_propres"), class: "btn btn-sm btn-outline-success mt-3" do %>
+          <i class="bi bi-plus me-1"></i>Ajouter une source
+        <% end %>
+      </div>
+    <% else %>
+      <% %w[fonds_propres emprunt_bancaire pret_taux_zero prime].each do |type| %>
+        <% next unless sources_by_type[type].present? %>
+        <div class="mb-3 pb-3 border-bottom">
+          <div class="fw-semibold small mb-2">
+            <i class="bi <%= FinancingSource::SOURCE_TYPE_ICONS[type] %> me-1"></i>
+            <%= FinancingSource::SOURCE_TYPE_LABELS[type] %>
+          </div>
+          <% sources_by_type[type].each do |source| %>
+            <div class="mb-2">
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                <div class="text-truncate" style="font-size:0.85rem;max-width:60%;">
+                  <%= source.label %>
+                  <span class="badge bg-<%= FinancingSource::STATUS_COLORS[source.status] %> ms-1" style="font-size:0.65rem;">
+                    <%= FinancingSource::STATUS_LABELS[source.status] %>
+                  </span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="fw-semibold" style="font-size:0.85rem;"><%= number_to_currency(source.amount, unit: "€", separator: ",", delimiter: " ") %></span>
+                  <% if source.auto_synced? %>
+                    <% link = source.simulation_id.present? ? simulation_path(source.simulation) : project_pret_wallonie_dossier_path(@project) %>
+                    <%= link_to link, class: "btn btn-sm btn-outline-secondary", title: "Voir la source" do %>
+                      <i class="bi bi-arrow-right"></i>
+                    <% end %>
+                  <% else %>
+                    <%= link_to edit_project_financing_source_path(@project, source), class: "btn btn-sm btn-outline-secondary", title: "Modifier" do %>
+                      <i class="bi bi-pencil"></i>
+                    <% end %>
+                    <%= button_to project_financing_source_path(@project, source), method: :delete,
+                          class: "btn btn-sm btn-outline-danger", form: { data: { turbo_confirm: "Supprimer cette source de financement ?" } },
+                          title: "Supprimer" do %>
+                      <i class="bi bi-trash"></i>
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+              <div class="progress" style="height: 6px;<%= 'opacity:0.5;' if source.simule? %>">
+                <div class="progress-bar bg-<%= FinancingSource::STATUS_COLORS[source.status] %>" style="width: <%= source.percent_of(total_devis) %>%"></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div class="d-flex align-items-center justify-content-between mb-1">
+        <span class="text-muted small">Total financé</span>
+        <span class="fw-semibold"><%= number_to_currency(@project.total_finance, unit: "€", separator: ",", delimiter: " ") %></span>
+      </div>
+      <div class="d-flex align-items-center justify-content-between mb-1">
+        <span class="text-muted small">Coût total du chantier</span>
+        <span class="fw-semibold"><%= number_to_currency(total_devis, unit: "€", separator: ",", delimiter: " ") %></span>
+      </div>
+      <div class="d-flex align-items-center justify-content-between pt-1">
+        <span class="text-muted small fw-semibold">Reste à financer</span>
+        <% if reste > 0 %>
+          <span class="badge bg-warning text-dark fs-6"><%= number_to_currency(reste, unit: "€", separator: ",", delimiter: " ") %></span>
+        <% else %>
+          <span class="badge bg-info-subtle text-info-emphasis fs-6">Couvert (<%= number_to_currency(-reste, unit: "€", separator: ",", delimiter: " ") %> en surplus)</span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

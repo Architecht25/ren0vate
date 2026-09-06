@@ -17,7 +17,8 @@
       - disclaimer (string or nil)
 %>
 
-<div class="container-fluid px-4 py-4" data-controller="loan-simulator">
+<div class="container-fluid px-4 py-4" data-controller="loan-simulator"
+     data-loan-simulator-loan-type-label-value="<%= local_assigns[:loan_type_label] || title %>">
 
   <!-- Header -->
   <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
@@ -228,6 +229,22 @@
           <p class="text-muted mt-3 mb-0" style="font-size:0.78rem;">
             <i class="bi bi-exclamation-circle me-1"></i><%= disclaimer %>
           </p>
+        <% end %>
+
+        <% if @project.present? %>
+          <%= form_with url: project_financing_sources_path(@project), method: :post, scope: :financing_source,
+                data: { loan_simulator_target: "saveForm" } do |f| %>
+            <%= f.hidden_field :source_type, value: (loan_type == :classic ? "emprunt_bancaire" : "pret_taux_zero") %>
+            <%= f.hidden_field :label, data: { loan_simulator_target: "saveLabel" } %>
+            <%= f.hidden_field :amount, data: { loan_simulator_target: "saveAmount" } %>
+            <%= f.hidden_field :rate, data: { loan_simulator_target: "saveRate" } %>
+            <%= f.hidden_field :duration_months, data: { loan_simulator_target: "saveDuration" } %>
+            <%= f.hidden_field :notes, data: { loan_simulator_target: "saveNotes" } %>
+            <button type="button" class="btn btn-sm mt-3" style="background:<%= accent_color %>;color:#fff;"
+                    data-action="loan-simulator#saveAsFinancingSource">
+              <i class="bi bi-plus-circle me-1"></i>Ajouter comme source de financement
+            </button>
+          <% end %>
         <% end %>
 
       </div>
