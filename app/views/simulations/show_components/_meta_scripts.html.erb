@@ -3,9 +3,12 @@
 
 <!-- Scripts JSON pour les données des primes (selon la région) -->
 <% if @simulation.region&.downcase == 'wallonie' && @primes.present? %>
+<script type="application/json" id="wallonie-primes-list-data">
+  <%= raw(primes_data_script(@primes)) %>
+</script>
 <script nonce="<%= content_security_policy_nonce %>">
   // Données des primes Wallonie
-  window.primes = <%= raw(primes_data_script(@primes)) %>;
+  window.primes = JSON.parse(document.getElementById('wallonie-primes-list-data').textContent);
 </script>
 <% end %>
 

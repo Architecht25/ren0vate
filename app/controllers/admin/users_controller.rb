@@ -44,7 +44,10 @@ class Admin::UsersController < ApplicationController
 
   def update
     previous_role = @user.role
-    if @user.update(user_params)
+    @user.assign_attributes(user_params)
+    assign_requested_role(@user)
+
+    if @user.errors.empty? && @user.save
       if previous_role != @user.role
         AdminAuditLog.log(admin: current_user, action: "role_change", target_user: @user, request: request,
                           metadata: { from: previous_role, to: @user.role })
@@ -197,7 +200,17 @@ class Admin::UsersController < ApplicationController
   end
 
   def user_params
-    # :role est intentionnel ici — admin seulement (double vérification ensure_admin)
-    params.require(:user).permit(:email, :first_name, :last_name, :phone, :region, :role, :preferred_locale, :primes_services_client) # rubocop:disable Rails/MassAssignment
+    params.require(:user).permit(:email, :first_name, :last_name, :phone, :region, :preferred_locale, :primes_services_client)
+  end
+
+  def assign_requested_role(user)
+    return unless params[:user].is_a?(ActionController::Parameters) && params[:user].key?(:role)
+
+    requested_role = params[:user][:role].to_s
+    if User.roles.key?(requested_role)
+      user.role = requested_role
+    else
+      user.errors.add(:role, :inclusion)
+    end
   end
 end

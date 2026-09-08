@@ -452,6 +452,11 @@ class DocumentsController < ApplicationController
             # Insérer fl_attachment dans la chaîne de transformation Cloudinary
             cloudinary_url = cloudinary_url.sub(%r{/upload/}, '/upload/fl_attachment/')
           end
+          unless safe_external_url?(cloudinary_url)
+            Rails.logger.warn "❌ URL Cloudinary non autorisée pour document #{@document.id}: #{cloudinary_url}"
+            redirect_back fallback_location: root_path, alert: "URL de fichier non autorisée"
+            return
+          end
           redirect_to cloudinary_url, allow_other_host: true
           return
         end
