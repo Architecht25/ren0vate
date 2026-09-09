@@ -12,6 +12,11 @@ gem "pg", "~> 1.6"
 gem "puma", "~> 7.2.1"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
+# Pin json < 3.0 — ActiveSupport::JSON.decode (8.1.3.1) calls JSON.parse(json,
+# options) positionally; json 3.x tightened to keyword-only args and raises
+# ArgumentError on that call. A transitive bump (via faraday) briefly resolved
+# to 3.0.2 on a dependabot rebase and broke every test touching a json column.
+gem "json", "~> 2.21"
 
 gem "importmap-rails"
 gem "simple_form"
