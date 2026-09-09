@@ -151,20 +151,8 @@ class DocumentPhase < ApplicationRecord
   def self.create_default_phases!
     transaction do
       DEFAULT_PHASES.each do |phase_data|
-        begin
-          find_or_create_by(name: phase_data[:name]) do |phase|
-            phase.assign_attributes(phase_data)
-          end
-        rescue ArgumentError => e
-          blk = Proc.new { |phase| phase.assign_attributes(phase_data) }
-          warn "[DIAG] #{e.class}: #{e.message}"
-          warn "[DIAG] RUBY_VERSION=#{RUBY_VERSION} RUBY_ENGINE=#{RUBY_ENGINE} RUBY_PATCHLEVEL=#{RUBY_PATCHLEVEL}"
-          warn "[DIAG] ActiveRecord::VERSION::STRING=#{ActiveRecord::VERSION::STRING}"
-          warn "[DIAG] block.arity=#{blk.arity} block.lambda?=#{blk.lambda?} block.class=#{blk.class}"
-          warn "[DIAG] phase_data.class=#{phase_data.class} phase_data.frozen?=#{phase_data.frozen?}"
-          warn "[DIAG] method(:find_or_create_by).arity=#{method(:find_or_create_by).arity rescue 'n/a'}"
-          warn "[DIAG] backtrace:\n#{e.backtrace.first(10).join("\n")}"
-          raise
+        find_or_create_by(name: phase_data[:name]) do |phase|
+          phase.assign_attributes(phase_data)
         end
       end
     end
