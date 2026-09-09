@@ -1,7 +1,7 @@
 require "test_helper"
 
 class AdminMailerTest < ActionMailer::TestCase
-  fixtures :users, :properties, :projects, :requests, :simulations, :documents
+  fixtures :users, :properties, :projects, :requests, :documents
 
   test "document_uploaded rend le corps du mail sans exception avec un contexte project" do
     # Régression : le template appelait @project.title (inexistant, Project a
