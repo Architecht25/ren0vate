@@ -62,26 +62,6 @@
       "note": "False positive - runtime check in place or intentional (admin-only)"
     },
     {
-      "warning_type": "Mass Assignment",
-      "warning_code": 105,
-      "fingerprint": "88a068c662960b367346274219330caa1dc8b5fbd490c8eac43809ec77dce53b",
-      "check_name": "PermitAttributes",
-      "message": "Potentially dangerous key allowed for mass assignment",
-      "file": "app/controllers/admin/users_controller.rb",
-      "line": 146,
-      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
-      "code": "params.require(:user).permit(:email, :first_name, :last_name, :phone, :region, :role, :preferred_locale)",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "Admin::UsersController",
-        "method": "user_params"
-      },
-      "user_input": ":role",
-      "confidence": "Medium",
-      "note": "False positive - runtime check in place or intentional (admin-only)"
-    },
-    {
       "warning_type": "Redirect",
       "warning_code": 18,
       "fingerprint": "8c8dd3ffee9e5b9c7911196ca7101f938470579b827d26d5fa77387fc12cc655",
@@ -182,8 +162,89 @@
       "user_input": "Simulation.find(params[:id])",
       "confidence": "Weak",
       "note": "False positive - runtime check in place or intentional (admin-only)"
+    },
+    {
+      "warning_type": "Redirect",
+      "warning_code": 18,
+      "fingerprint": "3d7deafd5a2a9f46fbb758c917b000401e561113c0cb2f3fe66bd099fb28ba95",
+      "check_name": "Redirect",
+      "message": "Possible unprotected redirect",
+      "file": "app/controllers/documents_controller.rb",
+      "line": 455,
+      "link": "https://brakemanscanner.org/docs/warning_types/redirect/",
+      "code": "redirect_to(Document.find(params[:id]).file.url.to_s.split(\"?\").first.sub(/\\/upload\\//, \"/upload/fl_attachment/\"), :allow_other_host => true)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "DocumentsController",
+        "method": "download"
+      },
+      "user_input": "Document.find(params[:id]).file.url.to_s.split(\"?\").first.sub(/\\/upload\\//, \"/upload/fl_attachment/\")",
+      "confidence": "Weak",
+      "note": "False positive - can_access_document? gate runs before this redirect (same pattern as the other ignored documents_controller redirects)"
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "73b5634d48fb77dac452acb7ccf20fb3fcdacdfb15c303157c69e420432fa093",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/simulations/show_components/_meta_scripts.html.erb",
+      "line": 8,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "primes_data_script((Prime.where(:region => Simulation.find(params[:id]).region.downcase).order(:ordre_affichage) or []))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "SimulationsController",
+          "method": "show",
+          "line": 95,
+          "file": "app/controllers/simulations_controller.rb",
+          "rendered": {
+            "name": "simulations/show",
+            "file": "app/views/simulations/show.html.erb"
+          }
+        },
+        {
+          "type": "template",
+          "name": "simulations/show",
+          "line": 4,
+          "file": "app/views/simulations/show.html.erb",
+          "rendered": {
+            "name": "simulations/show_components/_meta_scripts",
+            "file": "app/views/simulations/show_components/_meta_scripts.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "simulations/show_components/_meta_scripts"
+      },
+      "user_input": "Prime.where(:region => Simulation.find(params[:id]).region.downcase).order(:ordre_affichage)",
+      "confidence": "Weak",
+      "note": "False positive - same pattern as the other ignored _meta_scripts.html.erb entries (Prime data, not user input)"
+    },
+    {
+      "warning_type": "Mass Assignment",
+      "warning_code": 105,
+      "fingerprint": "7c1ee0befa39114acbe3d8735c9e76eac8d2725053d8670ccba090813a8f44e8",
+      "check_name": "PermitAttributes",
+      "message": "Potentially dangerous key allowed for mass assignment",
+      "file": "app/controllers/admin/users_controller.rb",
+      "line": 201,
+      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
+      "code": "params.require(:user).permit(:email, :first_name, :last_name, :phone, :region, :role, :preferred_locale, :primes_services_client)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Admin::UsersController",
+        "method": "user_params"
+      },
+      "user_input": ":role",
+      "confidence": "Medium",
+      "note": "False positive - runtime check in place or intentional (admin-only, ensure_admin before_action)"
     }
   ],
-  "updated": "2026-03-15 17:53:27 +0100",
-  "brakeman_version": "7.0.2"
+  "updated": "2026-09-09 12:00:14 +02:00",
+  "brakeman_version": "8.0.6"
 }
