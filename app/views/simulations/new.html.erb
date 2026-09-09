@@ -32,12 +32,13 @@
       </div>
     </div>
   <% else %>
+  <div data-controller="simulation-launch">
     <!-- Formulaire caché soumis par JS -->
-    <%= form_with model: @simulation, local: true, id: "simulation-launch-form" do |form| %>
-      <%= form.hidden_field :titre,       id: "sim-titre" %>
-      <%= form.hidden_field :region,      id: "sim-region" %>
-      <%= form.hidden_field :property_id, id: "sim-property-id" %>
-      <%= form.hidden_field :project_id,  id: "sim-project-id" %>
+    <%= form_with model: @simulation, local: true, id: "simulation-launch-form", data: { simulation_launch_target: "form" } do |form| %>
+      <%= form.hidden_field :titre,       data: { simulation_launch_target: "titreHidden" } %>
+      <%= form.hidden_field :region,      data: { simulation_launch_target: "regionHidden" } %>
+      <%= form.hidden_field :property_id, data: { simulation_launch_target: "propertyIdHidden" } %>
+      <%= form.hidden_field :project_id,  data: { simulation_launch_target: "projectIdHidden" } %>
       <%= form.hidden_field :user_id,     value: current_user.id %>
     <% end %>
 
@@ -68,6 +69,8 @@
         <div class="col-lg-4 col-md-6">
           <div class="card border-2 rounded-4 h-100 chantier-card"
                style="cursor: pointer; transition: border-color 0.2s ease, box-shadow 0.2s ease;"
+               data-simulation-launch-target="card"
+               data-action="click->simulation-launch#select"
                data-project-id="<%= project.id %>"
                data-property-id="<%= project.property_id %>"
                data-region="<%= property&.region %>"
@@ -120,13 +123,15 @@
     </div>
 
     <!-- Champ titre : visible après sélection d'un chantier -->
-    <div id="titre-panel" class="d-none mb-4">
+    <div class="d-none mb-4" data-simulation-launch-target="titrePanel">
       <div class="card border-0 shadow-sm rounded-4">
         <div class="card-body px-4 py-3">
           <label for="titre-visible" class="form-label fw-medium text-dark mb-1">
             <i class="bi bi-pencil me-2 text-arch-orange"></i>Nom de la simulation
           </label>
           <input type="text" id="titre-visible" class="form-control border-2 rounded-3"
+                 data-simulation-launch-target="titreVisible"
+                 data-action="input->simulation-launch#syncTitre"
                  placeholder="ex. Simulation isolation toiture · Flandre · Avr. 2026">
           <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Nom généré automatiquement — modifiez-le si vous le souhaitez.</small>
         </div>
@@ -138,73 +143,17 @@
       <%= link_to simulations_path, class: "btn btn-outline-secondary px-4" do %>
         <i class="bi bi-x me-2"></i>Annuler
       <% end %>
-      <button type="button" id="btn-launch-simulation"
+      <button type="button"
               class="btn btn-primary-custom px-5"
+              data-simulation-launch-target="launchButton"
+              data-action="click->simulation-launch#launch"
               disabled>
         <i class="bi bi-play-fill me-2"></i>Lancer la simulation
       </button>
     </div>
+  </div>
   <% end %>
 </div>
-
-<script nonce="<%= content_security_policy_nonce %>">
-function initChantierSelection() {
-  var cards      = document.querySelectorAll('.chantier-card');
-  var btnLaunch  = document.getElementById('btn-launch-simulation');
-  var form       = document.getElementById('simulation-launch-form');
-  var bruxSection = document.getElementById('bruxelles-type-selector');
-
-  var titrePanel  = document.getElementById('titre-panel');
-  var titreVisible = document.getElementById('titre-visible');
-
-  if (!cards.length) return;
-
-  cards.forEach(function (card) {
-    card.addEventListener('click', function () {
-      // Désélectionner les autres
-      cards.forEach(function (c) {
-        c.classList.remove('chantier-selected');
-        c.querySelector('.selected-indicator').classList.add('d-none');
-      });
-
-      // Sélectionner cette carte
-      card.classList.add('chantier-selected');
-      card.querySelector('.selected-indicator').classList.remove('d-none');
-
-      // Remplir les champs cachés
-      var region = card.dataset.region || '';
-      var regionLabel = region ? (region.charAt(0).toUpperCase() + region.slice(1)) : '';
-      var now = new Date();
-      var mois = now.toLocaleDateString('fr-BE', { month: 'short', year: 'numeric' });
-      var titreGenere = card.dataset.nom + ' · ' + regionLabel + ' · ' + mois;
-
-      document.getElementById('sim-project-id').value  = card.dataset.projectId;
-      document.getElementById('sim-property-id').value = card.dataset.propertyId;
-      document.getElementById('sim-region').value      = region;
-      document.getElementById('sim-titre').value       = titreGenere;
-
-      // Afficher et pré-remplir le champ titre éditable
-      titrePanel.classList.remove('d-none');
-      titreVisible.value = titreGenere;
-
-      btnLaunch.disabled = false;
-    });
-  });
-
-  // Synchroniser le titre éditable vers le champ caché
-  titreVisible.addEventListener('input', function () {
-    document.getElementById('sim-titre').value = titreVisible.value || 'Sans titre';
-  });
-
-  // Soumission
-  btnLaunch.addEventListener('click', function () {
-    form.submit();
-  });
-}
-
-document.addEventListener('DOMContentLoaded', initChantierSelection);
-document.addEventListener('turbo:load', initChantierSelection);
-</script>
 
 <style>
   .chantier-card { border-color: #dee2e6 !important; }
