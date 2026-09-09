@@ -23,7 +23,7 @@ Geocoder::Lookup::Test.set_default_stub(
 module ActiveSupport
   class TestCase
     # Run tests in parallel with specified workers
-    parallelize(workers: :number_of_processors)
+    parallelize(workers: 1)
 
     # Chaque test charge ses propres fixtures explicitement.
     # Ne pas mettre fixtures :all ici — certaines fixtures ont des colonnes NOT NULL
