@@ -29,7 +29,7 @@ en session live avec Robin.
 | 1 | Consulter les devis/métrés (section préparation) | ⚠️ Partiel | N'affiche que le **dernier devis produit** (toiture), pas l'ensemble des devis estimatifs générés par le user. | "je ne vois que le devis toiture, pas les autres" |
 | 2 | Consulter les documents de permis | ✅ | Aucune friction — tout ce qu'a encodé le user côté permis apparaît correctement côté architecte. | "c'est bon" |
 | 3 | Consulter les photos de chantier par phase | ⚠️ Partiel | Photos affichées trop petites ; l'architecte ne peut que les visionner, pas en charger lui-même (à trancher : garder en lecture seule ou ouvrir l'upload aux archis). | — |
-| 4 | Valider une phase de chantier (bouton) | ❌ | **Aucune réaction au clic**, ou pas d'indication claire que la validation de l'archi seule ne suffit pas — il manque un signal que user + entrepreneur doivent aussi valider. Probable gap UX (pas de déroulé d'état) plutôt qu'un bug isolé — à vérifier si même classe de bug que les 2 corrigés aujourd'hui (script inline / pas de réaction JS). | — |
+| 4 | Valider une phase de chantier (bouton) | ❌ puis ✅ | **Vrai bug confirmé et corrigé le 09/09/2026** (pas juste un souci de visibilité comme supposé initialement) : `ProjectsController#validate_phase` chargeait le projet via `current_user.projects` (scope propriétaire uniquement) → 404 systématique pour tout collaborateur non-propriétaire (architecte/entrepreneur), confirmé dans les logs serveur en reproduisant le clic. `phases_avancement` restait vide en base malgré le clic. Corrigé (chargement non scopé dédié à cette action, autorisation fine conservée dans l'action). | "ça remonte en haut de page mais rien n'indique que quelque chose se soit passé" |
 | 5 | PV de réception de chantier | ✅ (adopté) | L'archi produit son PV en Word (process interne du cabinet), mais a accepté de tester l'encodage des données dans Ren0vate **en plus**, en tant que double vérification que toutes les étapes chantier ont été passées en revue. | — |
 
 **Synthèse :**
@@ -52,7 +52,7 @@ en session live avec Robin.
 <!-- Ajouter ici au fil des appels -->
 
 - 09/09/2026 · Testeur (architecte, session live) · Devis : seul le dernier devis affiché en préparation, pas tous les devis estimatifs du user · haute
-- 09/09/2026 · Testeur (architecte, session live) · Boutons de validation de phase : pas de réaction ou pas de signal que user + entrepreneur doivent aussi valider · haute
+- 09/09/2026 · Testeur (architecte, session live) · ✅ Corrigé — boutons de validation de phase : 404 systématique pour tout collaborateur non-propriétaire (`set_project` scopé au propriétaire), `phases_avancement` jamais mis à jour · haute (résolu)
 - 09/09/2026 · Testeur (architecte, session live) · Photos de chantier trop petites + upload réservé au user, archi en lecture seule uniquement · moyenne
 - 09/09/2026 · Testeur (architecte, session live) · Souhait d'intégration APROPLAN (dépôt PV Aproplan dans Ren0vate au lieu d'email, classement lot par lot) — outil déjà bien implanté chez les architectes · moyenne
 - 09/09/2026 · Testeur (architecte, session live) · PV de réception : l'archi a accepté de tester l'encodage Ren0vate en complément de son PV Word habituel (double vérification du process interne du cabinet) — signal positif · haute (traction)
