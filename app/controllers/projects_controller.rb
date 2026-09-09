@@ -1,6 +1,13 @@
 class ProjectsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :edit_budget, :update_budget, :edit_professionals, :update_professionals, :fin_chantier, :scan_peb_apres, :scan_audit_energ, :audit_energ_statut, :update_fin_chantier, :reception_chantier, :scan_attestation_conformite, :garanties, :check_contrat, :carnet_entretien, :roi_calculator, :analyze_photos, :vision_status, :score_sante, :validate_phase, :upload_pv_externe]
+  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :edit_budget, :update_budget, :edit_professionals, :update_professionals, :fin_chantier, :scan_peb_apres, :scan_audit_energ, :audit_energ_statut, :update_fin_chantier, :reception_chantier, :scan_attestation_conformite, :garanties, :check_contrat, :carnet_entretien, :roi_calculator, :analyze_photos, :vision_status, :score_sante, :upload_pv_externe]
+  # `validate_phase` doit rester accessible aux collaborateurs actifs (architecte, entrepreneur),
+  # pas seulement au propriétaire — `set_project` (ci-dessus) scope à `current_user.projects`
+  # (propriétaire uniquement) et faisait 404 pour toute validation par un pro (confirmé en test
+  # terrain le 09/09/2026 : la requête n'atteignait jamais la logique de rôle déjà présente dans
+  # l'action). Chargement non scopé ici, l'action elle-même vérifie ensuite le rôle (owner/
+  # architect/entrepreneur) avant d'autoriser la validation — même pattern que ProViewsController.
+  before_action :set_project_for_validation, only: [:validate_phase]
 
   def index
     # Récupérer les projets, filtrer par property_id si fourni
@@ -990,6 +997,13 @@ class ProjectsController < ApplicationController
 
   def set_project
     @project = current_user.projects.find(params[:id])
+  end
+
+  # Chargement non scopé pour `validate_phase` — accessible au propriétaire ET aux
+  # collaborateurs actifs (architecte, entrepreneur), pas seulement au propriétaire.
+  # L'autorisation fine (quel rôle a le droit de valider) reste vérifiée dans l'action.
+  def set_project_for_validation
+    @project = Project.find(params[:id])
   end
 
   def budget_params
