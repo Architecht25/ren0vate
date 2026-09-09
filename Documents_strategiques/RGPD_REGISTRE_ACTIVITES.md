@@ -4,9 +4,9 @@
 | Champ | Valeur |
 |-------|--------|
 | Responsable du traitement | ArchiTecht SRL — BCE BE 1020.345.473 |
-| Contact RGPD / DPO | Robin Dupont — robin@architecht.be |
+| Contact RGPD / DPO | Robin du Parc — robin@architecht.be |
 | Date de création | Mai 2026 |
-| Dernière mise à jour | 4 septembre 2026 — ajout Traitement 8 (liste Primes-Services) |
+| Dernière mise à jour | 9 septembre 2026 — ajout Traitement 9 (Sentry, monitoring d'erreurs) ; correction du nom du contact RGPD (était erronément "Robin Dupont") |
 
 ---
 
@@ -127,15 +127,32 @@
 
 ---
 
+## Traitement 9 — Monitoring d'erreurs applicatives (Sentry)
+
+| Champ | Détail |
+|-------|--------|
+| **Finalité** | Détection et diagnostic des erreurs applicatives en production, continuité de service |
+| **Base légale** | Art. 6(1)(f) — intérêt légitime (maintenance et sécurité du service) |
+| **Catégories de personnes** | Utilisateurs de l'application dont une erreur survient pendant leur session |
+| **Catégories de données** | Identifiant utilisateur, email, contexte de requête (URL, paramètres) — `iban` et `national_number` explicitement filtrés avant envoi (`config/initializers/sentry.rb`, `before_send`) |
+| **Destinataires** | Sentry (Functional Software Inc.) |
+| **Transferts hors UE** | **Aucun** — région de données EU sélectionnée à la création du compte (`ingest.de.sentry.io`, Allemagne) |
+| **Durée de conservation** | Selon plan Sentry (défaut 90 jours pour les events sur plan gratuit) |
+| **Mesures de sécurité** | Filtrage des champs sensibles avant envoi (`before_send`), activé uniquement en environnement production (`enabled_environments`), exclusion des erreurs non pertinentes (404, bots) |
+| **Statut** | ✅ Activé le 09/09/2026 (`SENTRY_DSN` configuré sur Heroku, testé et confirmé — event `RUBY-RAILS-1` visible dans le dashboard) |
+
+---
+
 ## Transferts hors UE — récapitulatif
 
 | Sous-traitant | Pays | Base légale transfert | DPA signé |
 |---------------|------|-----------------------|-----------|
 | Heroku (Salesforce) | UE (Dublin) | Pas de transfert | Oui |
 | Cloudinary | USA | SCC (art. 46 RGPD) | Oui |
-| Anthropic | USA | SCC (art. 46 RGPD) | Oui (inclus dans Commercial ToS Anthropic — après transfert compte vers ArchiTecht SRL) |
+| Anthropic | USA | SCC (art. 46 RGPD) | Oui — compte Anthropic confirmé sous ArchiTecht SRL depuis le 09/09/2026 (organisation Claude Console mise à jour : nom, adresse, TVA BE1020345473) |
 | Stripe | USA | DPF UE-USA + SCC | Oui |
 | Resend (SMTP) | USA | SCC | Oui |
+| Sentry | UE (Allemagne) | Pas de transfert (région de données EU) | Oui |
 
 ---
 
