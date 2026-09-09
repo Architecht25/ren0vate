@@ -16,18 +16,18 @@ class Admin::IntelligenceReportsController < ApplicationController
     report = IntelligenceReport.find_or_initialize_for_current_week
 
     if report.processing?
-      redirect_to admin_dashboard_path(anchor: 'intelligence-panel'), alert: "Analyse déjà en cours pour #{report.week_of}."
+      redirect_to admin_dashboard_path(anchor: "intelligence-panel"), alert: "Analyse déjà en cours pour #{report.week_of}."
       return
     end
 
     if report.completed?
-      redirect_to admin_dashboard_path(anchor: 'intelligence-panel'), notice: "Rapport #{report.week_of} déjà disponible."
+      redirect_to admin_dashboard_path(anchor: "intelligence-panel"), notice: "Rapport #{report.week_of} déjà disponible."
       return
     end
 
     report.save! if report.new_record?
     IntelligenceReportJob.perform_later
-    redirect_to admin_dashboard_path(anchor: 'intelligence-panel'), notice: "Analyse lancée pour #{report.week_of}. Tu recevras un email dès que c'est prêt (~2 min)."
+    redirect_to admin_dashboard_path(anchor: "intelligence-panel"), notice: "Analyse lancée pour #{report.week_of}. Tu recevras un email dès que c'est prêt (~2 min)."
   end
 
   private

@@ -1,6 +1,6 @@
 class Admin::ArticlesController < AdminController
   before_action :ensure_admin
-  before_action :set_article, only: [:show, :edit, :update, :destroy, :publish, :unpublish]
+  before_action :set_article, only: [ :show, :edit, :update, :destroy, :publish, :unpublish ]
 
   def index
     @published = Article.published

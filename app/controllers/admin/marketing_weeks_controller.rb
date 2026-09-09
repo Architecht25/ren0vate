@@ -1,6 +1,6 @@
 class Admin::MarketingWeeksController < AdminController
   before_action :ensure_admin
-  before_action :set_week, only: [:show, :destroy, :mark_reviewed, :mark_published]
+  before_action :set_week, only: [ :show, :destroy, :mark_reviewed, :mark_published ]
 
   def index
     @weeks = MarketingWeek.recent.includes(:article).limit(20)
@@ -15,12 +15,12 @@ class Admin::MarketingWeeksController < AdminController
   end
 
   def mark_reviewed
-    @week.update!(status: 'reviewed')
+    @week.update!(status: "reviewed")
     redirect_to admin_marketing_week_path(@week), notice: "Marqué comme relu."
   end
 
   def mark_published
-    @week.update!(status: 'published')
+    @week.update!(status: "published")
     redirect_to admin_marketing_week_path(@week), notice: "Marqué comme publié."
   end
 

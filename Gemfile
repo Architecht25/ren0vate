@@ -13,7 +13,7 @@ gem "puma", "~> 7.0.3"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 
-gem 'importmap-rails'
+gem "importmap-rails"
 gem "simple_form"
 gem "redcarpet"
 gem "sassc-rails"
