@@ -5,7 +5,10 @@ class ProViewsController < ApplicationController
 
   def show
     @property = @project.property
-    @quote    = @property&.quotes&.includes(:quote_items)&.order(created_at: :desc)&.first
+    # Tous les devis estimatifs générés par le client (pas seulement le dernier) —
+    # avant ce fix, seul le plus récent était chargé et affiché côté pro (trouvé
+    # en test terrain le 09/09/2026 : l'architecte ne voyait que le devis toiture).
+    @quotes   = @property&.quotes&.includes(:quote_items)&.order(created_at: :desc) || []
     @members  = @project.project_members.includes(:user).active
 
     photo_types = %w[photo_avant photo_pendant photo_apres photo_chassis]

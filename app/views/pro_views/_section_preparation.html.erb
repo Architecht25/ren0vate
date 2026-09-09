@@ -6,66 +6,80 @@
           <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-auto" style="font-size:0.68rem;">Avant travaux</span>
         </div>
 
-      <%# SCOPE DES TRAVAUX ── %>
+      <%# SCOPE DES TRAVAUX (tous les devis estimatifs générés par le client) ── %>
       <div class="card border-0 shadow-sm rounded-3 mb-3">
         <div class="card-header bg-white border-bottom pt-3 pb-2 px-4">
           <h5 class="mb-0 fw-semibold" style="font-size:0.95rem;">
             <i class="bi bi-list-check me-2 text-primary"></i>Scope des travaux (estimatif client)
+            <% if @quotes.size > 1 %>
+              <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill ms-1" style="font-size:0.68rem;"><%= @quotes.size %></span>
+            <% end %>
           </h5>
         </div>
         <div class="card-body px-4 py-3">
-          <% if @quote&.quote_items&.any? %>
-            <div class="table-responsive">
-              <table class="table table-sm mb-0" style="font-size:0.85rem;">
-                <thead>
-                  <tr class="text-muted" style="font-size:0.78rem;">
-                    <th class="fw-normal ps-0">Poste de travaux</th>
-                    <% if @membership.full_financial_access? || @membership.role == 'architect' %>
-                      <th class="fw-normal text-end">Fourchette</th>
-                    <% end %>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% @quote.quote_items.each do |item| %>
-                    <tr>
-                      <td class="ps-0">
-                        <i class="bi bi-check-circle-fill text-success me-1" style="font-size:0.7rem;"></i>
-                        <%= item.work_type&.name || item.work_type_key.humanize %>
-                        <% if item.quantity && item.unit %>
-                          <span class="text-muted ms-1" style="font-size:0.75rem;">
-                            <%= item.quantity %> <%= item.unit %>
-                          </span>
-                        <% end %>
-                      </td>
+          <% if @quotes.any? { |q| q.quote_items.any? } %>
+            <% @quotes.each_with_index do |quote, index| %>
+              <% next if quote.quote_items.blank? %>
+              <% if @quotes.size > 1 %>
+                <div class="d-flex justify-content-between align-items-center mb-2 <%= 'mt-4 pt-3 border-top' unless index.zero? %>">
+                  <span class="fw-semibold" style="font-size:0.82rem;">
+                    <%= quote.quote_items.map { |i| i.work_type&.name || i.work_type_key.humanize }.uniq.first(3).join(', ') %>
+                  </span>
+                  <span class="text-muted" style="font-size:0.72rem;"><%= quote.created_at.strftime("%d/%m/%Y") %></span>
+                </div>
+              <% end %>
+              <div class="table-responsive">
+                <table class="table table-sm mb-0" style="font-size:0.85rem;">
+                  <thead>
+                    <tr class="text-muted" style="font-size:0.78rem;">
+                      <th class="fw-normal ps-0">Poste de travaux</th>
                       <% if @membership.full_financial_access? || @membership.role == 'architect' %>
-                        <td class="text-end text-muted" style="white-space:nowrap;">
-                          <% min_p = item.try(:unit_price_min) || item.try(:total_min) %>
-                          <% max_p = item.try(:unit_price_max) || item.try(:total_max) %>
-                          <% if min_p && max_p %>
-                            <%= number_to_currency(min_p, unit: "€", format: "%n %u") %> –
-                            <%= number_to_currency(max_p, unit: "€", format: "%n %u") %>
-                          <% elsif item.try(:total_price) %>
-                            <%= number_to_currency(item.total_price, unit: "€", format: "%n %u") %>
-                          <% end %>
-                        </td>
+                        <th class="fw-normal text-end">Fourchette</th>
                       <% end %>
                     </tr>
-                  <% end %>
-                </tbody>
-              </table>
-            </div>
-            <% if @membership.full_financial_access? %>
-              <% total_min = @quote.quote_items.sum { |i| i.try(:total_min).to_f } %>
-              <% total_max = @quote.quote_items.sum { |i| i.try(:total_max).to_f } %>
-              <% if total_min > 0 || total_max > 0 %>
-                <hr class="my-2">
-                <div class="d-flex justify-content-between fw-semibold" style="font-size:0.88rem;">
-                  <span>Fourchette totale</span>
-                  <span class="text-primary">
-                    <%= number_to_currency(total_min, unit: "€", format: "%n %u") %> –
-                    <%= number_to_currency(total_max, unit: "€", format: "%n %u") %>
-                  </span>
-                </div>
+                  </thead>
+                  <tbody>
+                    <% quote.quote_items.each do |item| %>
+                      <tr>
+                        <td class="ps-0">
+                          <i class="bi bi-check-circle-fill text-success me-1" style="font-size:0.7rem;"></i>
+                          <%= item.work_type&.name || item.work_type_key.humanize %>
+                          <% if item.quantity && item.unit %>
+                            <span class="text-muted ms-1" style="font-size:0.75rem;">
+                              <%= item.quantity %> <%= item.unit %>
+                            </span>
+                          <% end %>
+                        </td>
+                        <% if @membership.full_financial_access? || @membership.role == 'architect' %>
+                          <td class="text-end text-muted" style="white-space:nowrap;">
+                            <% min_p = item.try(:unit_price_min) || item.try(:total_min) %>
+                            <% max_p = item.try(:unit_price_max) || item.try(:total_max) %>
+                            <% if min_p && max_p %>
+                              <%= number_to_currency(min_p, unit: "€", format: "%n %u") %> –
+                              <%= number_to_currency(max_p, unit: "€", format: "%n %u") %>
+                            <% elsif item.try(:total_price) %>
+                              <%= number_to_currency(item.total_price, unit: "€", format: "%n %u") %>
+                            <% end %>
+                          </td>
+                        <% end %>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+              <% if @membership.full_financial_access? %>
+                <% total_min = quote.quote_items.sum { |i| i.try(:total_min).to_f } %>
+                <% total_max = quote.quote_items.sum { |i| i.try(:total_max).to_f } %>
+                <% if total_min > 0 || total_max > 0 %>
+                  <hr class="my-2">
+                  <div class="d-flex justify-content-between fw-semibold" style="font-size:0.88rem;">
+                    <span>Fourchette <%= @quotes.size > 1 ? 'de ce devis' : 'totale' %></span>
+                    <span class="text-primary">
+                      <%= number_to_currency(total_min, unit: "€", format: "%n %u") %> –
+                      <%= number_to_currency(total_max, unit: "€", format: "%n %u") %>
+                    </span>
+                  </div>
+                <% end %>
               <% end %>
             <% end %>
           <% else %>
