@@ -8,10 +8,6 @@ class DevisAvancementService
   #   result[:thematiques]  #=> [{ code:, label:, sous_secteur:, lignes: [...] }]
   #   result[:resume]       #=> "Synthèse textuelle…"
 
-  include HTTParty
-
-  ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
-  ANTHROPIC_VERSION = '2023-06-01'
   MODEL             = 'claude-sonnet-4-6'
   MAX_TOKENS        = 1500
 
@@ -59,31 +55,21 @@ class DevisAvancementService
 
   # ── Appel Claude ────────────────────────────────────────────────────────────
   def call_claude
-    response = HTTParty.post(
-      ANTHROPIC_API_URL,
-      headers: {
-        'x-api-key'         => @api_key,
-        'anthropic-version' => ANTHROPIC_VERSION,
-        'anthropic-beta'    => 'prompt-caching-2024-07-31',
-        'content-type'      => 'application/json'
-      },
-      body: {
-        model:      MODEL,
-        max_tokens: MAX_TOKENS,
-        system:     system_prompt,
-        messages:   [{ role: 'user', content: user_prompt }]
-      }.to_json,
-      timeout: 90
+    message = Anthropic::Client.new(api_key: @api_key).messages.create(
+      model:      MODEL,
+      max_tokens: MAX_TOKENS,
+      system_:    system_prompt,
+      messages:   [{ role: 'user', content: user_prompt }],
+      request_options: { timeout: 90 }
     )
 
-    if response.success?
-      response.dig('content', 0, 'text')&.strip
-    else
-      Rails.logger.error "DevisAvancementService Claude #{response.code}: #{response.body[0..300]}"
-      nil
-    end
-  rescue Net::ReadTimeout, Net::OpenTimeout, Timeout::Error
+    text_block = message.content.find { |b| b.type == :text }
+    text_block&.text&.strip
+  rescue Anthropic::Errors::APITimeoutError
     Rails.logger.warn 'DevisAvancementService: timeout Claude'
+    nil
+  rescue Anthropic::Errors::APIError => e
+    Rails.logger.error "DevisAvancementService Claude error: #{e.message}"
     nil
   end
 

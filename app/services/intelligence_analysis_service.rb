@@ -1,8 +1,4 @@
 class IntelligenceAnalysisService
-  include HTTParty
-
-  ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
-  ANTHROPIC_VERSION = '2023-06-01'
   MODEL             = 'claude-sonnet-4-6'
   MAX_TOKENS        = 2000
 
@@ -78,41 +74,31 @@ class IntelligenceAnalysisService
   def call_claude(messages)
     start = Time.current
 
-    response = HTTParty.post(
-      ANTHROPIC_API_URL,
-      headers: {
-        'x-api-key'         => @api_key,
-        'anthropic-version' => ANTHROPIC_VERSION,
-        'anthropic-beta'    => 'prompt-caching-2024-07-31',
-        'content-type'      => 'application/json'
-      },
-      body: {
-        model:      MODEL,
-        max_tokens: MAX_TOKENS,
-        system:     [
-          {
-            type: 'text',
-            text: RENOV8_CONTEXT,
-            cache_control: { type: 'ephemeral' }
-          }
-        ],
-        messages: messages
-      }.to_json,
-      timeout: 120
+    message = Anthropic::Client.new(api_key: @api_key).messages.create(
+      model:      MODEL,
+      max_tokens: MAX_TOKENS,
+      system_:    [
+        {
+          type: 'text',
+          text: RENOV8_CONTEXT,
+          cache_control: { type: 'ephemeral' }
+        }
+      ],
+      messages: messages,
+      request_options: { timeout: 120 }
     )
 
     duration = (Time.current - start).round(2)
 
-    if response.success?
-      content = response.dig('content', 0, 'text')&.strip
-      Rails.logger.info "IntelligenceAnalysisService — #{duration}s — #{content&.length} chars"
-      content
-    else
-      Rails.logger.error "IntelligenceAnalysisService — Claude #{response.code}: #{response.body[0..300]}"
-      nil
-    end
-  rescue Net::ReadTimeout, Net::OpenTimeout, Timeout::Error
+    text_block = message.content.find { |b| b.type == :text }
+    content = text_block&.text&.strip
+    Rails.logger.info "IntelligenceAnalysisService — #{duration}s — #{content&.length} chars"
+    content
+  rescue Anthropic::Errors::APITimeoutError
     Rails.logger.warn "IntelligenceAnalysisService — timeout après #{(Time.current - start).round(2)}s"
+    nil
+  rescue Anthropic::Errors::APIError => e
+    Rails.logger.error "IntelligenceAnalysisService — Claude API error: #{e.message}"
     nil
   rescue => e
     Rails.logger.error "IntelligenceAnalysisService — #{e.message}"

@@ -1,9 +1,7 @@
 class ChantierVisionService
-  include HTTParty
+  include HTTParty # utilisé pour HTTParty.get lors du fallback image (voir encode_image_base64)
   require 'base64'
 
-  ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
-  ANTHROPIC_VERSION = '2023-06-01'
   MODEL             = 'claude-sonnet-4-6'
   MAX_PHOTOS        = 6   # limite pour garder le coût raisonnable
   MAX_TOKENS        = 1500
@@ -122,31 +120,21 @@ class ChantierVisionService
       }
     ]
 
-    response = HTTParty.post(
-      ANTHROPIC_API_URL,
-      headers: {
-        'x-api-key'         => @api_key,
-        'anthropic-version' => ANTHROPIC_VERSION,
-        'anthropic-beta'    => 'prompt-caching-2024-07-31',
-        'content-type'      => 'application/json'
-      },
-      body: {
-        model:      MODEL,
-        max_tokens: MAX_TOKENS,
-        system:     system_prompt,
-        messages:   messages
-      }.to_json,
-      timeout: 60
+    message = Anthropic::Client.new(api_key: @api_key).messages.create(
+      model:      MODEL,
+      max_tokens: MAX_TOKENS,
+      system_:    system_prompt,
+      messages:   messages,
+      request_options: { timeout: 60 }
     )
 
-    if response.success?
-      response.dig('content', 0, 'text')&.strip
-    else
-      Rails.logger.error "ChantierVisionService Claude #{response.code}: #{response.body[0..200]}"
-      nil
-    end
-  rescue Net::ReadTimeout, Net::OpenTimeout, Timeout::Error
+    text_block = message.content.find { |b| b.type == :text }
+    text_block&.text&.strip
+  rescue Anthropic::Errors::APITimeoutError
     Rails.logger.warn 'ChantierVisionService: timeout Claude'
+    nil
+  rescue Anthropic::Errors::APIError => e
+    Rails.logger.error "ChantierVisionService Claude error: #{e.message}"
     nil
   end
 

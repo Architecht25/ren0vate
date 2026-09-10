@@ -6,10 +6,6 @@
 #   result  = service.compare(category: 'insulation', subcategory: 'toiture')
 
 class ProductComparatorService
-  include HTTParty
-
-  ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
-  ANTHROPIC_VERSION = '2023-06-01'
   MODEL             = 'claude-haiku-4-5-20251001'
 
   # Primes moyennes par catégorie (Wallonie) pour le calcul ROI affiché
@@ -239,31 +235,20 @@ class ProductComparatorService
   end
 
   def call_claude(prompt)
-    response = self.class.post(
-      ANTHROPIC_API_URL,
-      headers: {
-        'Content-Type'    => 'application/json',
-        'x-api-key'       => @api_key,
-        'anthropic-version' => ANTHROPIC_VERSION,
-        'anthropic-beta'  => 'prompt-caching-2024-07-31'
-      },
-      body: {
-        model:      MODEL,
-        max_tokens: 200,
-        system: [{
-          type: 'text',
-          text: "Tu es expert en rénovation énergétique belge. Réponds en français, maximum 80 mots, ton direct et rassurant.",
-          cache_control: { type: 'ephemeral' }
-        }],
-        messages:   [{ role: 'user', content: prompt }]
-      }.to_json,
-      timeout: 15
+    message = Anthropic::Client.new(api_key: @api_key).messages.create(
+      model:      MODEL,
+      max_tokens: 200,
+      system_: [{
+        type: 'text',
+        text: "Tu es expert en rénovation énergétique belge. Réponds en français, maximum 80 mots, ton direct et rassurant.",
+        cache_control: { type: 'ephemeral' }
+      }],
+      messages:   [{ role: 'user', content: prompt }],
+      request_options: { timeout: 15 }
     )
 
-    return nil unless response.code == 200
-
-    data = JSON.parse(response.body)
-    data.dig('content', 0, 'text')&.strip
+    text_block = message.content.find { |b| b.type == :text }
+    text_block&.text&.strip
   rescue
     nil
   end

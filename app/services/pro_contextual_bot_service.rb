@@ -20,10 +20,6 @@
 #   └─────────────────┴──────────────────────────────────────────────────────────┘
 
 class ProContextualBotService
-  include HTTParty
-
-  ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
-  ANTHROPIC_VERSION = '2023-06-01'
   EXPERT_MODEL      = 'claude-sonnet-4-6'
   GUIDE_MODEL       = 'claude-haiku-4-5-20251001'
   MAX_HISTORY       = 20
@@ -405,39 +401,33 @@ class ProContextualBotService
     return nil unless @api_key.present?
 
     start = Time.current
-    response = HTTParty.post(
-      ANTHROPIC_API_URL,
-      headers: {
-        'x-api-key'         => @api_key,
-        'anthropic-version' => ANTHROPIC_VERSION,
-        'anthropic-beta'    => 'prompt-caching-2024-07-31',
-        'content-type'      => 'application/json'
-      },
-      body: {
-        model:      model,
-        max_tokens: 1200,
-        system:     system,
-        messages:   messages
-      }.to_json,
-      timeout: 60
+    message = client.messages.create(
+      model:      model,
+      max_tokens: 1200,
+      system_:    system,
+      messages:   messages,
+      request_options: { timeout: 60 }
     )
 
     duration = (Time.current - start).round(2)
 
-    if response.success?
-      content = response.dig('content', 0, 'text')&.strip
-      Rails.logger.info "✅ ProBot #{@pro_role} #{model} — #{duration}s — #{content&.length} chars"
-      content
-    else
-      Rails.logger.error "❌ ProBot Claude #{response.code}: #{response.body[0..200]}"
-      nil
-    end
-  rescue Net::ReadTimeout, Net::OpenTimeout, Timeout::Error
+    text_block = message.content.find { |b| b.type == :text }
+    content = text_block&.text&.strip
+    Rails.logger.info "✅ ProBot #{@pro_role} #{model} — #{duration}s — #{content&.length} chars"
+    content
+  rescue Anthropic::Errors::APITimeoutError
     Rails.logger.warn "⏰ ProBot timeout"
+    nil
+  rescue Anthropic::Errors::APIError => e
+    Rails.logger.error "❌ ProBot Claude error: #{e.message}"
     nil
   rescue => e
     Rails.logger.error "🔥 ProBot error: #{e.message}"
     nil
+  end
+
+  def client
+    @client ||= Anthropic::Client.new(api_key: @api_key)
   end
 
   # ─── Historique ──────────────────────────────────────────────────────────────

@@ -12,10 +12,6 @@
 #   result[:alternatives]       # [{poste:, alternative:, economie_estimee:, ...}]
 
 class BudgetOptimiseurService
-  include HTTParty
-
-  ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
-  ANTHROPIC_VERSION = '2023-06-01'
   MODEL             = 'claude-opus-4-5'
   MAX_TOKENS        = 1500
 
@@ -59,29 +55,16 @@ class BudgetOptimiseurService
 
     prompt = construire_prompt(devis)
 
-    response = HTTParty.post(
-      ANTHROPIC_API_URL,
-      headers: {
-        'x-api-key'         => api_key,
-        'anthropic-version' => ANTHROPIC_VERSION,
-        'anthropic-beta'    => 'prompt-caching-2024-07-31',
-        'content-type'      => 'application/json'
-      },
-      body: {
-        model:      MODEL,
-        max_tokens: MAX_TOKENS,
-        system:     system_prompt,
-        messages:   [{ role: 'user', content: prompt }]
-      }.to_json,
-      timeout: 45
+    message = Anthropic::Client.new(api_key: api_key).messages.create(
+      model:      MODEL,
+      max_tokens: MAX_TOKENS,
+      system_:    system_prompt,
+      messages:   [{ role: 'user', content: prompt }],
+      request_options: { timeout: 45 }
     )
 
-    unless response.success?
-      Rails.logger.error "BudgetOptimiseurService error #{response.code}: #{response.body[0..200]}"
-      return { success: false, error: 'Erreur API IA' }
-    end
-
-    texte = response.dig('content', 0, 'text')&.strip
+    text_block = message.content.find { |b| b.type == :text }
+    texte = text_block&.text&.strip
     return { success: false, error: 'Réponse vide' } unless texte.present?
 
     data = parse_response(texte)
@@ -97,8 +80,11 @@ class BudgetOptimiseurService
       economies_estimees: data['economies_estimees'].to_i
     }
 
-  rescue Net::ReadTimeout, Net::OpenTimeout, Timeout::Error
+  rescue Anthropic::Errors::APITimeoutError
     { success: false, error: 'Délai dépassé — réessayez' }
+  rescue Anthropic::Errors::APIError => e
+    Rails.logger.error "BudgetOptimiseurService error: #{e.message}"
+    { success: false, error: 'Erreur API IA' }
   rescue StandardError => e
     Rails.logger.error "BudgetOptimiseurService: #{e.message}"
     { success: false, error: 'Erreur inattendue' }

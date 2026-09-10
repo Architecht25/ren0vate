@@ -24,9 +24,12 @@ gem "redcarpet"
 gem "sassc-rails"
 gem "turbo-rails"
 gem "dotenv-rails"
-# OpenAI remplacé par Claude (Anthropic) — appels via httparty
+# OpenAI remplacé par Claude (Anthropic) — SDK officiel [https://github.com/anthropics/anthropic-sdk-ruby]
+gem "anthropic"
 gem "cloudinary"
 gem "devise"
+# httparty encore utilisé pour le scraping (intelligence/veille réglementaire) et le
+# fallback de fetch d'images (ChantierVisionService) — pas pour les appels Claude
 gem "httparty", ">= 0.24.0"  # CVE-2025-68696 SSRF → fuite API keys (< 0.24.0)
 gem "rubyzip"
 gem "http_accept_language"  # Pour la détection automatique de langue

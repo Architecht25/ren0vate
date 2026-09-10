@@ -14,10 +14,6 @@
 #   # Retourne le même hash que BordereauChassisOcrService
 
 class BordereauChassisClaudeService < OcrService
-  include HTTParty
-
-  ANTHROPIC_API_URL  = 'https://api.anthropic.com/v1/messages'
-  ANTHROPIC_VERSION  = '2023-06-01'
   MODEL              = 'claude-opus-4-5'
   MAX_TOKENS         = 1500
   MAX_TEXT_CHARS     = 80_000  # ~20k tokens — suffisant pour un devis 20 pages
@@ -71,34 +67,24 @@ class BordereauChassisClaudeService < OcrService
     # Tronquer si nécessaire (devis 20+ pages)
     texte_tronque = texte.length > MAX_TEXT_CHARS ? texte[0, MAX_TEXT_CHARS] + "\n[texte tronqué]" : texte
 
-    response = HTTParty.post(
-      ANTHROPIC_API_URL,
-      headers: {
-        'x-api-key'         => api_key,
-        'anthropic-version' => ANTHROPIC_VERSION,
-        'anthropic-beta'    => 'prompt-caching-2024-07-31',
-        'content-type'      => 'application/json'
-      },
-      body: {
-        model:      MODEL,
-        max_tokens: MAX_TOKENS,
-        system:     system_prompt,
-        messages:   [{
-          role:    'user',
-          content: "Voici le texte extrait d'un devis ou bordereau de commande châssis/fenêtres belge :\n\n#{texte_tronque}\n\nExtrait les données demandées en JSON."
-        }]
-      }.to_json,
-      timeout: 45
+    message = Anthropic::Client.new(api_key: api_key).messages.create(
+      model:      MODEL,
+      max_tokens: MAX_TOKENS,
+      system_:    system_prompt,
+      messages:   [{
+        role:    'user',
+        content: "Voici le texte extrait d'un devis ou bordereau de commande châssis/fenêtres belge :\n\n#{texte_tronque}\n\nExtrait les données demandées en JSON."
+      }],
+      request_options: { timeout: 45 }
     )
 
-    if response.success?
-      response.dig('content', 0, 'text')&.strip
-    else
-      Rails.logger.error "BordereauChassisClaudeService Claude #{response.code}: #{response.body[0..300]}"
-      nil
-    end
-  rescue Net::ReadTimeout, Net::OpenTimeout, Timeout::Error
+    text_block = message.content.find { |b| b.type == :text }
+    text_block&.text&.strip
+  rescue Anthropic::Errors::APITimeoutError
     Rails.logger.warn 'BordereauChassisClaudeService: timeout Claude'
+    nil
+  rescue Anthropic::Errors::APIError => e
+    Rails.logger.error "BordereauChassisClaudeService Claude error: #{e.message}"
     nil
   end
 

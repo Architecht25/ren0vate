@@ -18,10 +18,6 @@
 # Retourne le même hash que FactureOcrService#extraire_donnees_facture.
 
 class FactureClaudeService < OcrService
-  include HTTParty
-
-  ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
-  ANTHROPIC_VERSION = '2023-06-01'
   MODEL             = 'claude-opus-4-5'
   MAX_TOKENS        = 1500
   MAX_TEXT_CHARS    = 80_000
@@ -77,34 +73,24 @@ class FactureClaudeService < OcrService
   def call_claude(texte, api_key)
     texte_tronque = texte.length > MAX_TEXT_CHARS ? texte[0, MAX_TEXT_CHARS] + "\n[texte tronqué]" : texte
 
-    response = HTTParty.post(
-      ANTHROPIC_API_URL,
-      headers: {
-        'x-api-key'         => api_key,
-        'anthropic-version' => ANTHROPIC_VERSION,
-        'anthropic-beta'    => 'prompt-caching-2024-07-31',
-        'content-type'      => 'application/json'
-      },
-      body: {
-        model:      MODEL,
-        max_tokens: MAX_TOKENS,
-        system:     system_prompt,
-        messages:   [{
-          role:    'user',
-          content: "Texte extrait du document :\n\n#{texte_tronque}\n\nExtrait les données en JSON."
-        }]
-      }.to_json,
-      timeout: 45
+    message = Anthropic::Client.new(api_key: api_key).messages.create(
+      model:      MODEL,
+      max_tokens: MAX_TOKENS,
+      system_:    system_prompt,
+      messages:   [{
+        role:    'user',
+        content: "Texte extrait du document :\n\n#{texte_tronque}\n\nExtrait les données en JSON."
+      }],
+      request_options: { timeout: 45 }
     )
 
-    if response.success?
-      response.dig('content', 0, 'text')&.strip
-    else
-      Rails.logger.error "FactureClaudeService Claude #{response.code}: #{response.body[0..300]}"
-      nil
-    end
-  rescue Net::ReadTimeout, Net::OpenTimeout, Timeout::Error
+    text_block = message.content.find { |b| b.type == :text }
+    text_block&.text&.strip
+  rescue Anthropic::Errors::APITimeoutError
     Rails.logger.warn 'FactureClaudeService: timeout Claude'
+    nil
+  rescue Anthropic::Errors::APIError => e
+    Rails.logger.error "FactureClaudeService Claude error: #{e.message}"
     nil
   end
 

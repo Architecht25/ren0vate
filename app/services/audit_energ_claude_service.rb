@@ -23,11 +23,8 @@
 #   # Retourne un hash compatible avec les colonnes AuditEnergDonnee
 
 class AuditEnergClaudeService < OcrService
-  include HTTParty
   require 'base64'
 
-  ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
-  ANTHROPIC_VERSION = '2023-06-01'
   MODEL             = 'claude-opus-4-5'
   # Un audit complet (8-9 bouquets, chacun avec plusieurs travaux + étapes +
   # alertes + performance détaillée x3 états) génère un JSON volumineux.
@@ -99,48 +96,40 @@ class AuditEnergClaudeService < OcrService
   # ── Appel API Claude ──────────────────────────────────────────────────────────
 
   def call_claude(pdf_base64, api_key)
-    response = HTTParty.post(
-      ANTHROPIC_API_URL,
-      headers: {
-        'x-api-key'         => api_key,
-        'anthropic-version' => ANTHROPIC_VERSION,
-        'anthropic-beta'    => 'pdfs-2024-09-25',
-        'content-type'      => 'application/json'
-      },
-      body: {
-        model:      MODEL,
-        max_tokens: MAX_TOKENS,
-        system:     system_prompt,
-        messages:   [{
-          role:    'user',
-          content: [
-            {
-              type:   'document',
-              source: { type: 'base64', media_type: 'application/pdf', data: pdf_base64 }
-            },
-            {
-              type: 'text',
-              text: "Voici un rapport d'Audit Logement Wallonie (format Walloreno/PAE). " \
-                    "Analyse-le intégralement (toutes les pages) et extrait les données demandées en JSON."
-            }
-          ]
-        }]
-      }.to_json,
-      timeout: 400 # généreux : tourne sur le worker Solid Queue, pas derrière le routeur Heroku (H12)
+    message = Anthropic::Client.new(api_key: api_key).messages.create(
+      model:      MODEL,
+      max_tokens: MAX_TOKENS,
+      system_:    system_prompt,
+      messages:   [{
+        role:    'user',
+        content: [
+          {
+            type:   'document',
+            source: { type: 'base64', media_type: 'application/pdf', data: pdf_base64 }
+          },
+          {
+            type: 'text',
+            text: "Voici un rapport d'Audit Logement Wallonie (format Walloreno/PAE). " \
+                  "Analyse-le intégralement (toutes les pages) et extrait les données demandées en JSON."
+          }
+        ]
+      }],
+      # généreux : tourne sur le worker Solid Queue, pas derrière le routeur Heroku (H12)
+      request_options: { timeout: 400 }
     )
 
-    if response.success?
-      if response['stop_reason'] == 'max_tokens'
-        Rails.logger.warn "AuditEnergClaudeService: réponse tronquée (max_tokens=#{MAX_TOKENS} atteint) " \
-                           "— le JSON sera probablement invalide, augmenter MAX_TOKENS"
-      end
-      response.dig('content', 0, 'text')&.strip
-    else
-      Rails.logger.error "AuditEnergClaudeService Claude #{response.code}: #{response.body[0..300]}"
-      nil
+    if message.stop_reason == :max_tokens
+      Rails.logger.warn "AuditEnergClaudeService: réponse tronquée (max_tokens=#{MAX_TOKENS} atteint) " \
+                         "— le JSON sera probablement invalide, augmenter MAX_TOKENS"
     end
-  rescue Net::ReadTimeout, Net::OpenTimeout, Timeout::Error
+
+    text_block = message.content.find { |b| b.type == :text }
+    text_block&.text&.strip
+  rescue Anthropic::Errors::APITimeoutError
     Rails.logger.warn 'AuditEnergClaudeService: timeout Claude'
+    nil
+  rescue Anthropic::Errors::APIError => e
+    Rails.logger.error "AuditEnergClaudeService Claude error: #{e.message}"
     nil
   end
 

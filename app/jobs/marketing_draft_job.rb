@@ -7,12 +7,8 @@
 #   MarketingDraftJob.perform_later(report_id)
 #   MarketingDraftJob.perform_now(report_id)
 class MarketingDraftJob < ApplicationJob
-  include HTTParty
-
   queue_as :default
 
-  ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
-  ANTHROPIC_VERSION = '2023-06-01'
   CLAUDE_MODEL      = 'claude-sonnet-4-6'
 
   # Prompt système — identique à ~/agents-hub/.../prompts/system_marketing.md
@@ -138,29 +134,16 @@ class MarketingDraftJob < ApplicationJob
   private
 
   def call_claude(api_key, user_prompt)
-    response = HTTParty.post(
-      ANTHROPIC_API_URL,
-      headers: {
-        'x-api-key'         => api_key,
-        'anthropic-version' => ANTHROPIC_VERSION,
-        'content-type'      => 'application/json'
-      },
-      body: {
-        model:      CLAUDE_MODEL,
-        max_tokens: 2048,
-        system:     MARKETING_SYSTEM_PROMPT,
-        messages:   [{ role: 'user', content: user_prompt }]
-      }.to_json,
-      timeout: 120
+    message = Anthropic::Client.new(api_key: api_key).messages.create(
+      model:      CLAUDE_MODEL,
+      max_tokens: 2048,
+      system_:    MARKETING_SYSTEM_PROMPT,
+      messages:   [{ role: 'user', content: user_prompt }],
+      request_options: { timeout: 120 }
     )
 
-    unless response.success?
-      Rails.logger.error "MarketingDraftJob — Claude HTTP #{response.code}"
-      return nil
-    end
-
-    data = response.parsed_response
-    data.dig('content', 0, 'text')&.strip
+    text_block = message.content.find { |b| b.type == :text }
+    text_block&.text&.strip
   rescue => e
     Rails.logger.error "MarketingDraftJob — call_claude erreur : #{e.message}"
     nil

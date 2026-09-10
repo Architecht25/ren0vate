@@ -1,8 +1,4 @@
 class SubsidyBotService
-  include HTTParty
-
-  ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
-  ANTHROPIC_VERSION = '2023-06-01'
   MODEL             = 'claude-sonnet-4-6'
   MAX_TOKENS        = 1500
   HISTORY_TTL       = 2.hours
@@ -547,40 +543,34 @@ class SubsidyBotService
   def call_claude(system, messages)
     return nil unless @api_key.present?
 
-    start    = Time.current
-    response = HTTParty.post(
-      ANTHROPIC_API_URL,
-      headers: {
-        'x-api-key'         => @api_key,
-        'anthropic-version' => ANTHROPIC_VERSION,
-        'anthropic-beta'    => 'prompt-caching-2024-07-31',
-        'content-type'      => 'application/json'
-      },
-      body: {
-        model:      MODEL,
-        max_tokens: MAX_TOKENS,
-        system:     system,
-        messages:   messages
-      }.to_json,
-      timeout: 60
+    start   = Time.current
+    message = client.messages.create(
+      model:      MODEL,
+      max_tokens: MAX_TOKENS,
+      system_:    system,
+      messages:   messages,
+      request_options: { timeout: 60 }
     )
 
     duration = (Time.current - start).round(2)
 
-    if response.success?
-      content = response.dig('content', 0, 'text')&.strip
-      Rails.logger.info "SubsidyBotService — #{duration}s — #{content&.length} chars"
-      content
-    else
-      Rails.logger.error "SubsidyBotService — Claude #{response.code}: #{response.body[0..200]}"
-      nil
-    end
-  rescue Net::ReadTimeout, Net::OpenTimeout, Timeout::Error
+    text_block = message.content.find { |b| b.type == :text }
+    content = text_block&.text&.strip
+    Rails.logger.info "SubsidyBotService — #{duration}s — #{content&.length} chars"
+    content
+  rescue Anthropic::Errors::APITimeoutError
     Rails.logger.warn "SubsidyBotService — timeout"
+    nil
+  rescue Anthropic::Errors::APIError => e
+    Rails.logger.error "SubsidyBotService — Claude API error: #{e.message}"
     nil
   rescue => e
     Rails.logger.error "SubsidyBotService — #{e.message}"
     nil
+  end
+
+  def client
+    @client ||= Anthropic::Client.new(api_key: @api_key)
   end
 
   def load_history

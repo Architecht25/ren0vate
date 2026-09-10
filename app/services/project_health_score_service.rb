@@ -8,10 +8,6 @@
 #
 # Appel Claude Haiku pour générer 3 recommandations contextuelles.
 class ProjectHealthScoreService
-  include HTTParty
-
-  ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
-  ANTHROPIC_VERSION = '2023-06-01'
   MODEL             = 'claude-haiku-4-5-20251001'
   MAX_TOKENS        = 600
 
@@ -265,30 +261,20 @@ class ProjectHealthScoreService
 
     prompt = build_prompt(total, indicators)
 
-    response = HTTParty.post(
-      ANTHROPIC_API_URL,
-      headers: {
-        'Content-Type'        => 'application/json',
-        'x-api-key'           => @api_key,
-        'anthropic-version'   => ANTHROPIC_VERSION,
-        'anthropic-beta'      => 'prompt-caching-2024-07-31'
-      },
-      body: {
-        model:      MODEL,
-        max_tokens: MAX_TOKENS,
-        system: [{
-          type: 'text',
-          text: "Tu es un expert en gestion de chantiers de rénovation belge.",
-          cache_control: { type: 'ephemeral' }
-        }],
-        messages: [{ role: 'user', content: prompt }]
-      }.to_json,
-      timeout: 15
+    message = Anthropic::Client.new(api_key: @api_key).messages.create(
+      model:      MODEL,
+      max_tokens: MAX_TOKENS,
+      system_: [{
+        type: 'text',
+        text: "Tu es un expert en gestion de chantiers de rénovation belge.",
+        cache_control: { type: 'ephemeral' }
+      }],
+      messages: [{ role: 'user', content: prompt }],
+      request_options: { timeout: 15 }
     )
 
-    return default_recommendations(total) unless response.success?
-
-    text = response.dig('content', 0, 'text').to_s.strip
+    text_block = message.content.find { |b| b.type == :text }
+    text = text_block&.text.to_s.strip
     parse_recommendations(text)
   rescue => e
     Rails.logger.error "ProjectHealthScoreService Claude error: #{e.message}"

@@ -21,16 +21,17 @@ Application SaaS belge de **gestion de chantiers de rénovation**. Permet aux pa
 | Rails | 8.1.3 |
 | DB production | PostgreSQL (Heroku) |
 | DB développement | SQLite |
-| Queue | Solid Queue 1.4.0 (in-process Puma) |
+| Queue | Solid Queue 1.4.0 (dyno worker dédié depuis le 22/08/2026, voir Points d'attention) |
 | Assets | Propshaft + ImportMap |
 | CSS | Bootstrap 5 + SassC |
 | Auth | Devise 5 |
 | Forms | simple_form |
 | PDF | Prawn + pdf-reader |
 | OCR | RTesseract (Tesseract 5) + MiniMagick |
-| IA | Claude Anthropic via HTTParty (pas de gem officielle) |
+| IA | Claude Anthropic via le SDK officiel `anthropic` (migré depuis HTTParty le 10/09/2026) |
 | Storage | Cloudinary (images/docs) |
 | Paiements | Stripe |
+| Sécurité | rack-attack (rate limiting/brute-force) + sentry-ruby/sentry-rails (error tracking, branché le 09/09/2026) |
 | Deploy | Heroku (stack Heroku-24) |
 
 ## Commandes essentielles
@@ -136,6 +137,7 @@ CLOUDINARY_URL        # Storage fichiers
 STRIPE_SECRET_KEY     # Paiements
 STRIPE_WEBHOOK_SECRET # Webhooks Stripe
 SMTP_*                # Envoi emails
+SENTRY_DSN            # Error tracking (branché le 09/09/2026, actif en production uniquement)
 ```
 
 ## Points d'attention
@@ -146,6 +148,8 @@ SMTP_*                # Envoi emails
 - **`config.assets.compile = true`** en production — warning Heroku connu, non bloquant
 - **Ruby 3.3.9** sur Heroku (3.3.11 disponible — à upgrader)
 - **BCE** : vérification via API VIES publique (`ec.europa.eu/taxation_customs/vies`) — gratuit, pas de clé
+- **Sentry** : branché le 09/09/2026 (`sentry-ruby`/`sentry-rails`), actif uniquement en production (`config.enabled_environments = %w[production]`), 10% des transactions tracées (`traces_sample_rate = 0.1`, plan gratuit), `national_number`/`iban` retirés des payloads avant envoi (`before_send`), exceptions `RoutingError`/`RecordNotFound`/`Rack::Attack::Error` exclues du bruit
+- **rack-attack** : gem présente et middleware activé (`config/initializers/rack_attack.rb`) — pas encore documenté ailleurs dans ce fichier avant le 10/09/2026
 
 ## Stripe — État au 27 avril 2026
 
