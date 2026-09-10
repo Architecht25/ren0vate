@@ -9,7 +9,7 @@ gem "propshaft"
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.6"
 # Use the Puma web server [https://github.com/puma/puma]
-gem "puma", "~> 7.2.1"
+gem "puma", "~> 8.0.2"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 # Pin json < 3.0 — ActiveSupport::JSON.decode (8.1.3.1) calls JSON.parse(json,
