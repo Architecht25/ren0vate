@@ -95,10 +95,10 @@ class BudgetEstimatorService
     when 'E'
       add(s, 'isolation_toiture',     roof_surface,        "PEB E — isolation toiture prioritaire")
       add(s, 'chassis_pvc',           window_surface,      "PEB E — châssis à renouveler")
-      add(s, 'ventilation_double_flux', 1,                 "PEB E — ventilation conseillée")
+      add(s, 'ventilation_c_plus',    1,                   "PEB E — ventilation C+ à extraction centralisée conseillée")
     when 'D'
       add(s, 'chassis_pvc',           window_surface,      "PEB D — amélioration châssis recommandée") if year < 1995
-      add(s, 'ventilation_double_flux', 1,                 "PEB D — VMC conseillée")
+      add(s, 'ventilation_type_c',    ventilation_points,  "PEB D — VMC simple flux conseillée")
     when 'A+', 'A', 'B', 'C'
       add(s, 'panneaux_solaires',           solar_kwc,  "Bon PEB — optimiser avec production solaire PV")
       add(s, 'chauffe_eau_thermodynamique', 1,           "Bon PEB — eau chaude thermodynamique recommandée")
@@ -149,7 +149,15 @@ class BudgetEstimatorService
     add_unless_present(s, 'plancher_chauffant',       floor_surface, "Décrit : plancher chauffant")   if description.match?(/plancher.{0,6}chauf|chauffage.{0,6}sol/)
     add_unless_present(s, 'radiateurs_remplacement',  1,          "Décrit : radiateurs")              if description.match?(/radiateur/)
     add_unless_present(s, 'panneaux_solaires',        solar_kwc,  "Décrit : panneaux solaires")         if description.match?(/panneau|solaire|photovolta/)
-    add_unless_present(s, 'ventilation_double_flux',  1,          "Décrit : ventilation")               if description.match?(/ventilation|vmc/)
+
+    # Ventilation — on distingue le type décrit plutôt que de suggérer systématiquement le double flux
+    if description.match?(/double.{0,4}flux|r[eé]cup[eé]ration.{0,6}chaleur|\bvmc.{0,2}d\b|type.{0,2}d\b/)
+      add_unless_present(s, 'ventilation_double_flux', 1, "Décrit : ventilation double flux (Type D)")
+    elsif description.match?(/c\+|c.{0,1}plus|centralis[ée]e|hygro|\bco2\b|healthbox|ducobox/)
+      add_unless_present(s, 'ventilation_c_plus', 1, "Décrit : ventilation C+ (extraction centralisée)")
+    elsif description.match?(/simple.{0,4}flux|extracteur|type.{0,2}c\b|ventilation|vmc/)
+      add_unless_present(s, 'ventilation_type_c', ventilation_points, "Décrit : ventilation simple flux (Type C)")
+    end
 
     # Technique
     add_unless_present(s, 'electricite_conformite', 1, "Décrit : électricité")                     if description.match?(/[eé]lectricit[eé]|[eé]lectrique|tableau.*[eé]lec/)
@@ -189,6 +197,14 @@ class BudgetEstimatorService
 
   def solar_kwc
     [(surface / 12.0).round(1), 2.5].max
+  end
+
+  # Nombre de points d'extraction Type C estimés (cuisine, salle de bain, WC),
+  # +1 par tranche de 100 m² supplémentaire au-delà de 100 m²
+  def ventilation_points
+    base = 3
+    extra = surface_provided? ? [((surface - 100) / 100.0).floor, 0].max : 0
+    base + extra
   end
 
   # ── Helpers suggestions ─────────────────────────────────────────────────────
@@ -266,7 +282,7 @@ class BudgetEstimatorService
     when 'F', 'G'
       parts << "Une rénovation complète de l'enveloppe thermique est prioritaire : isolation toiture, murs extérieurs, remplacement des châssis et modernisation du chauffage sont incontournables pour atteindre les objectifs de rénovation 2050."
     when 'E'
-      parts << "Les priorités sont l'isolation de la toiture et le renouvellement des châssis. L'ajout d'une ventilation double flux est fortement conseillé après isolation."
+      parts << "Les priorités sont l'isolation de la toiture et le renouvellement des châssis. L'ajout d'une ventilation C+ à extraction centralisée est fortement conseillé après isolation."
     when 'D'
       parts << "Des améliorations ciblées sur les châssis et la ventilation permettront de progresser. Un audit énergétique précisera les priorités."
     when 'C'

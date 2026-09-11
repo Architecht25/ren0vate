@@ -6,6 +6,7 @@ class WorkType
     'ouvertures'=> 'Châssis & Ouvertures',
     'sol'       => 'Sol & Structure',
     'energie'   => 'Énergie & Chauffage',
+    'ventilation' => 'Ventilation',
     'pieces'    => 'Pièces de vie',
     'technique' => 'Technique'
   }.freeze
@@ -484,20 +485,6 @@ class WorkType
       vat_rate: 21
     },
     {
-      key: 'ventilation_double_flux',
-      category: 'energie',
-      name: 'Ventilation double flux (VMC)',
-      icon: 'bi-fan',
-      unit: 'forfait',
-      unit_label: 'installation',
-      forfait: true,
-      price_min: 4_000,
-      price_max: 8_000,
-      duration_min: 2,
-      duration_max: 4,
-      vat_rate: 6
-    },
-    {
       key: 'poele_pellets',
       category: 'energie',
       name: 'Poêle à pellets',
@@ -509,6 +496,67 @@ class WorkType
       price_max: 7_000,
       duration_min: 1,
       duration_max: 2,
+      vat_rate: 6
+    },
+
+    # ── VENTILATION ──────────────────────────────────────────────────────────
+    # Classification belge (norme NBN D50-001) : C = extraction mécanique simple,
+    # C+ = extraction centralisée à régulation CO2/humidité (ex. Renson Healthbox,
+    # Duco DucoBox), D = double flux avec récupération de chaleur.
+    {
+      key: 'ventilation_type_c',
+      category: 'ventilation',
+      name: 'Ventilation simple flux (Type C — extracteur ponctuel)',
+      icon: 'bi-wind',
+      unit: 'pièce',
+      unit_label: 'pièce',
+      forfait: false,
+      price_min: 150,
+      price_max: 450,
+      duration_min: 1,
+      duration_max: 1,
+      vat_rate: 6
+    },
+    {
+      key: 'ventilation_c_plus',
+      category: 'ventilation',
+      name: 'Ventilation C+ (extraction centralisée CO2/humidité)',
+      icon: 'bi-fan',
+      unit: 'forfait',
+      unit_label: 'installation',
+      forfait: true,
+      price_min: 2_800,
+      price_max: 4_500,
+      duration_min: 1,
+      duration_max: 2,
+      vat_rate: 6
+    },
+    {
+      key: 'ventilation_double_flux',
+      category: 'ventilation',
+      name: 'Ventilation double flux (Type D)',
+      icon: 'bi-arrow-repeat',
+      unit: 'forfait',
+      unit_label: 'installation',
+      forfait: true,
+      price_min: 5_000,
+      price_max: 10_000,
+      duration_min: 2,
+      duration_max: 5,
+      vat_rate: 6
+    },
+    {
+      key: 'carte_regulation_ventilation',
+      category: 'ventilation',
+      name: 'Carte de régulation ventilation C/C+ (centrale + capteurs)',
+      icon: 'bi-cpu',
+      unit: 'forfait',
+      unit_label: 'installation',
+      forfait: true,
+      price_min: 1_200,
+      price_max: 2_600,
+      duration_min: 1,
+      duration_max: 1,
       vat_rate: 6
     },
 
