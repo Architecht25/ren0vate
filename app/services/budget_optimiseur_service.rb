@@ -27,6 +27,7 @@ class BudgetOptimiseurService
     peinture_int
     enduit_murs_ext
     enduit_murs_int
+    isolation_acoustique
   ].freeze
 
   def initialize(project)

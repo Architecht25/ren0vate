@@ -171,6 +171,48 @@ class BudgetEstimatorService
     add_unless_present(s, 'peinture_int',  paint_surface, "Décrit : peinture")        if description.match?(/peinture|repeindre/)
     add_unless_present(s, 'sous_sol_assechement', 1, "Décrit : sous-sol/humidité")    if description.match?(/sous.{0,4}sol|cave|humidit/)
     add_unless_present(s, 'collecte_eaux_pluie',  1, "Décrit : récupération eau")     if description.match?(/eau.{0,6}pluie|citerne|r[eé]cup/)
+    add_unless_present(s, 'gouttieres_zinguerie', gutter_length, "Décrit : gouttières/zinguerie") if description.match?(/goutti[eè]re|zinguerie/)
+    add_unless_present(s, 'isolation_acoustique', acoustic_surface, "Décrit : isolation acoustique") if description.match?(/isolation.{0,6}acoustique|acoustique|bruit/)
+    add_unless_present(s, 'amenagement_combles',  combles_surface,  "Décrit : aménagement combles") if description.match?(/combles|grenier/)
+    add_unless_present(s, 'amenagement_cave',     cave_surface,     "Décrit : aménagement cave")    if description.match?(/am[eé]nag(er|ement).{0,10}cave|cave.{0,10}habitable/)
+
+    # Gros-œuvre & structure
+    add_unless_present(s, 'demolition',              1,                "Décrit : démolition")            if description.match?(/d[eé]molir|d[eé]molition|abattre.{0,6}mur/)
+    add_unless_present(s, 'extension_agrandissement', extension_surface, "Décrit : extension/agrandissement") if description.match?(/extension|agrandi(r|ssement)/)
+    add_unless_present(s, 'surelevation',            extension_surface, "Décrit : surélévation")          if description.match?(/sur[eé]l[eé]vation|ajout.{0,6}[eé]tage|rehausse.{0,6}toit/)
+    add_unless_present(s, 'murs_porteurs',           1,                "Décrit : mur porteur")            if description.match?(/mur.{0,4}porteur|porteur.{0,4}mur/)
+    add_unless_present(s, 'fondations',              1,                "Décrit : fondations")             if description.match?(/fondation/)
+
+    # Extérieur & aménagements
+    add_unless_present(s, 'terrasse',            terrace_surface, "Décrit : terrasse")             if description.match?(/terrasse/)
+    add_unless_present(s, 'allee_carrossable',   30,              "Décrit : allée carrossable")    if description.match?(/all[eé]e.{0,6}carrossable|all[eé]e.{0,6}voiture/)
+    add_unless_present(s, 'cloture_portail',     25,              "Décrit : clôture/portail")       if description.match?(/cl[ôo]ture|portail/)
+    add_unless_present(s, 'garage_carport',      1,               "Décrit : garage/carport")        if description.match?(/garage|carport/)
+    add_unless_present(s, 'amenagement_jardin',  1,               "Décrit : aménagement jardin")    if description.match?(/jardin|paysag/)
+    add_unless_present(s, 'piscine',             1,               "Décrit : piscine")               if description.match?(/piscine/)
+
+    # Accessibilité PMR
+    add_unless_present(s, 'rampe_acces',        1, "Décrit : accessibilité PMR")      if description.match?(/rampe.{0,6}acc[eè]s|\bpmr\b|handicap/)
+    add_unless_present(s, 'monte_escalier',     1, "Décrit : monte-escalier")         if description.match?(/monte.{0,4}escalier/)
+    add_unless_present(s, 'ascenseur_privatif', 1, "Décrit : ascenseur privatif")     if description.match?(/ascenseur/)
+
+    # Assainissement
+    add_unless_present(s, 'fosse_septique',      1, "Décrit : fosse septique")        if description.match?(/fosse.{0,4}septique/)
+    add_unless_present(s, 'raccordement_egouts', 1, "Décrit : raccordement égouts")   if description.match?(/[eé]gout/)
+
+    # Domotique & mobilité électrique
+    add_unless_present(s, 'maison_connectee',  1, "Décrit : domotique")               if description.match?(/domotique|maison.{0,6}connect[eé]e|smart.{0,4}home/)
+    add_unless_present(s, 'borne_recharge_ve', 1, "Décrit : borne de recharge VE")     if description.match?(/borne.{0,6}recharge|v[eé]hicule.{0,6}[eé]lectrique/)
+
+    # Ouvertures complémentaires
+    add_unless_present(s, 'porte_interieure', 1, "Décrit : porte intérieure")         if description.match?(/porte.{0,6}int[eé]rieure/)
+    add_unless_present(s, 'volet_roulant',    1, "Décrit : volet roulant")            if description.match?(/volet.{0,6}roulant/)
+    add_unless_present(s, 'volet_battant',    1, "Décrit : volet battant")            if description.match?(/volet.{0,6}battant/)
+
+    # Énergie complémentaire
+    add_unless_present(s, 'cheminee_insert_bois', 1, "Décrit : cheminée/insert bois") if description.match?(/chemin[eé]e|insert.{0,4}bois/)
+    add_unless_present(s, 'climatisation_split',  1, "Décrit : climatisation")        if description.match?(/climatisation|\bclim\b|split/)
+    add_unless_present(s, 'poele_bois_buches',    1, "Décrit : poêle à bois")         if description.match?(/po[êe]le.{0,6}bois|b[ûu]ches/)
   end
 
   # ── Helpers quantités ───────────────────────────────────────────────────────
@@ -197,6 +239,37 @@ class BudgetEstimatorService
 
   def solar_kwc
     [(surface / 12.0).round(1), 2.5].max
+  end
+
+  # Estimation prudente d'une extension/surélévation en l'absence de plan précis
+  def extension_surface
+    [(surface * 0.25).round, 15].max
+  end
+
+  # Estimation d'aménagement de combles (fraction de la surface au sol)
+  def combles_surface
+    [(surface * 0.4).round, 20].max
+  end
+
+  # Estimation d'aménagement de cave en espace habitable
+  def cave_surface
+    [(surface * 0.3).round, 15].max
+  end
+
+  # Estimation surface concernée par une isolation acoustique ciblée (pièce/mur)
+  def acoustic_surface
+    [(surface * 0.3).round, 12].max
+  end
+
+  # Estimation surface de terrasse (fraction de la surface au sol)
+  def terrace_surface
+    [(surface * 0.2).round, 15].max
+  end
+
+  # Estimation du linéaire de gouttières à partir du périmètre approximatif du bâtiment
+  # (périmètre d'un carré de surface équivalente : 4 * racine(surface))
+  def gutter_length
+    [(4 * Math.sqrt(surface)).round, 15].max
   end
 
   # Nombre de points d'extraction Type C estimés (cuisine, salle de bain, WC),

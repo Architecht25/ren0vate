@@ -8,7 +8,12 @@ class WorkType
     'energie'   => 'Énergie & Chauffage',
     'ventilation' => 'Ventilation',
     'pieces'    => 'Pièces de vie',
-    'technique' => 'Technique'
+    'technique' => 'Technique',
+    'gros_oeuvre'   => 'Gros-œuvre & Structure',
+    'exterieur'     => 'Extérieur & Aménagements',
+    'accessibilite' => 'Accessibilité PMR',
+    'assainissement'=> 'Assainissement',
+    'domotique'     => 'Domotique & Mobilité électrique'
   }.freeze
 
   # Catalogue de référence — fourchettes de marché belge 2026
@@ -122,6 +127,20 @@ class WorkType
       forfait: true,
       price_min: 800,
       price_max: 3_000,
+      duration_min: 1,
+      duration_max: 3,
+      vat_rate: 6
+    },
+    {
+      key: 'gouttieres_zinguerie',
+      category: 'toiture',
+      name: 'Gouttières & zinguerie',
+      icon: 'bi-droplet-fill',
+      unit: 'ml',
+      unit_label: 'ml',
+      forfait: false,
+      price_min: 25,
+      price_max: 60,
       duration_min: 1,
       duration_max: 3,
       vat_rate: 6
@@ -298,6 +317,48 @@ class WorkType
       duration_max: 2,
       vat_rate: 6
     },
+    {
+      key: 'porte_interieure',
+      category: 'ouvertures',
+      name: 'Remplacement porte intérieure',
+      icon: 'bi-door-closed',
+      unit: 'forfait',
+      unit_label: 'pièce',
+      forfait: true,
+      price_min: 300,
+      price_max: 900,
+      duration_min: 1,
+      duration_max: 1,
+      vat_rate: 6
+    },
+    {
+      key: 'volet_roulant',
+      category: 'ouvertures',
+      name: 'Volet roulant (motorisé ou manuel)',
+      icon: 'bi-blinds',
+      unit: 'forfait',
+      unit_label: 'pièce',
+      forfait: true,
+      price_min: 400,
+      price_max: 1_200,
+      duration_min: 1,
+      duration_max: 1,
+      vat_rate: 6
+    },
+    {
+      key: 'volet_battant',
+      category: 'ouvertures',
+      name: 'Volet battant',
+      icon: 'bi-columns-gap',
+      unit: 'forfait',
+      unit_label: 'pièce',
+      forfait: true,
+      price_min: 300,
+      price_max: 900,
+      duration_min: 1,
+      duration_max: 1,
+      vat_rate: 6
+    },
 
     # ── SOL & STRUCTURE ──────────────────────────────────────────────────────
     {
@@ -369,6 +430,20 @@ class WorkType
       duration_min: 3,
       duration_max: 10,
       vat_rate: 21
+    },
+    {
+      key: 'amenagement_cave',
+      category: 'sol',
+      name: 'Aménagement cave en espace habitable',
+      icon: 'bi-layers-fill',
+      unit: 'm²',
+      unit_label: 'm²',
+      forfait: false,
+      price_min: 300,
+      price_max: 700,
+      duration_min: 10,
+      duration_max: 20,
+      vat_rate: 6
     },
 
     # ── ÉNERGIE & CHAUFFAGE ──────────────────────────────────────────────────
@@ -498,6 +573,48 @@ class WorkType
       duration_max: 2,
       vat_rate: 6
     },
+    {
+      key: 'cheminee_insert_bois',
+      category: 'energie',
+      name: 'Cheminée / insert à bois',
+      icon: 'bi-fire',
+      unit: 'forfait',
+      unit_label: 'installation',
+      forfait: true,
+      price_min: 2_500,
+      price_max: 6_000,
+      duration_min: 1,
+      duration_max: 3,
+      vat_rate: 6
+    },
+    {
+      key: 'climatisation_split',
+      category: 'energie',
+      name: 'Climatisation split (unité intérieure/extérieure)',
+      icon: 'bi-snow2',
+      unit: 'forfait',
+      unit_label: 'pièce',
+      forfait: true,
+      price_min: 1_500,
+      price_max: 3_500,
+      duration_min: 1,
+      duration_max: 2,
+      vat_rate: 6
+    },
+    {
+      key: 'poele_bois_buches',
+      category: 'energie',
+      name: 'Poêle à bois (bûches)',
+      icon: 'bi-tree',
+      unit: 'forfait',
+      unit_label: 'installation',
+      forfait: true,
+      price_min: 2_000,
+      price_max: 5_000,
+      duration_min: 1,
+      duration_max: 2,
+      vat_rate: 6
+    },
 
     # ── VENTILATION ──────────────────────────────────────────────────────────
     # Classification belge (norme NBN D50-001) : C = extraction mécanique simple,
@@ -617,6 +734,34 @@ class WorkType
       duration_max: 5,
       vat_rate: 6
     },
+    {
+      key: 'isolation_acoustique',
+      category: 'pieces',
+      name: 'Isolation acoustique (murs/plafonds)',
+      icon: 'bi-volume-mute',
+      unit: 'm²',
+      unit_label: 'm²',
+      forfait: false,
+      price_min: 30,
+      price_max: 70,
+      duration_min: 2,
+      duration_max: 5,
+      vat_rate: 6
+    },
+    {
+      key: 'amenagement_combles',
+      category: 'pieces',
+      name: 'Aménagement combles en pièce habitable',
+      icon: 'bi-house-up',
+      unit: 'm²',
+      unit_label: 'm²',
+      forfait: false,
+      price_min: 400,
+      price_max: 900,
+      duration_min: 15,
+      duration_max: 30,
+      vat_rate: 6
+    },
 
     # ── TECHNIQUE ────────────────────────────────────────────────────────────
     {
@@ -702,6 +847,268 @@ class WorkType
       duration_min: 1,
       duration_max: 3,
       vat_rate: 21
+    },
+
+    # ── GROS-ŒUVRE & STRUCTURE ────────────────────────────────────────────────
+    {
+      key: 'demolition',
+      category: 'gros_oeuvre',
+      name: 'Démolition (murs non porteurs, dépose intérieure)',
+      icon: 'bi-hammer',
+      unit: 'forfait',
+      unit_label: 'forfait',
+      forfait: true,
+      price_min: 2_000,
+      price_max: 8_000,
+      duration_min: 2,
+      duration_max: 5,
+      vat_rate: 6
+    },
+    {
+      key: 'extension_agrandissement',
+      category: 'gros_oeuvre',
+      name: 'Extension / agrandissement (gros œuvre fermé)',
+      icon: 'bi-building-add',
+      unit: 'm²',
+      unit_label: 'm²',
+      forfait: false,
+      price_min: 1_500,
+      price_max: 2_800,
+      duration_min: 30,
+      duration_max: 90,
+      vat_rate: 21
+    },
+    {
+      key: 'surelevation',
+      category: 'gros_oeuvre',
+      name: 'Surélévation (ajout d\'un niveau)',
+      icon: 'bi-building-up',
+      unit: 'm²',
+      unit_label: 'm²',
+      forfait: false,
+      price_min: 1_800,
+      price_max: 3_200,
+      duration_min: 30,
+      duration_max: 75,
+      vat_rate: 21
+    },
+    {
+      key: 'murs_porteurs',
+      category: 'gros_oeuvre',
+      name: 'Modification murs porteurs (ouverture/renfort)',
+      icon: 'bi-bricks',
+      unit: 'forfait',
+      unit_label: 'forfait',
+      forfait: true,
+      price_min: 3_000,
+      price_max: 12_000,
+      duration_min: 3,
+      duration_max: 10,
+      vat_rate: 6
+    },
+    {
+      key: 'fondations',
+      category: 'gros_oeuvre',
+      name: 'Fondations (reprise en sous-œuvre/renforcement)',
+      icon: 'bi-layers-fill',
+      unit: 'forfait',
+      unit_label: 'forfait',
+      forfait: true,
+      price_min: 8_000,
+      price_max: 25_000,
+      duration_min: 10,
+      duration_max: 20,
+      vat_rate: 6
+    },
+
+    # ── EXTÉRIEUR & AMÉNAGEMENTS ─────────────────────────────────────────────
+    {
+      key: 'terrasse',
+      category: 'exterieur',
+      name: 'Terrasse (dallage/composite/bois)',
+      icon: 'bi-square',
+      unit: 'm²',
+      unit_label: 'm²',
+      forfait: false,
+      price_min: 60,
+      price_max: 150,
+      duration_min: 3,
+      duration_max: 7,
+      vat_rate: 21
+    },
+    {
+      key: 'allee_carrossable',
+      category: 'exterieur',
+      name: 'Allée carrossable (pavage/enrobé)',
+      icon: 'bi-signpost-2',
+      unit: 'm²',
+      unit_label: 'm²',
+      forfait: false,
+      price_min: 70,
+      price_max: 140,
+      duration_min: 3,
+      duration_max: 8,
+      vat_rate: 21
+    },
+    {
+      key: 'cloture_portail',
+      category: 'exterieur',
+      name: 'Clôture & portail',
+      icon: 'bi-bounding-box',
+      unit: 'ml',
+      unit_label: 'ml',
+      forfait: false,
+      price_min: 80,
+      price_max: 250,
+      duration_min: 1,
+      duration_max: 4,
+      vat_rate: 21
+    },
+    {
+      key: 'garage_carport',
+      category: 'exterieur',
+      name: 'Garage / carport',
+      icon: 'bi-car-front',
+      unit: 'forfait',
+      unit_label: 'forfait',
+      forfait: true,
+      price_min: 8_000,
+      price_max: 25_000,
+      duration_min: 10,
+      duration_max: 25,
+      vat_rate: 21
+    },
+    {
+      key: 'amenagement_jardin',
+      category: 'exterieur',
+      name: 'Aménagement jardin (paysagisme)',
+      icon: 'bi-tree-fill',
+      unit: 'forfait',
+      unit_label: 'forfait',
+      forfait: true,
+      price_min: 3_000,
+      price_max: 15_000,
+      duration_min: 3,
+      duration_max: 10,
+      vat_rate: 21
+    },
+    {
+      key: 'piscine',
+      category: 'exterieur',
+      name: 'Piscine (enterrée)',
+      icon: 'bi-water',
+      unit: 'forfait',
+      unit_label: 'forfait',
+      forfait: true,
+      price_min: 20_000,
+      price_max: 55_000,
+      duration_min: 20,
+      duration_max: 45,
+      vat_rate: 21
+    },
+
+    # ── ACCESSIBILITÉ PMR ────────────────────────────────────────────────────
+    {
+      key: 'rampe_acces',
+      category: 'accessibilite',
+      name: 'Rampe d\'accès PMR',
+      icon: 'bi-person-wheelchair',
+      unit: 'forfait',
+      unit_label: 'forfait',
+      forfait: true,
+      price_min: 1_500,
+      price_max: 5_000,
+      duration_min: 2,
+      duration_max: 5,
+      vat_rate: 6
+    },
+    {
+      key: 'monte_escalier',
+      category: 'accessibilite',
+      name: 'Monte-escalier',
+      icon: 'bi-arrow-up-circle',
+      unit: 'forfait',
+      unit_label: 'installation',
+      forfait: true,
+      price_min: 3_500,
+      price_max: 9_000,
+      duration_min: 1,
+      duration_max: 3,
+      vat_rate: 6
+    },
+    {
+      key: 'ascenseur_privatif',
+      category: 'accessibilite',
+      name: 'Ascenseur privatif',
+      icon: 'bi-arrow-up-square',
+      unit: 'forfait',
+      unit_label: 'installation',
+      forfait: true,
+      price_min: 18_000,
+      price_max: 35_000,
+      duration_min: 15,
+      duration_max: 30,
+      vat_rate: 6
+    },
+
+    # ── ASSAINISSEMENT ───────────────────────────────────────────────────────
+    {
+      key: 'fosse_septique',
+      category: 'assainissement',
+      name: 'Fosse septique (installation)',
+      icon: 'bi-droplet-half',
+      unit: 'forfait',
+      unit_label: 'installation',
+      forfait: true,
+      price_min: 5_000,
+      price_max: 12_000,
+      duration_min: 3,
+      duration_max: 7,
+      vat_rate: 21
+    },
+    {
+      key: 'raccordement_egouts',
+      category: 'assainissement',
+      name: 'Raccordement aux égouts',
+      icon: 'bi-droplet-slash',
+      unit: 'forfait',
+      unit_label: 'forfait',
+      forfait: true,
+      price_min: 2_000,
+      price_max: 6_000,
+      duration_min: 2,
+      duration_max: 5,
+      vat_rate: 21
+    },
+
+    # ── DOMOTIQUE & MOBILITÉ ÉLECTRIQUE ──────────────────────────────────────
+    {
+      key: 'maison_connectee',
+      category: 'domotique',
+      name: 'Maison connectée (domotique centralisée)',
+      icon: 'bi-house-gear',
+      unit: 'forfait',
+      unit_label: 'installation',
+      forfait: true,
+      price_min: 2_000,
+      price_max: 10_000,
+      duration_min: 2,
+      duration_max: 5,
+      vat_rate: 21
+    },
+    {
+      key: 'borne_recharge_ve',
+      category: 'domotique',
+      name: 'Borne de recharge véhicule électrique',
+      icon: 'bi-ev-station',
+      unit: 'forfait',
+      unit_label: 'installation',
+      forfait: true,
+      price_min: 1_200,
+      price_max: 3_500,
+      duration_min: 1,
+      duration_max: 2,
+      vat_rate: 21
     }
   ].freeze
 
@@ -725,6 +1132,7 @@ class WorkType
     { key: 'collecte_eaux_pluie',   category: 'toiture', name: 'Collecte eaux de pluie (citerne + réseau)', icon: 'bi-droplet-fill', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 2_500, price_max: 6_500, duration_min: 2, duration_max: 5, vat_rate: 10 },
     { key: 'velux',                 category: 'toiture', name: 'Placement/remplacement de velux', icon: 'bi-window-fullscreen', unit: 'pièce', unit_label: 'pièce', forfait: false, price_min: 700, price_max: 2_200,  duration_min: 1,  duration_max: 2,  vat_rate: 10 },
     { key: 'echafaudage',           category: 'toiture', name: 'Échafaudage (location + montage/démontage)', icon: 'bi-bounding-box', unit: 'forfait', unit_label: 'chantier', forfait: true, price_min: 700, price_max: 2_500, duration_min: 1, duration_max: 3, vat_rate: 10 },
+    { key: 'gouttieres_zinguerie',  category: 'toiture', name: 'Gouttières & zinguerie', icon: 'bi-droplet-fill', unit: 'ml', unit_label: 'ml', forfait: false, price_min: 18, price_max: 45, duration_min: 1, duration_max: 3, vat_rate: 10 },
 
     # ── MURS & FAÇADES ───────────────────────────────────────────────────────
     { key: 'isolation_murs_ext',      category: 'murs', name: 'Isolation murs extérieurs', icon: 'bi-bricks', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 60, price_max: 120, duration_min: 5, duration_max: 10, vat_rate: 10 },
@@ -741,6 +1149,9 @@ class WorkType
     { key: 'chassis_bois',  category: 'ouvertures', name: 'Châssis bois (double/triple vitrage)', icon: 'bi-window', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 650, price_max: 1_300, duration_min: 3, duration_max: 7, vat_rate: 10 },
     { key: 'store_isolant', category: 'ouvertures', name: 'Store extérieur isolant / brise-soleil', icon: 'bi-columns', unit: 'forfait', unit_label: 'pièce', forfait: true, price_min: 250, price_max: 1_500, duration_min: 1, duration_max: 2, vat_rate: 10 },
     { key: 'porte_entree',  category: 'ouvertures', name: 'Remplacement porte d\'entrée', icon: 'bi-door-open', unit: 'forfait', unit_label: 'pièce', forfait: true, price_min: 1_100, price_max: 3_200, duration_min: 1, duration_max: 2, vat_rate: 10 },
+    { key: 'porte_interieure', category: 'ouvertures', name: 'Remplacement porte intérieure', icon: 'bi-door-closed', unit: 'forfait', unit_label: 'pièce', forfait: true, price_min: 220, price_max: 680, duration_min: 1, duration_max: 1, vat_rate: 10 },
+    { key: 'volet_roulant', category: 'ouvertures', name: 'Volet roulant (motorisé ou manuel)', icon: 'bi-blinds', unit: 'forfait', unit_label: 'pièce', forfait: true, price_min: 320, price_max: 960, duration_min: 1, duration_max: 1, vat_rate: 10 },
+    { key: 'volet_battant', category: 'ouvertures', name: 'Volet battant', icon: 'bi-columns-gap', unit: 'forfait', unit_label: 'pièce', forfait: true, price_min: 220, price_max: 680, duration_min: 1, duration_max: 1, vat_rate: 10 },
 
     # ── SOL & STRUCTURE ──────────────────────────────────────────────────────
     { key: 'isolation_plancher',    category: 'sol', name: 'Isolation plancher / sous-sol', icon: 'bi-layers', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 20, price_max: 48,  duration_min: 2, duration_max: 5,  vat_rate: 10 },
@@ -748,6 +1159,7 @@ class WorkType
     { key: 'carrelage_sol',         category: 'sol', name: 'Carrelage sol (pose + matériaux)', icon: 'bi-grid', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 40, price_max: 90,   duration_min: 3, duration_max: 7,  vat_rate: 10 },
     { key: 'parquet',               category: 'sol', name: 'Parquet (pose + finition)', icon: 'bi-grid-3x3', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 32, price_max: 95,     duration_min: 2, duration_max: 6,  vat_rate: 10 },
     { key: 'sous_sol_assechement',  category: 'sol', name: 'Assèchement sous-sol / cave', icon: 'bi-moisture', unit: 'forfait', unit_label: 'forfait', forfait: true, price_min: 4_000, price_max: 12_000, duration_min: 3, duration_max: 10, vat_rate: 21 },
+    { key: 'amenagement_cave',      category: 'sol', name: 'Aménagement cave en espace habitable', icon: 'bi-layers-fill', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 195, price_max: 455, duration_min: 10, duration_max: 20, vat_rate: 10 },
 
     # ── ÉNERGIE & CHAUFFAGE ──────────────────────────────────────────────────
     { key: 'pompe_chaleur_air_eau',        category: 'energie', name: 'Pompe à chaleur air-eau', icon: 'bi-thermometer-half', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 5_000, price_max: 14_000, duration_min: 3, duration_max: 5, vat_rate: 10 },
@@ -760,12 +1172,17 @@ class WorkType
     { key: 'batterie_stockage',            category: 'energie', name: 'Batterie de stockage solaire', icon: 'bi-battery-charging', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 4_000, price_max: 9_500, duration_min: 1, duration_max: 2, vat_rate: 21 },
     { key: 'ventilation_double_flux',      category: 'energie', name: 'Ventilation double flux (VMC)', icon: 'bi-fan', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 3_200, price_max: 6_500, duration_min: 2, duration_max: 4, vat_rate: 10 },
     { key: 'poele_pellets',                category: 'energie', name: 'Poêle à pellets', icon: 'bi-tree', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 2_400, price_max: 5_600, duration_min: 1, duration_max: 2, vat_rate: 10 },
+    { key: 'cheminee_insert_bois',         category: 'energie', name: 'Cheminée / insert à bois', icon: 'bi-fire', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 1_900, price_max: 4_500, duration_min: 1, duration_max: 3, vat_rate: 10 },
+    { key: 'climatisation_split',          category: 'energie', name: 'Climatisation split (unité intérieure/extérieure)', icon: 'bi-snow2', unit: 'forfait', unit_label: 'pièce', forfait: true, price_min: 1_200, price_max: 2_800, duration_min: 1, duration_max: 2, vat_rate: 10 },
+    { key: 'poele_bois_buches',            category: 'energie', name: 'Poêle à bois (bûches)', icon: 'bi-tree', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 1_500, price_max: 3_750, duration_min: 1, duration_max: 2, vat_rate: 10 },
 
     # ── PIÈCES DE VIE ────────────────────────────────────────────────────────
     { key: 'salle_de_bain',      category: 'pieces', name: 'Salle de bain — rénovation complète', icon: 'bi-droplet', unit: 'forfait', unit_label: 'forfait', forfait: true, price_min: 4_500, price_max: 13_000, duration_min: 7, duration_max: 14, vat_rate: 10 },
     { key: 'cuisine_renovation', category: 'pieces', name: 'Cuisine — rénovation complète', icon: 'bi-cup-hot', unit: 'forfait', unit_label: 'forfait', forfait: true, price_min: 5_000, price_max: 15_000, duration_min: 7, duration_max: 14, vat_rate: 10 },
     { key: 'peinture_int',       category: 'pieces', name: 'Peinture intérieure', icon: 'bi-paint-bucket', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 8, price_max: 22, duration_min: 2, duration_max: 7, vat_rate: 10 },
     { key: 'faux_plafond',       category: 'pieces', name: 'Faux plafond (placo/acoustique)', icon: 'bi-square', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 22, price_max: 55, duration_min: 2, duration_max: 5, vat_rate: 10 },
+    { key: 'isolation_acoustique', category: 'pieces', name: 'Isolation acoustique (murs/plafonds)', icon: 'bi-volume-mute', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 20, price_max: 50, duration_min: 2, duration_max: 5, vat_rate: 10 },
+    { key: 'amenagement_combles', category: 'pieces', name: 'Aménagement combles en pièce habitable', icon: 'bi-house-up', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 260, price_max: 585, duration_min: 15, duration_max: 30, vat_rate: 10 },
 
     # ── TECHNIQUE ────────────────────────────────────────────────────────────
     { key: 'electricite_conformite', category: 'technique', name: 'Électricité — mise en conformité', icon: 'bi-lightning-charge', unit: 'forfait', unit_label: 'forfait', forfait: true, price_min: 2_200, price_max: 6_200, duration_min: 3, duration_max: 7, vat_rate: 10 },
@@ -773,7 +1190,35 @@ class WorkType
     { key: 'escalier_renovation',    category: 'technique', name: 'Rénovation escalier (bois/métal)', icon: 'bi-staircase', unit: 'forfait', unit_label: 'forfait', forfait: true, price_min: 1_500, price_max: 6_200, duration_min: 2, duration_max: 5, vat_rate: 10 },
     { key: 'desamiantage',           category: 'technique', name: 'Désamiantage (retrait amiante certifié)', icon: 'bi-exclamation-triangle-fill', unit: 'forfait', unit_label: 'forfait', forfait: true, price_min: 2_200, price_max: 15_000, duration_min: 3, duration_max: 15, vat_rate: 21 },
     { key: 'detection_incendie',     category: 'technique', name: 'Détecteurs incendie/CO (obligations légales)', icon: 'bi-alarm', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 250, price_max: 1_200, duration_min: 1, duration_max: 1, vat_rate: 21 },
-    { key: 'citerne_mazout_retrait', category: 'technique', name: 'Retrait citerne à mazout (dépose + neutralisation)', icon: 'bi-droplet-slash', unit: 'forfait', unit_label: 'forfait', forfait: true, price_min: 1_200, price_max: 4_000, duration_min: 1, duration_max: 3, vat_rate: 21 }
+    { key: 'citerne_mazout_retrait', category: 'technique', name: 'Retrait citerne à mazout (dépose + neutralisation)', icon: 'bi-droplet-slash', unit: 'forfait', unit_label: 'forfait', forfait: true, price_min: 1_200, price_max: 4_000, duration_min: 1, duration_max: 3, vat_rate: 21 },
+
+    # ── GROS-ŒUVRE & STRUCTURE ────────────────────────────────────────────────
+    { key: 'demolition',              category: 'gros_oeuvre', name: 'Démolition (murs non porteurs, dépose intérieure)', icon: 'bi-hammer', unit: 'forfait', unit_label: 'forfait', forfait: true, price_min: 1_300, price_max: 5_200, duration_min: 2, duration_max: 5, vat_rate: 10 },
+    { key: 'extension_agrandissement', category: 'gros_oeuvre', name: 'Extension / agrandissement (gros œuvre fermé)', icon: 'bi-building-add', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 1_100, price_max: 2_100, duration_min: 30, duration_max: 90, vat_rate: 21 },
+    { key: 'surelevation',            category: 'gros_oeuvre', name: 'Surélévation (ajout d\'un niveau)', icon: 'bi-building-up', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 1_350, price_max: 2_400, duration_min: 30, duration_max: 75, vat_rate: 21 },
+    { key: 'murs_porteurs',           category: 'gros_oeuvre', name: 'Modification murs porteurs (ouverture/renfort)', icon: 'bi-bricks', unit: 'forfait', unit_label: 'forfait', forfait: true, price_min: 2_000, price_max: 7_800, duration_min: 3, duration_max: 10, vat_rate: 10 },
+    { key: 'fondations',              category: 'gros_oeuvre', name: 'Fondations (reprise en sous-œuvre/renforcement)', icon: 'bi-layers-fill', unit: 'forfait', unit_label: 'forfait', forfait: true, price_min: 5_600, price_max: 17_500, duration_min: 10, duration_max: 20, vat_rate: 10 },
+
+    # ── EXTÉRIEUR & AMÉNAGEMENTS ─────────────────────────────────────────────
+    { key: 'terrasse',            category: 'exterieur', name: 'Terrasse (dallage/composite/bois)', icon: 'bi-square', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 40, price_max: 105, duration_min: 3, duration_max: 7, vat_rate: 21 },
+    { key: 'allee_carrossable',   category: 'exterieur', name: 'Allée carrossable (pavage/enrobé)', icon: 'bi-signpost-2', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 50, price_max: 100, duration_min: 3, duration_max: 8, vat_rate: 21 },
+    { key: 'cloture_portail',     category: 'exterieur', name: 'Clôture & portail', icon: 'bi-bounding-box', unit: 'ml', unit_label: 'ml', forfait: false, price_min: 55, price_max: 175, duration_min: 1, duration_max: 4, vat_rate: 21 },
+    { key: 'garage_carport',      category: 'exterieur', name: 'Garage / carport', icon: 'bi-car-front', unit: 'forfait', unit_label: 'forfait', forfait: true, price_min: 5_600, price_max: 17_500, duration_min: 10, duration_max: 25, vat_rate: 21 },
+    { key: 'amenagement_jardin',  category: 'exterieur', name: 'Aménagement jardin (paysagisme)', icon: 'bi-tree-fill', unit: 'forfait', unit_label: 'forfait', forfait: true, price_min: 2_000, price_max: 9_750, duration_min: 3, duration_max: 10, vat_rate: 21 },
+    { key: 'piscine',             category: 'exterieur', name: 'Piscine (enterrée)', icon: 'bi-water', unit: 'forfait', unit_label: 'forfait', forfait: true, price_min: 14_000, price_max: 38_500, duration_min: 20, duration_max: 45, vat_rate: 21 },
+
+    # ── ACCESSIBILITÉ PMR ────────────────────────────────────────────────────
+    { key: 'rampe_acces',       category: 'accessibilite', name: 'Rampe d\'accès PMR', icon: 'bi-person-wheelchair', unit: 'forfait', unit_label: 'forfait', forfait: true, price_min: 1_100, price_max: 3_750, duration_min: 2, duration_max: 5, vat_rate: 10 },
+    { key: 'monte_escalier',    category: 'accessibilite', name: 'Monte-escalier', icon: 'bi-arrow-up-circle', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 3_000, price_max: 7_650, duration_min: 1, duration_max: 3, vat_rate: 10 },
+    { key: 'ascenseur_privatif', category: 'accessibilite', name: 'Ascenseur privatif', icon: 'bi-arrow-up-square', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 15_300, price_max: 29_750, duration_min: 15, duration_max: 30, vat_rate: 10 },
+
+    # ── ASSAINISSEMENT ───────────────────────────────────────────────────────
+    { key: 'fosse_septique',      category: 'assainissement', name: 'Fosse septique (installation)', icon: 'bi-droplet-half', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 3_500, price_max: 8_400, duration_min: 3, duration_max: 7, vat_rate: 21 },
+    { key: 'raccordement_egouts', category: 'assainissement', name: 'Raccordement aux égouts', icon: 'bi-droplet-slash', unit: 'forfait', unit_label: 'forfait', forfait: true, price_min: 1_400, price_max: 4_200, duration_min: 2, duration_max: 5, vat_rate: 21 },
+
+    # ── DOMOTIQUE & MOBILITÉ ÉLECTRIQUE ──────────────────────────────────────
+    { key: 'maison_connectee',   category: 'domotique', name: 'Maison connectée (domotique centralisée)', icon: 'bi-house-gear', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 1_700, price_max: 8_500, duration_min: 2, duration_max: 5, vat_rate: 21 },
+    { key: 'borne_recharge_ve',  category: 'domotique', name: 'Borne de recharge véhicule électrique', icon: 'bi-ev-station', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 1_000, price_max: 3_000, duration_min: 1, duration_max: 2, vat_rate: 21 }
   ].freeze
 
   # Sélection du catalogue par pays. Toute région belge (wallonie/flandre/bruxelles)
