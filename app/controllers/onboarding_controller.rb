@@ -99,9 +99,17 @@ class OnboardingController < ApplicationController
     token = params[:invitation_token].to_s.strip
 
     if token.present?
-      member = ProjectMember.find_by(invite_token: token, status: :pending)
-      if member
+      member = ProjectMember.find_by(invite_token: token)
+
+      if member&.pending?
         member.update!(status: :active)
+        finish_onboarding!
+        redirect_to member_projects_path(locale: I18n.locale),
+                    notice: t('onboarding.welcome_entrepreneur_joined')
+        return
+      elsif member&.active? && member.user_id == current_user.id
+        # Déjà accepté entre-temps (ex: via le lien email InvitationsController) :
+        # ne pas afficher "token invalide", juste finaliser l'onboarding resté en suspens.
         finish_onboarding!
         redirect_to member_projects_path(locale: I18n.locale),
                     notice: t('onboarding.welcome_entrepreneur_joined')

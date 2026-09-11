@@ -37,6 +37,9 @@ class ProjectMember < ApplicationRecord
       accepted_at:      Time.current,
       invite_expires_at: nil
     )
+    # L'acceptation d'une invitation vaut onboarding terminé : sans ce flag,
+    # after_sign_in_path_for renvoie le pro déjà actif vers l'onboarding à sa session suivante.
+    user.update_column(:onboarding_completed_at, Time.current) if user.onboarding_completed_at.blank?
   end
 
   private
