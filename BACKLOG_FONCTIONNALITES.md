@@ -122,7 +122,7 @@ Fichiers concernés : `app/services/regions/flandre/flandre_eligibility_service.
 
 **Traité (commit `b4ce3e5`, mergé le 11/09/2026) :** 28 nouveaux postes ajoutés (BE + ES en miroir) — les 5 nouvelles catégories et les 10 postes complémentaires listés ci-dessus. `BudgetEstimatorService` étendu avec des règles de détection par description pour les postes pertinents. `BudgetOptimiseurService::ITEMS_PETROLIERS` complété (`isolation_acoustique`).
 
-**⚠️ Écart pré-existant repéré en cours de route, non corrigé (hors périmètre) :** la catégorie `ventilation` est totalement absente de `CATALOGUE_ESPAGNE` (`ventilation_type_c`, `ventilation_c_plus`, `carte_regulation_ventilation` n'existent qu'en Belgique), et `ventilation_double_flux` y est classée par erreur sous `'energie'` au lieu de `'ventilation'`. À corriger si un vrai miroir strict BE/ES est nécessaire pour les devis espagnols.
+**✅ Écart catalogue Espagne corrigé le 11/09/2026** (commit `d8a8180`) : les 3 postes ventilation manquants ajoutés côté Espagne, `ventilation_double_flux` recatégorisée. Miroir BE/ES désormais strict (76/76 clés, 0 écart).
 
 ---
 
@@ -138,5 +138,4 @@ Reste ouvert :
   → 1. Messagerie — MVP (fil simple + email) quand priorisé
   → 🔵 Long terme : blob `parameters` → structure normalisée (3 régions)
   → 🔵 Long terme : seuils/plafonds Flandre hardcodés → config pilotable sans déploiement
-  → Écart catalogue Espagne ventilation (point 4) — mineur, à corriger si devis ES actifs
 ```
