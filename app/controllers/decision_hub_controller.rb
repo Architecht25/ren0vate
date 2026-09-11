@@ -240,7 +240,7 @@ class DecisionHubController < ApplicationController
     if @property
       @property_projects   = @property.projects.order(updated_at: :desc)
       @property_simulations = @property.simulations.order(created_at: :desc)
-      @property_documents  = @property.documents.order(created_at: :desc).limit(10)
+      @property_documents  = Document.for_property_and_its_projects(@property).order(created_at: :desc).limit(10)
 
       # Sauvegarder en session pour l'IA
       session[:current_property_id] = @property.id

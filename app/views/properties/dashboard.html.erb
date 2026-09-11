@@ -86,7 +86,7 @@
     core_scores = []
     core_scores << details[:percentage].to_i
     core_scores << (@property.projects.any? ? 85 : 30)
-    core_scores << (@property.documents.any? ? 75 : 30)
+    core_scores << (Document.for_property_and_its_projects(@property).any? ? 75 : 30)
     core_scores << (@property.simulations.any? ? 80 : 30)
     core_scores << (quotes.any? ? 90 : 25)
 
@@ -128,7 +128,7 @@
         <span class="badge text-bg-light">P4 Primes: <%= @property.simulations.any? || (@property.requests.any? rescue false) ? 'actif' : 'à initier' %></span>
         <span class="badge text-bg-light">P5 Prêts: actif</span>
         <span class="badge text-bg-light">P6 PEB: <%= @property.peb_donnees.any? ? 'actif' : 'à initier' %></span>
-        <span class="badge text-bg-light">P7 Documents: <%= @property.documents.any? ? 'actif' : 'à initier' %></span>
+        <span class="badge text-bg-light">P7 Documents: <%= Document.for_property_and_its_projects(@property).any? ? 'actif' : 'à initier' %></span>
         <% if @property.region == 'flandre' %><span class="badge text-bg-light">P8 Woningpas: actif</span><% end %>
       </div>
     </div>
@@ -681,7 +681,7 @@
 
     <!-- État des documents -->
     <%
-      all_docs      = @property.documents.order(created_at: :desc)
+      all_docs      = Document.for_property_and_its_projects(@property).order(created_at: :desc)
       docs_total    = all_docs.count
       docs_approved = all_docs.where(status: 'approved').count
       docs_pending  = all_docs.where(status: 'pending').count
