@@ -163,6 +163,55 @@ class SimulationSmokeTest < ActionDispatch::IntegrationTest
     end
   end
 
+  # ─── Persistance des primes Bruxelles ──────────────────────────────────────
+  #
+  # NB : Regions::Bruxelles::BruxellesPostLoginCalculatorService#calculate_amount_with_user_input
+  # appelle `prime.type_calcul`, mais la table `primes` n'a pas de colonne `type_calcul`
+  # (seulement `type_de_valeur`) — tout Prime réel avec des `valeurs_par_categorie` non
+  # vides ferait planter calculate_all_primes avec un NoMethodError. On stub donc le
+  # service (pas de gem mocha/minitest-mock disponible, stub manuel via define_singleton_method)
+  # pour tester uniquement la persistance (save_bruxelles_specific_data), qui est le périmètre
+  # de ce test — le bug de calcul lui-même est signalé séparément dans le rapport.
+  test "update_prime_inputs Bruxelles persiste le détail des primes calculées" do
+    simulation = Simulation.create!(
+      user: @user, property: @property_bruxelles, project: @project_bruxelles,
+      region: "bruxelles", titre: "Sim Bruxelles primes"
+    )
+
+    fake_service = Object.new
+    def fake_service.calculate_all_primes(_inputs)
+      {
+        prime_results: {
+          "isolation_toiture" => { amount: 1500.0, prime_id: 1, titre: "Isolation toiture", unite: "m²" }
+        },
+        total_general: 1500.0
+      }
+    end
+
+    service_class = Regions::Bruxelles::BruxellesPostLoginCalculatorService
+    service_class.define_singleton_method(:new) { |*_args, **_kwargs| fake_service }
+
+    begin
+      patch update_prime_inputs_simulation_path(simulation, locale: :fr),
+            params: { user_inputs: { isolation_toiture: 10 } }
+    ensure
+      service_class.singleton_class.send(:remove_method, :new)
+    end
+
+    assert_response :success
+    body = JSON.parse(response.body)
+    assert body["success"]
+    assert_equal 1500.0, body["total_amount"].to_f
+
+    simulation.reload
+    assert_equal 1500.0, simulation.total_simule.to_f
+    assert simulation.parameters.present?
+
+    parsed = JSON.parse(simulation.parameters)
+    assert parsed["prime_cards"].present?, "parameters['prime_cards'] devrait être rempli"
+    assert simulation.primes_count > 0, "primes_count devrait être > 0 quand des primes sont calculées"
+  end
+
   test "update_prime_inputs recalcule la réduction de prêt pour une simulation en regime reduction_pret" do
     travel_to Date.new(2026, 10, 15) do
       @user.update!(revenu_demandeur: 28_900, situation_familiale: "celibataire", nombre_enfants: 0)
