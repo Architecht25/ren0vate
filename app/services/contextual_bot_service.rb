@@ -354,7 +354,6 @@ class ContextualBotService
     lines << "  Audit énerg.: #{p.audit_energetique || 'N/A'}"
     lines << "  EAN         : #{(p.numero_ean || p.ean_flandre).present? ? 'Renseigné' : 'Non renseigné'}"
     lines << "  Cadastre    : #{(p.numero_cadastre || p.parcelle_flandre).present? ? 'Renseigné' : 'Non renseigné'}"
-    lines << "  Été reconstr: #{bool_fr(p.reconstruit)}"
     lines << "  Bien classé : #{bool_fr(p.bien_classe)} | Petit patrimoine: #{bool_fr(p.petit_patrimoine)}"
 
     # Données financières — tranche uniquement

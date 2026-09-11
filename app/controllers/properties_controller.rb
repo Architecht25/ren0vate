@@ -564,7 +564,7 @@ class PropertiesController < ApplicationController
       # Champs de base
       :rue, :numero, :code_postal, :commune, :region,
       :type_propriete, :type, :occupation,
-      :autre_bien, :peb, :audit_energetique, :reconstruit,
+      :autre_bien, :peb, :audit_energetique,
       :annee_construction, :date_raccordement_electrique,
       :numero_ean, :numero_cadastre,
       :date_peb_avant_travaux, :date_peb_apres_travaux,

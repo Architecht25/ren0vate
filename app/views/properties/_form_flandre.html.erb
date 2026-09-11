@@ -524,18 +524,11 @@
                       <i class="bi bi-info-circle me-1"></i>Client protégé = catégorie 4 automatique (primes maximales)
                     </small>
                   </div>
-                  <hr class="my-2">
-                  <div class="col-12">
-                    <label class="form-label text-dark fw-medium mb-2">
-                      <i class="bi bi-hammer me-2 text-secondary"></i>Le logement a-t-il été démoli puis reconstruit avec maintien de murs par exemple pour bénéficier du taux de 6% de TVA?
-                    </label>
-                    <%= f.input :reconstruit,
-                        label: false,
-                        as: :radio_buttons,
-                        collection: [['Oui', 'oui'], ['Non', 'non']],
-                        wrapper_html: { class: "mb-0" },
-                        input_html: { class: "form-check-input" } %>
-                  </div>
+                  <%# La question "démolition/reconstruction" (TVA 6%) est posée une seule fois,
+                     au niveau du projet (partials_flandre/_eligibility_fields.html.erb), car c'est
+                     ce champ qui alimente réellement le calcul d'éligibilité Flandre. Retiré ici le
+                     11/09/2026 pour éviter le doublon — deux biens en prod avaient déjà des réponses
+                     contradictoires entre les deux emplacements. %>
                 </div>
               </div>
             </div>
