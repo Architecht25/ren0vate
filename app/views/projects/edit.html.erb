@@ -32,7 +32,7 @@
             <% if @project.respond_to?(:property_id) && defined?(Property) %>
               <div class="mb-3">
                 <%= form.label :property_id, "Bien associé", class: "form-label" %>
-                <%= form.collection_select :property_id, Property.all, :id, :name, { include_blank: "Sélectionner un bien..." }, class: "form-select" %>
+                <%= form.collection_select :property_id, current_user.properties, :id, :name, { include_blank: "Sélectionner un bien..." }, class: "form-select" %>
               </div>
             <% end %>
 
