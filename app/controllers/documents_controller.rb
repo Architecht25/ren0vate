@@ -23,15 +23,7 @@ class DocumentsController < ApplicationController
     elsif @property
       # Agréger tous les docs du bien : ceux liés directement (property_id) ET
       # ceux liés à un projet du bien (project_id) même sans property_id explicite
-      project_ids = @property.projects.pluck(:id)
-      if project_ids.any?
-        @documents = @documents.where(
-          "documents.property_id = :pid OR documents.project_id IN (:pids)",
-          pid: @property.id, pids: project_ids
-        )
-      else
-        @documents = @documents.where(property: @property)
-      end
+      @documents = @documents.merge(Document.for_property_and_its_projects(@property))
       @property_projects = @property.projects.order(:nom)
 
       # Filtre chantier (contexte property uniquement)

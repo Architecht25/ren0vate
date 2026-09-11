@@ -158,7 +158,7 @@ class NotificationsController < ApplicationController
 
     if notification.property
       items[:property] = notification.property
-      items[:property_documents] = notification.property.documents.order(created_at: :desc).limit(3)
+      items[:property_documents] = Document.for_property_and_its_projects(notification.property).order(created_at: :desc).limit(3)
     end
 
     if notification.project

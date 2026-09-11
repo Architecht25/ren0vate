@@ -81,6 +81,22 @@ class Document < ApplicationRecord
   enum :status, { pending: 'pending', approved: 'approved', rejected: 'rejected' }
 
   scope :for_property, ->(property) { where(property: property) }
+
+  # Agrège les documents liés directement à un bien (property_id) ET ceux liés
+  # à l'un de ses chantiers (project_id) même sans property_id explicite (ex:
+  # upload via edit_budget/routes OCR sans property_id propagé). Utilisé par
+  # DocumentsController#index et la carte "État des documents" du dashboard
+  # property — les deux doivent rester alignés (voir régression du 11/09/2026
+  # où seul le contrôleur avait été mis à jour, pas le dashboard).
+  scope :for_property_and_its_projects, ->(property) {
+    project_ids = property.projects.pluck(:id)
+    if project_ids.any?
+      where("documents.property_id = :pid OR documents.project_id IN (:pids)",
+            pid: property.id, pids: project_ids)
+    else
+      where(property: property)
+    end
+  }
   scope :by_type, ->(type) { where(type_document: type) }
   scope :completed, -> { where(status: :approved) }
   scope :by_phase, ->(phase) { where(type_document: phase.required_document_types + phase.optional_document_types) }
