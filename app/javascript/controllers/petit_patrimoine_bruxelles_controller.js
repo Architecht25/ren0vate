@@ -5,6 +5,79 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   connect() {
+    // Exposer les données courantes pour la sauvegarde (cf. debounceSaveTotal
+    // dans _prime_calculation_script.html.erb, même mécanisme que pour Communes).
+    // Ne renvoie rien si la carte est encore vierge, pour ne pas persister un
+    // objet vide à chaque autosave global déclenché par une autre carte.
+    window.getBruxellesPetitPatrimoineData = () => {
+      const data = this.collectData()
+      const hasContent = data.element_type || data.statut_demandeur || data.montant_travaux
+      return hasContent ? data : undefined
+    }
+
+    this.restoreSavedData()
+  }
+
+  // Récupère les saisies persistées (parameters['bruxelles_petit_patrimoine'], sauvegardées
+  // via PATCH save_total) et repeuple les champs au chargement de la page.
+  restoreSavedData() {
+    const savedEl = document.getElementById("brx-saved-patrimoine")
+    if (!savedEl) return
+
+    let saved = {}
+    try {
+      saved = JSON.parse(savedEl.dataset.patrimoine || "{}")
+    } catch (e) {
+      saved = {}
+    }
+    if (!saved || Object.keys(saved).length === 0) return
+
+    if (saved.element_type) {
+      const select = document.getElementById("element_type_patrimoine")
+      if (select) select.value = saved.element_type
+    }
+
+    if (saved.statut_demandeur) {
+      const radio = document.querySelector(`input[name="statut_demandeur"][value="${saved.statut_demandeur}"]`)
+      if (radio) radio.checked = true
+    }
+
+    if (saved.revenus) {
+      const radio = document.querySelector(`input[name="revenus"][value="${saved.revenus}"]`)
+      if (radio) radio.checked = true
+    }
+
+    if (saved.zone_revitalisation) {
+      const checkbox = document.getElementById("zone_revitalisation")
+      if (checkbox) checkbox.checked = true
+    }
+
+    if (saved.montant_travaux) {
+      const input = document.getElementById("montant_travaux_patrimoine")
+      if (input) input.value = saved.montant_travaux
+    }
+
+    // Réafficher les sections dépendantes du statut restauré
+    if (saved.statut_demandeur === "prive") {
+      const revenuSection = document.getElementById("revenus_section")
+      const revitalisationSection = document.getElementById("revitalisation_section")
+      if (revenuSection) revenuSection.style.display = "block"
+      if (revitalisationSection) revitalisationSection.style.display = "block"
+    }
+
+    this.showMontantSection()
+    this.calculatePrime()
+  }
+
+  // Valeurs courantes des champs de la carte, envoyées à save_total pour persistance
+  collectData() {
+    return {
+      element_type: document.getElementById("element_type_patrimoine")?.value || "",
+      statut_demandeur: document.querySelector('input[name="statut_demandeur"]:checked')?.value || "",
+      revenus: document.querySelector('input[name="revenus"]:checked')?.value || "",
+      zone_revitalisation: !!document.getElementById("zone_revitalisation")?.checked,
+      montant_travaux: document.getElementById("montant_travaux_patrimoine")?.value || ""
+    }
   }
 
   updateElement() {

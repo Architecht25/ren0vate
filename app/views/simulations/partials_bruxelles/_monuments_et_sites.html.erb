@@ -1,5 +1,13 @@
 <%# Carte simulation Monuments & Sites — Bruxelles-Capitale
    Vérifie le statut patrimonial via Brussels Heritage (ArcGIS) + estime la subvention %>
+<%
+  saved_monuments = begin
+    params_data = @simulation.parameters.present? ? JSON.parse(@simulation.parameters) : {}
+    params_data['bruxelles_monuments'] || {}
+  rescue
+    {}
+  end
+%>
 <div class="card shadow-sm border-0 rounded-4 overflow-hidden h-100">
 
   <%# En-tête coloré %>
@@ -17,6 +25,9 @@
   </div>
 
   <div class="card-body d-flex flex-column gap-3 p-3">
+
+    <!-- Données persistées (lues par le script ci-dessous) -->
+    <span id="brx-saved-monuments" data-monuments="<%= saved_monuments.to_json %>" class="d-none"></span>
 
     <%# Étape 1 : vérification patrimoniale %>
     <div>
@@ -256,40 +267,44 @@
   });
 
   // ---- Calcul estimation subvention ----
+  // Extrait en fonction nommée pour pouvoir être rejouée silencieusement à la restauration
+  // des données persistées (cf. plus bas), sans dupliquer la logique du bouton.
+  function runEstimation(showAlerts) {
+    var typeBenef   = document.getElementById('mon_type_beneficiaire').value;
+    var typeTravaux = (document.querySelector('input[name="mon_type_travaux"]:checked') || {}).value || 'conservation';
+    var montant     = parseFloat(document.getElementById('mon_montant_travaux').value);
+
+    if (!typeBenef) { if (showAlerts) alert('Veuillez sélectionner votre type de bénéficiaire.'); return; }
+    if (!montant || montant <= 0) { if (showAlerts) alert('Veuillez saisir un montant de travaux valide.'); return; }
+
+    var taux        = typeTravaux === 'etudes' ? 0.80 : TAUX[typeBenef]; // études : 80% fixe pour tous
+    var montantBrut = montant * taux;
+    var plafond     = typeTravaux === 'etudes' ? PLAFOND_ETUDES : PLAFOND_TRAVAUX;
+    var montantNet  = Math.min(montantBrut, plafond);
+    var plafonné    = montantNet < montantBrut;
+
+    var libelles = {
+      prive_bas_revenus: 'Personne physique à revenus réduits (ménage ≤ 40 000 € + 2 500 €/pers. à charge)',
+      prive:             'Personne physique (revenus standards)',
+      asbl:              'ASBL / Fondation / Association sans but lucratif',
+      public:            'Bénéficiaire public (Commune, CPAS, SISP, Enseignement, Culte…)'
+    };
+    var noteTravaux = typeTravaux === 'etudes'
+      ? 'Études préalables — taux fixe 80% pour tous les bénéficiaires, plafond 12 000 €'
+      : "Conservation / restauration (enveloppe extérieure) — les travaux ne peuvent débuter qu'après accord du Gouvernement.";
+
+    document.getElementById('mon-taux-display').textContent  = (taux * 100) + '%';
+    document.getElementById('mon-montant-display').textContent = formatEur(montantNet) + (plafonné ? ' (plafonné)' : '');
+    document.getElementById('mon-note-legale').textContent   = libelles[typeBenef] + ' — ' + noteTravaux;
+    document.getElementById('mon-calcul-result').classList.remove('d-none');
+
+    // Recalcule le total général de la simulation Bruxelles et le sauvegarde
+    if (typeof window.updateTotalImmediate === 'function') window.updateTotalImmediate();
+  }
+
   var btnCalc = document.getElementById('btn-calcul-monuments');
   if (btnCalc) {
-    btnCalc.addEventListener('click', function() {
-      var typeBenef   = document.getElementById('mon_type_beneficiaire').value;
-      var typeTravaux = (document.querySelector('input[name="mon_type_travaux"]:checked') || {}).value || 'conservation';
-      var montant     = parseFloat(document.getElementById('mon_montant_travaux').value);
-
-      if (!typeBenef) { alert('Veuillez sélectionner votre type de bénéficiaire.'); return; }
-      if (!montant || montant <= 0) { alert('Veuillez saisir un montant de travaux valide.'); return; }
-
-      var taux        = typeTravaux === 'etudes' ? 0.80 : TAUX[typeBenef]; // études : 80% fixe pour tous
-      var montantBrut = montant * taux;
-      var plafond     = typeTravaux === 'etudes' ? PLAFOND_ETUDES : PLAFOND_TRAVAUX;
-      var montantNet  = Math.min(montantBrut, plafond);
-      var plafonné    = montantNet < montantBrut;
-
-      var libelles = {
-        prive_bas_revenus: 'Personne physique à revenus réduits (ménage ≤ 40 000 € + 2 500 €/pers. à charge)',
-        prive:             'Personne physique (revenus standards)',
-        asbl:              'ASBL / Fondation / Association sans but lucratif',
-        public:            'Bénéficiaire public (Commune, CPAS, SISP, Enseignement, Culte…)'
-      };
-      var noteTravaux = typeTravaux === 'etudes'
-        ? 'Études préalables — taux fixe 80% pour tous les bénéficiaires, plafond 12 000 €'
-        : "Conservation / restauration (enveloppe extérieure) — les travaux ne peuvent débuter qu'après accord du Gouvernement.";
-
-      document.getElementById('mon-taux-display').textContent  = (taux * 100) + '%';
-      document.getElementById('mon-montant-display').textContent = formatEur(montantNet) + (plafonné ? ' (plafonné)' : '');
-      document.getElementById('mon-note-legale').textContent   = libelles[typeBenef] + ' — ' + noteTravaux;
-      document.getElementById('mon-calcul-result').classList.remove('d-none');
-
-      // Recalcule le total général de la simulation Bruxelles et le sauvegarde
-      if (typeof window.updateTotalImmediate === 'function') window.updateTotalImmediate();
-    });
+    btnCalc.addEventListener('click', function() { runEstimation(true); });
   }
 
   // Si l'utilisateur revérifie une autre adresse, on repart de zéro pour ne pas
@@ -301,5 +316,53 @@
     if (calculResult) calculResult.classList.add('d-none');
     if (typeof window.updateTotalImmediate === 'function') window.updateTotalImmediate();
   });
+
+  // ---- Restauration des saisies persistées (parameters['bruxelles_monuments'], sauvegardées
+  // via PATCH save_total) — même mécanisme que pour Communes/Petit Patrimoine. ----
+  (function restoreSavedMonuments() {
+    var savedEl = document.getElementById('brx-saved-monuments');
+    if (!savedEl) return;
+
+    var saved = {};
+    try { saved = JSON.parse(savedEl.dataset.monuments || '{}'); } catch (e) { saved = {}; }
+    if (!saved || Object.keys(saved).length === 0) return;
+
+    if (saved.type_beneficiaire) {
+      var selectBenef = document.getElementById('mon_type_beneficiaire');
+      if (selectBenef) selectBenef.value = saved.type_beneficiaire;
+    }
+
+    if (saved.type_travaux) {
+      var radioTravaux = document.querySelector('input[name="mon_type_travaux"][value="' + saved.type_travaux + '"]');
+      if (radioTravaux) radioTravaux.checked = true;
+    }
+
+    if (saved.montant_travaux) {
+      var montantInput = document.getElementById('mon_montant_travaux');
+      if (montantInput) montantInput.value = saved.montant_travaux;
+    }
+
+    // On ne sait pas si le bien a été confirmé "classé" sans rappeler l'API Brussels Heritage —
+    // on affiche directement la section d'estimation restaurée plutôt que de forcer une
+    // revérification, pour ne pas perdre la saisie de l'utilisateur au reload.
+    if (saved.type_beneficiaire && saved.montant_travaux) {
+      estimSect.classList.remove('d-none');
+      runEstimation(false);
+    }
+  })();
+
+  // Exposer les données courantes pour la sauvegarde (cf. debounceSaveTotal dans
+  // _prime_calculation_script.html.erb, même mécanisme que pour Communes). Ne renvoie
+  // rien si la carte est encore vierge, pour ne pas persister un objet vide à chaque
+  // autosave global déclenché par une autre carte.
+  window.getBruxellesMonumentsData = function() {
+    var data = {
+      type_beneficiaire: document.getElementById('mon_type_beneficiaire')?.value || '',
+      type_travaux: (document.querySelector('input[name="mon_type_travaux"]:checked') || {}).value || '',
+      montant_travaux: document.getElementById('mon_montant_travaux')?.value || ''
+    };
+    var hasContent = data.type_beneficiaire || data.montant_travaux;
+    return hasContent ? data : undefined;
+  };
 })();
 </script>

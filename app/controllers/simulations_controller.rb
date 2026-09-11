@@ -368,6 +368,10 @@ class SimulationsController < ApplicationController
           # Utiliser le total calculé par le backend et mettre à jour la simulation
           @simulation.update!(total_simule: result[:total_general])
 
+          # Sauvegarder les données Bruxelles dans les paramètres de la simulation
+          # (détail des primes calculées, pour primes_count et l'affichage de l'historique)
+          save_bruxelles_specific_data(user_inputs, result[:prime_results])
+
           render json: {
             success: true,
             total_amount: result[:total_general],
@@ -511,10 +515,21 @@ class SimulationsController < ApplicationController
     total = params[:total].to_f
     @simulation.update_column(:total_simule, total)
 
-    # Persister les sélections communales Bruxelles si fournies
-    if params[:bruxelles_communales].present?
+    # Persister les saisies des cartes Bruxelles (Communes, Petit Patrimoine, Monuments & Sites)
+    # si fournies — même mécanisme pour les 3 cartes : un paramètre dédié écrit dans `parameters`.
+    if params[:bruxelles_communales].present? || params[:bruxelles_petit_patrimoine].present? || params[:bruxelles_monuments].present?
       current_params = safe_parse_simulation_parameters(@simulation)
-      current_params['bruxelles_communales'] = Array(params[:bruxelles_communales])
+
+      current_params['bruxelles_communales'] = Array(params[:bruxelles_communales]) if params[:bruxelles_communales].present?
+
+      if params[:bruxelles_petit_patrimoine].present?
+        current_params['bruxelles_petit_patrimoine'] = params[:bruxelles_petit_patrimoine].to_unsafe_h
+      end
+
+      if params[:bruxelles_monuments].present?
+        current_params['bruxelles_monuments'] = params[:bruxelles_monuments].to_unsafe_h
+      end
+
       @simulation.update_column(:parameters, current_params.to_json)
     end
 
@@ -585,6 +600,17 @@ class SimulationsController < ApplicationController
           end
         end
         Rails.logger.info "✅ #{user_inputs.keys.length} primes Wallonie restaurées"
+      end
+
+      # Gestion pour Bruxelles - restaurer les sélections des cartes Communes/Petit Patrimoine/Monuments
+      # (persistées via save_total, cf. bruxelles_communales/bruxelles_petit_patrimoine/bruxelles_monuments)
+      if @simulation.region&.downcase == 'bruxelles'
+        %w[bruxelles_communales bruxelles_petit_patrimoine bruxelles_monuments].each do |key|
+          if params_data[key].present?
+            user_inputs[key] = params_data[key]
+            Rails.logger.info "🔄 Donnée Bruxelles restaurée: #{key} = #{params_data[key].inspect}"
+          end
+        end
       end
 
       # Recalculer les montants pour updated_cards si nécessaire
@@ -1221,6 +1247,52 @@ class SimulationsController < ApplicationController
     Rails.logger.info "✅ Données Flandre sauvegardées avec succès"
   rescue => e
     Rails.logger.error "❌ Erreur lors de la sauvegarde Flandre: #{e.message}"
+  end
+
+  # Nouvelle méthode pour sauvegarder les données spécifiques à Bruxelles
+  # Symétrique à save_wallonie_specific_data/save_flandre_specific_data : construit
+  # parameters['prime_cards'] au même format que Wallonie/Flandre (groupé par catégorie,
+  # avec 'calculated_amount'/'slug'/'user_input_value') pour que Simulation#primes_count
+  # et l'affichage de l'historique fonctionnent sans changement supplémentaire.
+  def save_bruxelles_specific_data(user_inputs, prime_results = {})
+    Rails.logger.info "💾 Sauvegarde des données spécifiques Bruxelles: #{user_inputs.inspect}"
+    Rails.logger.info "💾 Résultats calculés: #{prime_results.inspect}"
+
+    existing_params = @simulation.parameters.present? ? JSON.parse(@simulation.parameters) : {}
+
+    # Construire prime_cards groupées par catégorie à partir des résultats calculés
+    prime_cards = {}
+    calculated_amounts = {}
+
+    prime_results.each do |slug, data|
+      amount = (data[:amount] || data['amount'] || 0).to_f
+      next unless amount > 0
+
+      category = determine_category_from_slug(slug.to_s)
+      prime_cards[category] ||= { 'total' => 0, 'primes' => [] }
+
+      prime_cards[category]['primes'] << {
+        'slug' => slug.to_s,
+        'titre' => data[:titre] || data['titre'] || slug.to_s.humanize,
+        'calculated_amount' => amount,
+        'user_input_value' => user_inputs[slug.to_s] || user_inputs[slug.to_sym] || 1
+      }
+      prime_cards[category]['total'] += amount
+      calculated_amounts[slug.to_s] = amount
+    end
+
+    existing_params['prime_cards'] = prime_cards
+    existing_params['calculated_amounts'] = calculated_amounts if calculated_amounts.present?
+
+    # Horodatage de la dernière mise à jour
+    existing_params['last_updated'] = Time.current.iso8601
+
+    # Sauvegarder dans la base de données
+    @simulation.update!(parameters: existing_params.to_json)
+
+    Rails.logger.info "✅ Données Bruxelles sauvegardées avec succès (#{prime_cards.keys.length} catégories, #{calculated_amounts.keys.length} primes > 0)"
+  rescue => e
+    Rails.logger.error "❌ Erreur lors de la sauvegarde Bruxelles: #{e.message}"
   end
 
   def save_wallonie_specific_data(user_inputs, prime_results = {})

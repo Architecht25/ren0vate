@@ -1,3 +1,11 @@
+<%
+  saved_patrimoine = begin
+    params_data = @simulation.parameters.present? ? JSON.parse(@simulation.parameters) : {}
+    params_data['bruxelles_petit_patrimoine'] || {}
+  rescue
+    {}
+  end
+%>
 <div class="card shadow-sm border-0 rounded-4 overflow-hidden h-100" data-controller="petit-patrimoine-bruxelles">
 
   <%# En-tête vert sauge %>
@@ -137,6 +145,9 @@
         <small class="text-muted d-block">
           Éléments visibles depuis l'espace public, non classés au patrimoine
         </small>
+
+        <!-- Données persistées (lues par petit_patrimoine_bruxelles_controller.js) -->
+        <span id="brx-saved-patrimoine" data-patrimoine="<%= saved_patrimoine.to_json %>" class="d-none"></span>
       </div>
     </div>
   </div>
