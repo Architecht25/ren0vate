@@ -4,6 +4,8 @@
 module Regions
   module Flandre
     class FlandreEligibilityService < Regions::BaseService
+      include Regions::Flandre::CommonEligibilityChecks
+
       def check_eligibility
         log_calculation("Début vérification éligibilité Flandre", @params)
 
@@ -35,6 +37,19 @@ module Regions
           return ineligible_response("Le bien doit être destiné à être habité")
         end
         Rails.logger.info "✅ Usage habitation OK"
+
+        # 1bis. Réforme flamande du 01/03/2026 : un bien dont l'habitation_percentage
+        # est < 100% (usage non résidentiel, même partiel) n'a plus aucun droit à
+        # Mijn VerbouwPremie. Ce rejet doit intervenir ici, à l'étape éligibilité,
+        # et non plus seulement à l'étape catégorie (FlandreCategoryService#usage_non_residentiel?)
+        # pour éviter qu'un bien non résidentiel passe l'éligibilité avant d'être
+        # rejeté plus loin avec un message différent.
+        Rails.logger.info "=== Vérification 1bis: Usage résidentiel exclusif (réforme 01/03/2026) ==="
+        if usage_non_residentiel?(property)
+          Rails.logger.error "ÉCHEC: Bien non résidentiel (habitation_percentage: #{property.habitation_percentage})"
+          return ineligible_response("Bâtiment non résidentiel : plus aucun droit à Mijn VerbouwPremie depuis le 01/03/2026 (réforme flamande)")
+        end
+        Rails.logger.info "✅ Usage résidentiel exclusif OK"
 
         # 2. "propriétaire" => "Êtes-vous propriétaire du bien (min 1%)?"
         Rails.logger.info "=== Vérification 2: Propriétaire minimum 1% ==="
@@ -265,6 +280,13 @@ module Regions
         result
       end
 
+      def usage_non_residentiel?(property)
+        # Réforme flamande du 01/03/2026 : un bien dont l'habitation_percentage
+        # est strictement inférieur à 100% est considéré non résidentiel et
+        # totalement exclu de Mijn VerbouwPremie.
+        property.habitation_percentage.present? && property.habitation_percentage < 100
+      end
+
       def proprietaire_minimum_1_pourcent?(property)
         Rails.logger.info "Checking propriétaire minimum 1% for property #{property.id}"
 
@@ -465,40 +487,8 @@ module Regions
         result
       end
 
-      def sera_domicilie?(property)
-        Rails.logger.info "Checking domiciliation for property #{property.id}"
-
-        # Question: "Êtes-vous ou serez-vous domicilié une fois le bien rénové?"
-        # En Flandre, la domiciliation est obligatoire
-
-        # Vérifier via occupation actuelle ou future
-        if property.occupation == 'residence_principale' || property.occupation == 'hoofdverblijfplaats'
-          Rails.logger.info "Result from occupation residence_principale: true"
-          return true
-        end
-
-        # Vérifier via champ spécifique domiciliation
-        if property.respond_to?(:domicilie_flandre) && property.domicilie_flandre == true
-          Rails.logger.info "Result from domicilie_flandre: true"
-          return true
-        end
-
-        # Si c'est la propriété principale de l'utilisateur (adresse principale)
-        if property.respond_to?(:adresse_principale) && property.adresse_principale == true
-          Rails.logger.info "Result from adresse_principale: true"
-          return true
-        end
-
-        # Exclusions explicites
-        if property.occupation == 'residence_secondaire' || property.occupation == 'investissement'
-          Rails.logger.info "Result from non-principal residence: false"
-          return false
-        end
-
-        # Par défaut, on assume que l'utilisateur sera domicilié (sera vérifié à posteriori)
-        Rails.logger.info "Result domiciliation (default): true"
-        true
-      end
+      # sera_domicilie? est désormais fourni par Regions::Flandre::CommonEligibilityChecks
+      # (unification avec FlandreCategoryService, cf. plan Flandre)
 
       # Méthodes d'information pour les questions non-éliminatoires
 
