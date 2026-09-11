@@ -77,4 +77,12 @@ class FlandreEligibilityServiceTest < ActiveSupport::TestCase
     assert_not result[:eligible]
     assert_match /Flandre|flamande/i, result[:message]
   end
+
+  test "inéligible si habitation_percentage < 100 (réforme flamande du 01/03/2026)" do
+    @property.update!(habitation_percentage: 80)
+    result = service.check_eligibility
+    assert_not result[:eligible]
+    assert_match(/non résidentiel/i, result[:message])
+    assert_match(/01\/03\/2026/, result[:message])
+  end
 end

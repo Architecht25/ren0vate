@@ -91,21 +91,14 @@ module Regions
           return { error: "Type de prime non pris en charge : #{category_data['type']}" }
         end
 
-        # Appliquer les plafonds de groupe pour catégories 3-4
-        montant_final = apply_group_ceiling(prime_slug, montant, user_category)
+        # Note: les plafonds de groupe (catégories 3-4) sont appliqués globalement
+        # dans calculate_all_primes via apply_group_ceilings_to_all, pas ici.
 
         {
-          calculated_amount: montant_final,
+          calculated_amount: montant,
           user_input_value: val,
           category_data: category_data
         }
-      end
-
-      # Appliquer les plafonds de groupe (comme dans le JS)
-      def apply_group_ceiling(prime_slug, montant_propose, user_category)
-        # Note: Cette méthode retourne maintenant le montant sans plafond
-        # Les plafonds de groupe sont appliqués globalement dans calculate_all_primes
-        montant_propose
       end
 
       def calculate_all_primes(inputs)
@@ -406,59 +399,6 @@ module Regions
         work_type_mapping[group_key] || { key: "autre", title: "Autres travaux", icon: "cog" }
       end
 
-      def build_prime_data(category_primes, user_category, property, category_id)
-        category_info = get_category_info(category_id)
-        primes_data = []
-        total = 0
-
-        category_primes.each do |prime|
-          next unless prime_eligible_for_category?(prime, user_category)
-
-          prime_data = {
-            id: prime.id,
-            slug: prime.slug,
-            titre: prime.titre,
-            unite: prime.unite || "€",
-            type: prime.type_de_valeur,
-            input_type: determine_input_type(prime),
-            placeholder: determine_placeholder(prime),
-            calculated_amount: 0,
-            user_input_value: determine_default_value(prime),
-            conditions: prime.condition || "Voir conditions sur le site officiel",
-            conseil: prime.conseil || "Faites appel à un professionnel certifié",
-            category_data: build_category_data(prime)
-          }
-
-          primes_data << prime_data
-        end
-
-        {
-          id: category_info[:key],
-          title: category_info[:title],
-          icon: category_info[:icon],
-          primes: primes_data,
-          total: total
-        }
-      end
-
-      def get_category_info(category_id)
-        # Mapping des IDs de catégories vers les infos d'affichage
-        category_mapping = {
-          95 => { key: "isolation_envelope", title: "Isolation de l'enveloppe", icon: "house-gear" },
-          96 => { key: "isolation_murs", title: "Isolation murs", icon: "bricks" },
-          98 => { key: "chauffage_eau", title: "Chauffage et eau", icon: "thermometer-half" },
-          99 => { key: "ouvertures", title: "Ouvertures", icon: "door-open" },
-          100 => { key: "travaux_preparatoires", title: "Travaux préparatoires", icon: "tools" },
-          101 => { key: "renovation_associee", title: "Rénovation associée", icon: "house-check" }
-        }
-
-        category_mapping[category_id] || { key: "autre", title: "Autres travaux", icon: "cog" }
-      end
-
-      def determine_category_key(category_id)
-        get_category_info(category_id)[:key]
-      end
-
       def prime_eligible_for_category?(prime, user_category)
         return true if prime.eligible_categories.blank?
         prime.eligible_categories.include?(user_category.to_s)
@@ -558,8 +498,6 @@ module Regions
         end
       end
 
-      private
-
       def determine_user_category
         # Utiliser le FlandreCategoryService dédié pour le calcul de catégorie
         return @category if @category.present?
@@ -579,201 +517,6 @@ module Regions
         end
 
         @category
-      end
-
-      def calculate_dynamic_prime(prime, input_value, user_category)
-        value = input_value.to_f
-        return { amount: 0, details: 'Valeur invalide' } if value <= 0
-
-        category_data = prime.valeurs_par_categorie[user_category.to_s]
-        return { amount: 0, details: 'Catégorie non éligible' } unless category_data
-
-        case category_data['type']
-        when 'montant_m2_et_limite'
-          calculate_surface_based(category_data, value)
-        when 'pourcentage_et_plafond'
-          calculate_percentage_based(category_data, value)
-        else
-          { amount: 0, details: 'Type de calcul non supporté' }
-        end
-      end
-
-      def calculate_surface_based(data, surface)
-        montant_m2 = data['montant_m2'].to_f
-        surface_max = data['surface_max'].to_f
-
-        # Limiter la surface au maximum autorisé
-        surface_eligible = [surface, surface_max].min
-        amount = surface_eligible * montant_m2
-
-        {
-          amount: amount,
-          details: "#{surface_eligible} m² × #{montant_m2}€/m²",
-          surface_used: surface_eligible,
-          surface_max: surface_max
-        }
-      end
-
-      def calculate_percentage_based(data, facture_amount)
-        pourcentage = data['pourcentage'].to_f / 100
-        plafond = data['plafond'].to_f
-
-        amount_calculated = facture_amount * pourcentage
-        amount = [amount_calculated, plafond].min
-
-        {
-          amount: amount,
-          details: "#{data['pourcentage']}% de #{facture_amount}€ (max #{plafond}€)",
-          percentage_applied: data['pourcentage'],
-          base_amount: facture_amount,
-          capped: amount_calculated > plafond
-        }
-      end
-
-      def calculate_forfait_prime(prime, forfait_type, user_category)
-        return { amount: 0, details: 'Type de forfait requis' } if forfait_type.blank?
-
-        category_data = prime.valeurs_par_categorie[user_category.to_s]
-        return { amount: 0, details: 'Catégorie non éligible' } unless category_data
-
-        forfaits = category_data['forfaits']
-        return { amount: 0, details: 'Forfaits non disponibles' } unless forfaits
-
-        amount = forfaits[forfait_type].to_f
-
-        {
-          amount: amount,
-          details: "Forfait #{forfait_type.humanize}",
-          forfait_type: forfait_type
-        }
-      end
-
-      # Calcul pour les primes de type 'surface' (€/m²)
-      def calculate_surface_prime(prime, input_value, user_category)
-        surface = input_value.to_f
-        return { calculated_amount: 0, user_input_value: surface } if surface <= 0
-
-        # Chercher le montant pour la catégorie utilisateur
-        montant_data = extract_category_amount(prime, user_category)
-        return { calculated_amount: 0, user_input_value: surface } unless montant_data
-
-        case montant_data['type']
-        when 'montant_m2_et_limite'
-          # Catégories 1-2: montant par m² avec limite de surface
-          montant_par_m2 = montant_data['montant_m2'].to_f
-          surface_max = montant_data['surface_max']&.to_f || surface
-          surface_effective = [surface, surface_max].min
-          total = surface_effective * montant_par_m2
-        when 'pourcentage_et_plafond'
-          # Catégories 3-4: pourcentage du montant facture avec plafond
-          # Pour type 'surface', on doit avoir un montant estimé, utilisons 50€/m² par défaut
-          montant_estime = surface * 50 # Estimation coût isolation sol
-          pourcentage = montant_data['pourcentage'].to_f / 100.0
-          plafond = montant_data['plafond'].to_f
-          total = [montant_estime * pourcentage, plafond].min
-        else
-          total = 0
-        end
-
-        {
-          calculated_amount: total,
-          user_input_value: surface,
-          category_data: montant_data
-        }
-      end
-
-      # Calcul pour les primes de type 'facture' (pourcentage du montant)
-      def calculate_facture_prime(prime, input_value, user_category)
-        montant_facture = input_value.to_f
-        return { calculated_amount: 0, user_input_value: montant_facture } if montant_facture <= 0
-
-        # Chercher le montant pour la catégorie utilisateur
-        montant_data = extract_category_amount(prime, user_category)
-        return { calculated_amount: 0, user_input_value: montant_facture } unless montant_data&.dig('montant')
-
-        pourcentage = montant_data['montant'].to_f / 100.0
-        total = montant_facture * pourcentage
-
-        {
-          calculated_amount: total,
-          user_input_value: montant_facture,
-          category_data: montant_data
-        }
-      end
-
-      # Calcul pour les primes de type 'montant' (montant fixe basé sur input)
-      def calculate_montant_prime(prime, input_value, user_category)
-        montant_input = input_value.to_f
-        return { calculated_amount: 0, user_input_value: montant_input } if montant_input <= 0
-
-        # Chercher le montant pour la catégorie utilisateur
-        montant_data = extract_category_amount(prime, user_category)
-        return { calculated_amount: 0, user_input_value: montant_input } unless montant_data&.dig('montant')
-
-        pourcentage = montant_data['montant'].to_f / 100.0
-        total = montant_input * pourcentage
-
-        {
-          calculated_amount: total,
-          user_input_value: montant_input,
-          category_data: montant_data
-        }
-      end
-
-      # Calcul pour les primes de type 'montant_facture'
-      def calculate_montant_facture_prime(prime, input_value, user_category)
-        montant_facture = input_value.to_f
-        return { calculated_amount: 0, user_input_value: montant_facture } if montant_facture <= 0
-
-        # Chercher le montant pour la catégorie utilisateur
-        montant_data = extract_category_amount(prime, user_category)
-        return { calculated_amount: 0, user_input_value: montant_facture } unless montant_data&.dig('montant')
-
-        pourcentage = montant_data['montant'].to_f / 100.0
-        total = montant_facture * pourcentage
-
-        {
-          calculated_amount: total,
-          user_input_value: montant_facture,
-          category_data: montant_data
-        }
-      end
-
-      # Calcul pour les primes de type 'montant_variable_m2_et_limite'
-      def calculate_montant_variable_m2_prime(prime, input_value, user_category)
-        surface = input_value.to_f
-        return { calculated_amount: 0, user_input_value: surface } if surface <= 0
-
-        # Chercher le montant pour la catégorie utilisateur
-        montant_data = extract_category_amount(prime, user_category)
-        return { calculated_amount: 0, user_input_value: surface } unless montant_data&.dig('montant')
-
-        montant_par_m2 = montant_data['montant'].to_f
-        total = surface * montant_par_m2
-
-        # Appliquer une limite si définie
-        if montant_data['limite']
-          limite = montant_data['limite'].to_f
-          total = [total, limite].min
-        end
-
-        {
-          calculated_amount: total,
-          user_input_value: surface,
-          category_data: montant_data
-        }
-      end
-
-      # Méthode helper pour extraire le montant selon la catégorie
-      def extract_category_amount(prime, user_category)
-        return nil unless prime.valeurs_par_categorie
-
-        # Chercher d'abord pour la catégorie exacte
-        category_data = prime.valeurs_par_categorie[user_category.to_s]
-        return category_data if category_data
-
-        # Sinon prendre la première disponible
-        prime.valeurs_par_categorie.values.first
       end
 
       def determine_work_type_group_by_slug(prime_slug)

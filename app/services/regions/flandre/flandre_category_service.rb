@@ -5,6 +5,8 @@
 module Regions
   module Flandre
     class FlandreCategoryService < Regions::BaseService
+      include Regions::Flandre::CommonEligibilityChecks
+
       # Pas de seuil global d'inéligibilité en Flandre - système par catégories
 
       def determine_category
@@ -182,21 +184,10 @@ module Regions
         !sera_domicilie?(property)
       end
 
-      def sera_domicilie?(property)
-        return false unless property
-
-        # Vérifier via l'occupation de la propriété
-        return true if property.occupation == 'residence_principale'
-        return true if property.occupation == 'domicile_principal'
-
-        # Si pas d'information d'occupation, vérifier via les champs utilisateur
-        # Par défaut, on considère que si c'est sa propriété principale, il y sera domicilié
-        return false if property.occupation == 'residence_secondaire'
-        return false if property.occupation == 'investissement'
-
-        # Logique par défaut : si c'est la seule propriété, on assume domiciliation
-        true
-      end
+      # sera_domicilie? est désormais fourni par Regions::Flandre::CommonEligibilityChecks
+      # (unification avec FlandreEligibilityService, cf. plan Flandre — l'ancienne
+      # version ici testait 'domicile_principal', une valeur qui n'existe pas dans le
+      # formulaire Flandre ; le champ réel est le booléen `domicilie_flandre`)
 
       # Méthodes de calcul des revenus (adaptées de Wallonie)
       def calculate_total_household_income
