@@ -1170,11 +1170,18 @@ class WorkType
     { key: 'radiateurs_remplacement',      category: 'energie', name: 'Remplacement radiateurs (acier/aluminium)', icon: 'bi-thermometer', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 1_500, price_max: 4_800, duration_min: 2, duration_max: 4, vat_rate: 10 },
     { key: 'panneaux_solaires',            category: 'energie', name: 'Panneaux solaires photovoltaïques', icon: 'bi-sun', unit: 'kWc', unit_label: 'kWc', forfait: false, price_min: 900, price_max: 1_400, duration_min: 2, duration_max: 4, vat_rate: 10 },
     { key: 'batterie_stockage',            category: 'energie', name: 'Batterie de stockage solaire', icon: 'bi-battery-charging', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 4_000, price_max: 9_500, duration_min: 1, duration_max: 2, vat_rate: 21 },
-    { key: 'ventilation_double_flux',      category: 'energie', name: 'Ventilation double flux (VMC)', icon: 'bi-fan', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 3_200, price_max: 6_500, duration_min: 2, duration_max: 4, vat_rate: 10 },
     { key: 'poele_pellets',                category: 'energie', name: 'Poêle à pellets', icon: 'bi-tree', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 2_400, price_max: 5_600, duration_min: 1, duration_max: 2, vat_rate: 10 },
     { key: 'cheminee_insert_bois',         category: 'energie', name: 'Cheminée / insert à bois', icon: 'bi-fire', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 1_900, price_max: 4_500, duration_min: 1, duration_max: 3, vat_rate: 10 },
     { key: 'climatisation_split',          category: 'energie', name: 'Climatisation split (unité intérieure/extérieure)', icon: 'bi-snow2', unit: 'forfait', unit_label: 'pièce', forfait: true, price_min: 1_200, price_max: 2_800, duration_min: 1, duration_max: 2, vat_rate: 10 },
     { key: 'poele_bois_buches',            category: 'energie', name: 'Poêle à bois (bûches)', icon: 'bi-tree', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 1_500, price_max: 3_750, duration_min: 1, duration_max: 2, vat_rate: 10 },
+
+    # ── VENTILATION ──────────────────────────────────────────────────────────
+    # Rattrapage 11/09/2026 : cette catégorie était absente du catalogue Espagne
+    # (seul ventilation_double_flux existait, mal classé sous 'energie').
+    { key: 'ventilation_type_c',            category: 'ventilation', name: 'Ventilation simple flux (extracteur ponctuel)', icon: 'bi-wind', unit: 'pièce', unit_label: 'pièce', forfait: false, price_min: 110, price_max: 340, duration_min: 1, duration_max: 1, vat_rate: 10 },
+    { key: 'ventilation_c_plus',            category: 'ventilation', name: 'Ventilation C+ (extraction centralisée CO2/humidité)', icon: 'bi-fan', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 2_100, price_max: 3_400, duration_min: 1, duration_max: 2, vat_rate: 10 },
+    { key: 'ventilation_double_flux',       category: 'ventilation', name: 'Ventilation double flux (VMC)', icon: 'bi-arrow-repeat', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 3_200, price_max: 6_500, duration_min: 2, duration_max: 4, vat_rate: 10 },
+    { key: 'carte_regulation_ventilation',  category: 'ventilation', name: 'Carte de régulation ventilation (centrale + capteurs)', icon: 'bi-cpu', unit: 'forfait', unit_label: 'installation', forfait: true, price_min: 900, price_max: 1_950, duration_min: 1, duration_max: 1, vat_rate: 10 },
 
     # ── PIÈCES DE VIE ────────────────────────────────────────────────────────
     { key: 'salle_de_bain',      category: 'pieces', name: 'Salle de bain — rénovation complète', icon: 'bi-droplet', unit: 'forfait', unit_label: 'forfait', forfait: true, price_min: 4_500, price_max: 13_000, duration_min: 7, duration_max: 14, vat_rate: 10 },
