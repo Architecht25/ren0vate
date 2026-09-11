@@ -8,6 +8,12 @@ class Simulation < ApplicationRecord
 
   validates :region, :titre, :property_id, presence: true
 
+  # Sécurité — empêche de rattacher une simulation au bien ou au projet
+  # d'un autre utilisateur (défense en profondeur, indépendante du scoping
+  # des selects en vue). Voir aussi Project#property_belongs_to_user.
+  validate :property_belongs_to_user
+  validate :project_belongs_to_user
+
   before_create :assign_wallonie_regime
 
   # Scope pour récupérer les simulations récentes
@@ -218,5 +224,19 @@ class Simulation < ApplicationRecord
     JSON.parse(parameters)[key]
   rescue JSON::ParserError
     nil
+  end
+
+  private def property_belongs_to_user
+    return if property_id.blank? || user_id.blank?
+
+    owner_id = property&.user_id
+    errors.add(:property_id, "n'appartient pas à cet utilisateur") if owner_id.present? && owner_id != user_id
+  end
+
+  private def project_belongs_to_user
+    return if project_id.blank? || user_id.blank?
+
+    owner_id = project&.user_id
+    errors.add(:project_id, "n'appartient pas à cet utilisateur") if owner_id.present? && owner_id != user_id
   end
 end

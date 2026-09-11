@@ -812,7 +812,10 @@ class SimulationsController < ApplicationController
   end
 
   def simulation_params
-    params.require(:simulation).permit(:titre, :region, :parameters, :source, :property_id, :project_id, :user_id,
+    # ✅ SÉCURITÉ: :user_id volontairement exclu — l'appartenance est fixée via
+    # `current_user.simulations.build` (create) et ne doit jamais être mass-assignable
+    # (sinon un attribut posté écraserait le user_id déjà fixé par l'association).
+    params.require(:simulation).permit(:titre, :region, :parameters, :source, :property_id, :project_id,
                                        :eligible, :category, :category_description, :ineligibility_reason)
   end
 

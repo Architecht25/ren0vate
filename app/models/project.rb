@@ -49,6 +49,10 @@ class Project < ApplicationRecord
   validates :project_type, presence: true, inclusion: { in: %w[renovation investment],
                                                        message: "doit être 'renovation' ou 'investment'" }
 
+  # Sécurité — empêche de rattacher un projet au bien d'un autre utilisateur
+  # (défense en profondeur, indépendante du scoping des selects en vue)
+  validate :property_belongs_to_user
+
   # Définir un statut et type par défaut
   before_validation :set_default_status
   before_validation :set_default_project_type
@@ -352,6 +356,15 @@ class Project < ApplicationRecord
 
   def set_default_project_type
     self.project_type ||= 'renovation'
+  end
+
+  def property_belongs_to_user
+    return if property_id.blank? || user_id.blank?
+
+    # On ne recharge property que si nécessaire (évite un aller-retour DB
+    # supplémentaire quand property_id n'a pas changé)
+    owner_id = property&.user_id
+    errors.add(:property_id, "n'appartient pas à cet utilisateur") if owner_id.present? && owner_id != user_id
   end
 
   def notify_declaration_cadastrale
