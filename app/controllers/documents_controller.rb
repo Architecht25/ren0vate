@@ -350,8 +350,10 @@ class DocumentsController < ApplicationController
     @total_photos = all_photos.size
   end
 
-  # GET /documents/download_zip?project_id=X&type_document[]=photo_pendant
-  # GET /documents/download_zip?project_id=X&document_ids[]=1&document_ids[]=2
+  # GET /documents/download_zip?type_document[]=photo_pendant                      (vue globale)
+  # GET /documents/download_zip?property_id=X&type_document[]=photo_pendant        (vue bien)
+  # GET /documents/download_zip?project_id=X&type_document[]=photo_pendant         (vue chantier)
+  # GET /documents/download_zip?document_ids[]=1&document_ids[]=2                  (sélection, tout contexte)
   # Génère un ZIP via l'API Cloudinary (pas de téléchargement sur le dyno)
   def download_zip
     photo_types = %w[photo_avant photo_pendant photo_apres photo_chassis]
@@ -365,25 +367,46 @@ class DocumentsController < ApplicationController
       end
     end
 
-    unless @project
-      redirect_back fallback_location: documents_path, alert: "Projet non spécifié."
-      return
+    # Périmètre des documents accessibles : même agrégation que l'action index
+    # (project > property > tous les documents de l'utilisateur), toujours
+    # scopée à current_user pour éviter toute fuite inter-comptes.
+    base_scope = if @project
+      property_id = @project.property_id
+      if property_id
+        current_user.documents.where(
+          "documents.project_id = :project_id OR (documents.project_id IS NULL AND documents.property_id = :property_id)",
+          project_id: @project.id, property_id: property_id
+        )
+      else
+        current_user.documents.where(project: @project)
+      end
+    elsif @property
+      current_user.documents.merge(Document.for_property_and_its_projects(@property))
+    else
+      current_user.documents
     end
 
     documents = if using_ids
       doc_ids = Array(params[:document_ids]).map(&:to_i)
-      @project.documents.where(id: doc_ids, type_document: photo_types)
+      base_scope.where(id: doc_ids, type_document: photo_types)
     else
-      @project.documents.where(type_document: requested_types)
+      base_scope.where(type_document: requested_types)
     end
 
     documents = documents
       .order(created_at: :asc)
       .select { |d| d.file.attached? && d.file.service_name.to_s.include?('cloudinary') }
 
+    fallback_path = if @project
+      project_documents_path(@project, type_document: params[:type_document])
+    elsif @property
+      property_documents_path(@property, type_document: params[:type_document])
+    else
+      documents_path(type_document: params[:type_document])
+    end
+
     if documents.empty?
-      redirect_back fallback_location: project_documents_path(@project, type_document: params[:type_document]),
-                    alert: "Aucune photo disponible au téléchargement."
+      redirect_back fallback_location: fallback_path, alert: "Aucune photo disponible au téléchargement."
       return
     end
 
@@ -400,7 +423,8 @@ class DocumentsController < ApplicationController
     else
       "photos"
     end
-    archive_name = "#{@project.nom.parameterize}_#{type_label}_#{Date.today.iso8601}"
+    archive_scope_name = @project&.nom || @property&.commune || "mes_documents"
+    archive_name = "#{archive_scope_name.parameterize}_#{type_label}_#{Date.today.iso8601}"
 
     zip_url = Cloudinary::Utils.download_zip_url(
       public_ids: public_ids,
@@ -410,7 +434,7 @@ class DocumentsController < ApplicationController
 
     redirect_to zip_url, allow_other_host: true
   rescue ActiveRecord::RecordNotFound
-    redirect_to documents_path, alert: "Projet non trouvé."
+    redirect_to documents_path, alert: "Bien ou projet non trouvé."
   end
 
   # GET /documents/:id/download

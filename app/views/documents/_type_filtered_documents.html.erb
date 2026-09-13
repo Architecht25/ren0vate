@@ -9,13 +9,11 @@
           Photos du chantier (<%= @documents.count %>)
         </span>
         <div class="d-flex gap-2" id="photos-toolbar-default">
-          <% if @project %>
-            <%= link_to download_zip_documents_path(project_id: @project.id, type_document: params[:type_document]),
-                  class: "btn btn-outline-success btn-sm",
-                  title: "Télécharger toutes les photos en ZIP",
-                  data: { turbo: false } do %>
-              <i class="bi bi-file-zip me-1"></i>Tout télécharger (ZIP)
-            <% end %>
+          <%= link_to download_zip_documents_path(property_id: @property&.id, project_id: @project&.id, type_document: params[:type_document]),
+                class: "btn btn-outline-success btn-sm",
+                title: "Télécharger toutes les photos en ZIP",
+                data: { turbo: false } do %>
+            <i class="bi bi-file-zip me-1"></i>Tout télécharger (ZIP)
           <% end %>
           <button type="button" id="toggle-selection-btn" class="btn btn-outline-secondary btn-sm">
             <i class="bi bi-check2-square me-1"></i>Sélectionner
@@ -31,15 +29,12 @@
             <label class="form-check-label fw-semibold" for="select-all-photos">Tout sélectionner</label>
           </div>
           <span id="selection-count" class="text-muted small">0 photo sélectionnée</span>
-          <% if @project %>
-            <button id="download-selected-btn"
-                    class="btn btn-primary btn-sm"
-                    data-project-id="<%= @project.id %>"
-                    data-download-url="<%= download_zip_documents_path %>"
-                    disabled>
-              <i class="bi bi-download me-1"></i>Télécharger la sélection (ZIP)
-            </button>
-          <% end %>
+          <button id="download-selected-btn"
+                  class="btn btn-primary btn-sm"
+                  data-download-url="<%= download_zip_documents_path(property_id: @property&.id, project_id: @project&.id) %>"
+                  disabled>
+            <i class="bi bi-download me-1"></i>Télécharger la sélection (ZIP)
+          </button>
           <button id="delete-selected-btn"
                   class="btn btn-danger btn-sm"
                   data-delete-url="<%= destroy_multiple_documents_path %>"
@@ -343,9 +338,7 @@
           if (checked.length === 0) return;
 
           const baseUrl = downloadBtn.dataset.downloadUrl;
-          const projectId = downloadBtn.dataset.projectId;
           const url = new URL(baseUrl, window.location.origin);
-          url.searchParams.set('project_id', projectId);
           checked.forEach(cb => url.searchParams.append('document_ids[]', cb.value));
 
           window.location.href = url.toString();
