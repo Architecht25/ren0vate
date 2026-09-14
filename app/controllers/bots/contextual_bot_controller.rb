@@ -15,13 +15,13 @@ class ContextualBotController < ApplicationController
 
     result = if bot.is_a?(Bots::ProContextualBotService)
                bot.chat(message, mode: mode, locale: I18n.locale)
-             else
+    else
                bot.chat(message, mode: mode, current_page: current_page, locale: I18n.locale)
              end
 
     suggestions = if bot.is_a?(Bots::ProContextualBotService)
                    bot.get_suggestions
-                 else
+    else
                    bot.get_suggestions(current_page, mode)
                  end
 
@@ -85,8 +85,8 @@ class ContextualBotController < ApplicationController
       elsif current_user.professional?
         active_roles = current_user.project_members.active.pros.pluck(:role).uniq
         profile = if active_roles.include?('architect')     then 'architecte'
-                  elsif active_roles.include?('intermediary') then 'intermediaire'
-                  elsif active_roles.include?('entrepreneur') then 'entrepreneur'
+        elsif active_roles.include?('intermediary') then 'intermediaire'
+        elsif active_roles.include?('entrepreneur') then 'entrepreneur'
                   end
       end
     end

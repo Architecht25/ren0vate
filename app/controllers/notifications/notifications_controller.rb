@@ -108,7 +108,7 @@ class NotificationsController < ApplicationController
     expires_days = params[:notification][:expires_days]
     expires_at = if expires_days.present? && expires_days.to_i > 0
                    expires_days.to_i.days.from_now
-                 else
+    else
                    nil  # Pas d'expiration si le champ est vide ou zéro
                  end
 

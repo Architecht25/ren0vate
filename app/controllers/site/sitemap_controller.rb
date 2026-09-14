@@ -73,7 +73,6 @@ class SitemapController < ApplicationController
         changefreq: 'yearly',
         priority: 0.3
       }
-
     end
 
     # Ajouter les primes individuelles si elles existent

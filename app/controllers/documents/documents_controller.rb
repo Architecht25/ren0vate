@@ -147,7 +147,7 @@ class DocumentsController < ApplicationController
   def edit
     unless can_access_document?(@document)
       redirect_to root_path, alert: "Accès non autorisé"
-      return
+      nil
     end
   end
 

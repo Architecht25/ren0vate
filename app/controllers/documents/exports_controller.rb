@@ -63,7 +63,6 @@ class ExportsController < ApplicationController
 
     CSV.generate(col_sep: ';', encoding: 'UTF-8', write_headers: true,
                  headers: csv_headers) do |csv|
-
       factures.each do |f|
         csv << [
           f.project&.title,

@@ -143,7 +143,7 @@ class OcrController < ApplicationController
             type_intervenant = if donnees[:nom_entreprise].present? && arch_nom.present? &&
                                   donnees[:nom_entreprise].downcase.include?(arch_nom.split.first || '')
                                  'architecte'
-                               else
+            else
                                  'entrepreneur'
                                end
 

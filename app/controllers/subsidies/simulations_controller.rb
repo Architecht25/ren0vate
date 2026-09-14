@@ -625,7 +625,7 @@ class SimulationsController < ApplicationController
           calculator_service = Regions::Wallonie::WalloniePostLoginCalculatorService.new(
             {
               property_id: @simulation.property_id,
-              project_id: @simulation.project_id,
+              project_id: @simulation.project_id
             },
             user: @simulation.user
           )
@@ -803,7 +803,7 @@ class SimulationsController < ApplicationController
     # Vérifier que la simulation appartient à l'utilisateur connecté (sauf si pas d'authentification requise)
     if user_signed_in? && @simulation.user != current_user
       redirect_to root_path, alert: "Accès non autorisé à cette simulation"
-      return
+      nil
     elsif !user_signed_in?
       # Pour les actions sans authentification (show, update_prime_inputs, restore_prime_inputs)
       # On autorise l'accès mais on limite les fonctionnalités
@@ -1491,5 +1491,4 @@ class SimulationsController < ApplicationController
     # Toutes les catégories sont éligibles (la catégorie détermine le montant de la prime)
     { eligible: true }
   end
-
 end

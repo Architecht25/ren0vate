@@ -594,7 +594,7 @@ class ProjectsController < ApplicationController
                              label_avant:   @peb_avant&.label_peb,
                              date_validite: peb_actuel.date_validite
                            )
-                         elsif region.present?
+    elsif region.present?
                            Subsidies::PebPolitiqueRegionale.contexte_regional(region)
                          end
 
@@ -832,9 +832,9 @@ class ProjectsController < ApplicationController
     # Déterminer le rôle du validateur
     role = if @project.user_id == current_user.id
              'owner'
-           elsif @project.project_members.active.where(user: current_user, role: 'architect').exists?
+    elsif @project.project_members.active.where(user: current_user, role: 'architect').exists?
              'architect'
-           elsif @project.project_members.active.where(user: current_user, role: 'entrepreneur').exists?
+    elsif @project.project_members.active.where(user: current_user, role: 'entrepreneur').exists?
              'entrepreneur'
            end
 
@@ -865,7 +865,7 @@ class ProjectsController < ApplicationController
 
     notice = if all_roles_present
                "Phase « #{phase_key.delete_prefix('phase_').humanize} » approuvée par toutes les parties ✓"
-             else
+    else
                "#{role_label} : phase « #{phase_key.delete_prefix('phase_').humanize} » validée (#{validation_count}/#{determine_required_roles.size})"
              end
 

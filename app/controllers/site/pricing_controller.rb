@@ -119,15 +119,15 @@ class PricingController < ApplicationController
             currency: 'eur',
             product_data: {
               name: pricing_tiers_data[tier][:name],
-              description: pricing_tiers_data[tier][:description],
+              description: pricing_tiers_data[tier][:description]
             },
             unit_amount: billable_amount.to_i,
             tax_behavior: 'inclusive', # Prix TTC — TVA incluse dans le montant affiché
             recurring: {
-              interval: billing_cycle == 'yearly' ? 'year' : 'month',
+              interval: billing_cycle == 'yearly' ? 'year' : 'month'
             }
           },
-          quantity: 1,
+          quantity: 1
         }],
 
         metadata: {

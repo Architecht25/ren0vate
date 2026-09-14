@@ -194,7 +194,7 @@ class RequestProgressesController < ApplicationController
     # ✅ SÉCURITÉ: Vérifier que la request_progress appartient à l'utilisateur connecté
     unless @request_progress.request.user == current_user
       redirect_to root_path, alert: "Accès non autorisé"
-      return
+      nil
     end
   end
 
@@ -205,7 +205,7 @@ class RequestProgressesController < ApplicationController
       # ✅ SÉCURITÉ: Vérifier que la request appartient à l'utilisateur connecté
       unless @request.user == current_user
         redirect_to root_path, alert: "Accès non autorisé"
-        return
+        nil
       end
     end
   end

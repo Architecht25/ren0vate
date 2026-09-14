@@ -30,3 +30,24 @@ Rails.autoloaders.main.collapse("#{Rails.root}/app/models/admin")
 Rails.autoloaders.main.collapse("#{Rails.root}/app/models/business_intelligence")
 Rails.autoloaders.main.collapse("#{Rails.root}/app/models/notifications")
 Rails.autoloaders.main.collapse("#{Rails.root}/app/models/catalogue")
+
+# Même principe pour app/controllers/ (14/09/2026) : uniquement les
+# controllers "à plat", jamais les dossiers déjà réellement namespacés par
+# un bloc `namespace do...end` de config/routes.rb (admin/, api/, api/v1/,
+# users/) — ceux-là doivent rester de vrais modules Ruby (Admin::UsersController
+# etc.), sinon le routeur ne retrouve plus la constante attendue.
+# dashboard/ (pas admin/) et user/ (singulier, pas users/) choisis
+# volontairement pour ne pas entrer en collision avec ces vrais namespaces.
+Rails.autoloaders.main.collapse("#{Rails.root}/app/controllers/property")
+Rails.autoloaders.main.collapse("#{Rails.root}/app/controllers/project")
+Rails.autoloaders.main.collapse("#{Rails.root}/app/controllers/documents")
+Rails.autoloaders.main.collapse("#{Rails.root}/app/controllers/factures")
+Rails.autoloaders.main.collapse("#{Rails.root}/app/controllers/devis")
+Rails.autoloaders.main.collapse("#{Rails.root}/app/controllers/subsidies")
+Rails.autoloaders.main.collapse("#{Rails.root}/app/controllers/bots")
+Rails.autoloaders.main.collapse("#{Rails.root}/app/controllers/ocr")
+Rails.autoloaders.main.collapse("#{Rails.root}/app/controllers/notifications")
+Rails.autoloaders.main.collapse("#{Rails.root}/app/controllers/user")
+Rails.autoloaders.main.collapse("#{Rails.root}/app/controllers/pro")
+Rails.autoloaders.main.collapse("#{Rails.root}/app/controllers/dashboard")
+Rails.autoloaders.main.collapse("#{Rails.root}/app/controllers/site")

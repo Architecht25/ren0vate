@@ -172,5 +172,4 @@ class QuotesController < ApplicationController
       { work_type_key: key, quantity: qty }
     end
   end
-
 end

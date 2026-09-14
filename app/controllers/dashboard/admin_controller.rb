@@ -31,7 +31,7 @@ class AdminController < ApplicationController
       total_users:       User.count,
       csp_enforced:      Rails.env.production?,
       ssl_active:        Rails.application.config.force_ssl,
-      hsts_active:       Rails.env.production?,
+      hsts_active:       Rails.env.production?
     }
 
     # Analytics des pages visitées hors connexion
@@ -47,7 +47,7 @@ class AdminController < ApplicationController
     @reserves_stats = {
       ouvertes:   Reserve.where(statut: 'ouverte').count,
       en_cours:   Reserve.where(statut: 'en_cours').count,
-      levees:     Reserve.where(statut: 'levee').count,
+      levees:     Reserve.where(statut: 'levee').count
     }
     @project_members_pending = ProjectMember.includes(:user, :project).where(status: 'pending').order(created_at: :desc).limit(10)
 
@@ -60,7 +60,7 @@ class AdminController < ApplicationController
       total_factures:        Facture.factures.count,
       non_payees:            Facture.non_payees.count,
       ocr_confiance_moyenne: Facture.where.not(confiance_ocr: nil).average(:confiance_ocr)&.round(1) || 0,
-      validees_manuellement: Facture.extraction_validee.count,
+      validees_manuellement: Facture.extraction_validee.count
     }
 
     # Onglet Finances : abonnements Stripe
@@ -79,7 +79,7 @@ class AdminController < ApplicationController
       open:      SupportTicket.open_tickets.count,
       overdue:   SupportTicket.overdue.count,
       in_progress: SupportTicket.where(status: 'in_progress').count,
-      resolved_this_week: SupportTicket.where(status: 'resolved').where('updated_at >= ?', 7.days.ago).count,
+      resolved_this_week: SupportTicket.where(status: 'resolved').where('updated_at >= ?', 7.days.ago).count
     }
 
     # Onglet Intelligence — veille hebdomadaire IA

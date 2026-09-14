@@ -242,5 +242,4 @@ class PagesController < ApplicationController
   end
 
   private
-
 end
