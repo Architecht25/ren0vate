@@ -362,5 +362,4 @@ class User < ApplicationRecord
       errors.add(:role, "Il doit y avoir au moins un administrateur dans le système")
     end
   end
-
 end

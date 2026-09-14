@@ -18,5 +18,4 @@ class Prime < ApplicationRecord
   def has_documents?
     document_templates.exists?
   end
-
 end

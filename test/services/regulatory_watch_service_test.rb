@@ -5,7 +5,7 @@ class RegulatoryWatchServiceTest < ActiveSupport::TestCase
     def success? = success
   end
 
-  # Faux client HTTP injecté (voir RegulatoryWatchService#initialize) — évite de
+  # Faux client HTTP injecté (voir BusinessIntelligence::RegulatoryWatchService#initialize) — évite de
   # dépendre d'une gem de mock ou de monkeypatcher HTTParty dans les tests.
   FakeHttpClient = Struct.new(:response) do
     def get(*) = response
@@ -19,7 +19,7 @@ class RegulatoryWatchServiceTest < ActiveSupport::TestCase
     source = build_source
     client = FakeHttpClient.new(FakeResponse.new(true, "<html><body><p>Contenu initial</p></body></html>"))
 
-    result = RegulatoryWatchService.new(source, http_client: client).check
+    result = BusinessIntelligence::RegulatoryWatchService.new(source, http_client: client).check
     assert_not result.changed?
     assert_not result.error?
 
@@ -33,7 +33,7 @@ class RegulatoryWatchServiceTest < ActiveSupport::TestCase
     source.update!(last_content_hash: Digest::SHA256.hexdigest("Ancien contenu"))
     client = FakeHttpClient.new(FakeResponse.new(true, "<html><body><p>Nouveau contenu très différent</p></body></html>"))
 
-    result = RegulatoryWatchService.new(source, http_client: client).check
+    result = BusinessIntelligence::RegulatoryWatchService.new(source, http_client: client).check
     assert result.changed?
     assert source.reload.last_changed_at.present?
   end
@@ -44,7 +44,7 @@ class RegulatoryWatchServiceTest < ActiveSupport::TestCase
     source.update!(last_content_hash: expected_hash)
     client = FakeHttpClient.new(FakeResponse.new(true, "<html><body><p>Contenu stable</p></body></html>"))
 
-    result = RegulatoryWatchService.new(source, http_client: client).check
+    result = BusinessIntelligence::RegulatoryWatchService.new(source, http_client: client).check
     assert_not result.changed?
   end
 
@@ -64,7 +64,7 @@ class RegulatoryWatchServiceTest < ActiveSupport::TestCase
     HTML
     client = FakeHttpClient.new(FakeResponse.new(true, html))
 
-    result = RegulatoryWatchService.new(source, http_client: client).check
+    result = BusinessIntelligence::RegulatoryWatchService.new(source, http_client: client).check
     assert_not result.changed?, "le nav/header/footer/script ne doivent pas déclencher un faux changement"
   end
 
@@ -72,7 +72,7 @@ class RegulatoryWatchServiceTest < ActiveSupport::TestCase
     source = build_source
     client = FakeHttpClient.new(FakeResponse.new(false, nil))
 
-    result = RegulatoryWatchService.new(source, http_client: client).check
+    result = BusinessIntelligence::RegulatoryWatchService.new(source, http_client: client).check
     assert result.error?
     assert_not result.changed?
     assert source.reload.last_checked_at.present?
@@ -83,7 +83,7 @@ class RegulatoryWatchServiceTest < ActiveSupport::TestCase
     inactive = build_source(url: "https://example.be/inactive").tap { |s| s.update!(active: false) }
     client = FakeHttpClient.new(FakeResponse.new(true, "<html><body>ok</body></html>"))
 
-    results = RegulatoryWatchService.check_all(http_client: client)
+    results = BusinessIntelligence::RegulatoryWatchService.check_all(http_client: client)
     checked_ids = results.map { |r| r.source.id }
     assert_includes checked_ids, active.id
     assert_not_includes checked_ids, inactive.id

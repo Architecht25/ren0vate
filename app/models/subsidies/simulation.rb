@@ -97,7 +97,7 @@ class Simulation < ApplicationRecord
     return 1 unless eligible.present?
     return 2 if eligible && category.blank?
     return 3 if eligible && category.present? && total_simule.to_f <= 0
-    return 4 if eligible && category.present? && total_simule.to_f > 0
+    4 if eligible && category.present? && total_simule.to_f > 0
   end
 
   def step_name

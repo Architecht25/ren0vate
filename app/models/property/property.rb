@@ -26,7 +26,7 @@ class Property < ApplicationRecord
 
   # Géocodage
   geocoded_by :full_address
-  after_validation :geocode, if: ->(obj){ obj.full_address.present? && (obj.rue_changed? || obj.numero_changed? || obj.code_postal_changed? || obj.commune_changed?) }
+  after_validation :geocode, if: ->(obj) { obj.full_address.present? && (obj.rue_changed? || obj.numero_changed? || obj.code_postal_changed? || obj.commune_changed?) }
 
   # Statuts de vente
   enum :statut_vente, { actif: 'actif', en_vente: 'en_vente', vendu: 'vendu' }, prefix: false
@@ -455,11 +455,11 @@ class Property < ApplicationRecord
 
       status = if compliant
                  :compliant
-               elsif years_until <= 3
+      elsif years_until <= 3
                  :urgent
-               elsif years_until <= 10
+      elsif years_until <= 10
                  :upcoming
-               else
+      else
                  :future
                end
 
