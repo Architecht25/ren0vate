@@ -11,7 +11,7 @@ class Api::PermisPredicatorController < ApplicationController
       return render json: { error: 'Accès non autorisé' }, status: :forbidden
     end
 
-    result = PermisPredicatorService.new(@project).predict
+    result = Projects::PermisPredicatorService.new(@project).predict
 
     render json: result
   rescue ActiveRecord::RecordNotFound

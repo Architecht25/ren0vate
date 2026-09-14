@@ -6,7 +6,7 @@ class BceVerificationJob < ApplicationJob
     return unless project
     return unless project.entrepreneur_principal_numero_tva.present?
 
-    result = BceVerificationService.new(project.entrepreneur_principal_numero_tva).verifier
+    result = Projects::BceVerificationService.new(project.entrepreneur_principal_numero_tva).verifier
 
     project.update_columns(
       entrepreneur_bce_statut:    result[:statut],

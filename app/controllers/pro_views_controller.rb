@@ -48,7 +48,7 @@ class ProViewsController < ApplicationController
       redirect_to project_path(@project), alert: "Vous n'êtes pas autorisé à inviter des pros." and return
     end
 
-    service = ProjectInvitationService.new
+    service = Projects::ProjectInvitationService.new
     member = service.invite(
       project:    @project,
       invited_by: current_user,
@@ -58,7 +58,7 @@ class ProViewsController < ApplicationController
 
     redirect_to project_path(@project),
                 notice: "Invitation envoyée à #{member.invited_email} (#{member.role_label})."
-  rescue ProjectInvitationService::InvitationError => e
+  rescue Projects::ProjectInvitationService::InvitationError => e
     redirect_to project_path(@project), alert: e.message
   end
 

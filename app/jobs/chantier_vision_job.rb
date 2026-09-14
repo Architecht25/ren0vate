@@ -6,7 +6,7 @@ class ChantierVisionJob < ApplicationJob
 
     Rails.logger.info "🔍 ChantierVisionJob — début analyse photos projet ##{project_id}"
 
-    result = ChantierVisionService.new(project).call
+    result = Projects::ChantierVisionService.new(project).call
 
     if result[:success]
       now = Time.current

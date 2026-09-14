@@ -507,7 +507,7 @@ class ProjectsController < ApplicationController
                     status: :unprocessable_entity
     end
 
-    analyse = ContratChecklistService.new(texte).analyser
+    analyse = Projects::ContratChecklistService.new(texte).analyser
     render json: analyse
   rescue StandardError => e
     Rails.logger.error "check_contrat error: #{e.message}\n#{e.backtrace.first(3).join("\n")}"
@@ -811,7 +811,7 @@ class ProjectsController < ApplicationController
 
   # IA #3 — Score Santé Projet /10
   def score_sante
-    result = ProjectHealthScoreService.new(@project).call
+    result = Projects::ProjectHealthScoreService.new(@project).call
     render json: result
   end
 
