@@ -601,7 +601,7 @@ class OcrController < ApplicationController
     return render json: { error: 'project_id requis' }, status: :bad_request unless params[:project_id].present?
 
     project = current_user.projects.find(params[:project_id])
-    result  = DevisComparateurIaService.new(project).analyser
+    result  = Devis::DevisComparateurIaService.new(project).analyser
 
     if result[:success]
       render json: result

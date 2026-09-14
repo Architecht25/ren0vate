@@ -38,7 +38,7 @@ class EtatsAvancementController < ApplicationController
 
   # GET /projects/:project_id/etats_avancement/:id/pdf
   def pdf
-    pdf_doc = EtatAvancementPdfService.new(@etat).generate
+    pdf_doc = Devis::EtatAvancementPdfService.new(@etat).generate
     filename = "bordereau_#{@etat.numero}_#{@project.nom.parameterize}.pdf"
     send_data pdf_doc.render,
               filename:    filename,
@@ -136,7 +136,7 @@ class EtatsAvancementController < ApplicationController
       return render json: { success: false, error: 'Aucun texte à analyser.' }, status: :unprocessable_entity
     end
 
-    result = DevisAvancementService.new(
+    result = Devis::DevisAvancementService.new(
       texte:        texte,
       project:      @project,
       devis_donnee: devis_donnee
