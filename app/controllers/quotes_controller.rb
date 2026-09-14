@@ -58,7 +58,7 @@ class QuotesController < ApplicationController
     end
 
     description = [project&.type_travaux, params[:description]].compact.join(" ")
-    result = BudgetEstimatorService.new(@property, type_travaux: description).call
+    result = Subsidies::BudgetEstimatorService.new(@property, type_travaux: description).call
     render json: result
   end
 

@@ -5,7 +5,7 @@ class ProductComparatorsController < ApplicationController
   # GET /product_comparators?project_id=X
   # Sélecteur de catégorie (modal ou page dédiée)
   def index
-    @service    = ProductComparatorService.new(project: @project)
+    @service    = Subsidies::ProductComparatorService.new(project: @project)
     @categories = @service.available_categories
   end
 
@@ -18,7 +18,7 @@ class ProductComparatorsController < ApplicationController
     return redirect_to product_comparators_path(project_id: @project&.id),
                         alert: 'Catégorie requise' if category.blank?
 
-    @service = ProductComparatorService.new(
+    @service = Subsidies::ProductComparatorService.new(
       project:    @project,
       priorities: priorities
     )
@@ -49,7 +49,7 @@ class ProductComparatorsController < ApplicationController
 
     return head :bad_request if category.blank?
 
-    service = ProductComparatorService.new(project: @project, priorities: priorities)
+    service = Subsidies::ProductComparatorService.new(project: @project, priorities: priorities)
     result  = service.compare(category: category, subcategory: subcategory, skip_ai: false)
     reco    = result[:recommendation]
 

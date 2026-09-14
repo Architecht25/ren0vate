@@ -311,7 +311,7 @@ class ProjectsController < ApplicationController
     region = @peb_actuel&.region || @peb_avant&.region || property&.region&.downcase
     @region = region
     @analyse_politique = if @peb_actuel&.label_peb.present? && region.present?
-                           PebPolitiqueRegionale.analyse(
+                           Subsidies::PebPolitiqueRegionale.analyse(
                              region:        region,
                              label_actuel:  @peb_actuel.label_peb,
                              label_avant:   @peb_avant&.label_peb,
@@ -588,14 +588,14 @@ class ProjectsController < ApplicationController
 
     peb_actuel = @peb_apres.first
     @analyse_politique = if peb_actuel&.label_peb.present? && region.present?
-                           PebPolitiqueRegionale.analyse(
+                           Subsidies::PebPolitiqueRegionale.analyse(
                              region:        region,
                              label_actuel:  peb_actuel.label_peb,
                              label_avant:   @peb_avant&.label_peb,
                              date_validite: peb_actuel.date_validite
                            )
                          elsif region.present?
-                           PebPolitiqueRegionale.contexte_regional(region)
+                           Subsidies::PebPolitiqueRegionale.contexte_regional(region)
                          end
 
     @region = region

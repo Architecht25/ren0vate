@@ -461,7 +461,7 @@ class SimulationsController < ApplicationController
           }
         else
           # Pour autres régions, utiliser l'ancien système pour l'instant
-          updater = SimulationPrimesUpdater.new(@simulation)
+          updater = Subsidies::SimulationPrimesUpdater.new(@simulation)
           result = updater.update_user_inputs(user_inputs)
 
           if result[:success]
@@ -486,8 +486,8 @@ class SimulationsController < ApplicationController
       end
 
       # Sinon utiliser l'ancienne méthode avec le service
-      # Rails.logger.info "🔧 Creating SimulationPrimesUpdater for simulation #{@simulation.id}"
-      updater = SimulationPrimesUpdater.new(@simulation)
+      # Rails.logger.info "🔧 Creating Subsidies::SimulationPrimesUpdater for simulation #{@simulation.id}"
+      updater = Subsidies::SimulationPrimesUpdater.new(@simulation)
 
       # Rails.logger.info "🔧 Calling update_user_inputs with: #{user_inputs.inspect}"
       result = updater.update_user_inputs(user_inputs)
@@ -662,7 +662,7 @@ class SimulationsController < ApplicationController
 
     Rails.logger.info "🔧 Début construction updated_cards avec: #{prime_results.inspect}"
 
-    # Grouper les primes par catégorie comme SimulationPrimesUpdater
+    # Grouper les primes par catégorie comme Subsidies::SimulationPrimesUpdater
     categorized_primes = {}
 
     prime_results.each do |slug, prime_data|

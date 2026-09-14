@@ -157,9 +157,9 @@
           <!-- Urgence réglementaire -->
           <% if @analyse_politique&.dig(:urgence_globale).present? && @analyse_politique[:urgence_globale] != :faible %>
             <% ur = @analyse_politique[:urgence_globale] %>
-            <div class="alert alert-<%= PebPolitiqueRegionale.couleur_urgence(ur) %> py-2 px-3 mt-3 mb-0 small d-flex align-items-center gap-2">
+            <div class="alert alert-<%= Subsidies::PebPolitiqueRegionale.couleur_urgence(ur) %> py-2 px-3 mt-3 mb-0 small d-flex align-items-center gap-2">
               <i class="bi bi-exclamation-circle-fill"></i>
-              <strong><%= PebPolitiqueRegionale.libelle_urgence(ur) %></strong>
+              <strong><%= Subsidies::PebPolitiqueRegionale.libelle_urgence(ur) %></strong>
               — Des échéances réglementaires s'appliquent.
               <%= link_to "Voir l'analyse →", fin_chantier_project_path(@project), class: "ms-auto text-nowrap" %>
             </div>
