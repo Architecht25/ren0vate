@@ -187,7 +187,7 @@ class DocumentsController < ApplicationController
             ocr_result = service.extraire_donnees_bordereau
           end
         elsif Document::OCR_TYPES.include?(type) || upload_mode == 'ocr'
-          ocr_service = OcrService.new(file)
+          ocr_service = Ocr::OcrService.new(file)
           ocr_result = ocr_service.call
         end
 

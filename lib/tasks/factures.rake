@@ -156,13 +156,13 @@ namespace :factures do
         content_type = document.file.content_type
         file_size = document.file.byte_size
 
-        # Décorer le StringIO pour que OcrService / FactureOcrService puisse l'utiliser
+        # Décorer le StringIO pour que Ocr::OcrService / Ocr::FactureOcrService puisse l'utiliser
         file_io.define_singleton_method(:original_filename) { filename }
         file_io.define_singleton_method(:content_type) { content_type }
         file_io.define_singleton_method(:size) { file_size }
         file_io.define_singleton_method(:path) { nil }
 
-        service = FactureOcrService.new(file_io)
+        service = Ocr::FactureOcrService.new(file_io)
         result  = service.extraire_donnees_facture
 
         unless result[:success] && result[:donnees_facture]

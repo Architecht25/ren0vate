@@ -8,18 +8,18 @@
 #   - 'architecte'   : contrat d'architecte, convention honoraires, offre de services
 #
 # Stratégie :
-#   1. Extraction texte via OcrService (pdftotext → PDF::Reader → Tesseract)
+#   1. Extraction texte via Ocr::OcrService (pdftotext → PDF::Reader → Tesseract)
 #   2. Envoi à Claude avec prompt adapté à la catégorie → JSON structuré
-#   3. Fallback transparent sur DevisOcrService si Claude échoue ou confiance < 40%
+#   3. Fallback transparent sur Ocr::DevisOcrService si Claude échoue ou confiance < 40%
 #
-# Retourne le même hash que DevisOcrService#extraire_donnees_devis.
+# Retourne le même hash que Ocr::DevisOcrService#extraire_donnees_devis.
 
-class DevisClaudeService < OcrService
+class DevisClaudeService < Ocr::OcrService
   MODEL             = 'claude-opus-4-5'
   MAX_TOKENS        = 1500
   MAX_TEXT_CHARS    = 80_000
 
-  # Liste des types de travaux reconnus (à synchroniser avec DevisOcrService::MOTS_CLES_TRAVAUX)
+  # Liste des types de travaux reconnus (à synchroniser avec Ocr::DevisOcrService::MOTS_CLES_TRAVAUX)
   TYPES_TRAVAUX_VALIDES = %w[
     isolation_toit isolation_facade isolation_sol isolation_murs
     chassis_vitrage chauffage sanitaire electricite gaz
@@ -234,8 +234,8 @@ class DevisClaudeService < OcrService
   # ── Fallback OCR regex ────────────────────────────────────────────────────────
 
   def fallback_ocr
-    Rails.logger.info 'DevisClaudeService: using DevisOcrService fallback'
-    result = DevisOcrService.new(@file, language: @language).extraire_donnees_devis
+    Rails.logger.info 'DevisClaudeService: using Ocr::DevisOcrService fallback'
+    result = Ocr::DevisOcrService.new(@file, language: @language).extraire_donnees_devis
     result[:source] = 'ocr_fallback' if result[:success]
     result
   end

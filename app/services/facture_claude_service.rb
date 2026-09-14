@@ -11,13 +11,13 @@
 #   - devis         : devis (détection au cas où le document serait mal catégorisé)
 #
 # Stratégie :
-#   1. Extraction texte via OcrService (pdftotext → PDF::Reader → Tesseract)
+#   1. Extraction texte via Ocr::OcrService (pdftotext → PDF::Reader → Tesseract)
 #   2. Envoi à Claude avec prompt métier → JSON structuré
-#   3. Fallback transparent sur FactureOcrService si Claude échoue ou confiance < 40%
+#   3. Fallback transparent sur Ocr::FactureOcrService si Claude échoue ou confiance < 40%
 #
-# Retourne le même hash que FactureOcrService#extraire_donnees_facture.
+# Retourne le même hash que Ocr::FactureOcrService#extraire_donnees_facture.
 
-class FactureClaudeService < OcrService
+class FactureClaudeService < Ocr::OcrService
   MODEL             = 'claude-opus-4-5'
   MAX_TOKENS        = 1500
   MAX_TEXT_CHARS    = 80_000
@@ -246,8 +246,8 @@ class FactureClaudeService < OcrService
   # ── Fallback OCR regex ────────────────────────────────────────────────────────
 
   def fallback_ocr
-    Rails.logger.info 'FactureClaudeService: using FactureOcrService fallback'
-    result = FactureOcrService.new(@file, language: @language).extraire_donnees_facture
+    Rails.logger.info 'FactureClaudeService: using Ocr::FactureOcrService fallback'
+    result = Ocr::FactureOcrService.new(@file, language: @language).extraire_donnees_facture
     result[:source] = 'ocr_fallback' if result[:success]
     result
   end

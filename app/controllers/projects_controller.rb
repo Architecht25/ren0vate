@@ -190,7 +190,7 @@ class ProjectsController < ApplicationController
     end
 
     begin
-      service = AttestationConformiteOcrService.new(params[:file])
+      service = Ocr::AttestationConformiteOcrService.new(params[:file])
       result  = service.extraire_donnees_attestation
 
       unless result[:success]
@@ -198,7 +198,7 @@ class ProjectsController < ApplicationController
       end
 
       # Résumé lisible pour le champ notes
-      statut_txt = AttestationConformiteOcrService.label_resultat(result[:resultat])[:label]
+      statut_txt = Ocr::AttestationConformiteOcrService.label_resultat(result[:resultat])[:label]
       notes_txt  = [statut_txt,
                     result[:organisme_controleur],
                     result[:date_controle]&.strftime('%d/%m/%Y'),
@@ -493,7 +493,7 @@ class ProjectsController < ApplicationController
     end
 
     # Extraction texte via OCR
-    ocr = OcrService.new(params[:file])
+    ocr = Ocr::OcrService.new(params[:file])
     ocr_result = ocr.call
 
     unless ocr_result[:success]

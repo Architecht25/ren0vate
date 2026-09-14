@@ -2,7 +2,7 @@
 #
 # Exécute le scan OCR du certificat PEB en arrière-plan, sur le dyno worker
 # dédié (Solid Queue). Pour les PDFs VEKA (Flandre), dont l'encodage de police
-# est incompatible avec pdftotext/PDF::Reader, OcrService bascule sur un
+# est incompatible avec pdftotext/PDF::Reader, Ocr::OcrService bascule sur un
 # fallback OCR page-par-page (pdftoppm + Tesseract multi-langue), qui peut
 # largement dépasser les 30s de timeout fixe du routeur Heroku (H12) si fait
 # en synchrone dans la requête web (cf. OcrController#scan_peb, qui ne fait
@@ -22,7 +22,7 @@ class PebExtractionJob < ApplicationJob
 
     document.file.blob.open do |tempfile|
       file   = ActiveStorageFileAdapter.new(tempfile, document.file.content_type)
-      result = PebOcrService.new(file).extraire_donnees_peb
+      result = Ocr::PebOcrService.new(file).extraire_donnees_peb
 
       if result[:success]
         peb_donnee.appliquer_resultat_extraction!(result)

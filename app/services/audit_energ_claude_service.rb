@@ -4,7 +4,7 @@
 # via l'API Claude, en lecture NATIVE du PDF (bloc "document" base64) plutôt que
 # du texte pré-extrait par pdftotext/Tesseract.
 #
-# Pourquoi le PDF natif plutôt que le texte OCR (AuditEnergOcrService) :
+# Pourquoi le PDF natif plutôt que le texte OCR (Ocr::AuditEnergOcrService) :
 #   Ce rapport est mis en page en colonnes multiples avec jauges de labels et
 #   diagrammes — l'extraction texte linéaire mélange les colonnes voisines
 #   (ex: "Perte de chal / Pour les rédui / indic_a_teur de la..."). Les
@@ -13,16 +13,16 @@
 #   Claude en lecture PDF native (vision) lit la mise en page réelle.
 #
 # Stratégie :
-#   1. Validation du fichier (taille, magic bytes) via OcrService
+#   1. Validation du fichier (taille, magic bytes) via Ocr::OcrService
 #   2. Envoi du PDF complet à Claude en bloc "document" + prompt structuré → JSON
-#   3. Fallback transparent sur AuditEnergOcrService (regex) si Claude échoue,
+#   3. Fallback transparent sur Ocr::AuditEnergOcrService (regex) si Claude échoue,
 #      si la confiance est trop basse, ou si le fichier n'est pas un PDF
 #
 # Usage :
 #   result = AuditEnergClaudeService.new(file).extraire_donnees_audit
 #   # Retourne un hash compatible avec les colonnes AuditEnergDonnee
 
-class AuditEnergClaudeService < OcrService
+class AuditEnergClaudeService < Ocr::OcrService
   require 'base64'
 
   MODEL             = 'claude-opus-4-5'
@@ -344,7 +344,7 @@ class AuditEnergClaudeService < OcrService
 
   def fallback_ocr
     Rails.logger.info 'AuditEnergClaudeService: using regex OCR fallback'
-    result = AuditEnergOcrService.new(@file).extraire_donnees_audit
+    result = Ocr::AuditEnergOcrService.new(@file).extraire_donnees_audit
     result[:success] ? result.merge(source_extraction: 'ocr_fallback') : result
   end
 

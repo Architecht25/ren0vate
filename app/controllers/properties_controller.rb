@@ -201,7 +201,7 @@ class PropertiesController < ApplicationController
                       (existing.first.is_a?(Hash) && existing.first['poste'].blank?)
       next unless needs_refresh
 
-      recs = PebOcrService.recommandations_depuis_texte(peb.texte_ocr_brut, peb.region)
+      recs = Ocr::PebOcrService.recommandations_depuis_texte(peb.texte_ocr_brut, peb.region)
       peb.update_column(:donnees_extraites, peb.donnees_extraites.merge('recommandations' => recs))
     end
 

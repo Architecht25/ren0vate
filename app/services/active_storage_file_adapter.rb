@@ -2,7 +2,7 @@
 #
 # Fait passer un fichier ActiveStorage déjà attaché (téléchargé dans un Tempfile
 # via `blob.open`) pour un fichier "upload" classique (ActionDispatch::Http::
-# UploadedFile) — c'est l'interface attendue par OcrService et ses sous-classes
+# UploadedFile) — c'est l'interface attendue par Ocr::OcrService et ses sous-classes
 # (content_type, size, read, rewind, tempfile).
 #
 # Nécessaire pour les jobs en arrière-plan (ex: AuditEnergExtractionJob) : le

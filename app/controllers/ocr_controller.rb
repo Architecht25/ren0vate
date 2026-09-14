@@ -6,7 +6,7 @@ class OcrController < ApplicationController
     return render json: { error: 'Aucun fichier fourni' }, status: :bad_request unless params[:file]
 
     begin
-      ocr_service = OcrService.new(params[:file])
+      ocr_service = Ocr::OcrService.new(params[:file])
       result = ocr_service.call
 
       if result[:success]
@@ -39,7 +39,7 @@ class OcrController < ApplicationController
 
     begin
       # Effectuer l'OCR d'abord
-      ocr_service = OcrService.new(params[:file])
+      ocr_service = Ocr::OcrService.new(params[:file])
       ocr_result = ocr_service.call
 
       unless ocr_result[:success]
@@ -100,21 +100,21 @@ class OcrController < ApplicationController
       tempfile.write(@document.file.download)
       tempfile.rewind
 
-      # Construire un objet compatible OcrService
+      # Construire un objet compatible Ocr::OcrService
       uploaded_file = ActionDispatch::Http::UploadedFile.new(
         tempfile: tempfile,
         filename: @document.file.filename.to_s,
         type: @document.file.content_type
       )
 
-      # Pour les factures, utiliser FactureOcrService pour extraire les données structurées
+      # Pour les factures, utiliser Ocr::FactureOcrService pour extraire les données structurées
       is_facture = @document.type_document == 'facture'
 
       if is_facture
         facture_service = FactureClaudeService.new(uploaded_file)
         result = facture_service.extraire_donnees_facture
       else
-        ocr_service = OcrService.new(uploaded_file)
+        ocr_service = Ocr::OcrService.new(uploaded_file)
         result = ocr_service.call
       end
 
@@ -218,7 +218,7 @@ class OcrController < ApplicationController
     return render json: { error: 'Aucun fichier fourni' }, status: :bad_request unless params[:file]
 
     begin
-      rib_service = RibOcrService.new(params[:file])
+      rib_service = Ocr::RibOcrService.new(params[:file])
       result      = rib_service.extraire_donnees_rib
 
       unless result[:success]
@@ -318,7 +318,7 @@ class OcrController < ApplicationController
     return render json: { error: 'Aucun fichier fourni' }, status: :bad_request unless params[:file]
 
     begin
-      aer_service = AerOcrService.new(params[:file])
+      aer_service = Ocr::AerOcrService.new(params[:file])
       result      = aer_service.extraire_donnees_aer
 
       unless result[:success]
@@ -746,7 +746,7 @@ class OcrController < ApplicationController
     return render json: { error: 'Aucun fichier fourni' }, status: :bad_request unless params[:file]
 
     begin
-      service = LabelEnergetiqueOcrService.new(params[:file])
+      service = Ocr::LabelEnergetiqueOcrService.new(params[:file])
       result  = service.extraire_donnees_label
 
       unless result[:success]
