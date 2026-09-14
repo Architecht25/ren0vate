@@ -16,6 +16,7 @@ Sentry.init do |config|
     ActionController::UnknownFormat
     ActiveRecord::RecordNotFound
     Rack::Attack::Error
+    Encoding::CompatibilityError
   ]
 
   # Filtrer les données sensibles avant envoi
