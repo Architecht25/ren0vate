@@ -21,7 +21,7 @@ class AuditEnergExtractionJob < ApplicationJob
     end
 
     document.file.blob.open do |tempfile|
-      file    = ActiveStorageFileAdapter.new(tempfile, document.file.content_type)
+      file    = Documents::ActiveStorageFileAdapter.new(tempfile, document.file.content_type)
       result  = Bots::AuditEnergClaudeService.new(file).extraire_donnees_audit
 
       if result[:success]

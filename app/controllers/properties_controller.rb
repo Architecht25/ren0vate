@@ -219,7 +219,7 @@ class PropertiesController < ApplicationController
 
     # Nouveau système de phases
     @phases_data = @property.phases_with_status
-    @phase_calculator = DocumentPhaseCalculatorService.new(@property)
+    @phase_calculator = Documents::DocumentPhaseCalculatorService.new(@property)
     @comprehensive_metrics = @phase_calculator.calculate_comprehensive_metrics
     @recommendations = @phase_calculator.intelligent_recommendations.first(3)
     @potential_issues = @phase_calculator.detect_potential_issues
@@ -417,7 +417,7 @@ class PropertiesController < ApplicationController
 
     # Données actuelles basées sur le type de projet
     @phases_data = @property.phases_with_status
-    @phase_calculator = DocumentPhaseCalculatorService.new(@property)
+    @phase_calculator = Documents::DocumentPhaseCalculatorService.new(@property)
     @comprehensive_metrics = @phase_calculator.calculate_comprehensive_metrics
     @recommendations = @phase_calculator.intelligent_recommendations.first(3)
     @potential_issues = @phase_calculator.detect_potential_issues

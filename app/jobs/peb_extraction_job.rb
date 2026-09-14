@@ -21,7 +21,7 @@ class PebExtractionJob < ApplicationJob
     end
 
     document.file.blob.open do |tempfile|
-      file   = ActiveStorageFileAdapter.new(tempfile, document.file.content_type)
+      file   = Documents::ActiveStorageFileAdapter.new(tempfile, document.file.content_type)
       result = Ocr::PebOcrService.new(file).extraire_donnees_peb
 
       if result[:success]

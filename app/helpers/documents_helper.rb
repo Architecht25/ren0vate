@@ -262,8 +262,8 @@ module DocumentsHelper
     return nil unless document&.file&.attached?
     return nil unless document.file.content_type == 'application/pdf'
 
-    # Utiliser le nouveau service PdfPreviewService
-    PdfPreviewService.generate_preview_for_document(document)
+    # Utiliser le nouveau service Documents::PdfPreviewService
+    Documents::PdfPreviewService.generate_preview_for_document(document)
   rescue => e
     Rails.logger.warn "Could not generate PDF preview for document #{document.id}: #{e.message}"
     nil

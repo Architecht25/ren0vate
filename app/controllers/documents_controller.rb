@@ -54,7 +54,7 @@ class DocumentsController < ApplicationController
     if @property && !@project
       # Dans le contexte d'une propriété spécifique, utiliser ses phases
       @phases_data = @property.phases_with_status
-      @phase_calculator = DocumentPhaseCalculatorService.new(@property)
+      @phase_calculator = Documents::DocumentPhaseCalculatorService.new(@property)
     else
       # Navigation chantier ou globale : afficher les phases de chantier
       phases_to_show = @all_phases.chantier

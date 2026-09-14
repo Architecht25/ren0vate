@@ -6,7 +6,7 @@ class Api::PdfPreviewController < ApplicationController
 
     if document.is_pdf?
       # Génération asynchrone de l'aperçu
-      preview_url = PdfPreviewService.generate_preview_for_document(document)
+      preview_url = Documents::PdfPreviewService.generate_preview_for_document(document)
 
       if preview_url
         render json: {

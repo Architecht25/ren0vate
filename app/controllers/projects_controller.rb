@@ -113,7 +113,7 @@ class ProjectsController < ApplicationController
       return
     end
 
-    pdf_data = PdfReportService.new(@project, current_user).generate
+    pdf_data = Documents::PdfReportService.new(@project, current_user).generate
     send_data pdf_data,
               filename: "rapport_#{@project.id}_#{Date.current.strftime('%Y%m%d')}.pdf",
               type: 'application/pdf',

@@ -31,7 +31,7 @@ class EmailDocumentExtractionJob < ApplicationJob
 
     begin
       # Utiliser un service d'extraction PDF
-      extracted_data = EmailDocumentExtractionService.new(@request_progress.document_suivi_pdf).extract_pdf_data
+      extracted_data = Documents::EmailDocumentExtractionService.new(@request_progress.document_suivi_pdf).extract_pdf_data
 
       # Mettre à jour le RequestProgress avec les données extraites
       update_request_progress_with_extracted_data(extracted_data)
@@ -47,7 +47,7 @@ class EmailDocumentExtractionJob < ApplicationJob
 
     begin
       # Utiliser un service d'extraction d'image (OCR)
-      extracted_data = EmailDocumentExtractionService.new(@request_progress.document_suivi_photo).extract_image_data
+      extracted_data = Documents::EmailDocumentExtractionService.new(@request_progress.document_suivi_photo).extract_image_data
 
       # Mettre à jour le RequestProgress avec les données extraites
       update_request_progress_with_extracted_data(extracted_data)
