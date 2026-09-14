@@ -1,4 +1,4 @@
-class Api::SecurityController < ApplicationController
+class Api::SecurityMonitoringController < ApplicationController
   # Désactiver l'authentification pour certains endpoints de monitoring
   skip_before_action :authenticate_user!, only: [:headers_check]
   before_action :ensure_admin, except: [:headers_check]

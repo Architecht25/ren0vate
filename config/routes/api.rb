@@ -49,10 +49,12 @@
       # API pour les préférences utilisateur
       patch 'users/language-preference', to: 'users#update_language_preference'
 
-      # Routes API pour la sécurité
-      get 'security/headers_check'
-      get 'security/csp_violations'
-      get 'security/security_overview'
+      # Routes API pour la sécurité (dashboard admin — Api::SecurityMonitoringController,
+      # à ne pas confondre avec SecurityController à la racine qui reçoit les rapports
+      # CSP publics du navigateur sur /csp-violation-report-endpoint)
+      get 'security/headers_check',     to: 'security_monitoring#headers_check'
+      get 'security/csp_violations',    to: 'security_monitoring#csp_violations'
+      get 'security/security_overview', to: 'security_monitoring#security_overview'
 
       # API Calculs Flandre
       post 'flandre/calculate_prime', to: 'flandre_calculations#calculate_prime'
