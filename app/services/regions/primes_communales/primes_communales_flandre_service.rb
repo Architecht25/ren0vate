@@ -1,7 +1,7 @@
 module Regions
   module PrimesCommunales
     # Service pour gérer les primes communales depuis le fichier JSON
-    class PrimesCommunalesService
+    class PrimesCommunalesFlandreService
       include Singleton
 
       FICHIER_PRIMES = Rails.root.join('public', 'data', 'primes_communales_flandre.json')
@@ -124,7 +124,7 @@ module Regions
 
         communes_a_chercher = if code_postal
                                [donnees['communes'][code_postal]].compact
-                             else
+        else
                                donnees['communes'].values
                              end
 
