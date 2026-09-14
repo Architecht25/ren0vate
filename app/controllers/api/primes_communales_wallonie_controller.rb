@@ -8,7 +8,7 @@ class Api::PrimesCommunalesWallonieController < ActionController::Base
   # GET /api/primes_communales_wallonie?code_postal=4000
   # Retourne les primes disponibles pour un code postal wallon
   def index
-    primes_data = PrimesCommunalesWallonieService.primes_par_code_postal(@code_postal)
+    primes_data = Regions::PrimesCommunales::PrimesCommunalesWallonieService.primes_par_code_postal(@code_postal)
 
     if primes_data
       render json: {
@@ -28,7 +28,7 @@ class Api::PrimesCommunalesWallonieController < ActionController::Base
         metadata: {
           timestamp: Time.current.iso8601,
           region: 'Wallonie',
-          version: PrimesCommunalesWallonieService.metadata['version']
+          version: Regions::PrimesCommunales::PrimesCommunalesWallonieService.metadata['version']
         }
       }
     else
@@ -74,7 +74,7 @@ class Api::PrimesCommunalesWallonieController < ActionController::Base
     end
 
     # Vérifier que la prime existe
-    unless PrimesCommunalesWallonieService.prime_valide?(@code_postal, prime_id)
+    unless Regions::PrimesCommunales::PrimesCommunalesWallonieService.prime_valide?(@code_postal, prime_id)
       return render json: {
         success: false,
         error: {
@@ -85,10 +85,10 @@ class Api::PrimesCommunalesWallonieController < ActionController::Base
     end
 
     # Obtenir les données de la prime
-    prime_data = PrimesCommunalesWallonieService.obtenir_prime(@code_postal, prime_id)
+    prime_data = Regions::PrimesCommunales::PrimesCommunalesWallonieService.obtenir_prime(@code_postal, prime_id)
 
     # Calculer le montant
-    montant_calcule = PrimesCommunalesWallonieService.calculer_prime(
+    montant_calcule = Regions::PrimesCommunales::PrimesCommunalesWallonieService.calculer_prime(
       prime_data,
       montant_travaux,
       parametres.to_h
@@ -125,7 +125,7 @@ class Api::PrimesCommunalesWallonieController < ActionController::Base
   # GET /api/primes_communales_wallonie/communes
   # Liste toutes les communes wallonnes supportées
   def communes
-    communes = PrimesCommunalesWallonieService.communes_supportees
+    communes = Regions::PrimesCommunales::PrimesCommunalesWallonieService.communes_supportees
 
     render json: {
       success: true,
@@ -136,7 +136,7 @@ class Api::PrimesCommunalesWallonieController < ActionController::Base
       },
       metadata: {
         timestamp: Time.current.iso8601,
-        version: PrimesCommunalesWallonieService.metadata['version']
+        version: Regions::PrimesCommunales::PrimesCommunalesWallonieService.metadata['version']
       }
     }
   end
@@ -158,7 +158,7 @@ class Api::PrimesCommunalesWallonieController < ActionController::Base
     end
 
     # Effectuer la recherche
-    resultats = PrimesCommunalesWallonieService.rechercher_primes(terme, code_postal_search)
+    resultats = Regions::PrimesCommunales::PrimesCommunalesWallonieService.rechercher_primes(terme, code_postal_search)
 
     render json: {
       success: true,
@@ -186,7 +186,7 @@ class Api::PrimesCommunalesWallonieController < ActionController::Base
   def metadata
     render json: {
       success: true,
-      data: PrimesCommunalesWallonieService.metadata.merge({
+      data: Regions::PrimesCommunales::PrimesCommunalesWallonieService.metadata.merge({
         region: 'Wallonie',
         endpoints: [
           'GET /api/primes_communales_wallonie?code_postal=4000',
@@ -297,7 +297,7 @@ class Api::PrimesCommunalesWallonieController < ActionController::Base
 
   def communes_suggestions(code_postal)
     # Suggérer des codes postaux wallons proches
-    communes = PrimesCommunalesWallonieService.communes_supportees
+    communes = Regions::PrimesCommunales::PrimesCommunalesWallonieService.communes_supportees
 
     if code_postal.length == 4
       prefix = code_postal[0..1]

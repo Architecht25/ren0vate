@@ -8,7 +8,7 @@ class Api::PrimesCommunalesBruxellesController < ActionController::Base
   # GET /api/primes_communales_bruxelles?code_postal=1000
   # Retourne les primes disponibles pour un code postal bruxellois
   def index
-    primes_data = PrimesCommunalesBruxellesService.primes_par_code_postal(@code_postal)
+    primes_data = Regions::PrimesCommunales::PrimesCommunalesBruxellesService.primes_par_code_postal(@code_postal)
 
     if primes_data
       render json: {
@@ -28,7 +28,7 @@ class Api::PrimesCommunalesBruxellesController < ActionController::Base
         metadata: {
           timestamp: Time.current.iso8601,
           region: 'Bruxelles-Capitale',
-          version: PrimesCommunalesBruxellesService.metadata['version']
+          version: Regions::PrimesCommunales::PrimesCommunalesBruxellesService.metadata['version']
         }
       }
     else
@@ -74,7 +74,7 @@ class Api::PrimesCommunalesBruxellesController < ActionController::Base
     end
 
     # Vérifier que la prime existe
-    unless PrimesCommunalesBruxellesService.prime_valide?(@code_postal, prime_id)
+    unless Regions::PrimesCommunales::PrimesCommunalesBruxellesService.prime_valide?(@code_postal, prime_id)
       return render json: {
         success: false,
         error: {
@@ -85,10 +85,10 @@ class Api::PrimesCommunalesBruxellesController < ActionController::Base
     end
 
     # Obtenir les données de la prime
-    prime_data = PrimesCommunalesBruxellesService.obtenir_prime(@code_postal, prime_id)
+    prime_data = Regions::PrimesCommunales::PrimesCommunalesBruxellesService.obtenir_prime(@code_postal, prime_id)
 
     # Calculer le montant
-    montant_calcule = PrimesCommunalesBruxellesService.calculer_prime(
+    montant_calcule = Regions::PrimesCommunales::PrimesCommunalesBruxellesService.calculer_prime(
       prime_data,
       montant_travaux,
       parametres.to_h
@@ -125,7 +125,7 @@ class Api::PrimesCommunalesBruxellesController < ActionController::Base
   # GET /api/primes_communales_bruxelles/communes
   # Liste toutes les communes bruxelloises supportées
   def communes
-    communes = PrimesCommunalesBruxellesService.communes_supportees
+    communes = Regions::PrimesCommunales::PrimesCommunalesBruxellesService.communes_supportees
 
     render json: {
       success: true,
@@ -136,7 +136,7 @@ class Api::PrimesCommunalesBruxellesController < ActionController::Base
       },
       metadata: {
         timestamp: Time.current.iso8601,
-        version: PrimesCommunalesBruxellesService.metadata['version']
+        version: Regions::PrimesCommunales::PrimesCommunalesBruxellesService.metadata['version']
       }
     }
   end
@@ -157,7 +157,7 @@ class Api::PrimesCommunalesBruxellesController < ActionController::Base
       }, status: :bad_request
     end
 
-    resultats = PrimesCommunalesBruxellesService.rechercher_primes(terme, code_postal_search)
+    resultats = Regions::PrimesCommunales::PrimesCommunalesBruxellesService.rechercher_primes(terme, code_postal_search)
 
     render json: {
       success: true,
@@ -182,13 +182,13 @@ class Api::PrimesCommunalesBruxellesController < ActionController::Base
   # GET /api/primes_communales_bruxelles/categories
   # Liste des catégories de primes disponibles
   def categories
-    categories = PrimesCommunalesBruxellesService.categories_primes
+    categories = Regions::PrimesCommunales::PrimesCommunalesBruxellesService.categories_primes
 
     render json: {
       success: true,
       data: {
         categories: categories,
-        types_calcul: PrimesCommunalesBruxellesService.types_calcul
+        types_calcul: Regions::PrimesCommunales::PrimesCommunalesBruxellesService.types_calcul
       },
       metadata: {
         timestamp: Time.current.iso8601,
@@ -202,7 +202,7 @@ class Api::PrimesCommunalesBruxellesController < ActionController::Base
   def stats
     render json: {
       success: true,
-      data: PrimesCommunalesBruxellesService.statistiques
+      data: Regions::PrimesCommunales::PrimesCommunalesBruxellesService.statistiques
     }
   end
 
@@ -311,7 +311,7 @@ class Api::PrimesCommunalesBruxellesController < ActionController::Base
 
   def communes_suggestions(code_postal)
     # Suggérer des codes postaux bruxellois proches
-    communes = PrimesCommunalesBruxellesService.communes_supportees
+    communes = Regions::PrimesCommunales::PrimesCommunalesBruxellesService.communes_supportees
 
     if code_postal.length == 4
       prefix = code_postal[0..1]

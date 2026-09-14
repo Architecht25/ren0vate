@@ -8,7 +8,7 @@ class Api::PrimesCommunalesController < ActionController::Base
   # GET /api/primes_communales?code_postal=9000
   # Retourne les primes disponibles pour un code postal
   def index
-    primes_data = PrimesCommunalesService.primes_par_code_postal(@code_postal)
+    primes_data = Regions::PrimesCommunales::PrimesCommunalesService.primes_par_code_postal(@code_postal)
 
     if primes_data
       render json: {
@@ -73,7 +73,7 @@ class Api::PrimesCommunalesController < ActionController::Base
     end
 
     # Vérifier que la prime existe
-    unless PrimesCommunalesService.prime_valide?(@code_postal, prime_id)
+    unless Regions::PrimesCommunales::PrimesCommunalesService.prime_valide?(@code_postal, prime_id)
       return render json: {
         success: false,
         error: {
@@ -84,10 +84,10 @@ class Api::PrimesCommunalesController < ActionController::Base
     end
 
     # Obtenir les données de la prime
-    prime_data = PrimesCommunalesService.obtenir_prime(@code_postal, prime_id)
+    prime_data = Regions::PrimesCommunales::PrimesCommunalesService.obtenir_prime(@code_postal, prime_id)
 
     # Calculer le montant
-    montant_calcule = PrimesCommunalesService.calculer_prime(
+    montant_calcule = Regions::PrimesCommunales::PrimesCommunalesService.calculer_prime(
       prime_data,
       montant_travaux,
       parametres.to_h
@@ -115,7 +115,7 @@ class Api::PrimesCommunalesController < ActionController::Base
   # GET /api/primes_communales/communes
   # Liste toutes les communes supportées
   def communes
-    communes = PrimesCommunalesService.communes_supportees
+    communes = Regions::PrimesCommunales::PrimesCommunalesService.communes_supportees
 
     render json: {
       success: true,
@@ -123,7 +123,7 @@ class Api::PrimesCommunalesController < ActionController::Base
         communes: communes,
         total: communes.count
       },
-      metadata: PrimesCommunalesService.metadata
+      metadata: Regions::PrimesCommunales::PrimesCommunalesService.metadata
     }
   end
 
@@ -143,7 +143,7 @@ class Api::PrimesCommunalesController < ActionController::Base
       }, status: :bad_request
     end
 
-    resultats = PrimesCommunalesService.rechercher_primes(terme, code_postal_search)
+    resultats = Regions::PrimesCommunales::PrimesCommunalesService.rechercher_primes(terme, code_postal_search)
 
     render json: {
       success: true,
@@ -167,8 +167,8 @@ class Api::PrimesCommunalesController < ActionController::Base
     render json: {
       success: true,
       data: {
-        categories: PrimesCommunalesService.categories_primes,
-        types_calcul: PrimesCommunalesService.charger_donnees['types_calcul']
+        categories: Regions::PrimesCommunales::PrimesCommunalesService.categories_primes,
+        types_calcul: Regions::PrimesCommunales::PrimesCommunalesService.charger_donnees['types_calcul']
       }
     }
   end
@@ -178,7 +178,7 @@ class Api::PrimesCommunalesController < ActionController::Base
   def stats
     render json: {
       success: true,
-      data: PrimesCommunalesService.statistiques
+      data: Regions::PrimesCommunales::PrimesCommunalesService.statistiques
     }
   end
 
@@ -255,7 +255,7 @@ class Api::PrimesCommunalesController < ActionController::Base
 
   def communes_suggestions(code_postal)
     # Suggérer des codes postaux proches si possible
-    communes = PrimesCommunalesService.communes_supportees
+    communes = Regions::PrimesCommunales::PrimesCommunalesService.communes_supportees
 
     if code_postal.length == 4
       prefix = code_postal[0..1]
