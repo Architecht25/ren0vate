@@ -148,7 +148,7 @@ SENTRY_DSN            # Error tracking (branché le 09/09/2026, actif en product
 - **`config.assets.compile = true`** en production — warning Heroku connu, non bloquant
 - **Ruby 3.3.9** sur Heroku (3.3.11 disponible — à upgrader)
 - **BCE** : vérification via API VIES publique (`ec.europa.eu/taxation_customs/vies`) — gratuit, pas de clé
-- **Sentry** : branché le 09/09/2026 (`sentry-ruby`/`sentry-rails`), actif uniquement en production (`config.enabled_environments = %w[production]`), 10% des transactions tracées (`traces_sample_rate = 0.1`, plan gratuit), `national_number`/`iban` retirés des payloads avant envoi (`before_send`), exceptions `RoutingError`/`RecordNotFound`/`Rack::Attack::Error` exclues du bruit
+- **Sentry** : branché le 09/09/2026 (`sentry-ruby`/`sentry-rails`), actif uniquement en production (`config.enabled_environments = %w[production]`), 10% des transactions tracées (`traces_sample_rate = 0.1`, plan gratuit), `national_number`/`iban` retirés des payloads avant envoi (`before_send`), exceptions `RoutingError`/`RecordNotFound`/`Rack::Attack::Error`/`Encoding::CompatibilityError` exclues du bruit (dernier ajouté le 13/09/2026 — scans bot envoyant des `POST /` avec un corps en UTF-16LE, aucune route `POST` n'existe sur `root`)
 - **rack-attack** : gem présente et middleware activé (`config/initializers/rack_attack.rb`) — pas encore documenté ailleurs dans ce fichier avant le 10/09/2026
 
 ## Stripe — État au 27 avril 2026
