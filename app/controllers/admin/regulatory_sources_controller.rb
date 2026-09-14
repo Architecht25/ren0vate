@@ -10,7 +10,7 @@ class Admin::RegulatorySourcesController < ApplicationController
   # pour tester après ajout d'une source ou avant de fermer le sujet sur un
   # dossier en cours.
   def check_now
-    results = RegulatoryWatchService.check_all
+    results = BusinessIntelligence::RegulatoryWatchService.check_all
     changed = results.count(&:changed?)
     errored = results.count(&:error?)
 

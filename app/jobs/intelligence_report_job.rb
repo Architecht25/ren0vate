@@ -13,7 +13,7 @@ class IntelligenceReportJob < ApplicationJob
     Rails.logger.info "IntelligenceReportJob — démarrage #{report.week_of}"
 
     # 1. Scraper les sources
-    scraper_result = IntelligenceScraperService.new.fetch_all
+    scraper_result = BusinessIntelligence::IntelligenceScraperService.new.fetch_all
     Rails.logger.info "IntelligenceReportJob — #{scraper_result[:total_items]} articles récupérés"
 
     # 1b. Ajouter les articles de veille presse importés manuellement
@@ -28,7 +28,7 @@ class IntelligenceReportJob < ApplicationJob
     )
 
     # 2. Analyser avec Claude
-    analysis = IntelligenceAnalysisService.new.analyze(combined_text)
+    analysis = BusinessIntelligence::IntelligenceAnalysisService.new.analyze(combined_text)
 
     if analysis.present?
       report.update!(status: 'completed', analysis: analysis)

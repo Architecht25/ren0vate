@@ -1,11 +1,11 @@
 # Vérification mensuelle des pages réglementaires officielles (RegulatorySource).
 # N'envoie un email que s'il y a au moins un changement détecté — silencieux sinon.
-# Voir config/recurring.yml (schedule mensuel) et RegulatoryWatchService.
+# Voir config/recurring.yml (schedule mensuel) et BusinessIntelligence::RegulatoryWatchService.
 class RegulatoryWatchJob < ApplicationJob
   queue_as :default
 
   # watch_service injectable pour les tests (doit répondre à .check_all)
-  def perform(watch_service: RegulatoryWatchService)
+  def perform(watch_service: BusinessIntelligence::RegulatoryWatchService)
     results = watch_service.check_all
 
     changed = results.select(&:changed?)
