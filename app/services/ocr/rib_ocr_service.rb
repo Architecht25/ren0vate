@@ -27,7 +27,7 @@ module Ocr
       /triodos/i        => 'TRIOBEBB',
       /nagelmackers/i   => 'BNAGBEBB',
       /deutsche/i       => 'DEUTBEBE',
-      /record/i         => 'RBRBBEBB',
+      /record/i         => 'RBRBBEBB'
     }.freeze
 
     # ── Nom du titulaire ─────────────────────────────────────────────────────────
@@ -73,7 +73,7 @@ module Ocr
         iban:          iban,
         bic:           bic,
         nom_titulaire: extraire_nom_titulaire(texte),
-        nom_banque:    nom_banque,
+        nom_banque:    nom_banque
       }
     end
 

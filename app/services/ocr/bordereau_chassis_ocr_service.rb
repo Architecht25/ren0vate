@@ -18,7 +18,7 @@ module Ocr
       /\bwarmtedoorgangswaarde\s*Uw?\s*[=:]\s*(\d+[.,]\d+)/i,
       /\bU\s*[-–]\s*waarde\s+raam\s*[=:]\s*(\d+[.,]\d+)/i,
       /\bcoefficient\s+de\s+transmission\s+thermique\s+Uw?\s*[=:]\s*(\d+[.,]\d+)/i,
-      /\bthermische\s+transmissiecoëff[^=]*[=:]\s*(\d+[.,]\d+)/i,
+      /\bthermische\s+transmissiecoëff[^=]*[=:]\s*(\d+[.,]\d+)/i
     ].freeze
 
     # ── Valeur Ug (coeff vitrage seul) ────────────────────────────────────────────
@@ -27,7 +27,7 @@ module Ocr
       /\bU\s*vitrage\s*[=:]\s*(\d+[.,]\d+)/i,
       /\bU\s*glas\s*[=:]\s*(\d+[.,]\d+)/i,
       /\bUg(?:las)?\s*[=:]\s*(\d+[.,]\d+)/i,
-      /\btransmittance\s+(?:thermique\s+)?(?:du\s+)?vitrage\s*[=:]\s*(\d+[.,]\d+)/i,
+      /\btransmittance\s+(?:thermique\s+)?(?:du\s+)?vitrage\s*[=:]\s*(\d+[.,]\d+)/i
     ].freeze
 
     # ── Valeur Uf (coeff cadre / châssis) ─────────────────────────────────────────
@@ -35,7 +35,7 @@ module Ocr
       /\bUf\s*[=:]\s*(\d+[.,]\d+)\s*(?:W\s*\/\s*m[²2]K?)?/i,
       /\bU\s*cadre\s*[=:]\s*(\d+[.,]\d+)/i,
       /\bU\s*frame\s*[=:]\s*(\d+[.,]\d+)/i,
-      /\bUf(?:rame)?\s*[=:]\s*(\d+[.,]\d+)/i,
+      /\bUf(?:rame)?\s*[=:]\s*(\d+[.,]\d+)/i
     ].freeze
 
     # ── Facteur solaire g (g-value) ───────────────────────────────────────────────
@@ -44,7 +44,7 @@ module Ocr
       /\bfacteur\s+solaire\s*[=:]\s*(0[.,]\d+)/i,
       /\bzonnefactor\s*[=:]\s*(0[.,]\d+)/i,
       /\bg[\-\s]?value\s*[=:]\s*(0[.,]\d+)/i,
-      /\btransmittance\s+solaire\s+totale\s*[=:]\s*(0[.,]\d+)/i,
+      /\btransmittance\s+solaire\s+totale\s*[=:]\s*(0[.,]\d+)/i
     ].freeze
 
     # ── Type de vitrage ──────────────────────────────────────────────────────────
@@ -53,7 +53,7 @@ module Ocr
       'double'       => [/\bdouble\s*(?:vitrage|glazing|glass|glas)\b/i, /\bdubbelglas\b/i, /\b2\s*fach\b/i],
       'hr_plus_plus' => [/\bHR\s*\+{2,}\b/i, /\bhoog\s*rendements?\s*glas\b/i],
       'hr_plus'      => [/\bHR\s*\+\b/i],
-      'monolithique' => [/\bsimple\s*vitrage\b/i, /\bsimplex\b/i, /\benkelglas\b/i],
+      'monolithique' => [/\bsimple\s*vitrage\b/i, /\bsimplex\b/i, /\benkelglas\b/i]
     }.freeze
 
     # ── Type de châssis / matériau ────────────────────────────────────────────────
@@ -61,7 +61,7 @@ module Ocr
       'pvc'       => [/\bP\.?V\.?C\.?\b/i, /\bpolyvinylchloride\b/i, /\bkunststof\b/i],
       'aluminium' => [/\balu(?:minium|minio)?\b/i, /\baluminium\b/i],
       'bois'      => [/\bbois\b/i, /\bhout(?:en)?\b/i, /\bholz\b/i],
-      'mixte'     => [/\bbois\s*[–\-]\s*alu/i, /\bhout\s*[–\-]\s*alu/i, /\bcomposit[e]?\b/i],
+      'mixte'     => [/\bbois\s*[–\-]\s*alu/i, /\bhout\s*[–\-]\s*alu/i, /\bcomposit[e]?\b/i]
     }.freeze
 
     # ── Fabricants connus ─────────────────────────────────────────────────────────
@@ -77,14 +77,14 @@ module Ocr
     SURFACE_CHASSIS_PATTERNS = [
       /surface\s+(?:totale\s+)?(?:de\s+)?(?:châssis|vitrage|fenêtres?)\s*[=:]\s*(\d+[.,]\d*)\s*m[²2]/i,
       /(\d+[.,]\d*)\s*m[²2]\s+(?:de\s+)?(?:châssis|vitrage|fenêtres?)/i,
-      /totale?\s+(?:opp(?:ervlak(?:te)?)?|surface)\s*[=:]\s*(\d+[.,]\d*)\s*m[²2]/i,
+      /totale?\s+(?:opp(?:ervlak(?:te)?)?|surface)\s*[=:]\s*(\d+[.,]\d*)\s*m[²2]/i
     ].freeze
 
     UNITES_PATTERNS = [
       /(\d+)\s*(?:fenêtres?|portes?\s+fenêtres?|porte-fenêtres?|baies?|châssis|ramen?|kozijnen?)/i,
       /\bnombre\s+d['']unités?\s*[=:]\s*(\d+)/i,
       /\baantal\s+(?:ramen?|stuks?|eenheden?)\s*[=:]\s*(\d+)/i,
-      /\bqt[eé]?\s*[=:]\s*(\d+)\s+(?:fenêtres?|châssis)/i,
+      /\bqt[eé]?\s*[=:]\s*(\d+)\s+(?:fenêtres?|châssis)/i
     ].freeze
 
     # ── Point d'entrée ────────────────────────────────────────────────────────────
@@ -201,7 +201,7 @@ module Ocr
       patterns = [
         /r[eé]f(?:érence)?\s*[.:\-]?\s*([A-Z0-9][\w\-\.\/]{3,30})/i,
         /(?:profil|système|modèle)\s*[:\-]?\s*([A-Z][\w\-]{3,25})/i,
-        /article\s*[:\-]?\s*([A-Z0-9][\w\-]{3,25})/i,
+        /article\s*[:\-]?\s*([A-Z0-9][\w\-]{3,25})/i
       ]
       patterns.each do |p|
         return $1 if texte.match(p)
@@ -214,7 +214,7 @@ module Ocr
         /poseur\s*[:\-]?\s*([A-Z][A-Za-zÀ-ÿ\s\-&]{3,50})/i,
         /installateur\s*[:\-]?\s*([A-Z][A-Za-zÀ-ÿ\s\-&]{3,50})/i,
         /plaatser\s*[:\-]?\s*([A-Z][A-Za-zÀ-ÿ\s\-&]{3,50})/i,
-        /entrepreneur\s*[:\-]?\s*([A-Z][A-Za-zÀ-ÿ\s\-&]{3,50})/i,
+        /entrepreneur\s*[:\-]?\s*([A-Z][A-Za-zÀ-ÿ\s\-&]{3,50})/i
       ]
       patterns.each do |p|
         return $1.strip if texte.match(p)
@@ -251,7 +251,7 @@ module Ocr
     def extraire_date_document(texte)
       patterns = [
         /(?:date|datum|le)\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.](?:20)?\d{2})/i,
-        /(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]20\d{2})/,
+        /(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]20\d{2})/
       ]
       patterns.each do |p|
         if (m = texte.match(p))
@@ -269,7 +269,7 @@ module Ocr
       patterns = [
         /(?:bordereau|bon\s+de\s+commande|fiche\s+technique|offre)\s*[n°no]?\s*[:\-]?\s*([A-Z0-9\-\/\.]{3,25})/i,
         /r[eé]f(?:érence)?\s*bordereau\s*[:\-]?\s*([A-Z0-9\-\/\.]{3,25})/i,
-        /doc(?:ument)?\s*[n°]\s*[:\-]?\s*([A-Z0-9\-\/\.]{3,20})/i,
+        /doc(?:ument)?\s*[n°]\s*[:\-]?\s*([A-Z0-9\-\/\.]{3,20})/i
       ]
       patterns.each do |p|
         return $1 if texte.match(p)
@@ -337,7 +337,7 @@ module Ocr
         /Total\s+g[eé]n[eé]ral.*?(\d[\d.,]+)\s*EUR/im,
         /Montant\s+HT\s*\n\s*(\d[\d.,\s]+)\s*EUR/im,
         /SOUS[-\s]?TOTAL\s*[\n\s]*([\d.,\s]+)\s*[€EUR]/i,
-        /Total(?:\s+hors\s+TVA|\s+HT)[:\s]+(\d[\d.,\s]+)\s*[€EUR]/i,
+        /Total(?:\s+hors\s+TVA|\s+HT)[:\s]+(\d[\d.,\s]+)\s*[€EUR]/i
       ]
       patterns.each do |p|
         if (m = texte.match(p))
@@ -355,7 +355,7 @@ module Ocr
         /Total\s+g[eé]n[eé]ral.*?(\d[\d.,\s]+)\s*EUR\s+\d[\d.,\s]*\s*EUR\s+(\d[\d.,\s]+)\s*EUR/im,
         /TOTAL\s+TTC[:\s]*(\d[\d.,\s]+)\s*[€EUR]/i,
         /Total\s+TTC[:\s]*\n?[\s]*(\d[\d.,\s]+)\s*[€EUR]/im,
-        /Montant\s+TTC[:\n\s]*(\d[\d.,\s]+)\s*EUR/im,
+        /Montant\s+TTC[:\n\s]*(\d[\d.,\s]+)\s*EUR/im
       ]
       patterns.each do |p|
         if (m = texte.match(p))
@@ -371,7 +371,7 @@ module Ocr
       patterns = [
         /TVA\s+(\d+)\s*%/i,
         /(\d+)\s*%\s*(?:de\s+)?TVA/i,
-        /BTW\s+(\d+)\s*%/i,
+        /BTW\s+(\d+)\s*%/i
       ]
       patterns.each do |p|
         if (m = texte.match(p))

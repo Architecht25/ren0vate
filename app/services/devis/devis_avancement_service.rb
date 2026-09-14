@@ -26,7 +26,7 @@ module Devis
       { code: 'plomberie',         label: 'Plomberie & Sanitaires' },
       { code: 'energies_renouv',   label: 'Énergies Renouvelables' },
       { code: 'revetements_sol',   label: 'Carrelage & Revêtements de Sol' },
-      { code: 'peinture_finitions',label: 'Peinture & Finitions' },
+      { code: 'peinture_finitions', label: 'Peinture & Finitions' },
       { code: 'menuiseries_int',   label: 'Menuiseries Intérieures' },
       { code: 'abords_divers',     label: 'Abords, Terrasse & Divers' }
     ].freeze

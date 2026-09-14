@@ -64,7 +64,7 @@ module Admin
         canceled_this_month:  canceled_this_month,
         new_users_this_month: new_users_this_month,
         conversion_rate:      conversion_rate,
-        mrr_growth:           mrr_growth,
+        mrr_growth:           mrr_growth
       }
     end
   end

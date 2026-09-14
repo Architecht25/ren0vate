@@ -22,13 +22,13 @@ module Ocr
       /revenu\s+imposable\s+globalement?\s*[:\-]?\s*([\d\s.,]+)/i,
       /(?:total|revenu)\s+net\s+imposable\s*[:\-]?\s*([\d\s.,]+)/i,
       /revenus?\s+nets?\s+imposables?\s*[:\-]?\s*([\d\s.,]+)/i,
-      /base\s+imposable\s*[:\-]?\s*([\d\s.,]+)/i,
+      /base\s+imposable\s*[:\-]?\s*([\d\s.,]+)/i
     ].freeze
 
     REVENU_GLOBAL_NL = [
       /gezamenlijk\s+belastbaar\s+inkomen\s*[:\-]?\s*([\d\s.,]+)/i,
       /netto\s+belastbaar\s+inkomen\s*[:\-]?\s*([\d\s.,]+)/i,
-      /belastbare\s+basis\s*[:\-]?\s*([\d\s.,]+)/i,
+      /belastbare\s+basis\s*[:\-]?\s*([\d\s.,]+)/i
     ].freeze
 
     # ── Détection colonne conjoint ───────────────────────────────────────────────
@@ -119,7 +119,7 @@ module Ocr
         nom_contribuable:           nom,
         prenom_contribuable:        prenom,
         adresse_contribuable:       extraire_adresse(lignes),
-        date_enrolement:            extraire_date_enrolement(texte),
+        date_enrolement:            extraire_date_enrolement(texte)
       }
     end
 
@@ -155,12 +155,12 @@ module Ocr
         /revenu\s+imposable\s+globalement/i,
         /revenu\s+net\s+imposable/i,
         /revenus?\s+nets?\s+imposables?/i,
-        /base\s+imposable/i,
+        /base\s+imposable/i
       ]
       line_patterns_nl = [
         /gezamenlijk\s+belastbaar\s+inkomen/i,
         /netto\s+belastbaar\s+inkomen/i,
-        /belastbare\s+basis/i,
+        /belastbare\s+basis/i
       ]
       line_patterns = line_patterns_fr + line_patterns_nl
 

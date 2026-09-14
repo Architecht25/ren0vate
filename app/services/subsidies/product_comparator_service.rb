@@ -123,7 +123,7 @@ module Subsidies
       # Prix total projet
       total_price = if surface && product.price_unit == 'm2'
                       product.price_for_surface(surface)
-                    else
+      else
                       product.price_per_unit&.to_i
                     end
 

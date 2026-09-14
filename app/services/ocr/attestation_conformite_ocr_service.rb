@@ -25,7 +25,7 @@ module Ocr
       /F-ELS\d+/i  => 'ELECTROTEST',
       /RAPP\.VIN/i => 'Vinçotte',
       /RAPP\.APV/i => 'APAVE',
-      /RAPP\.BTV/i => 'BTV',
+      /RAPP\.BTV/i => 'BTV'
     }.freeze
 
     # ── Numéro de rapport ─────────────────────────────────────────────────────

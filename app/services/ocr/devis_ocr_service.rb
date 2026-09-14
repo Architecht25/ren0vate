@@ -13,21 +13,21 @@ module Ocr
       /offre\s+valable\s+(?:jusqu(?:'|au)\s+)?(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4})/i,
       /expir[ae]\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4})/i,
       /(?:date\s+)?(?:d[''])?expiration\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4})/i,
-      /(?:geldig|geldigheid)\s*(?:tot|t\.e\.m\.)\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4})/i,
+      /(?:geldig|geldigheid)\s*(?:tot|t\.e\.m\.)\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4})/i
     ].freeze
 
     # ── Surface de travaux ────────────────────────────────────────────────────────
     SURFACE_PATTERNS = [
       /(\d+(?:[.,]\d+)?)\s*m[²2]/i,
       /surface\s*[:\-]?\s*(\d+(?:[.,]\d+)?)\s*m/i,
-      /(\d+(?:[.,]\d+)?)\s*m(?:ètres?\s+carrés?|etres?\s+carres?)/i,
+      /(\d+(?:[.,]\d+)?)\s*m(?:ètres?\s+carrés?|etres?\s+carres?)/i
     ].freeze
 
     # ── Numéro de devis ───────────────────────────────────────────────────────────
     NUMERO_DEVIS_PATTERNS = [
       /(?:devis|offre|cotation|ref(?:érence)?)\s*n[°o]?\s*[:\-]?\s*([A-Z0-9\-\/\.]{3,25})/i,
       /(?:bestek|offerte|ref(?:erentie)?)\s*n[°o]?\s*[:\-]?\s*([A-Z0-9\-\/\.]{3,25})/i,
-      /n[°o]\s*(?:devis|offre)\s*[:\-]?\s*([A-Z0-9\-\/\.]{3,25})/i,
+      /n[°o]\s*(?:devis|offre)\s*[:\-]?\s*([A-Z0-9\-\/\.]{3,25})/i
     ].freeze
 
     # ── Mots-clés de détection des types de travaux ───────────────────────────────
@@ -36,23 +36,23 @@ module Ocr
         /\bisol(?:ation|ant)\s+(?:de\s+)?(?:la\s+)?toit(?:ure)?/i,
         /\bisol(?:ation|ant)\s+(?:en\s+)?(?:grenier|comble|toiture)/i,
         /\bdakisolatie\b/i,
-        /\bzolderisolatie\b/i,
+        /\bzolderisolatie\b/i
       ],
       'isolation_facade' => [
         /\bisol(?:ation|ant)\s+(?:des?\s+)?fa[cç]ade[sx]?/i,
         /\bisol(?:ation|ant)\s+(?:par\s+)?(?:l[''])?ext[eé]rieure?/i,
         /\bgevelisolatie\b/i,
-        /\beps\s+(?:graphit[eé]|fa[cç]ade)\b/i,
+        /\beps\s+(?:graphit[eé]|fa[cç]ade)\b/i
       ],
       'isolation_sol' => [
         /\bisol(?:ation|ant)\s+(?:du\s+)?(?:plancher|sol|dalle)/i,
         /\bvloerisolatie\b/i,
-        /\bdalvloer(?:isolatie)?\b/i,
+        /\bdalvloer(?:isolatie)?\b/i
       ],
       'isolation_murs' => [
         /\bisol(?:ation|ant)\s+(?:des?\s+)?mur[sx]?/i,
         /\bisolation\s+(?:par\s+)?l['']int[eé]rieure?/i,
-        /\bmuuisolatie\b/i,
+        /\bmuuisolatie\b/i
       ],
       'chassis_vitrage' => [
         /\bch[aâ]ssis\b/i,
@@ -63,7 +63,7 @@ module Ocr
         /\bdubbelglas\b/i,
         /\bdrieglas\b/i,
         /\bramen?\b/i,
-        /\bvelux\b/i,
+        /\bvelux\b/i
       ],
       'chauffage' => [
         /\bchaudi[eè]re\b/i,
@@ -71,7 +71,7 @@ module Ocr
         /\bradiateur\b/i,
         /\btubage\b/i,
         /\bketel\b/i,
-        /\bverwarm(?:ing|ingsinstallatie)\b/i,
+        /\bverwarm(?:ing|ingsinstallatie)\b/i
       ],
       'sanitaire' => [
         /\bsanitaire\b/i,
@@ -81,7 +81,7 @@ module Ocr
         /\btuyauterie\s+(?:eau|sanitaire)/i,
         /\brobinet\b/i,
         /\bcullasse\b/i,
-        /\bdistributeur\s+eau/i,
+        /\bdistributeur\s+eau/i
       ],
       'electricite' => [
         /\b[eé]lectricit[eé]\b/i,
@@ -92,13 +92,13 @@ module Ocr
         /\bcoffret\b/i,
         /\bprise(?:s)?\b/i,
         /\binterrupteur\b/i,
-        /\belectriciteit\b/i,
+        /\belectriciteit\b/i
       ],
       'gaz' => [
         /\bgaz\b/i,
         /\btuyauterie\s+gaz\b/i,
         /\bconformit[eé]\s+gaz\b/i,
-        /\bgas(?:leiding|installatie)?\b/i,
+        /\bgas(?:leiding|installatie)?\b/i
       ],
       'maconnerie' => [
         /\bmaçonnerie\b/i,
@@ -106,14 +106,14 @@ module Ocr
         /\bbeton\b/i,
         /\bdallage\b/i,
         /\bpavage\b/i,
-        /\bmetselwerk\b/i,
+        /\bmetselwerk\b/i
       ],
       'carrelage_revetement' => [
         /\bcarrelage\b/i,
         /\bparquet\b/i,
         /\brevetement\s+(?:sol|mur)/i,
         /\btegels?\b/i,
-        /\bvloer(?:tegels?|bekleding)\b/i,
+        /\bvloer(?:tegels?|bekleding)\b/i
       ],
       'plafonnage_peinture' => [
         /\bplafonn(?:age|er)\b/i,
@@ -121,7 +121,7 @@ module Ocr
         /\benduit\b/i,
         /\bgyp(?:lak|se|lat)\b/i,
         /\bplafond\s+suspendu\b/i,
-        /\bpleisterwerk\b/i,
+        /\bpleisterwerk\b/i
       ],
       'toiture' => [
         /\btoiture\b/i,
@@ -129,49 +129,49 @@ module Ocr
         /\bgoutti[eè]re[sx]?\b/i,
         /\bartisans?\s+couvreur/i,
         /\bdakwerken?\b/i,
-        /\bdakbedekking\b/i,
+        /\bdakbedekking\b/i
       ],
       'pompe_chaleur' => [
         /\bpompe\s+[aà]\s+chaleur\b/i,
         /\bpac\b/i,
         /\bwarmtepomp\b/i,
-        /\bheat\s+pump\b/i,
+        /\bheat\s+pump\b/i
       ],
       'ventilation' => [
         /\bventil(?:ation|ateur)\b/i,
         /\bvmc\b/i,
         /\bdouble\s+flux\b/i,
-        /\bventilatie\b/i,
+        /\bventilatie\b/i
       ],
       'eclairage' => [
         /\b[eé]cl(?:airage|aire)\b/i,
         /\bpoint(?:s)?\s+lumineux\b/i,
         /\bluminaire\b/i,
         /\bverlichting\b/i,
-        /\bled\s+lamp/i,
+        /\bled\s+lamp/i
       ],
       'photovoltaique' => [
         /\bphotovolta[ïi]que\b/i,
         /\bpanneau(?:x)?\s+solaires?\b/i,
-        /\bzonnepanelen?\b/i,
+        /\bzonnepanelen?\b/i
       ],
       'chauffe_eau_thermodynamique' => [
         /\bchauffe[\-\s]eau\s+(?:thermodynamique|solaire|thermo)\b/i,
         /\bcet\b/i,
         /\bboiler\s+thermodynamique\b/i,
-        /\bwarmtepompboiler\b/i,
+        /\bwarmtepompboiler\b/i
       ],
       'audit_energetique' => [
         /\baudit\s+[eé]nerg[eé]tique\b/i,
-        /\benergieaudit\b/i,
+        /\benergieaudit\b/i
       ],
       'renovation_generale' => [
         /r[eé]novation\s+(?:g[eé]n[eé]rale|complète|maison|immeuble)/i,
         /\br[eé]nover\s+(?:une?\s+)?(?:maison|immeuble|b[aâ]timent)/i,
         /transformation\s+(?:de\s+)?(?:maison|appartement|immeuble)/i,
         /r[eé]habilitation\s+(?:compl[eè]te|totale|maison)/i,
-        /travaux\s+(?:de\s+)?r[eé]novation/i,
-      ],
+        /travaux\s+(?:de\s+)?r[eé]novation/i
+      ]
     }.freeze
 
     def initialize(file, language: 'fra+nld')
@@ -214,7 +214,7 @@ module Ocr
       champs_facture = {
         nom_entreprise:        extraire_nom_entreprise(texte),
         numero_bce_entreprise: extraire_numero_bce(texte),
-        taux_tva:              extraire_taux_tva(texte),
+        taux_tva:              extraire_taux_tva(texte)
       }
 
       montant_ht   = extraire_montant_ht(texte)
@@ -236,7 +236,7 @@ module Ocr
     def extraire_numero_tva(texte)
       patterns = [
         /(?:t\.?v\.?a\.?|tva|btw)\s*(?:n[°o]\.?|number|num)?\s*[:\-]?\s*(?:BE\s*)?([\d]{4}[.\s]?[\d]{3}[.\s]?[\d]{3})/i,
-        /(?:be|belgique)\s*([\d]{4}[.\s]?[\d]{3}[.\s]?[\d]{3})/i,
+        /(?:be|belgique)\s*([\d]{4}[.\s]?[\d]{3}[.\s]?[\d]{3})/i
       ]
       patterns.each do |pattern|
         m = texte.match(pattern)
@@ -255,7 +255,7 @@ module Ocr
         /(?:total\s*(?:ttc|tvac)|montant\s*(?:ttc|tvac)|somme\s*(?:ttc|tvac))\s*[:\-]?\s*([0-9]{1,3}(?:[.\s][0-9]{3})*(?:,[0-9]{1,2})?)\s*[€]/i,
         /(?:total\s*(?:ttc|tvac)|montant\s*(?:ttc|tvac)|somme\s*(?:ttc|tvac))\s*[:\-]?\s*([0-9]{1,3}(?:[,\s][0-9]{3})*(?:\.[0-9]{1,2})?)\s*[€]/i,
         /([0-9]{1,3}(?:[.\s][0-9]{3})*(?:,[0-9]{1,2})?)\s*[€]\s*(?:tvac|ttc)/i,
-        /(?:total\s+(?:général|general|devis))\s*[:\-]?\s*([0-9]{1,3}(?:[.\s][0-9]{3})*(?:,[0-9]{1,2})?)\s*[€]/i,
+        /(?:total\s+(?:général|general|devis))\s*[:\-]?\s*([0-9]{1,3}(?:[.\s][0-9]{3})*(?:,[0-9]{1,2})?)\s*[€]/i
       ]
       patterns.each do |pattern|
         m = texte.match(pattern)
@@ -272,7 +272,7 @@ module Ocr
       patterns = [
         /(?:date\s+(?:du\s+)?devis|devis\s+(?:du|en\s+date\s+du))\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4})/i,
         /(?:datum\s+(?:offerte|bestek))\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4})/i,
-        /(?:date\s*:|le\s*:)\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4})/i,
+        /(?:date\s*:|le\s*:)\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4})/i
       ]
       patterns.each do |pattern|
         m = texte.match(pattern)

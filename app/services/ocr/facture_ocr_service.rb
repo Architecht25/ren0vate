@@ -30,7 +30,7 @@ module Ocr
       # "N° : 106" ou "Num : FA2024-001"
       /\bN[°o]\s*[:\-]\s*([A-Z0-9\-\/]{1,20})\b/i,
       /(?:facture|fact|numéro|num)\s+n[°o]?\s*[:\-]?\s*([A-Z0-9\-\/]{1,20})\b/i,
-      /(?:invoice|bill)\s*(?:number|no|#)\s*[:\-]?\s*([A-Z0-9\-\/]{1,20})\b/i,
+      /(?:invoice|bill)\s*(?:number|no|#)\s*[:\-]?\s*([A-Z0-9\-\/]{1,20})\b/i
     ].freeze
 
     TVA_PATTERNS = [

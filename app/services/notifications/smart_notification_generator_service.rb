@@ -253,7 +253,6 @@ module Notifications
           .distinct
           .includes(:notifications)
           .each do |user|
-
         unless user.notifications.where(
           type: 'conseil_optimisation',
           created_at: 15.days.ago..Time.current

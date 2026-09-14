@@ -212,9 +212,9 @@ module Factures
 
       statut = if pourcentage_complete >= 90 && pourcentage_validee >= 50
                  'complete'
-               elsif pourcentage_complete >= 70
+      elsif pourcentage_complete >= 70
                  'acceptable'
-               else
+      else
                  'incomplete'
                end
 
