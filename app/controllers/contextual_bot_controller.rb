@@ -13,13 +13,13 @@ class ContextualBotController < ApplicationController
     property_id = params[:property_id].presence
     bot         = build_bot_service(property_id: property_id)
 
-    result = if bot.is_a?(ProContextualBotService)
+    result = if bot.is_a?(Bots::ProContextualBotService)
                bot.chat(message, mode: mode, locale: I18n.locale)
              else
                bot.chat(message, mode: mode, current_page: current_page, locale: I18n.locale)
              end
 
-    suggestions = if bot.is_a?(ProContextualBotService)
+    suggestions = if bot.is_a?(Bots::ProContextualBotService)
                    bot.get_suggestions
                  else
                    bot.get_suggestions(current_page, mode)
@@ -50,7 +50,7 @@ class ContextualBotController < ApplicationController
                     .map(&:project)
                     .find { |pr| pr.id.to_s == property_id.to_s }
       end
-      return ProContextualBotService.new(
+      return Bots::ProContextualBotService.new(
         current_user,
         pro_role:  pro_role,
         project:   project,
@@ -59,7 +59,7 @@ class ContextualBotController < ApplicationController
     end
 
     property = current_user.properties.find_by(id: property_id) if property_id
-    ContextualBotService.new(current_user, history_cache_key, property: property)
+    Bots::ContextualBotService.new(current_user, history_cache_key, property: property)
   end
 
   # Résout le rôle pro en fusionnant user_profile, professional_type et ProjectMember actifs.

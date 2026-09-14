@@ -41,7 +41,7 @@ class Api::SubsidyBotController < ApplicationController
       "subsidy_bot_guest_#{session.id}"
     end
 
-    SubsidyBotService.new(
+    Bots::SubsidyBotService.new(
       user:      user_signed_in? ? current_user : nil,
       cache_key: cache_key,
       region:    params[:region].presence

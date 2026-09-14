@@ -111,7 +111,7 @@ class OcrController < ApplicationController
       is_facture = @document.type_document == 'facture'
 
       if is_facture
-        facture_service = FactureClaudeService.new(uploaded_file)
+        facture_service = Bots::FactureClaudeService.new(uploaded_file)
         result = facture_service.extraire_donnees_facture
       else
         ocr_service = Ocr::OcrService.new(uploaded_file)
@@ -510,7 +510,7 @@ class OcrController < ApplicationController
 
       categorie = params[:categorie_emetteur].presence_in(%w[architecte entrepreneur autre]) || 'entrepreneur'
 
-      devis_service = DevisClaudeService.new(params[:file], categorie: categorie)
+      devis_service = Bots::DevisClaudeService.new(params[:file], categorie: categorie)
       result        = devis_service.extraire_donnees_devis
 
       unless result[:success]
@@ -641,7 +641,7 @@ class OcrController < ApplicationController
     begin
       project = current_user.projects.find(params[:project_id])
 
-      service = BordereauChassisClaudeService.new(params[:file])
+      service = Bots::BordereauChassisClaudeService.new(params[:file])
       result  = service.extraire_donnees_bordereau
 
       unless result[:success]

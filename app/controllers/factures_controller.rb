@@ -41,7 +41,7 @@ class FacturesController < ApplicationController
 
       if @document.save
         # Effectuer l'extraction intelligente pour factures (Claude → fallback OCR)
-        facture_ocr_service = FactureClaudeService.new(params[:file])
+        facture_ocr_service = Bots::FactureClaudeService.new(params[:file])
         ocr_result = facture_ocr_service.extraire_donnees_facture
 
         if ocr_result[:success] && ocr_result[:donnees_facture]

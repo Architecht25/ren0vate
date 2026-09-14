@@ -12,7 +12,7 @@
 # Usage :
 #   document.file.blob.open do |tempfile|
 #     file = ActiveStorageFileAdapter.new(tempfile, document.file.content_type)
-#     AuditEnergClaudeService.new(file).extraire_donnees_audit
+#     Bots::AuditEnergClaudeService.new(file).extraire_donnees_audit
 #   end
 
 class ActiveStorageFileAdapter

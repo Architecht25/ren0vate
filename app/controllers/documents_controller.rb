@@ -176,14 +176,14 @@ class DocumentsController < ApplicationController
         if Document::CLAUDE_TYPES.include?(type)
           case type
           when 'facture'
-            facture_service = FactureClaudeService.new(file)
+            facture_service = Bots::FactureClaudeService.new(file)
             facture_ocr_result = facture_service.extraire_donnees_facture
             ocr_result = facture_ocr_result
           when 'devis'
-            service = DevisClaudeService.new(file)
+            service = Bots::DevisClaudeService.new(file)
             ocr_result = service.extraire_donnees_devis
           when 'bordereau_chassis'
-            service = BordereauChassisClaudeService.new(file)
+            service = Bots::BordereauChassisClaudeService.new(file)
             ocr_result = service.extraire_donnees_bordereau
           end
         elsif Document::OCR_TYPES.include?(type) || upload_mode == 'ocr'

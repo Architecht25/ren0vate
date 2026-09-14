@@ -1,5 +1,5 @@
 # Configuration spécifique au bot contextuel avec optimisations de performance
-# Ces paramètres sont utilisés par ContextualBotService pour optimiser les performances
+# Ces paramètres sont utilisés par Bots::ContextualBotService pour optimiser les performances
 
 # Timeout pour les requêtes OpenAI (en secondes) - réduit pour performances
 CONTEXTUAL_BOT_TIMEOUT = 8
