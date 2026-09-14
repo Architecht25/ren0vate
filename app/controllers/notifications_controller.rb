@@ -127,7 +127,7 @@ class NotificationsController < ApplicationController
   end
 
   def generate_automatic
-    service = NotificationService.new
+    service = Notifications::NotificationService.new
     count = service.generate_all_automatic_notifications
 
     respond_to do |format|

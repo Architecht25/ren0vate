@@ -5,7 +5,7 @@ namespace :notifications do
     puts Time.current.strftime("Exécuté le %d/%m/%Y à %H:%M")
     puts "=" * 60
 
-    results = SmartNotificationGeneratorService.generate_all
+    results = Notifications::SmartNotificationGeneratorService.generate_all
 
     puts "\n📈 RAPPORT D'EXÉCUTION:"
     puts "=" * 30

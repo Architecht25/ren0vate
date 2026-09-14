@@ -120,7 +120,7 @@ class AdminController < ApplicationController
   end
 
   def generate_notifications
-    results = SmartNotificationGeneratorService.generate_all
+    results = Notifications::SmartNotificationGeneratorService.generate_all
 
     render json: {
       success: true,

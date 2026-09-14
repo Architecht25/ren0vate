@@ -174,15 +174,15 @@ class RequestProgress < ApplicationRecord
   end
 
   def send_test_notification(user_email = 'robin@primes-services.be')
-    TrackingEmailTestService.new(self).send_test_notification_to_user(user_email)
+    Notifications::TrackingEmailTestService.new(self).send_test_notification_to_user(user_email)
   end
 
   def simulate_admin_response(from_email = 'robin@primes-services.be')
-    TrackingEmailTestService.new(self).simulate_admin_email_response(from_email)
+    Notifications::TrackingEmailTestService.new(self).simulate_admin_email_response(from_email)
   end
 
   def test_full_email_cycle(user_email = 'robin@primes-services.be')
-    TrackingEmailTestService.new(self).run_full_test_cycle(user_email)
+    Notifications::TrackingEmailTestService.new(self).run_full_test_cycle(user_email)
   end
 
   def parsed_extracted_data

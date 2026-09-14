@@ -6,7 +6,7 @@ namespace :notifications do
     start_time = Time.current
     initial_count = Notification.count
 
-    NotificationService.generate_automatic_notifications
+    Notifications::NotificationService.generate_automatic_notifications
 
     end_time = Time.current
     new_count = Notification.count
