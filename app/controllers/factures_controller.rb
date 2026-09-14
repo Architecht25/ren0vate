@@ -6,13 +6,13 @@ class FacturesController < ApplicationController
   # GET /projects/:project_id/factures
   def index
     @factures = @project.factures.includes(:document).order(:date_facture)
-    @validation_service = FactureValidationService.new(@project)
+    @validation_service = Factures::FactureValidationService.new(@project)
     @analyse = @validation_service.analyser_factures
   end
 
   # GET /projects/:project_id/factures/dashboard
   def dashboard
-    @validation_service = FactureValidationService.new(@project)
+    @validation_service = Factures::FactureValidationService.new(@project)
     @analyse = @validation_service.analyser_factures
 
     @factures_devis = @project.factures_devis.includes(:document)
@@ -89,7 +89,7 @@ class FacturesController < ApplicationController
 
     if @facture.update(valide_manuellement: true)
       # Recalculer les analyses après validation
-      @validation_service = FactureValidationService.new(@project)
+      @validation_service = Factures::FactureValidationService.new(@project)
       @analyse = @validation_service.analyser_factures
 
       render json: {

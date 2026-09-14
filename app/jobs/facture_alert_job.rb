@@ -6,7 +6,7 @@ class FactureAlertJob < ApplicationJob
 
     begin
       # Vérifier les alertes automatiques
-      resultats = FactureAlertService.verifier_alertes_automatiques
+      resultats = Factures::FactureAlertService.verifier_alertes_automatiques
 
       # Logger les résultats
       Rails.logger.info "Alertes factures vérifiées: #{resultats[:notifications_creees]} notifications créées"

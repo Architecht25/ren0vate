@@ -4,7 +4,7 @@ namespace :factures do
     puts "🔍 Début de vérification des alertes factures..."
 
     begin
-      resultats = FactureAlertService.verifier_alertes_automatiques
+      resultats = Factures::FactureAlertService.verifier_alertes_automatiques
 
       puts "✅ Vérification terminée!"
       puts "📊 Résultats:"
@@ -73,7 +73,7 @@ namespace :factures do
     puts "=" * 60
 
     Project.joins(:factures).group(:id).each do |project|
-      validation_service = FactureValidationService.new(project)
+      validation_service = Factures::FactureValidationService.new(project)
       analyse = validation_service.analyser_factures
 
       # Afficher seulement les projets avec des problèmes
