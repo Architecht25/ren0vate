@@ -17,9 +17,9 @@ class AdminController < ApplicationController
     @request_progresses = RequestProgress.all
     @simulations       = Simulation.all
     @users             = User.all
-    @backup_status = BackupStatusService.call
-    @admin_stats = AdminStatsService.call
-    @system_info = SystemInfoService.collect_system_info
+    @backup_status = Admin::BackupStatusService.call
+    @admin_stats = Admin::AdminStatsService.call
+    @system_info = Admin::SystemInfoService.collect_system_info
 
     # Données de sécurité centralisées (évite les N+1 dans les partials)
     @security_stats = {
@@ -71,7 +71,7 @@ class AdminController < ApplicationController
       h[tier] = { count: subs.count, mrr: subs.count * price }
     end
     @mrr_total = @subscriptions_by_tier.values.sum { |v| v[:mrr] }
-    @saas_metrics = SaasMetricsService.call
+    @saas_metrics = Admin::SaasMetricsService.call
 
     # Onglet Support
     @support_tickets_recent = SupportTicket.includes(:user, :support_messages).order(created_at: :desc).limit(20)

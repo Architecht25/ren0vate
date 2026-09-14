@@ -182,7 +182,7 @@ module Notifications
           created_at: 6.days.ago..Time.current
         ).where("title LIKE ?", "%Rapport%").exists?
 
-          stats = AdminStatsService.call
+          stats = Admin::AdminStatsService.call
 
           Notification.create!(
             user: admin,
