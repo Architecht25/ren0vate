@@ -631,8 +631,8 @@ class PropertiesController < ApplicationController
       adresse: "#{property.numero} #{property.rue}",
       code_postal: property.code_postal,
       commune: property.commune,
-      type_bien: map_property_type(property),
-      usage: map_property_usage(property),
+      type_bien: property.mapped_type,
+      usage: property.mapped_usage,
       parcelle: property.numero_cadastre,
 
       # Données spécifiques pour patrimoine
@@ -664,28 +664,7 @@ class PropertiesController < ApplicationController
     }
   end
 
-  # Méthodes helper pour le mapping des données
-  def map_property_type(property)
-    case property.region&.downcase
-    when 'flandre'
-      property.type_bien_flandre
-    when 'wallonie'
-      property.type_propriete_wallonie
-    when 'bruxelles'
-      property.type_bien_bruxelles
-    else
-      property.type
-    end
-  end
-
-  def map_property_usage(property)
-    case property.region&.downcase
-    when 'flandre'
-      property.usage_flandre
-    else
-      property.usage || property.occupation
-    end
-  end
+  # map_property_type / map_property_usage fournis par Property#mapped_type / #mapped_usage
 
   def build_project_data(property)
     project = property.projects.first # Ou le projet actif

@@ -449,26 +449,9 @@ class DecisionHubController < ApplicationController
     {
       user_region: current_user.region || "wallonie",
       user_type: "particulier",
-      property_type: map_property_type(@property) || "maison",
+      property_type: @property&.mapped_type || "maison",
       simulation_total: @hub_data[:total_primes],
       selected_primes: @hub_data[:selected_primes].map { |p| p[:name] }
     }
   end
-
-  # Méthode helper pour mapper le type de propriété selon la région
-  def map_property_type(property)
-    return "maison" unless property
-
-    case property.region&.downcase
-    when 'flandre'
-      property.type_bien_flandre || "maison"
-    when 'wallonie'
-      property.type_propriete_wallonie || "maison"
-    when 'bruxelles'
-      property.type_bien_bruxelles || property.type || "maison"
-    else
-      property.type || "maison"
-    end
-  end
-
 end

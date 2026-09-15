@@ -48,8 +48,8 @@ module FormulairePreremplissageHelper
     {
       ean: preremplir_champ(form_data, :ean, property.ean_flandre || property.numero_ean),
       parcelle: preremplir_champ(form_data, :parcelle, property.numero_cadastre),
-      type_bien: preremplir_champ(form_data, :type_bien, map_property_type(property)),
-      usage: preremplir_champ(form_data, :usage, map_property_usage(property)),
+      type_bien: preremplir_champ(form_data, :type_bien, property.mapped_type),
+      usage: preremplir_champ(form_data, :usage, property.mapped_usage),
       chauffage_post_renovation: preremplir_champ(form_data, :chauffage_post_renovation, property.chauffage_post_renovation_flandre)
     }
   end
@@ -190,27 +190,5 @@ module FormulairePreremplissageHelper
      :property_cadastre_section, :property_cadastre_division, :property_cadastre_parcelle]
   end
 
-  private
-
-  def map_property_type(property)
-    case property.region&.downcase
-    when 'flandre'
-      property.type_bien_flandre
-    when 'wallonie'
-      property.type_propriete_wallonie
-    when 'bruxelles'
-      property.type_bien_bruxelles
-    else
-      property.type
-    end
-  end
-
-  def map_property_usage(property)
-    case property.region&.downcase
-    when 'flandre'
-      property.usage_flandre
-    else
-      property.usage || property.occupation
-    end
-  end
+  # map_property_type / map_property_usage fournis par Property#mapped_type / #mapped_usage
 end

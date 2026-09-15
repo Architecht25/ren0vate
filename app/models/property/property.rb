@@ -659,6 +659,32 @@ class Property < ApplicationRecord
     end
   end
 
+  # Type et usage du bien selon le champ propre à sa région (chaque région a
+  # sa propre colonne de type/usage sur Property). Centralisé ici après avoir
+  # trouvé ce mapping copié-collé à l'identique dans 4 endroits (properties_controller,
+  # requests_controller, decision_hub_controller, formulaire_preremplissage_helper).
+  def mapped_type
+    case region&.downcase
+    when 'flandre'
+      type_bien_flandre
+    when 'wallonie'
+      type_propriete_wallonie
+    when 'bruxelles'
+      type_bien_bruxelles
+    else
+      type
+    end
+  end
+
+  def mapped_usage
+    case region&.downcase
+    when 'flandre'
+      usage_flandre
+    else
+      usage || occupation
+    end
+  end
+
   def admin_fields_for_region
     # Champs de base communs à toutes les régions
     fields = [:rue, :numero, :code_postal, :commune, :region]

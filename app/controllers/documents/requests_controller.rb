@@ -1012,9 +1012,9 @@ class RequestsController < ApplicationController
                     else property.type_bien_flandre
                     end
                   else
-                    map_property_type(property)
+                    property.mapped_type
                   end),
-      usage: map_property_usage(property),
+      usage: property.mapped_usage,
       parcelle: property.numero_cadastre,
       chauffage_post_renovation: property.chauffage_post_renovation_flandre,
 
@@ -1066,25 +1066,5 @@ class RequestsController < ApplicationController
     end
   end
 
-  def map_property_type(property)
-    case property.region&.downcase
-    when 'flandre'
-      property.type_bien_flandre
-    when 'wallonie'
-      property.type_propriete_wallonie
-    when 'bruxelles'
-      property.type_bien_bruxelles
-    else
-      property.type
-    end
-  end
-
-  def map_property_usage(property)
-    case property.region&.downcase
-    when 'flandre'
-      property.usage_flandre
-    else
-      property.usage || property.occupation
-    end
-  end
+  # map_property_type / map_property_usage fournis par Property#mapped_type / #mapped_usage
 end
