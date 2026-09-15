@@ -1,8 +1,4 @@
 class SimulationsController < ApplicationController
-  # Exemptions temporaires pour les tests (à sécuriser en production)
-  skip_before_action :verify_authenticity_token, only: [:update_prime_inputs, :restore_prime_inputs]
-  skip_before_action :authenticate_user!, only: [:show, :update_prime_inputs, :restore_prime_inputs]
-
   # ✅ SÉCURITÉ: Vérifier que la simulation appartient à l'utilisateur pour les actions individuelles
   before_action :set_and_verify_simulation, only: [:show, :edit, :update, :destroy, :check_eligibility, :calculate_category, :calculate_primes, :calculate_prime, :update_prime_inputs, :restore_prime_inputs, :save_total]
 
@@ -800,14 +796,8 @@ class SimulationsController < ApplicationController
   def set_and_verify_simulation
     @simulation = Simulation.find(params[:id])
 
-    # Vérifier que la simulation appartient à l'utilisateur connecté (sauf si pas d'authentification requise)
-    if user_signed_in? && @simulation.user != current_user
+    if @simulation.user != current_user
       redirect_to root_path, alert: "Accès non autorisé à cette simulation"
-      nil
-    elsif !user_signed_in?
-      # Pour les actions sans authentification (show, update_prime_inputs, restore_prime_inputs)
-      # On autorise l'accès mais on limite les fonctionnalités
-      Rails.logger.info "🔓 Accès sans authentification à la simulation #{@simulation.id}"
     end
   end
 
