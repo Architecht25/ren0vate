@@ -1,12 +1,12 @@
 module FlandrePrimesHelper
   # Helper pour récupérer la condition d'une prime depuis la base de données
-  def condition_prime(slug)
+  def condition_prime_flandre(slug)
     prime = Prime.find_by(slug: slug)
     prime&.condition || "Conditions en cours de chargement..."
   end
 
   # Helper pour récupérer le conseil d'une prime depuis la base de données
-  def conseil_prime(slug)
+  def conseil_prime_flandre(slug)
     prime = Prime.find_by(slug: slug)
     prime&.conseil || "Conseil en cours de chargement..."
   end
