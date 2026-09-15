@@ -167,8 +167,7 @@
 
   <!-- SECTION FORMULAIRES ENTREPRISES -->
   <div id="entreprise-section" class="entreprise-section"
-       style="display: none;"
-       data-controller="entreprise-forms">
+       style="display: none;">
     <div class="card mb-4">
       <div class="card-header bg-success text-white">
         <div class="row align-items-center">
@@ -659,23 +658,6 @@
 
 <!-- Indicateur d'auto-save -->
 <%= render 'shared/auto_save_status' %>
-
-<% if @property.present? %>
-  <!-- Script pour initialiser automatiquement le formulaire avec bien pré-sélectionné -->
-  <script nonce="<%= content_security_policy_nonce %>">
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('🏠 Initialisation avec bien pré-sélectionné: <%= @property.region %>');
-
-      // Attendre que tout soit chargé puis déclencher l'initialisation
-      setTimeout(() => {
-        const event = new CustomEvent('propertyPreselected', {
-          detail: { region: '<%= @property.region %>' }
-        });
-        document.querySelector('[data-controller="request-form"]')?.dispatchEvent(event);
-      }, 500);
-    });
-  </script>
-<% end %>
 
 <% if @request.form_type.present? %>
   <script nonce="<%= content_security_policy_nonce %>">
