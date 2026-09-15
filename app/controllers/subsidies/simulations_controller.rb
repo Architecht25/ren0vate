@@ -455,43 +455,17 @@ class SimulationsController < ApplicationController
             updated_cards: updated_cards,
             message: "Total mis à jour avec nouvelles méthodes Flandre (PEB/Amiante inclus)"
           }
-        else
-          # Pour autres régions, utiliser l'ancien système pour l'instant
-          updater = Subsidies::SimulationPrimesUpdater.new(@simulation)
-          result = updater.update_user_inputs(user_inputs)
-
-          if result[:success]
-            @simulation.update!(total_simule: calculated_total)
-
-            render json: {
-              success: true,
-              total_amount: calculated_total,
-              updated_cards: result[:updated_cards],
-              message: "Total mis à jour avec ancien système Wallonie"
-            }
-          else
-            # Fallback si le service backend échoue
-            render json: {
-              success: true,
-              total_amount: calculated_total,
-              message: "Total mis à jour côté client (détails backend indisponibles)"
-            }
-          end
         end
         return
       end
 
       # Sinon utiliser l'ancienne méthode avec le service
-      # Rails.logger.info "🔧 Creating Subsidies::SimulationPrimesUpdater for simulation #{@simulation.id}"
       updater = Subsidies::SimulationPrimesUpdater.new(@simulation)
 
-      # Rails.logger.info "🔧 Calling update_user_inputs with: #{user_inputs.inspect}"
       result = updater.update_user_inputs(user_inputs)
 
-      # Rails.logger.info "🔧 Service returned: #{result.inspect}"
 
       if result[:success]
-        # Rails.logger.info "✅ Simulation #{@simulation.id} updated successfully: #{result[:total_amount]}€"
 
         render json: result
       else
@@ -537,7 +511,6 @@ class SimulationsController < ApplicationController
   def restore_prime_inputs
     # @simulation est déjà définie et vérifiée par before_action
 
-    # Rails.logger.info "🔄 Restoring prime inputs for simulation #{@simulation.id}"
 
     begin
       # Parser les paramètres de la simulation
@@ -634,7 +607,6 @@ class SimulationsController < ApplicationController
         end
       end
 
-      # Rails.logger.info "✅ Restored #{user_inputs.keys.length} user inputs for simulation #{@simulation.id}"
       render json: {
         success: true,
         user_inputs: user_inputs,
@@ -736,7 +708,6 @@ class SimulationsController < ApplicationController
   def recalculate_with_user_inputs(user_inputs)
     return {} unless @simulation.category.present?
 
-    # Rails.logger.info "Recalculating with #{user_inputs.keys.length} user inputs for category #{@simulation.category}"
 
     begin
       # Choisir le service de calcul selon la région
@@ -774,7 +745,6 @@ class SimulationsController < ApplicationController
       cards_data = calculator_service.generate_prime_cards(category_result)
       calculation_time = Time.current - start_time
 
-      # Rails.logger.info "Calculation completed in #{calculation_time.round(3)}s for #{cards_data[:prime_cards]&.keys&.length || 0} categories"
 
       {
         'prime_cards' => cards_data[:prime_cards],
@@ -811,25 +781,17 @@ class SimulationsController < ApplicationController
 
   # ÉTAPE 1: Test d'éligibilité
   def perform_eligibility_test(simulation)
-    # Rails.logger.info "=== PERFORM_ELIGIBILITY_TEST ==="
-    # Rails.logger.info "Simulation ID: #{simulation.id}, region: '#{simulation.region}'"
-    # Rails.logger.info "Property present: #{simulation.property.present?}"
 
     region = simulation.region&.downcase
 
     unless ['wallonie', 'flandre', 'bruxelles'].include?(region)
-      # Rails.logger.info "SKIPPED: Region '#{simulation.region}' is not supported yet"
       return
     end
 
     unless simulation.property.present?
-      # Rails.logger.info "SKIPPED: No property associated"
       return
     end
 
-    # Rails.logger.info "Proceeding with eligibility test for region: #{region}"
-    # Rails.logger.info "📋 Simulation property_id: #{simulation.property_id}"
-    # Rails.logger.info "📋 Simulation project_id: #{simulation.project_id}"
 
     # Choisir le service d'éligibilité selon la région
     if region == 'wallonie' && simulation.regime_effectif == 'reduction_pret'
