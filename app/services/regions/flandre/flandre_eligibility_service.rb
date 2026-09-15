@@ -182,14 +182,6 @@ module Regions
         eligible_response(category: nil, message: "Éligible aux primes Flandre")
       end
 
-      def user_project
-        # Récupère le projet associé à la simulation en cours
-        project_id = get_param(:project_id)
-        return nil unless project_id
-
-        @user.projects.find_by(id: project_id)
-      end
-
       def property_in_flandre?(property)
         # Log pour debug
         Rails.logger.info "Checking property region: '#{property.region}' (raw) for property #{property.id}"
@@ -604,16 +596,7 @@ module Regions
         revenus <= plafond_tres_eleve
       end
 
-      def get_property
-        # Récupère la propriété associée à la simulation
-        property_id = get_param(:property_id)
-        Rails.logger.info "🏠 get_property (Flandre): property_id param = #{property_id}"
-        return nil unless property_id
-
-        property = @user.properties.find_by(id: property_id)
-        Rails.logger.info "🏠 get_property (Flandre): found property = #{property&.id}, region = '#{property&.region}'"
-        property
-      end
+      # get_property / user_project fournis par Regions::BaseService
     end
   end
 end

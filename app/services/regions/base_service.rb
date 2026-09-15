@@ -54,6 +54,23 @@ module Regions
       @user.properties.first # ou logique plus complexe
     end
 
+    # Bien et projet ciblés par la simulation en cours (property_id/project_id
+    # dans les params) — identiques dans les 3 régions, extraits ici après
+    # avoir constaté 6 copies indépendantes dans les services régionaux.
+    def get_property
+      property_id = get_param(:property_id)
+      return nil unless property_id
+
+      @user.properties.find_by(id: property_id)
+    end
+
+    def user_project
+      project_id = get_param(:project_id)
+      return nil unless project_id
+
+      @user.projects.find_by(id: project_id)
+    end
+
     def log_calculation(step, data = {})
       Rails.logger.info "[#{self.class}] #{step}: #{data.inspect}" if Rails.env.development?
     end

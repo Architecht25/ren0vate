@@ -4,19 +4,7 @@
 module Regions
   module Wallonie
     module CommonEligibilityChecks
-      def get_property
-        property_id = get_param(:property_id)
-        return nil unless property_id
-
-        @user.properties.find_by(id: property_id)
-      end
-
-      def user_project
-        project_id = get_param(:project_id)
-        return nil unless project_id
-
-        @user.projects.find_by(id: project_id)
-      end
+      # get_property / user_project fournis par Regions::BaseService
 
       def property_in_wallonie?(property)
         if property.region.present?
