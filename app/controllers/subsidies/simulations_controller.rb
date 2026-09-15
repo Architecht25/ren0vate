@@ -781,7 +781,6 @@ class SimulationsController < ApplicationController
 
   # ÉTAPE 1: Test d'éligibilité
   def perform_eligibility_test(simulation)
-
     region = simulation.region&.downcase
 
     unless ['wallonie', 'flandre', 'bruxelles'].include?(region)
