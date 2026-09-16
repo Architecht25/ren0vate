@@ -173,15 +173,15 @@ class RequestProgress < ApplicationRecord
     tracking_email_domain == 'tracking.ren0vate.be'
   end
 
-  def send_test_notification(user_email = 'robin@primes-services.be')
+  def send_test_notification(user_email = 'robin@architecht.be')
     Notifications::TrackingEmailTestService.new(self).send_test_notification_to_user(user_email)
   end
 
-  def simulate_admin_response(from_email = 'robin@primes-services.be')
+  def simulate_admin_response(from_email = 'robin@architecht.be')
     Notifications::TrackingEmailTestService.new(self).simulate_admin_email_response(from_email)
   end
 
-  def test_full_email_cycle(user_email = 'robin@primes-services.be')
+  def test_full_email_cycle(user_email = 'robin@architecht.be')
     Notifications::TrackingEmailTestService.new(self).run_full_test_cycle(user_email)
   end
 
