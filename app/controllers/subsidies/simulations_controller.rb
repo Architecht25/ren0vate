@@ -459,19 +459,9 @@ class SimulationsController < ApplicationController
         return
       end
 
-      # Sinon utiliser l'ancienne méthode avec le service
-      updater = Subsidies::SimulationPrimesUpdater.new(@simulation)
-
-      result = updater.update_user_inputs(user_inputs)
-
-
-      if result[:success]
-
-        render json: result
-      else
-        Rails.logger.error "❌ Failed to update simulation #{@simulation.id}: #{result[:error]}"
-        render json: { success: false, error: result[:error] }, status: :unprocessable_entity
-      end
+      # wallonie/flandre/bruxelles sont couvertes ci-dessus (chacune avec un `return`) —
+      # seule une région non supportée atteint ce point.
+      render json: { success: false, error: "Région non supportée : #{@simulation.region}" }, status: :unprocessable_entity
 
     rescue => e
       Rails.logger.error "❌ Exception in update_prime_inputs: #{e.message}"
@@ -630,7 +620,7 @@ class SimulationsController < ApplicationController
 
     Rails.logger.info "🔧 Début construction updated_cards avec: #{prime_results.inspect}"
 
-    # Grouper les primes par catégorie comme Subsidies::SimulationPrimesUpdater
+    # Grouper les primes par catégorie
     categorized_primes = {}
 
     prime_results.each do |slug, prime_data|
