@@ -902,29 +902,7 @@ class DocumentsController < ApplicationController
   # Crée un enregistrement Facture à partir des données OCR extraites
   # lors d'un upload via DocumentsController (hors workflow FacturesController)
   def creer_facture_depuis_ocr_doc(document, ocr_result, project)
-    donnees = ocr_result[:donnees_facture]
-
-    facture = Facture.new(
-      document: document,
-      project: project,
-      property: document.property || project.property,
-      montant: donnees[:montant] || 0,
-      numero_facture: donnees[:numero_facture],
-      date_facture: donnees[:date_facture],
-      type_facture: donnees[:type_facture] || 'facture',
-      statut_paiement: 'non_paye',
-      nom_entreprise: donnees[:nom_entreprise],
-      numero_bce_entreprise: donnees[:numero_bce],
-      montant_ht: donnees[:montant_ht],
-      montant_tva: donnees[:montant_tva],
-      taux_tva: donnees[:taux_tva],
-      confiance_ocr: ocr_result[:confiance_extraction],
-      extraction_complete: ocr_result[:extraction_complete],
-      texte_ocr_brut: ocr_result[:texte_brut],
-      donnees_extraites: donnees,
-      type_intervenant: detecter_type_intervenant_doc(donnees[:nom_entreprise], project),
-      valide_manuellement: false
-    )
+    facture = Factures::CreateFromOcrService.call(document: document, ocr_result: ocr_result, project: project)
 
     if facture.save
       Rails.logger.info "Facture ##{facture.id} créée depuis OCR document ##{document.id} (projet ##{project.id})"
@@ -938,16 +916,5 @@ class DocumentsController < ApplicationController
   rescue => e
     Rails.logger.error "Exception création Facture depuis OCR document ##{document.id}: #{e.message}\n#{e.backtrace.first(3).join('\n')}"
     nil
-  end
-
-  # Tente de détecter si la facture provient de l'architecte ou d'un entrepreneur
-  def detecter_type_intervenant_doc(nom_entreprise, project)
-    return 'entrepreneur' if nom_entreprise.blank?
-
-    nom = nom_entreprise.downcase.strip
-    arch = project.architecte_entreprise&.downcase&.strip
-    return 'architecte' if arch.present? && nom.include?(arch.split.first || '')
-
-    'entrepreneur'
   end
 end
