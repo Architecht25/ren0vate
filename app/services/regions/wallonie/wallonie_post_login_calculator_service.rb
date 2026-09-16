@@ -230,30 +230,6 @@ module Regions
         end
       end
 
-      def get_relevant_surface(property, prime)
-        # Déterminer la surface pertinente selon le type de prime
-        case prime.slug
-        when /toiture|toit/
-          property.roof_surface
-        when /facade|mur/
-          property.wall_surface
-        when /sol|plancher/
-          property.floor_surface
-        else
-          property.total_surface || property.liveable_surface
-        end
-      end
-
-      def get_work_amount(property, prime)
-        # Récupérer le montant des travaux depuis les projets/simulations
-        # ou depuis les paramètres du calcul
-        work_amount = get_param(:montant_travaux) || get_param("montant_travaux_#{prime.slug}")
-        return work_amount.to_f if work_amount
-
-        # Sinon chercher dans les projets de la propriété
-        property.projects&.sum(&:estimated_cost) || 0
-      end
-
       def calculate_variable_amount(prime, category_data, property)
         # Logique spécifique selon le type de prime
         case prime.slug
