@@ -360,14 +360,6 @@ class Document < ApplicationRecord
     property.refresh_all_phase_statuses! if required_for_phase?
   end
 
-  private
-
-  def file_or_url_present
-    unless file.attached? || file_url.present?
-      errors.add(:base, "Un fichier ou une URL doit être fourni")
-    end
-  end
-
   def file_size_limit_debug
     return unless file.attached?
 
@@ -399,24 +391,6 @@ class Document < ApplicationRecord
       errors.add(:file, "Erreur lors de la validation de taille: #{e.message}")
     end
   end
-
-  def file_size_limit
-    return unless file.attached?
-
-    max_size = is_photo_type? ? MAX_PHOTO_FILE_SIZE : MAX_FILE_SIZE
-    Rails.logger.info "🔍 Document validation - filename: #{file.filename}, byte_size: #{file.byte_size}, type: #{type_document}, is_photo: #{is_photo_type?}, MAX_SIZE: #{max_size}"
-
-    if file.byte_size > max_size
-      human_size = ActionController::Base.helpers.number_to_human_size(file.byte_size)
-      max_human_size = ActionController::Base.helpers.number_to_human_size(max_size)
-      Rails.logger.error "❌ File too large - #{file.filename}: #{human_size} > #{max_human_size}"
-      errors.add(:file, "ne doit pas dépasser #{max_human_size}")
-    else
-      Rails.logger.info "✅ File size OK - #{file.filename}: #{ActionController::Base.helpers.number_to_human_size(file.byte_size)}"
-    end
-  end
-
-  private
 
   def file_or_url_present
     if file.attached? || file_url.present?
