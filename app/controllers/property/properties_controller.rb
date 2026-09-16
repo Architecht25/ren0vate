@@ -1,9 +1,7 @@
-require 'net/http'
-
 class PropertiesController < ApplicationController
   before_action :authenticate_user!
   before_action :check_gestion_locative_access!, only: [:gestion_locative, :profil_bailleur]
-  before_action :set_property, only: [:show, :dashboard, :edit, :update, :destroy, :purge_photo, :documents_dashboard, :peb_recommandations, :documents_phases_dashboard, :formulaire_miroir, :submit_prime, :select_form, :mise_en_vente, :activer_vente, :desactiver_vente, :marquer_vendu, :gestion_locative, :profil_bailleur]
+  before_action :set_property, only: [:show, :dashboard, :edit, :update, :destroy, :purge_photo, :documents_dashboard, :peb_recommandations, :documents_phases_dashboard, :formulaire_miroir, :submit_prime, :mise_en_vente, :activer_vente, :desactiver_vente, :marquer_vendu, :gestion_locative, :profil_bailleur]
 
   def index
     @properties = current_user.properties
@@ -88,24 +86,9 @@ class PropertiesController < ApplicationController
   end
 
   def check_heritage
-    lat = params[:lat].to_f
-    lon = params[:lon].to_f
-
-    unless lat.between?(-90, 90) && lon.between?(-180, 180) && lat != 0 && lon != 0
-      return render json: { error: 'Coordonnées invalides' }, status: :bad_request
-    end
-
-    margin = 0.0005
-    envelope = "#{lon - margin},#{lat - margin},#{lon + margin},#{lat + margin}"
-    url = "https://geoservices.irisnet.be/arcgis/rest/services/UrbanInformation/Monuments_sites/MapServer/0/query" \
-          "?f=json&returnGeometry=false&outFields=DENOMINATION,DATE_ARRETE,STATUT" \
-          "&geometry=#{envelope}&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects"
-
-    uri = URI(url)
-    response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
-      http.get(uri.request_uri)
-    end
-    render json: JSON.parse(response.body)
+    render json: Properties::HeritageCheckService.call(lat: params[:lat], lon: params[:lon])
+  rescue Properties::HeritageCheckService::InvalidCoordinates
+    render json: { error: 'Coordonnées invalides' }, status: :bad_request
   rescue => e
     render json: { error: e.message }, status: :bad_gateway
   end
@@ -217,175 +200,10 @@ class PropertiesController < ApplicationController
     @property = current_user.properties.find(params[:id])
     @document_stats = Document.completion_stats_for_property(@property)
 
-    # Nouveau système de phases
-    @phases_data = @property.phases_with_status
-    @phase_calculator = Documents::DocumentPhaseCalculatorService.new(@property)
-    @comprehensive_metrics = @phase_calculator.calculate_comprehensive_metrics
-    @recommendations = @phase_calculator.intelligent_recommendations.first(3)
-    @potential_issues = @phase_calculator.detect_potential_issues
+    load_phase_metrics
 
     # Configuration des types de documents avec leurs informations (legacy pour transition)
-    @document_types_config = {
-      'aer' => {
-        title: '📋 AER - Avertissements Extrait de Rôle',
-        image: 'aer.webp',
-        conditions: [
-          'Avertissements extrait de rôle récents',
-          'Documents fiscaux officiels',
-          'Maximum 1 an d\'ancienneté'
-        ],
-        priority: 'required'
-      },
-      'rib' => {
-        title: '🏦 RIB - Relevé d\'Identité Bancaire',
-        image: 'rib.webp',
-        conditions: [
-          'Relevé d\'identité bancaire officiel',
-          'Compte au nom du demandeur',
-          'Document récent et lisible'
-        ],
-        priority: 'required'
-      },
-      'devis' => {
-        title: '📄 Devis/métré',
-        image: 'devis.webp',
-        conditions: [
-          'Être signé par l\'architecte, budgété et quantifié obligatoirement',
-          'Minimum 3 devis recommandés'
-        ],
-        priority: 'required'
-      },
-      'facture' => {
-        title: '🧾 Factures',
-        image: 'facture.webp',
-        conditions: [
-          'Établies au nom du demandeur de la prime',
-          'Adresse du chantier + description travaux + budget',
-          'Montant total = montant du devis',
-          'Maximum 2 ans d\'ancienneté'
-        ],
-        priority: 'required'
-      },
-      'etat_avancement' => {
-        title: '📸 États d\'avancement',
-        image: 'avancement.webp',
-        conditions: [
-          'Photos pendant les travaux',
-          'Progression documentée'
-        ],
-        priority: 'recommended'
-      },
-      'attestation_entrepreneur' => {
-        title: '📋 Attestations entrepreneur',
-        image: 'entrepreneur.webp',
-        conditions: [
-          'Signées et cachetées par l\'entrepreneur',
-          'Types: Avant/Pendant/Après'
-        ],
-        priority: 'required'
-      },
-      'certificat_peb' => {
-        title: '📋 Certificat PEB',
-        image: 'certificat.webp',
-        conditions: [
-          'PEB avant ET après travaux',
-          'Ventilation conforme'
-        ],
-        priority: 'required'
-      },
-      'photo' => {
-        title: '📸 Preuves photo',
-        image: 'photo.webp',
-        conditions: [
-          'Obligatoire pour châssis',
-          'Recommandé pour autres travaux',
-          'Étapes: Avant/Pendant/Après'
-        ],
-        priority: 'recommended'
-      },
-      'certificat_label' => {
-        title: '🏷️ Certificats label européen',
-        image: 'label.avif',
-        conditions: [
-          'Pompe à chaleur ou chauffe-eau thermodynamique',
-          'Label énergétique certifié'
-        ],
-        priority: 'optional'
-      },
-      'attestation_conformite' => {
-        title: '⚡ Attestation conformité électrique',
-        image: 'conformité.webp',
-        conditions: [
-          'Attestation après travaux',
-          'Conformité électrique certifiée'
-        ],
-        priority: 'required'
-      },
-      'plan' => {
-        title: '🏠 Plans',
-        image: 'plan.webp',
-        conditions: [
-          'Plans avant travaux',
-          'Schémas techniques si nécessaire'
-        ],
-        priority: 'optional'
-      },
-      'permis_urbanisme' => {
-        title: '🏛️ Permis d\'urbanisme',
-        image: 'Permis.jpeg',
-        conditions: [
-          'Si requis selon travaux',
-          'Permis accordé avant travaux'
-        ],
-        priority: 'optional'
-      },
-      'dossier_prime' => {
-        title: '💰 Dossier primes',
-        image: 'prime.jpg',
-        conditions: [
-          'Primes acceptées/refusées',
-          'Historique des demandes'
-        ],
-        priority: 'optional'
-      },
-      'certificat_protection' => {
-        title: '🛡️ Client protégé',
-        image: 'protege.jpg',
-        conditions: [
-          'Certificat de protection consommateur',
-          'Si applicable'
-        ],
-        priority: 'optional'
-      },
-      'acte_notarial' => {
-        title: '📜 Acte notarial',
-        image: 'acte_notarial.jpg',
-        conditions: [
-          'Acte notarié de la propriété',
-          'Document officiel de propriété'
-        ],
-        priority: 'optional'
-      },
-      'compromis' => {
-        title: '🤝 Compromis',
-        image: 'compromis.jpg',
-        conditions: [
-          'Compromis de vente signé',
-          'Accord préliminaire d\'achat'
-        ],
-        priority: 'optional'
-      },
-      'rapport_audit_energetique' => {
-        title: '📊 Rapport d\'audit énergétique',
-        image: 'audit_energetique.webp',
-        conditions: [
-          'Rapport d\'audit énergétique certifié',
-          'Analyse complète de la performance',
-          'Recommandations d\'amélioration'
-        ],
-        priority: 'required'
-      }
-    }
+    @document_types_config = DocumentTypeCatalog::CONFIG
   end
 
   def documents_phases_dashboard
@@ -416,11 +234,7 @@ class PropertiesController < ApplicationController
     end
 
     # Données actuelles basées sur le type de projet
-    @phases_data = @property.phases_with_status
-    @phase_calculator = Documents::DocumentPhaseCalculatorService.new(@property)
-    @comprehensive_metrics = @phase_calculator.calculate_comprehensive_metrics
-    @recommendations = @phase_calculator.intelligent_recommendations.first(3)
-    @potential_issues = @phase_calculator.detect_potential_issues
+    load_phase_metrics
   end
 
   def formulaire_miroir
@@ -469,23 +283,6 @@ class PropertiesController < ApplicationController
       redirect_to formulaire_miroir_property_path(@property),
                   alert: "Erreur lors de la soumission : #{result.error}"
     end
-  end
-
-  def select_form
-    @property = current_user.properties.find(params[:id])
-
-    # Charger les requests existantes pour cette propriété
-    @existing_requests = @property.requests.includes(:request_progresses)
-                                            .order(created_at: :desc)
-
-    # Grouper par form_type pour éviter les doublons
-    @existing_form_types = @existing_requests.pluck(:form_type).compact.uniq
-
-    # Configuration des formulaires disponibles selon la région et le type de bien
-    @available_forms = get_available_forms_for_property(@property)
-
-    # Statistiques de complétude
-    @completion_stats = calculate_forms_completion_stats(@existing_requests)
   end
 
   # GET /properties/:id/mise_en_vente
@@ -557,6 +354,15 @@ class PropertiesController < ApplicationController
 
   def set_property
     @property = current_user.properties.find(params[:id])
+  end
+
+  # Commun à documents_dashboard et documents_phases_dashboard
+  def load_phase_metrics
+    @phases_data = @property.phases_with_status
+    @phase_calculator = Documents::DocumentPhaseCalculatorService.new(@property)
+    @comprehensive_metrics = @phase_calculator.calculate_comprehensive_metrics
+    @recommendations = @phase_calculator.intelligent_recommendations.first(3)
+    @potential_issues = @phase_calculator.detect_potential_issues
   end
 
   def property_params
@@ -693,156 +499,5 @@ class PropertiesController < ApplicationController
       maitre_ouvrage_contact: project.maitre_ouvrage_contact,
       coordinateur_securite_nom: project.coordinateur_securite_nom
     }
-  end
-
-  # Méthodes pour le sélecteur de formulaires
-  def get_available_forms_for_property(property)
-    forms = []
-
-    case property.region&.downcase
-    when 'bruxelles'
-      forms += [
-        {
-          code: 'monuments_bruxelles',
-          title: 'Monuments & Sites classés',
-          description: 'Subventions pour conservation de biens classés',
-          icon: 'bi-building-check',
-          category: 'Patrimoine',
-          eligible: property.monument_classe? || property.site_classe?,
-          external_url: 'https://urban.brussels/patrimoine'
-        },
-        {
-          code: 'patrimoine_bruxelles',
-          title: 'Petit patrimoine populaire',
-          description: 'Conservation du petit patrimoine architectural',
-          icon: 'bi-gem',
-          category: 'Patrimoine',
-          eligible: property.petit_patrimoine?,
-          external_url: 'https://urban.brussels/patrimoine'
-        },
-        {
-          code: 'communal_bruxelles',
-          title: 'Primes communales',
-          description: 'Primes spécifiques à votre commune bruxelloise',
-          icon: 'bi-geo-alt',
-          category: 'Communal',
-          eligible: true,
-          external_url: 'https://www.bruxelles.be/logement-et-energie/renovation-de-mon-logement/primes'
-        }
-      ]
-    when 'wallonie'
-      forms += [
-        {
-          code: 'regional_wallonie',
-          title: 'Prime régionale habitation',
-          description: 'Primes habitation de la Région wallonne',
-          icon: 'bi-house-gear',
-          category: 'Rénovation',
-          eligible: true,
-          external_url: 'https://energie.wallonie.be/fr/aides-et-primes.html?IDC=10717'
-        },
-        {
-          code: 'audit_wallonie',
-          title: 'Audit énergétique',
-          description: 'Prime pour audit énergétique en Wallonie',
-          icon: 'bi-clipboard-data',
-          category: 'Audit',
-          eligible: property.needs_audit?,
-          external_url: 'https://energie.wallonie.be/fr/aides-et-primes.html?IDC=10717'
-        },
-        {
-          code: 'monuments_wallonie',
-          title: 'Monuments & Sites classés',
-          description: 'Patrimoine classé et sites archéologiques',
-          icon: 'bi-building-check',
-          category: 'Patrimoine',
-          eligible: property.monument_classe? || property.site_classe?,
-          external_url: 'https://patrimoine.wallonie.be/'
-        },
-        {
-          code: 'communal_wallonie',
-          title: 'Primes communales',
-          description: 'Primes spécifiques à votre commune wallonne',
-          icon: 'bi-geo-alt',
-          category: 'Communal',
-          eligible: true,
-          external_url: 'https://energie.wallonie.be/fr/aides-et-primes.html?IDC=10717'
-        }
-      ]
-    when 'flandre'
-      forms += [
-        {
-          code: 'regional_flandre',
-          title: 'Prime régionale habitation',
-          description: 'Verbouwpremie - Primes de rénovation flamandes',
-          icon: 'bi-house-gear',
-          category: 'Rénovation',
-          eligible: true,
-          external_url: 'https://www.vlaanderen.be/premies-pour-renovation/mijn-verbouwpremie'
-        },
-        {
-          code: 'monuments_flandre',
-          title: 'Monuments & Sites (Onroerend Erfgoed)',
-          description: 'Primes restauration patrimoine flamand',
-          icon: 'bi-building-check',
-          category: 'Patrimoine',
-          eligible: property.monument_classe? || property.site_classe?,
-          external_url: 'https://www.onroerenderfgoed.be/'
-        },
-        {
-          code: 'communal_flandre',
-          title: 'Primes communales',
-          description: 'Primes spécifiques à votre commune flamande',
-          icon: 'bi-geo-alt',
-          category: 'Communal',
-          eligible: true,
-          external_url: 'https://www.vlaanderen.be/premies-pour-renovation/'
-        }
-      ]
-    end
-
-    # Ajouter formulaires entreprises si applicable
-    if current_user.entreprise?
-      forms += get_enterprise_forms
-    end
-
-    forms
-  end
-
-  def get_enterprise_forms
-    [
-      {
-        code: 'consultance_bruxelles',
-        title: 'Aide Consultance (Bruxelles)',
-        description: 'Aide pour consultance externe',
-        icon: 'bi-person-workspace',
-        category: 'Entreprise',
-        eligible: true,
-        external_url: 'https://www.economie-emploi.brussels/'
-      },
-      {
-        code: 'investissement_bruxelles',
-        title: 'Prime Investissements Généraux',
-        description: 'Aide aux investissements généraux',
-        icon: 'bi-graph-up-arrow',
-        category: 'Entreprise',
-        eligible: true,
-        external_url: 'https://www.economie-emploi.brussels/'
-      }
-      # ... autres formulaires entreprises
-    ]
-  end
-
-  def calculate_forms_completion_stats(requests)
-    stats = {}
-    requests.each do |request|
-      next if request.form_type.blank?
-      stats[request.form_type] = {
-        completion: request.form_completion_percentage,
-        status: request.status,
-        updated_at: request.updated_at
-      }
-    end
-    stats
   end
 end
