@@ -55,7 +55,7 @@ class SimulationsController < ApplicationController
     end
 
     # Vérifier l'éligibilité réelle selon les revenus actuels
-    @real_eligibility = check_real_eligibility(@simulation)
+    @real_eligibility = Regions::SimulationEligibilityChecker.call(@simulation)
 
     # S'assurer que total_simule est cohérent avec les paramètres
     if @simulation.total_simule.nil? || @simulation.total_simule == 0
@@ -366,7 +366,7 @@ class SimulationsController < ApplicationController
 
           # Sauvegarder les données Bruxelles dans les paramètres de la simulation
           # (détail des primes calculées, pour primes_count et l'affichage de l'historique)
-          save_bruxelles_specific_data(user_inputs, result[:prime_results])
+          Regions::Bruxelles::SimulationInputsPersister.call(simulation: @simulation, user_inputs: user_inputs, prime_results: result[:prime_results])
 
           render json: {
             success: true,
@@ -402,7 +402,7 @@ class SimulationsController < ApplicationController
           @simulation.update!(total_simule: result[:total_general])
 
           # Sauvegarder les données Wallonie dans les paramètres de la simulation
-          save_wallonie_specific_data(user_inputs, result[:prime_results])
+          Regions::Wallonie::SimulationInputsPersister.call(simulation: @simulation, user_inputs: user_inputs, prime_results: result[:prime_results])
 
           render json: {
             success: true,
@@ -426,7 +426,7 @@ class SimulationsController < ApplicationController
 
           # Appeler la méthode calculate_all_primes du nouveau service
           # Restructurer les données pour le service Flandre
-          structured_inputs = restructure_flandre_inputs(user_inputs)
+          structured_inputs = Regions::Flandre::InputsRestructurer.call(user_inputs)
           Rails.logger.info "🔧 Données restructurées pour Flandre: #{structured_inputs.inspect}"
 
           Rails.logger.info "🔧 Appel de calculate_all_primes Flandre avec: #{structured_inputs.inspect}"
@@ -447,7 +447,7 @@ class SimulationsController < ApplicationController
           @simulation.update!(total_simule: final_total)
 
           # Sauvegarder les données dans les paramètres de la simulation
-          save_flandre_specific_data(user_inputs, result[:prime_results])
+          Regions::Flandre::SimulationInputsPersister.call(simulation: @simulation, user_inputs: user_inputs, prime_results: result[:prime_results])
 
           render json: {
             success: true,
@@ -641,7 +641,7 @@ class SimulationsController < ApplicationController
       Rails.logger.info "🔧 Prime #{slug}: #{amount}€ (data: #{prime_data})"
 
       # Déterminer la catégorie basée sur le slug
-      category = determine_category_from_slug(slug)
+      category = Regions::PrimeCategory.from_slug(slug)
 
       categorized_primes[category] ||= {
         total: 0,
@@ -670,26 +670,6 @@ class SimulationsController < ApplicationController
 
     Rails.logger.info "🔧 Structure updated_cards finale construite: #{updated_cards}"
     updated_cards
-  end
-
-  # Détermine la catégorie d'une prime basée sur son slug
-  def determine_category_from_slug(slug)
-    case slug
-    when /audit/
-      'audit'
-    when /certificat/
-      'certificat'
-    when /isolation/
-      'isolation'
-    when /chauffage/
-      'chauffage'
-    when /ventilation/
-      'ventilation'
-    when /solaire/
-      'solaire'
-    else
-      'autres'
-    end
   end
 
   # Helper pour parser les paramètres de simulation de manière sécurisée
@@ -1115,331 +1095,5 @@ class SimulationsController < ApplicationController
     end
 
     total
-  end
-
-  # Nouvelle méthode pour sauvegarder les données spécifiques à la Flandre
-  def save_flandre_specific_data(user_inputs, prime_results = {})
-    Rails.logger.info "💾 Sauvegarde des données spécifiques Flandre: #{user_inputs.inspect}"
-    Rails.logger.info "💾 Résultats calculés: #{prime_results.inspect}"
-
-    # Ne pas sauvegarder si user_inputs est complètement vide
-    if user_inputs.empty?
-      Rails.logger.info "⚠️ Aucune donnée à sauvegarder (user_inputs vide)"
-      return
-    end
-
-    # Récupérer les paramètres existants ou initialiser
-    existing_params = @simulation.parameters.present? ? JSON.parse(@simulation.parameters) : {}
-
-    # Sauvegarder les données PEB si présentes
-    if user_inputs['peb'].present?
-      existing_params['peb_data'] = user_inputs['peb']
-      Rails.logger.info "💾 Données PEB sauvegardées: #{user_inputs['peb'].inspect}"
-    end
-
-    # Sauvegarder les données Amiante si présentes
-    if user_inputs['amiante'].present?
-      existing_params['amiante_data'] = user_inputs['amiante']
-      Rails.logger.info "💾 Données Amiante sauvegardées: #{user_inputs['amiante'].inspect}"
-    end
-
-    # Convertir les primes au format attendu par restore_prime_inputs
-    if user_inputs['primes'].present?
-      existing_params['prime_cards'] ||= {}
-
-      user_inputs['primes'].each do |slug, prime_data|
-        next unless prime_data['value'].present?
-
-        # Déterminer la catégorie pour cette prime
-        category = determine_category_from_slug(slug)
-
-        # Initialiser la structure de catégorie si nécessaire
-        existing_params['prime_cards'][category] ||= {
-          'total' => 0,
-          'primes' => []
-        }
-
-        # Ajouter ou mettre à jour la prime dans cette catégorie
-        existing_prime = existing_params['prime_cards'][category]['primes'].find { |p| p['slug'] == slug }
-        if existing_prime
-          existing_prime['user_input_value'] = prime_data['value']
-        else
-          existing_params['prime_cards'][category]['primes'] << {
-            'slug' => slug,
-            'user_input_value' => prime_data['value']
-          }
-        end
-      end
-
-      Rails.logger.info "💾 Données primes sauvegardées dans le bon format"
-    end
-
-    # Sauvegarder aussi les données brutes pour la restructuration (fallback)
-    user_inputs.each do |key, value|
-      if key != 'peb' && key != 'amiante' && key != 'primes' && !value.nil?
-        existing_params[key] = value
-      end
-    end
-
-    # Sauvegarder aussi les montants calculés pour chaque prime
-    if prime_results.present?
-      calculated_amounts = {}
-      prime_results.each do |slug, data|
-        amount = data[:amount] || data[:calculated_amount] || data['amount'] || data['calculated_amount'] || 0
-        calculated_amounts[slug.to_s] = amount
-        Rails.logger.info "💾 Montant calculé sauvegardé: #{slug} = #{amount}€"
-      end
-      existing_params['calculated_amounts'] = calculated_amounts
-    end
-
-    # Horodatage de la dernière mise à jour
-    existing_params['last_updated'] = Time.current.iso8601
-
-    # Sauvegarder dans la base de données
-    @simulation.update!(parameters: existing_params.to_json)
-
-    Rails.logger.info "✅ Données Flandre sauvegardées avec succès"
-  rescue => e
-    Rails.logger.error "❌ Erreur lors de la sauvegarde Flandre: #{e.message}"
-  end
-
-  # Nouvelle méthode pour sauvegarder les données spécifiques à Bruxelles
-  # Symétrique à save_wallonie_specific_data/save_flandre_specific_data : construit
-  # parameters['prime_cards'] au même format que Wallonie/Flandre (groupé par catégorie,
-  # avec 'calculated_amount'/'slug'/'user_input_value') pour que Simulation#primes_count
-  # et l'affichage de l'historique fonctionnent sans changement supplémentaire.
-  def save_bruxelles_specific_data(user_inputs, prime_results = {})
-    Rails.logger.info "💾 Sauvegarde des données spécifiques Bruxelles: #{user_inputs.inspect}"
-    Rails.logger.info "💾 Résultats calculés: #{prime_results.inspect}"
-
-    existing_params = @simulation.parameters.present? ? JSON.parse(@simulation.parameters) : {}
-
-    # Construire prime_cards groupées par catégorie à partir des résultats calculés
-    prime_cards = {}
-    calculated_amounts = {}
-
-    prime_results.each do |slug, data|
-      amount = (data[:amount] || data['amount'] || 0).to_f
-      next unless amount > 0
-
-      category = determine_category_from_slug(slug.to_s)
-      prime_cards[category] ||= { 'total' => 0, 'primes' => [] }
-
-      prime_cards[category]['primes'] << {
-        'slug' => slug.to_s,
-        'titre' => data[:titre] || data['titre'] || slug.to_s.humanize,
-        'calculated_amount' => amount,
-        'user_input_value' => user_inputs[slug.to_s] || user_inputs[slug.to_sym] || 1
-      }
-      prime_cards[category]['total'] += amount
-      calculated_amounts[slug.to_s] = amount
-    end
-
-    existing_params['prime_cards'] = prime_cards
-    existing_params['calculated_amounts'] = calculated_amounts if calculated_amounts.present?
-
-    # Horodatage de la dernière mise à jour
-    existing_params['last_updated'] = Time.current.iso8601
-
-    # Sauvegarder dans la base de données
-    @simulation.update!(parameters: existing_params.to_json)
-
-    Rails.logger.info "✅ Données Bruxelles sauvegardées avec succès (#{prime_cards.keys.length} catégories, #{calculated_amounts.keys.length} primes > 0)"
-  rescue => e
-    Rails.logger.error "❌ Erreur lors de la sauvegarde Bruxelles: #{e.message}"
-  end
-
-  def save_wallonie_specific_data(user_inputs, prime_results = {})
-    Rails.logger.info "💾 Sauvegarde des données spécifiques Wallonie: #{user_inputs.inspect}"
-    Rails.logger.info "💾 Résultats calculés: #{prime_results.inspect}"
-
-    # Ne pas sauvegarder si toutes les valeurs sont nulles/vides
-    non_zero_values = user_inputs.select { |k, v| v.present? && v != 0 && v != "0" }
-    if non_zero_values.empty?
-      Rails.logger.info "⚠️ Aucune donnée significative à sauvegarder pour Wallonie"
-      return
-    end
-
-    # Récupérer les paramètres existants ou initialiser
-    existing_params = @simulation.parameters.present? ? JSON.parse(@simulation.parameters) : {}
-
-    # Sauvegarder toutes les données Wallonie directement (clés qui commencent par wallonie_)
-    user_inputs.each do |key, value|
-      if key.to_s.start_with?('wallonie_') && value.present?
-        existing_params[key.to_s] = value
-        Rails.logger.info "💾 Donnée Wallonie sauvegardée: #{key} = #{value}"
-      end
-    end
-
-    # Sauvegarder aussi les montants calculés pour chaque prime
-    if prime_results.present?
-      calculated_amounts = {}
-      prime_results.each do |slug, data|
-        amount = data[:amount] || data['amount'] || 0
-        calculated_amounts[slug.to_s] = amount
-        Rails.logger.info "💾 Montant calculé sauvegardé: #{slug} = #{amount}€"
-      end
-      existing_params['calculated_amounts'] = calculated_amounts
-    end
-
-    # Horodatage de la dernière mise à jour
-    existing_params['last_updated'] = Time.current.iso8601
-
-    # Sauvegarder dans la base de données
-    @simulation.update!(parameters: existing_params.to_json)
-
-    Rails.logger.info "✅ #{non_zero_values.keys.length} données Wallonie sauvegardées avec succès"
-  rescue => e
-    Rails.logger.error "❌ Erreur lors de la sauvegarde Wallonie: #{e.message}"
-  end
-
-  # Restructurer les données plates en structure attendue par FlandrePostLoginCalculatorService
-  def restructure_flandre_inputs(flat_inputs)
-    Rails.logger.info "🔄 Restructuration des données Flandre: #{flat_inputs.inspect}"
-
-    structured = {
-      'primes' => {}
-    }
-
-    # Liste des slugs normaux de primes (ni PEB ni Amiante)
-    prime_slugs = %w[
-      isolation_toiture isolation_murs isolation_sol
-      ramen_deuren warmtepomp warmtepompboiler voorbereiding_isolatie
-      voorbereiding_sanitair_elec renovation_toiture renovation_murs renovation_sol
-    ]
-
-    # Extraire le type de pompe s'il est présent (envoyé séparément)
-    warmtepomp_type = flat_inputs['warmtepomp_type'] # permet la chaîne vide (reset "Choisir")
-
-    # Traiter chaque input
-    flat_inputs.each do |key, value|
-      if prime_slugs.include?(key.to_s)
-        # C'est une prime normale - inclure même 0 pour effacer les anciennes valeurs
-        type = key.to_s == 'warmtepomp' ? warmtepomp_type : nil
-        structured['primes'][key] = {
-          'value' => value.to_f,
-          'type'  => type
-        }
-      elsif key.to_s.start_with?('peb_')
-        structured['peb'] ||= {}
-        structured['peb'][key.to_s.sub('peb_', '')] = value
-      elsif key.to_s.start_with?('amiante_')
-        structured['amiante'] ||= {}
-        structured['amiante'][key.to_s.sub('amiante_', '')] = value
-      end
-    end
-
-    # warmtepomp_type géré directement dans la boucle ci-dessus
-
-    # Supprimer les clés vides
-    structured.delete('primes') if structured['primes'].empty?
-    structured.delete('peb') if structured['peb']&.empty?
-    structured.delete('amiante') if structured['amiante']&.empty?
-
-    Rails.logger.info "✅ Données restructurées: #{structured.inspect}"
-    structured
-  end
-
-  # Prime PEB/EPC-label Flandre supprimée définitivement (clôturée)
-  def calculate_peb_amount_from_data(_peb_data)
-    0
-  end
-
-  # Calcul du montant amiante à partir des données
-  def calculate_amiante_amount_from_data(amiante_data)
-    return 0 unless amiante_data.present?
-
-    surface_toiture = amiante_data['surface_toiture'].to_f
-    surface_murs = amiante_data['surface_murs'].to_f
-
-    montant_total = 0
-
-    # Logique de calcul amiante Flandre (même que côté frontend)
-    # 8€/m² pour la toiture
-    # 4€/m² pour les murs si pas de toiture
-    # 12€/m² pour les murs si toiture incluse
-    if surface_toiture > 0
-      montant_total += surface_toiture * 8 # 8€/m² toiture
-
-      if surface_murs > 0
-        montant_total += surface_murs * 12 # 12€/m² murs si toiture incluse
-      end
-    elsif surface_murs > 0
-      montant_total += surface_murs * 4 # 4€/m² murs uniquement
-    end
-
-    montant_total
-  end
-
-  # Helper pour vérifier l'éligibilité réelle selon les revenus
-  def check_real_eligibility(simulation)
-    return { eligible: false, reason: "Simulation non trouvée" } unless simulation
-    return { eligible: false, reason: "Utilisateur non trouvé" } unless simulation.property&.user
-
-    user = simulation.property.user
-    region = simulation.region&.downcase
-
-    case region
-    when 'wallonie'
-      check_wallonie_real_eligibility(user, simulation)
-    when 'flandre'
-      check_flandre_real_eligibility(user)
-    when 'bruxelles'
-      # Les primes Renolution ont été supprimées, mais Monuments & Sites reste actif
-      # L'éligibilité spécifique est gérée dans chaque carte de simulation
-      {
-        eligible: true,
-        reason: "Aucune prime générale de rénovation énergétique n'est actuellement ouverte à " \
-                "Bruxelles (Renolution supprimé). Petit Patrimoine et Monuments & Sites restent " \
-                "accessibles séparément."
-      }
-    else
-      { eligible: false, reason: "Région non supportée" }
-    end
-  end
-
-  private
-
-  def check_wallonie_real_eligibility(user, simulation)
-    return { eligible: false, reason: "Revenus non renseignés" } unless user.revenu_demandeur
-
-    if simulation.regime_effectif == "reduction_pret"
-      params = { property_id: simulation.property_id, project_id: simulation.project_id }
-      result = Regions::Wallonie::PretReduction::EligibilityService.new(params, user: user).check_eligibility
-      return { eligible: result[:eligible], reason: result[:message] }
-    end
-
-    adjusted_income = Regions::Wallonie::HouseholdIncomeCalculator.new(user).adjusted_income
-    threshold = Regions::Wallonie::WallonieCategoryService::ELIGIBILITY_THRESHOLD
-
-    if adjusted_income > threshold
-      {
-        eligible: false,
-        reason: "Revenus trop élevés (#{adjusted_income.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1.').reverse}€ > #{threshold.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1.').reverse}€)"
-      }
-    else
-      { eligible: true }
-    end
-  end
-
-  def check_flandre_real_eligibility(user)
-    return { eligible: false, reason: "Revenus non renseignés" } unless user.revenu_demandeur
-
-    # Calcul du revenu total du ménage
-    total_income = user.revenu_demandeur
-    if user.situation_familiale.in?(%w[marie cohabitant couple]) && user.revenu_conjoint
-      total_income += user.revenu_conjoint
-    end
-
-    # Déductions Flandre : 4 320 € par personne à charge
-    nb_charges = (user.nombre_enfants || 0)
-    nb_charges += user.personnes_agees_charge if user.respond_to?(:personnes_agees_charge) && user.personnes_agees_charge
-    deductions = nb_charges * 4_320
-    adjusted_income = [total_income - deductions, 0].max
-
-    # Seuils de revenu Flandre 2025 — catégorie 1 = revenus élevés, toujours éligible
-    # En Flandre il n'y a pas de seuil d'inéligibilité, seulement des catégories
-    # Toutes les catégories sont éligibles (la catégorie détermine le montant de la prime)
-    { eligible: true }
   end
 end
