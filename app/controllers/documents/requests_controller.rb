@@ -653,33 +653,6 @@ class RequestsController < ApplicationController
   def get_available_forms_for_property(property)
     forms = []
 
-    # Si property est nil, retourner tous les formulaires pour toutes les régions
-    if property.nil?
-      # Formulaires Bruxelles
-      forms += [
-        { id: :monuments_bruxelles, name: 'Monuments & Sites classés', subtitle: 'Monument.brussels', region: 'bruxelles', category: 'Patrimoine' },
-        { id: :patrimoine_bruxelles, name: 'Petit patrimoine populaire', subtitle: 'Bruxelles Environnement', region: 'bruxelles', category: 'Patrimoine' },
-        { id: :communal_bruxelles, name: 'Primes communales', subtitle: 'Commune', region: 'bruxelles', category: 'Communal' }
-      ]
-
-      # Formulaires Wallonie
-      forms += [
-        { id: :regional_wallonie, name: 'Prime régionale habitation', subtitle: 'MyRenovation – SPW', region: 'wallonie', category: 'Rénovation' },
-        { id: :audit_wallonie, name: 'Audit énergétique', subtitle: 'Audit logement – SPW', region: 'wallonie', category: 'Audit' },
-        { id: :monuments_wallonie, name: 'Monuments & Sites classés', subtitle: 'AWaP – Patrimoine', region: 'wallonie', category: 'Patrimoine' },
-        { id: :communal_wallonie, name: 'Primes communales', subtitle: 'Commune', region: 'wallonie', category: 'Communal' }
-      ]
-
-      # Formulaires Flandre
-      forms += [
-        { id: :regional_flandre, name: 'Prime régionale habitation', subtitle: 'Mijn VerbouwPremie', region: 'flandre', category: 'Rénovation' },
-        { id: :monuments_flandre, name: 'Monuments & Sites', subtitle: 'Onroerend Erfgoed', region: 'flandre', category: 'Patrimoine' },
-        { id: :communal_flandre, name: 'Primes communales', subtitle: 'Gemeente', region: 'flandre', category: 'Communal' }
-      ]
-
-      return forms
-    end
-
     # Logique spécifique à la propriété selon son type
     case property.region&.downcase
     when 'bruxelles'
@@ -725,13 +698,6 @@ class RequestsController < ApplicationController
     end
 
     forms
-  end
-
-  def get_available_forms_for_region(region)
-    forms = get_available_forms_for_property(nil) # Récupérer tous les formulaires
-    # Normaliser la région en minuscules pour la comparaison
-    normalized_region = region&.downcase
-    forms.select { |form| form[:region] == normalized_region }
   end
 
   private
