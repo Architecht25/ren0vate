@@ -18,9 +18,6 @@
       # Gestion locative
       get :gestion_locative
       get :profil_bailleur  # Tableau de bord dédié propriétaire-bailleur
-
-      # Nouvelle route pour sélecteur formulaires
-      get :select_form, to: 'requests#select_form'
     end
 
     collection do
