@@ -211,13 +211,6 @@ class RequestProgress < ApplicationRecord
     end
   end
 
-  def taux_octroi
-    return 0 if montant_demande.blank? || montant_demande.zero?
-    return 0 if montant_accorde.blank?
-
-    (montant_accorde / montant_demande * 100).round(2)
-  end
-
   # Méthodes pour la gestion des compléments
   def has_pending_complements?
     complement_requests.active.any?
