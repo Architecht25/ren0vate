@@ -147,52 +147,9 @@ class Project < ApplicationRecord
   end
 
   # Méthodes virtuelles pour les checkboxes
-  def type_travaux_isolation
-    type_travaux_array.include?('isolation')
-  end
-
-  def type_travaux_isolation=(value)
-    update_type_travaux('isolation', value == '1')
-  end
-
-  def type_travaux_chauffage
-    type_travaux_array.include?('chauffage')
-  end
-
-  def type_travaux_chauffage=(value)
-    update_type_travaux('chauffage', value == '1')
-  end
-
-  def type_travaux_ventilation
-    type_travaux_array.include?('ventilation')
-  end
-
-  def type_travaux_ventilation=(value)
-    update_type_travaux('ventilation', value == '1')
-  end
-
-  def type_travaux_fenetres
-    type_travaux_array.include?('fenetres')
-  end
-
-  def type_travaux_fenetres=(value)
-    update_type_travaux('fenetres', value == '1')
-  end
-
-  def type_travaux_toiture
-    type_travaux_array.include?('toiture')
-  end
-
-  def type_travaux_toiture=(value)
-    update_type_travaux('toiture', value == '1')
-  end
-
-  def type_travaux_autre
-    type_travaux_array.include?('autre')
-  end
-
-  def type_travaux_autre=(value)
-    update_type_travaux('autre', value == '1')
+  %w[isolation chauffage ventilation fenetres toiture autre].each do |type|
+    define_method("type_travaux_#{type}") { type_travaux_array.include?(type) }
+    define_method("type_travaux_#{type}=") { |value| update_type_travaux(type, value == '1') }
   end
 
   # Validations pour les montants de devis
