@@ -138,36 +138,7 @@ class OcrController < ApplicationController
             # Supprimer l'ancienne Facture si elle existe (rescanner = remplacer)
             @document.facture&.destroy
 
-            donnees = result[:donnees_facture]
-            arch_nom = project.architecte_entreprise&.downcase&.strip
-            type_intervenant = if donnees[:nom_entreprise].present? && arch_nom.present? &&
-                                  donnees[:nom_entreprise].downcase.include?(arch_nom.split.first || '')
-                                 'architecte'
-            else
-                                 'entrepreneur'
-                               end
-
-            facture = Facture.new(
-              document:              @document,
-              project:               project,
-              property:              @document.property || project.property,
-              montant:               donnees[:montant] || 0,
-              numero_facture:        donnees[:numero_facture],
-              date_facture:          donnees[:date_facture],
-              type_facture:          donnees[:type_facture] || 'facture',
-              statut_paiement:       'non_paye',
-              nom_entreprise:        donnees[:nom_entreprise],
-              numero_bce_entreprise: donnees[:numero_bce],
-              montant_ht:            donnees[:montant_ht],
-              montant_tva:           donnees[:montant_tva],
-              taux_tva:              donnees[:taux_tva],
-              confiance_ocr:         result[:confiance_extraction],
-              extraction_complete:   result[:extraction_complete],
-              texte_ocr_brut:        result[:texte_brut],
-              donnees_extraites:     donnees,
-              type_intervenant:      type_intervenant,
-              valide_manuellement:   false
-            )
+            facture = Factures::CreateFromOcrService.call(document: @document, ocr_result: result, project: project)
 
             if facture.save
               facture_result = {
