@@ -461,16 +461,6 @@ class DecisionHub::DataService
     }
   end
 
-  def build_ai_context
-    # Contexte basique pour l'IA
-    {
-      simulation_id: @simulation.id,
-      region: @simulation.region,
-      prime_count: @simulation.prime_ids&.count || 0,
-      status: "ready_for_consultation"
-    }
-  end
-
   def identify_critical_issues
     issues = []
     issues << "Documents manquants" if calculate_completion_status[:documents] < 50
