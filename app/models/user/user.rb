@@ -191,11 +191,6 @@ class User < ApplicationRecord
     has_active_subscription? || agreed_to_success_fee?
   end
 
-  def has_active_subscription?
-    # À implémenter avec votre système d'abonnement
-    false
-  end
-
   def agreed_to_success_fee?
     # À implémenter - vérifier si l'utilisateur a accepté les conditions success fee
     true # Pour l'instant, autoriser tous les utilisateurs
