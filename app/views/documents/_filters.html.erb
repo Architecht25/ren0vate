@@ -26,7 +26,7 @@
           <%= f.select :filter_project,
                 [['Tous', '']] + @property_projects.map { |p| [p.nom.presence || "Projet \##{p.id}", p.id] },
                 { selected: params[:filter_project] },
-                { class: 'form-select form-select-sm', style: 'min-width:155px;' } %>
+                { class: 'form-select form-select-sm', style: 'min-width:155px; max-width:100%;' } %>
         </div>
       <% end %>
 
@@ -38,7 +38,7 @@
           <%= f.select 'type_document[]',
                 [['Tous les types', '']] + available_types.map { |t| [document_type_name(t), t] },
                 { selected: params[:type_document] },
-                { class: 'form-select form-select-sm', style: 'min-width:185px;' } %>
+                { class: 'form-select form-select-sm', style: 'min-width:185px; max-width:100%;' } %>
         </div>
       <% end %>
 
@@ -49,7 +49,7 @@
           <%= f.select :filter_phase,
                 [['Toutes les phases', '']] + @all_phases.map { |ph| [phase_label_for.call(ph.name), ph.id] },
                 { selected: params[:filter_phase] },
-                { class: 'form-select form-select-sm', style: 'min-width:175px;' } %>
+                { class: 'form-select form-select-sm', style: 'min-width:175px; max-width:100%;' } %>
         </div>
       <% end %>
 
@@ -94,11 +94,11 @@
 
 <% elsif @phases_data&.any? %>
   <%# ── Contexte projet ou global : onglets de phase ── %>
-  <ul class="nav nav-pills nav-fill mb-4 gap-1 p-1 rounded-3" style="background: rgba(0,0,0,0.04);">
+  <ul class="nav nav-pills mb-4 gap-1 p-1 rounded-3 flex-nowrap overflow-x-auto tabs-scroll-x" style="background: rgba(0,0,0,0.04);">
     <% @phases_data.each do |phase_data| %>
       <% phase = phase_data[:phase] %>
       <% is_active = @selected_phase == phase || (@selected_phase.nil? && phase == @phases_data.first[:phase]) %>
-      <li class="nav-item">
+      <li class="nav-item flex-shrink-0 text-nowrap">
         <%= link_to documents_path(
                       property_id: @property&.id,
                       project_id: @project&.id,

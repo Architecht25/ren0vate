@@ -1,6 +1,6 @@
 <div class="container-fluid px-4 py-4">
   <!-- Header épuré -->
-  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+  <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2 mb-4 pb-3 border-bottom">
     <div class="d-flex align-items-center">
       <div class="icon-circle me-3">
         <i class="bi bi-cloud-upload"></i>
@@ -22,7 +22,7 @@
 
   <div class="row">
     <!-- Formulaire d'upload principal -->
-    <div class="col-lg-8">
+    <div class="col-12 col-lg-8">
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-4">
           <h5 class="card-title text-primary-custom mb-4">
@@ -144,21 +144,21 @@
               <div class="mb-4">
                 <label class="form-label">Associations (optionnelles)</label>
                 <div class="row associations-row">
-                  <div class="col-md-4">
+                  <div class="col-12 col-sm-6 col-md-4">
                     <%= form.label :property_id, "Bien", class: "form-label small" %>
                     <%= form.select :property_id,
                         options_from_collection_for_select(current_user.properties, :id, :address, @document.property_id),
                         { include_blank: "-- Aucun --" },
                         { class: "form-select form-select-sm" } %>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-12 col-sm-6 col-md-4">
                     <%= form.label :project_id, "Projet", class: "form-label small" %>
                     <%= form.select :project_id,
                         options_from_collection_for_select(current_user.projects, :id, :display_name, @document.project_id),
                         { include_blank: "-- Aucun --" },
                         { class: "form-select form-select-sm" } %>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-12 col-sm-6 col-md-4">
                     <%= form.label :request_id, "Demande", class: "form-label small" %>
                     <%= form.select :request_id,
                         options_from_collection_for_select(current_user.requests, :id, :title, @document.request_id),
@@ -306,7 +306,7 @@
             <% end %>
 
             <!-- Boutons d'action -->
-            <div class="d-flex justify-content-end gap-2">
+            <div class="d-flex justify-content-end gap-2 flex-wrap">
               <%= link_to "Annuler", documents_path, class: "btn btn-outline-secondary" %>
               <%= form.submit "Uploader le document",
                   id: "upload-submit-btn",
@@ -318,7 +318,7 @@
     </div>
 
     <!-- Sidebar avec informations -->
-    <div class="col-lg-4">
+    <div class="col-12 col-lg-4">
       <!-- Types de documents -->
       <div class="card border-0 bg-light-custom mb-4">
         <div class="card-body p-4">
