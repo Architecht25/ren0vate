@@ -371,6 +371,8 @@
   box-shadow: 0 2px 8px rgba(var(--ren0vate-accent-rgb), 0.3);
   font-size: 0.9rem;
   line-height: 1.5;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 // Bulle IA
@@ -384,6 +386,8 @@
   font-size: 0.9rem;
   line-height: 1.65;
   color: var(--ren0vate-text);
+  overflow-wrap: break-word;
+  word-break: break-word;
   strong { color: var(--ren0vate-primary-dark); }
   ul, ol { padding-left: 1.25rem; margin: 0.4rem 0; }
   li { margin-bottom: 0.2rem; }
@@ -451,10 +455,11 @@
     max-height: calc(55vh - 80px); // fallback
   }
 
-  // Input zone sticky en bas (au-dessus du clavier sur mobile)
+  // Input zone sticky en bas, au-dessus de la bottom nav mobile fixe (62px + safe-area, z-index 1042)
+  // pour éviter que le bouton d'envoi soit masqué/recouvert par la barre de navigation
   .expert-ia-input-zone {
     position: sticky;
-    bottom: 0;
+    bottom: calc(62px + env(safe-area-inset-bottom, 0px));
     z-index: 10;
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.07);
   }

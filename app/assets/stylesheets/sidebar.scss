@@ -96,7 +96,8 @@ body {
   color: var(--sidebar-text);
   font-size: 1.5rem;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.65rem;
+  /* ~44px de cible tactile (24px icône + 20.8px de padding) */
 }
 
 /* Info utilisateur */
@@ -283,8 +284,12 @@ body {
   text-align: center;
 }
 
-.nav-link span {
+.nav-link span:not(.position-relative) {
   flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nav-link:hover {
@@ -456,6 +461,12 @@ body {
   /* Sections fermées par défaut sur mobile */
   .nav-submenu {
     display: none;
+  }
+
+  /* Cibles tactiles ~44px sans impacter le rendu desktop */
+  .nav-link {
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
   }
 
   .nav-submenu.show {

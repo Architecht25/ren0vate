@@ -9,25 +9,25 @@
             </div>
             <div class="card-body">
               <div class="row text-center">
-                <div class="col-3">
+                <div class="col-6 col-md-3 mb-3 mb-md-0">
                   <div class="border-end">
                     <h4 class="text-primary-custom mb-0"><%= @notifications.count %></h4>
                     <small class="text-muted">Total</small>
                   </div>
                 </div>
-                <div class="col-3">
+                <div class="col-6 col-md-3 mb-3 mb-md-0">
                   <div class="border-end">
                     <h4 class="text-warning mb-0"><%= @notifications.unread.count %></h4>
                     <small class="text-muted">Non lues</small>
                   </div>
                 </div>
-                <div class="col-3">
+                <div class="col-6 col-md-3">
                   <div class="border-end">
                     <h4 class="text-info mb-0"><%= @notifications.where("type LIKE 'admin_%'").count %></h4>
                     <small class="text-muted">Admin</small>
                   </div>
                 </div>
-                <div class="col-3">
+                <div class="col-6 col-md-3">
                   <h4 class="text-success mb-0"><%= @notifications.where(created_at: 24.hours.ago..Time.current).count %></h4>
                   <small class="text-muted">Aujourd'hui</small>
                 </div>
@@ -100,7 +100,7 @@
               <% notification_types = Notification.group(:type).count %>
               <% if notification_types.any? %>
                 <% notification_types.each do |type, count| %>
-                  <div class="d-flex justify-content-between align-items-center mb-2">
+                  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
                     <span class="small">
                       <i class="bi bi-<%= type.include?('admin') ? 'megaphone' : 'bell' %> me-1"></i>
                       <%= type.humanize %>

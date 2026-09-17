@@ -306,7 +306,7 @@
       <% if @page_visits_stats.any? %>
       <div class="row mt-5">
         <div class="col-12">
-          <div class="d-flex justify-content-between align-items-center mb-4">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
             <div>
               <h4 class="text-primary mb-1">
                 <i class="bi bi-graph-up-arrow me-2"></i>Analytics des Pages Hors Connexion
@@ -383,7 +383,7 @@
                     <i class="bi bi-star me-2"></i>Pages les plus visitées
                   </h6>
                   <% @page_visits_stats[:popular_pages].each_with_index do |(page, count), index| %>
-                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2 p-2 bg-light rounded">
                       <div class="d-flex align-items-center">
                         <span class="badge bg-primary me-2"><%= index + 1 %></span>
                         <small><%= page.humanize %></small>
@@ -399,7 +399,7 @@
                     <i class="bi bi-geo-alt me-2"></i>Activité par région
                   </h6>
                   <% @page_visits_stats[:visits_by_region].each do |region, count| %>
-                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2 p-2 bg-light rounded">
                       <div class="d-flex align-items-center">
                         <i class="bi bi-map me-2 text-<%= region == 'Bruxelles' ? 'warning' : region == 'Wallonie' ? 'danger' : 'primary' %>"></i>
                         <small><%= region %></small>
@@ -415,7 +415,7 @@
                     <i class="bi bi-calculator me-2"></i>Simulateurs utilisés
                   </h6>
                   <% @page_visits_stats[:simulation_activity].each do |simulator, count| %>
-                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2 p-2 bg-light rounded">
                       <div class="d-flex align-items-center">
                         <i class="bi bi-gear me-2 text-success"></i>
                         <small><%= simulator.humanize %></small>
@@ -433,7 +433,7 @@
                     <i class="bi bi-graph-up me-2"></i>Évolution des visites (7 derniers jours)
                   </h6>
                   <div class="bg-light p-3 rounded">
-                    <div class="row text-center">
+                    <div class="row row-cols-3 row-cols-sm-4 row-cols-md-7 text-center g-2">
                       <% @page_visits_stats[:daily_visits].each do |date, count| %>
                         <div class="col">
                           <div class="small text-muted mb-1"><%= Date.parse(date.to_s).strftime("%d/%m") %></div>

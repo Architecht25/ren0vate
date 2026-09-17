@@ -1,36 +1,36 @@
   <%# ── Rangée 1 : Opérationnel ── %>
-  <ul class="nav nav-pills nav-fill mb-2" id="adminTabs" role="tablist">
-    <li class="nav-item" role="presentation">
+  <ul class="nav nav-pills mb-2 flex-nowrap overflow-x-auto tabs-scroll-x" id="adminTabs" role="tablist">
+    <li class="nav-item flex-shrink-0 text-nowrap" role="presentation">
       <button class="nav-link active" id="activite-tab" data-bs-toggle="pill" data-bs-target="#activite-panel" type="button" role="tab">
         <i class="bi bi-activity me-2"></i>Activité
       </button>
     </li>
-    <li class="nav-item" role="presentation">
+    <li class="nav-item flex-shrink-0 text-nowrap" role="presentation">
       <button class="nav-link" id="users-tab" data-bs-toggle="pill" data-bs-target="#users-panel" type="button" role="tab">
         <i class="bi bi-people me-2"></i>Utilisateurs
       </button>
     </li>
-    <li class="nav-item" role="presentation">
+    <li class="nav-item flex-shrink-0 text-nowrap" role="presentation">
       <button class="nav-link" id="projets-tab" data-bs-toggle="pill" data-bs-target="#projets-panel" type="button" role="tab">
         <i class="bi bi-hammer me-2"></i>Projets
       </button>
     </li>
-    <li class="nav-item" role="presentation">
+    <li class="nav-item flex-shrink-0 text-nowrap" role="presentation">
       <button class="nav-link" id="security-tab" data-bs-toggle="pill" data-bs-target="#security-panel" type="button" role="tab">
         <i class="bi bi-shield-check me-2"></i>Sécurité
       </button>
     </li>
-    <li class="nav-item" role="presentation">
+    <li class="nav-item flex-shrink-0 text-nowrap" role="presentation">
       <button class="nav-link" id="finances-tab" data-bs-toggle="pill" data-bs-target="#finances-panel" type="button" role="tab">
         <i class="bi bi-currency-euro me-2"></i>Finances
       </button>
     </li>
-    <li class="nav-item" role="presentation">
+    <li class="nav-item flex-shrink-0 text-nowrap" role="presentation">
       <button class="nav-link" id="stats-tab" data-bs-toggle="pill" data-bs-target="#stats-panel" type="button" role="tab">
         <i class="bi bi-graph-up me-2"></i>Statistiques
       </button>
     </li>
-    <li class="nav-item" role="presentation">
+    <li class="nav-item flex-shrink-0 text-nowrap" role="presentation">
       <button class="nav-link" id="support-tab" data-bs-toggle="pill" data-bs-target="#support-panel" type="button" role="tab">
         <i class="bi bi-headset me-2"></i>Support
         <% if @support_stats[:overdue] > 0 %>
@@ -38,17 +38,17 @@
         <% end %>
       </button>
     </li>
-    <li class="nav-item" role="presentation">
+    <li class="nav-item flex-shrink-0 text-nowrap" role="presentation">
       <button class="nav-link" id="notifications-tab" data-bs-toggle="pill" data-bs-target="#notifications-panel" type="button" role="tab">
         <i class="bi bi-bell me-2"></i>Notifications
       </button>
     </li>
-    <li class="nav-item" role="presentation">
+    <li class="nav-item flex-shrink-0 text-nowrap" role="presentation">
       <button class="nav-link" id="maps-tab" data-bs-toggle="pill" data-bs-target="#maps-panel" type="button" role="tab">
         <i class="bi bi-geo-alt me-2"></i>Cartes
       </button>
     </li>
-    <li class="nav-item" role="presentation">
+    <li class="nav-item flex-shrink-0 text-nowrap" role="presentation">
       <button class="nav-link" id="system-tab" data-bs-toggle="pill" data-bs-target="#system-panel" type="button" role="tab">
         <i class="bi bi-server me-2"></i>Système
       </button>
@@ -56,10 +56,10 @@
   </ul>
 
   <%# ── Rangée 2 : Intelligence & Acquisition ── %>
-  <div class="d-flex align-items-center gap-2 mb-4 pt-1 border-top">
-    <span class="text-muted small fw-semibold text-uppercase me-1" style="font-size: 0.65rem; letter-spacing: 0.06em; white-space: nowrap;">Intelligence &amp; Acquisition</span>
-    <ul class="nav nav-pills flex-grow-0" id="adminTabsRow2" role="tablist">
-      <li class="nav-item" role="presentation">
+  <div class="d-flex align-items-center gap-2 mb-4 pt-1 border-top flex-nowrap overflow-x-auto tabs-scroll-x">
+    <span class="text-muted small fw-semibold text-uppercase me-1 flex-shrink-0 text-nowrap" style="font-size: 0.65rem; letter-spacing: 0.06em; white-space: nowrap;">Intelligence &amp; Acquisition</span>
+    <ul class="nav nav-pills flex-grow-0 flex-shrink-0 text-nowrap" id="adminTabsRow2" role="tablist">
+      <li class="nav-item flex-shrink-0 text-nowrap" role="presentation">
         <button class="nav-link" id="intelligence-tab" data-bs-toggle="pill" data-bs-target="#intelligence-panel" type="button" role="tab">
           <i class="bi bi-binoculars me-2"></i>Veille
           <% if @intelligence_latest&.week_of == @intelligence_current_week %>
@@ -67,7 +67,7 @@
           <% end %>
         </button>
       </li>
-      <li class="nav-item" role="presentation">
+      <li class="nav-item flex-shrink-0 text-nowrap" role="presentation">
         <button class="nav-link" id="marketing-tab" data-bs-toggle="pill" data-bs-target="#marketing-panel" type="button" role="tab">
           <i class="bi bi-megaphone me-2"></i>Marketing
           <% if @marketing_latest&.draft? %>
@@ -76,14 +76,14 @@
         </button>
       </li>
     </ul>
-    <%= link_to admin_veille_articles_path, class: "btn btn-sm btn-outline-secondary ms-2" do %>
+    <%= link_to admin_veille_articles_path, class: "btn btn-sm btn-outline-secondary ms-2 flex-shrink-0 text-nowrap" do %>
       <i class="bi bi-newspaper me-1"></i>Veille presse
       <% veille_count = VeilleArticle.active.count %>
       <% if veille_count > 0 %>
         <span class="badge bg-success ms-1"><%= veille_count %></span>
       <% end %>
     <% end %>
-    <%= link_to admin_regulatory_sources_path, class: "btn btn-sm btn-outline-secondary ms-2" do %>
+    <%= link_to admin_regulatory_sources_path, class: "btn btn-sm btn-outline-secondary ms-2 flex-shrink-0 text-nowrap" do %>
       <i class="bi bi-shield-check me-1"></i>Veille réglementaire
       <% reg_changed_count = RegulatorySource.where.not(last_changed_at: nil).count %>
       <% if reg_changed_count > 0 %>

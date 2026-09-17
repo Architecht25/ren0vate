@@ -432,6 +432,23 @@ select[required] {
   }
 }
 
+// === Rangées d'onglets/actions scrollables horizontalement sur mobile ===
+// Évite le débordement ou le wrap disgracieux des nav-pills / groupes de
+// boutons en tête de page quand ils ne tiennent pas sur 375px.
+.tabs-scroll-x {
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  > * {
+    scroll-snap-align: start;
+  }
+}
+
 @media (max-width: 576px) {
   .col-xl-4.col-lg-6.col-md-6 {
     flex: 0 0 100%;

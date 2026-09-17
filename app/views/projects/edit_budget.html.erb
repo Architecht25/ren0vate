@@ -1,6 +1,6 @@
 <div class="container-fluid px-4 py-4">
   <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+  <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2 mb-4 pb-3 border-bottom">
     <div class="d-flex align-items-center">
       <div class="icon-circle me-3">
         <i class="bi bi-calculator"></i>
@@ -33,7 +33,7 @@
           </h5>
 
           <!-- Bouton scan -->
-          <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
             <button type="button" class="btn btn-outline-primary btn-sm" id="btn-scan-architecte">
               <i class="bi bi-camera me-1"></i>Scanner un devis architecte
             </button>
@@ -106,18 +106,18 @@
                     <i class="bi bi-file-earmark-text text-primary fs-5"></i>
                   </div>
                   <div class="flex-grow-1 small">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
                       <span class="fw-medium"><%= d.nom_entreprise.presence || 'Entreprise non détectée' %></span>
                       <div class="d-flex align-items-center gap-2">
                         <span class="text-muted"><%= d.date_devis_display %></span>
                         <% if d.document&.file&.attached? %>
-                          <%= link_to rails_blob_path(d.document.file, only_path: true), target: "_blank", rel: "noopener noreferrer", class: "text-primary", title: "Voir le document" do %>
+                          <%= link_to rails_blob_path(d.document.file, only_path: true), target: "_blank", rel: "noopener noreferrer", class: "text-primary p-1", title: "Voir le document" do %>
                             <i class="bi bi-eye fs-6"></i>
                           <% end %>
                         <% end %>
                         <%= button_to document_path(d.document), method: :delete,
                             data: { turbo_confirm: "Supprimer ce devis scanné et ses données extraites ?" },
-                            class: "btn btn-link p-0 border-0 bg-transparent text-danger",
+                            class: "btn btn-link p-1 border-0 bg-transparent text-danger",
                             form: { style: "display:inline;" },
                             title: "Supprimer" do %>
                           <i class="bi bi-trash3 fs-6"></i>
@@ -125,7 +125,7 @@
                       </div>
                     </div>
                     <%# ── Montants HTVA / TVAC ── %>
-                    <div class="d-flex gap-3 mt-1 align-items-baseline">
+                    <div class="d-flex flex-wrap gap-3 mt-1 align-items-baseline">
                       <% if d.montant_htva_formate %>
                         <span class="text-success fw-bold fs-6"><%= d.montant_htva_formate %></span>
                       <% else %>
@@ -136,7 +136,7 @@
                       <% end %>
                     </div>
                     <%# ── Métadonnées devis ── %>
-                    <div class="d-flex gap-3 mt-1">
+                    <div class="d-flex flex-wrap gap-3 mt-1">
                       <% if d.taux_tva.present? %><span class="text-muted">TVA <%= d.taux_tva.to_f.round(0) %>%</span><% end %>
                       <% if d.numero_devis.present? %><span class="text-muted">N° <%= d.numero_devis %></span><% end %>
                       <% if d.nom_entreprise.present? %><span class="text-muted"><%= d.nom_entreprise %></span><% end %>
@@ -176,7 +176,7 @@
           </h5>
 
           <!-- Bouton scan -->
-          <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
             <button type="button" class="btn btn-outline-primary btn-sm" id="btn-scan-entrepreneur">
               <i class="bi bi-camera me-1"></i>Scanner un devis entrepreneur / métré
             </button>
@@ -249,19 +249,19 @@
                     <i class="bi bi-file-earmark-text text-primary fs-5"></i>
                   </div>
                   <div class="flex-grow-1 small">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
                       <span class="fw-medium"><%= d.nom_entreprise.presence || 'Entreprise non détectée' %></span>
                       <div class="d-flex align-items-center gap-2">
                         <span class="text-muted"><%= d.date_devis_display %></span>
                         <% if d.document&.file&.attached? %>
-                          <%= link_to rails_blob_path(d.document.file, only_path: true), target: "_blank", rel: "noopener noreferrer", class: "text-primary", title: "Voir le document" do %>
+                          <%= link_to rails_blob_path(d.document.file, only_path: true), target: "_blank", rel: "noopener noreferrer", class: "text-primary p-1", title: "Voir le document" do %>
                             <i class="bi bi-eye fs-6"></i>
                           <% end %>
                         <% end %>
                         <%= button_to document_path(d.document), method: :delete,
                             params: { return_context: 'budget' },
                             data: { turbo_confirm: "Supprimer ce devis scanné et ses données extraites ?" },
-                            class: "btn btn-link p-0 border-0 bg-transparent text-danger",
+                            class: "btn btn-link p-1 border-0 bg-transparent text-danger",
                             form: { style: "display:inline;" },
                             title: "Supprimer" do %>
                           <i class="bi bi-trash3 fs-6"></i>
@@ -269,7 +269,7 @@
                       </div>
                     </div>
                     <%# ── Montants HTVA / TVAC ── %>
-                    <div class="d-flex gap-3 mt-1 align-items-baseline">
+                    <div class="d-flex flex-wrap gap-3 mt-1 align-items-baseline">
                       <% if d.montant_htva_formate %>
                         <span class="text-success fw-bold fs-6"><%= d.montant_htva_formate %></span>
                       <% else %>
@@ -280,7 +280,7 @@
                       <% end %>
                     </div>
                     <%# ── Métadonnées devis ── %>
-                    <div class="d-flex gap-3 mt-1">
+                    <div class="d-flex flex-wrap gap-3 mt-1">
                       <% if d.taux_tva.present? %><span class="text-muted">TVA <%= d.taux_tva.to_f.round(0) %>%</span><% end %>
                       <% if d.numero_devis.present? %><span class="text-muted">N° <%= d.numero_devis %></span><% end %>
                       <% if d.nom_entreprise.present? %><span class="text-muted"><%= d.nom_entreprise %></span><% end %>
@@ -322,7 +322,7 @@
           <p class="text-muted small mb-3">Fiche technique ou bordereau fabricant — extrait automatiquement les valeurs thermiques <strong>Uw/Ug</strong> et vérifie l'éligibilité prime châssis.</p>
 
           <!-- Bouton scan -->
-          <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
             <button type="button" class="btn btn-outline-primary btn-sm" id="btn-scan-chassis">
               <i class="bi bi-camera me-1"></i>Scanner un bordereau châssis
             </button>
@@ -414,7 +414,7 @@
                     <i class="bi bi-window text-primary fs-5"></i>
                   </div>
                   <div class="flex-grow-1 small">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
                       <span class="fw-medium">
                         <%= b.nom_fabricant.presence || 'Fabricant non détecté' %>
                         <% if b.reference_produit.present? %>
@@ -424,14 +424,14 @@
                       <div class="d-flex align-items-center gap-2">
                         <span class="text-muted"><%= b.date_document_display %></span>
                         <% if b.document&.file&.attached? %>
-                          <%= link_to rails_blob_path(b.document.file, only_path: true), target: "_blank", rel: "noopener noreferrer", class: "text-primary", title: "Voir le document" do %>
+                          <%= link_to rails_blob_path(b.document.file, only_path: true), target: "_blank", rel: "noopener noreferrer", class: "text-primary p-1", title: "Voir le document" do %>
                             <i class="bi bi-eye fs-6"></i>
                           <% end %>
                         <% end %>
                         <%= button_to document_path(b.document), method: :delete,
                             params: { return_context: 'budget' },
                             data: { turbo_confirm: "Supprimer ce bordereau châssis et ses données extraites ?" },
-                            class: "btn btn-link p-0 border-0 bg-transparent text-danger",
+                            class: "btn btn-link p-1 border-0 bg-transparent text-danger",
                             form: { style: "display:inline;" },
                             title: "Supprimer" do %>
                           <i class="bi bi-trash3 fs-6"></i>
@@ -520,6 +520,7 @@
                           <i class="bi bi-list-ul me-1"></i>Voir le détail (<%= b.nb_postes %> postes)
                         </button>
                         <div class="collapse" id="detail-chassis-<%= b.id %>">
+                          <div class="table-responsive">
                           <table class="table table-sm table-borderless mt-1 mb-0" style="font-size: 0.75rem;">
                             <thead>
                               <tr class="text-muted">
@@ -559,6 +560,7 @@
                               <% end %>
                             </tbody>
                           </table>
+                          </div>
                         </div>
                       </div>
                     <% end %>
@@ -644,7 +646,7 @@
           <p class="text-muted small mb-3">Scannez vos factures d'acompte, états d'avancement et soldes pour mettre à jour automatiquement le suivi budgétaire.</p>
 
           <!-- Bouton scan -->
-          <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
             <button type="button" class="btn btn-outline-primary btn-sm" id="btn-scan-facture">
               <i class="bi bi-camera me-1"></i>Scanner une facture
             </button>
@@ -720,16 +722,16 @@
                             <% end %>
                             <span class="text-muted"><%= f.date_facture_display %></span>
                           </div>
-                          <div class="d-flex align-items-center gap-2">
+                          <div class="d-flex flex-wrap align-items-center gap-2">
                             <span class="fw-bold text-success"><%= f.montant_formate %></span>
                             <% if f.document&.file&.attached? %>
-                              <%= link_to rails_blob_path(f.document.file, only_path: true), target: "_blank", rel: "noopener noreferrer", class: "text-primary", title: "Voir le document" do %>
+                              <%= link_to rails_blob_path(f.document.file, only_path: true), target: "_blank", rel: "noopener noreferrer", class: "text-primary p-1", title: "Voir le document" do %>
                                 <i class="bi bi-eye fs-6"></i>
                               <% end %>
                             <% end %>
                             <%= button_to project_facture_path(@project, f), method: :delete,
                                 data: { turbo_confirm: "Supprimer cette facture ?" },
-                                class: "btn btn-link p-0 border-0 bg-transparent text-danger",
+                                class: "btn btn-link p-1 border-0 bg-transparent text-danger",
                                 form: { style: "display:inline;" },
                                 title: "Supprimer" do %>
                               <i class="bi bi-trash3 fs-6"></i>
@@ -737,10 +739,10 @@
                           </div>
                         </div>
                         <% unless f.valide_manuellement? %>
-                          <div class="d-flex align-items-center gap-2 mt-1">
+                          <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
                             <span class="badge bg-warning-subtle text-warning-emphasis" style="font-size:0.6rem;"><i class="bi bi-exclamation-triangle me-1"></i>À valider</span>
                             <button type="button"
-                                    class="btn btn-link p-0 border-0 text-success"
+                                    class="btn btn-link p-1 border-0 text-success"
                                     style="font-size:0.65rem; line-height:1;"
                                     data-validate-url="<%= validate_facture_project_facture_path(@project, f) %>">
                               <i class="bi bi-check-circle me-1"></i>Valider

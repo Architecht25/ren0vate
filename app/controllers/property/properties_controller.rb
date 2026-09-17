@@ -199,6 +199,7 @@ class PropertiesController < ApplicationController
   def documents_dashboard
     @property = current_user.properties.find(params[:id])
     @document_stats = Document.completion_stats_for_property(@property)
+    @documents_by_type = Document.for_property_and_its_projects(@property).group_by(&:type_document)
 
     load_phase_metrics
 

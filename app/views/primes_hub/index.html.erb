@@ -51,6 +51,7 @@
     padding: 0.75rem 1.25rem;
     border-bottom: 1px solid var(--ren0vate-border, #f3f4f6);
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     gap: 0.75rem;
@@ -113,7 +114,7 @@
 <div class="container-fluid px-4 py-4">
 
   <!-- Header -->
-  <div class="mb-4 pb-3 border-bottom d-flex align-items-start justify-content-between gap-3">
+  <div class="mb-4 pb-3 border-bottom d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2">
     <div>
       <h1 class="h3 text-primary-custom mb-1 fw-normal">Mes primes à la rénovation</h1>
       <p class="text-muted small mb-0">4 étapes pour maximiser vos aides à la rénovation</p>
@@ -238,7 +239,7 @@
                       <%= number_to_currency(simulation.total_simule, unit: "€", precision: 0, delimiter: ".", format: "%n %u") %>
                     </span>
                   <% end %>
-                  <%= link_to simulation_path(simulation), class: "btn btn-sm btn-outline-secondary py-0 px-2" do %>
+                  <%= link_to simulation_path(simulation), class: "btn btn-sm btn-outline-secondary py-1 px-2" do %>
                     <i class="bi bi-arrow-right" style="font-size:0.75rem;"></i>
                   <% end %>
                 </div>
@@ -304,7 +305,7 @@
                   </div>
                 </div>
                 <div class="flex-shrink-0">
-                  <%= link_to decision_hub_index_path(simulation_id: simulation.id), class: "btn btn-sm btn-outline-secondary py-0 px-2" do %>
+                  <%= link_to decision_hub_index_path(simulation_id: simulation.id), class: "btn btn-sm btn-outline-secondary py-1 px-2" do %>
                     <i class="bi bi-arrow-right" style="font-size:0.75rem;"></i>
                   <% end %>
                 </div>
@@ -381,7 +382,7 @@
                   <span class="badge <%= status_class %>" style="font-size:0.7rem;">
                     <%= t("request.status.#{request.status}", default: request.status&.humanize) %>
                   </span>
-                  <%= link_to request_path(request), class: "btn btn-sm btn-outline-secondary py-0 px-2" do %>
+                  <%= link_to request_path(request), class: "btn btn-sm btn-outline-secondary py-1 px-2" do %>
                     <i class="bi bi-arrow-right" style="font-size:0.75rem;"></i>
                   <% end %>
                 </div>
@@ -463,7 +464,7 @@
                       <%= number_to_currency(progress.montant_accorde, unit: "€", precision: 0, delimiter: ".", format: "%n %u") %>
                     </span>
                   <% end %>
-                  <%= link_to request_progress_path(progress), class: "btn btn-sm btn-outline-secondary py-0 px-2" do %>
+                  <%= link_to request_progress_path(progress), class: "btn btn-sm btn-outline-secondary py-1 px-2" do %>
                     <i class="bi bi-arrow-right" style="font-size:0.75rem;"></i>
                   <% end %>
                 </div>
@@ -499,7 +500,7 @@
       <div class="col-12">
         <div class="primes-hub-step step-suivi border-0">
           <div class="step-banner">
-            <div class="d-flex align-items-center gap-3 mb-2">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
               <div class="step-icon-wrap">
                 <i class="bi bi-bank2"></i>
               </div>
@@ -527,7 +528,7 @@
                   <span class="badge bg-primary" style="font-size:0.7rem;">
                     <%= t("pret_wallonie_dossier.statuts.#{dossier.statut}", default: dossier.statut.humanize) %>
                   </span>
-                  <%= link_to project_pret_wallonie_dossier_path(dossier.project), class: "btn btn-sm btn-outline-secondary py-0 px-2" do %>
+                  <%= link_to project_pret_wallonie_dossier_path(dossier.project), class: "btn btn-sm btn-outline-secondary py-1 px-2" do %>
                     <i class="bi bi-arrow-right" style="font-size:0.75rem;"></i>
                   <% end %>
                 </div>

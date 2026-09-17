@@ -5,8 +5,8 @@ module NotificationsHelper
     return '' if count.zero?
 
     content_tag :span, count,
-                class: "badge bg-danger rounded-pill position-absolute translate-middle",
-                style: "top: 8px; left: 24px; font-size: 0.65rem;"
+                class: "badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle",
+                style: "font-size: 0.65rem;"
   end
 
   # Icône selon le type de notification

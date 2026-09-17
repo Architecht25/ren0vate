@@ -1,7 +1,7 @@
 <div class="container-fluid px-4 py-4">
 
   <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+  <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2 mb-4 pb-3 border-bottom">
     <div class="d-flex align-items-center">
       <div class="icon-circle me-3" style="background: var(--bs-primary-bg-subtle);">
         <i class="bi bi-person-vcard-fill text-primary"></i>
@@ -15,7 +15,7 @@
         </small>
       </div>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex gap-2 flex-wrap">
       <%= link_to gestion_locative_property_path(@property), class: "btn btn-outline-success" do %>
         <i class="bi bi-key me-1"></i>Gestion locative
       <% end %>
@@ -35,7 +35,7 @@
         </div>
         <div class="card-body p-4">
           <% if @peb_trajectory %>
-            <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
               <div class="rounded-3 d-flex align-items-center justify-content-center fw-bold fs-3"
                    style="width:56px;height:56px;background:#f1f5f9;color:#334155;">
                 <%= @peb_trajectory[:current_label] %>
@@ -59,7 +59,7 @@
                      when :upcoming  then 'bg-warning text-dark'
                      else 'bg-secondary'
                    end %>
-                <div class="d-flex align-items-center justify-content-between gap-2 p-2 rounded-3" style="background:#fafafa;">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 p-2 rounded-3" style="background:#fafafa;">
                   <div class="small">
                     <span class="fw-semibold">Label <%= m[:target] %></span> requis d'ici <%= m[:year] %>
                     <div class="text-muted" style="font-size:0.75rem;"><%= m[:description] %></div>
@@ -92,9 +92,9 @@
               <div class="mb-3">
                 <div class="text-muted text-uppercase mb-2" style="font-size:0.72rem;">En cours ou en préparation</div>
                 <% @projets_en_cours.each do |projet| %>
-                  <div class="d-flex align-items-center justify-content-between p-2 rounded-3 mb-1" style="background:#fffbeb;">
+                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 p-2 rounded-3 mb-1" style="background:#fffbeb;">
                     <span class="small fw-semibold"><%= projet.nom %></span>
-                    <%= link_to "Voir", project_path(projet), class: "btn btn-sm btn-outline-secondary py-0 px-2" %>
+                    <%= link_to "Voir", project_path(projet), class: "btn btn-sm btn-outline-secondary py-1 px-2" %>
                   </div>
                 <% end %>
               </div>
@@ -103,9 +103,9 @@
               <div>
                 <div class="text-muted text-uppercase mb-2" style="font-size:0.72rem;">Terminés</div>
                 <% @projets_termines.each do |projet| %>
-                  <div class="d-flex align-items-center justify-content-between p-2 rounded-3 mb-1" style="background:#f0fdf4;">
+                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 p-2 rounded-3 mb-1" style="background:#f0fdf4;">
                     <span class="small fw-semibold"><%= projet.nom %></span>
-                    <%= link_to "Voir", project_path(projet), class: "btn btn-sm btn-outline-secondary py-0 px-2" %>
+                    <%= link_to "Voir", project_path(projet), class: "btn btn-sm btn-outline-secondary py-1 px-2" %>
                   </div>
                 <% end %>
               </div>

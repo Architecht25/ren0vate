@@ -91,10 +91,12 @@
 
         <ul class="nav-list">
           <li class="nav-item">
-            <%= link_to notifications_path, class: "nav-link position-relative" do %>
-              <i class="bi bi-bell"></i>
+            <%= link_to notifications_path, class: "nav-link" do %>
+              <span class="position-relative d-inline-block">
+                <i class="bi bi-bell"></i>
+                <%= unread_notifications_badge(current_user) %>
+              </span>
               <span>Notifications</span>
-              <%= unread_notifications_badge(current_user) %>
             <% end %>
           </li>
 
@@ -198,10 +200,12 @@
       <!-- Autres liens -->
       <ul class="nav-list">
         <li class="nav-item">
-          <%= link_to notifications_path, class: "nav-link position-relative" do %>
-            <i class="bi bi-bell"></i>
+          <%= link_to notifications_path, class: "nav-link" do %>
+            <span class="position-relative d-inline-block">
+              <i class="bi bi-bell"></i>
+              <%= unread_notifications_badge(current_user) %>
+            </span>
             <span>Notifications</span>
-            <%= unread_notifications_badge(current_user) %>
           <% end %>
         </li>
 
@@ -232,7 +236,7 @@
           <li class="nav-item">
             <%= link_to admin_articles_path, class: "nav-link admin-link" do %>
               <i class="bi bi-pencil-square"></i>
-              <span>Blog</span>
+              <span>Gérer le blog</span>
               <% drafts = Article.drafts.count %>
               <% if drafts > 0 %>
                 <span class="badge bg-secondary rounded-pill ms-auto"><%= drafts %></span>

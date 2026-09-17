@@ -20,7 +20,7 @@
         </div>
 
         <table class="table table-sm table-borderless mb-0">
-          <tr><td class="text-muted" width="40%">Email</td><td><strong><%= user.email %></strong></td></tr>
+          <tr><td class="text-muted" width="40%">Email</td><td class="text-break"><strong><%= user.email %></strong></td></tr>
           <tr><td class="text-muted">Prénom</td><td><%= user.first_name.presence || "—" %></td></tr>
           <tr><td class="text-muted">Nom</td><td><%= user.last_name.presence || "—" %></td></tr>
           <tr><td class="text-muted">Téléphone</td><td><%= user.phone.presence || "—" %></td></tr>
@@ -99,7 +99,7 @@
       </div>
       <div class="card-body">
         <table class="table table-sm table-borderless mb-0">
-          <tr><td class="text-muted" width="55%">Stripe ID</td><td><small><%= user.stripe_customer_id.presence || "—" %></small></td></tr>
+          <tr><td class="text-muted" width="55%">Stripe ID</td><td class="text-break"><small><%= user.stripe_customer_id.presence || "—" %></small></td></tr>
           <tr><td class="text-muted">Compte verrouillé</td><td>
             <% if user.locked_at.present? %>
               <span class="badge bg-danger">Verrouillé le <%= user.locked_at.strftime("%d/%m/%Y") %></span>
@@ -313,38 +313,38 @@
           <div class="card-body">
             <div class="row">
               <div class="col-6 col-md-3 mb-2">
-                <%= link_to edit_admin_user_path(user), class: "btn btn-outline-primary btn-sm w-100 h-100 d-flex flex-column align-items-center justify-content-center" do %>
+                <%= link_to edit_admin_user_path(user), class: "btn btn-outline-primary btn-sm w-100 h-100 d-flex flex-column align-items-center justify-content-center p-2" do %>
                   <i class="bi bi-pencil fs-4 mb-1"></i>
-                  <small>Modifier le profil</small>
+                  <small style="font-size: 11px;">Modifier le profil</small>
                 <% end %>
               </div>
               <div class="col-6 col-md-3 mb-2">
-                <%= link_to "#", class: "btn btn-outline-warning btn-sm w-100 h-100 d-flex flex-column align-items-center justify-content-center",
+                <%= link_to "#", class: "btn btn-outline-warning btn-sm w-100 h-100 d-flex flex-column align-items-center justify-content-center p-2",
                     onclick: "alert('Fonctionnalité Pundit nécessaire')" do %>
                   <i class="bi bi-person-check fs-4 mb-1"></i>
-                  <small>Connexion en tant que</small>
+                  <small style="font-size: 11px;">Connexion en tant que</small>
                 <% end %>
               </div>
               <div class="col-6 col-md-3 mb-2">
-                <%= link_to "#", class: "btn btn-outline-info btn-sm w-100 h-100 d-flex flex-column align-items-center justify-content-center",
+                <%= link_to "#", class: "btn btn-outline-info btn-sm w-100 h-100 d-flex flex-column align-items-center justify-content-center p-2",
                     onclick: "alert('Envoyer lien de réinitialisation')" do %>
                   <i class="bi bi-key fs-4 mb-1"></i>
-                  <small>Réinitialiser MDP</small>
+                  <small style="font-size: 11px;">Réinitialiser MDP</small>
                 <% end %>
               </div>
               <div class="col-6 col-md-3 mb-2">
                 <% unless user.admin? && User.admin.count == 1 %>
                   <%= link_to admin_user_path(user),
                       method: :delete,
-                      class: "btn btn-outline-danger btn-sm w-100 h-100 d-flex flex-column align-items-center justify-content-center",
+                      class: "btn btn-outline-danger btn-sm w-100 h-100 d-flex flex-column align-items-center justify-content-center p-2",
                       data: { confirm: "Êtes-vous sûr de vouloir supprimer ce compte utilisateur ?" } do %>
                     <i class="bi bi-trash fs-4 mb-1"></i>
-                    <small>Supprimer compte</small>
+                    <small style="font-size: 11px;">Supprimer compte</small>
                   <% end %>
                 <% else %>
-                  <button class="btn btn-outline-secondary btn-sm w-100 h-100 d-flex flex-column align-items-center justify-content-center" disabled>
+                  <button class="btn btn-outline-secondary btn-sm w-100 h-100 d-flex flex-column align-items-center justify-content-center p-2" disabled>
                     <i class="bi bi-shield-lock fs-4 mb-1"></i>
-                    <small>Dernier admin</small>
+                    <small style="font-size: 11px;">Dernier admin</small>
                   </button>
                 <% end %>
               </div>

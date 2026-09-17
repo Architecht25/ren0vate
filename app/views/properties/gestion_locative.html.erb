@@ -1,7 +1,7 @@
 <div class="container-fluid px-4 py-4">
 
   <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+  <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2 mb-4 pb-3 border-bottom">
     <div class="d-flex align-items-center">
       <div class="icon-circle me-3" style="background: var(--bs-success-bg-subtle);">
         <i class="bi bi-key-fill text-success"></i>
@@ -15,7 +15,7 @@
         </small>
       </div>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex gap-2 flex-wrap">
       <%= link_to new_property_tenant_path(@property), class: "btn btn-success" do %>
         <i class="bi bi-person-plus me-1"></i>Nouveau locataire
       <% end %>
@@ -46,7 +46,7 @@
                 </p>
               </div>
               <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                <div class="d-flex justify-content-md-end gap-3">
+                <div class="d-flex justify-content-md-end gap-3 flex-wrap">
                   <div class="text-center">
                     <div class="h4 mb-0 fw-bold text-success"><%= number_to_currency(@bail_actif.rent_amount, unit: '€', format: '%n %u') %></div>
                     <small class="text-muted">loyer</small>
@@ -92,7 +92,7 @@
     <!-- Colonne gauche : locataires -->
     <div class="col-lg-5">
       <div class="card border-0 shadow-sm">
-        <div class="card-header bg-transparent border-bottom d-flex justify-content-between align-items-center py-3">
+        <div class="card-header bg-transparent border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2 py-3">
           <h6 class="mb-0 fw-semibold"><i class="bi bi-people me-2"></i>Locataires</h6>
           <%= link_to new_property_tenant_path(@property), class: "btn btn-sm btn-outline-success" do %>
             <i class="bi bi-plus"></i> Ajouter
@@ -103,7 +103,7 @@
             <ul class="list-group list-group-flush">
               <% @tenants.each do |tenant| %>
                 <li class="list-group-item px-4 py-3">
-                  <div class="d-flex justify-content-between align-items-start">
+                  <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
                     <div>
                       <div class="fw-semibold"><%= tenant.full_name %></div>
                       <% if tenant.email.present? %>

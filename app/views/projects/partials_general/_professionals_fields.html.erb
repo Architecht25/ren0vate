@@ -16,23 +16,23 @@
   <div class="card-body">
     <!-- Première rangée : informations principales -->
     <div class="row g-2 mb-3">
-      <div class="col">
+      <div class="col-12 col-md">
         <%= form.label :architecte_prenom, "Prénom", class: "form-label" %>
         <%= form.text_field :architecte_prenom, class: "form-control", placeholder: "Ex: Jean" %>
       </div>
-      <div class="col">
+      <div class="col-12 col-md">
         <%= form.label :architecte_nom, "Nom", class: "form-label" %>
         <%= form.text_field :architecte_nom, class: "form-control", placeholder: "Ex: Dupont" %>
       </div>
-      <div class="col">
+      <div class="col-12 col-md">
         <%= form.label :architecte_entreprise, "Cabinet", class: "form-label" %>
         <%= form.text_field :architecte_entreprise, class: "form-control", placeholder: "Ex: Cabinet Dupont" %>
       </div>
-      <div class="col">
+      <div class="col-12 col-md">
         <%= form.label :architecte_telephone, "Téléphone", class: "form-label" %>
         <%= form.text_field :architecte_telephone, class: "form-control", placeholder: "Ex: +32 123 45 67 89", type: "tel" %>
       </div>
-      <div class="col">
+      <div class="col-12 col-md">
         <%= form.label :architecte_email, "Email", class: "form-label" %>
         <%= form.email_field :architecte_email, class: "form-control", placeholder: "Ex: jean.dupont@cabinet.be" %>
       </div>
@@ -64,7 +64,7 @@
      data-controller="entrepreneurs-management"
      data-entrepreneurs-management-container-target="container">
   <div class="card-header bg-warning-light border-0">
-    <div class="d-flex justify-content-between align-items-center">
+    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
       <h6 class="card-title text-warning-emphasis mb-0 fw-semibold">
         <i class="bi bi-hammer me-2"></i>Entrepreneurs
       </h6>
@@ -80,7 +80,7 @@
     <div id="entrepreneurs-container">
       <!-- Entrepreneur Principal (converti en premier entrepreneur) -->
       <div class="entrepreneur-item border rounded p-3 mb-3" style="background-color: #f8f9fa;">
-        <div class="d-flex justify-content-between align-items-start mb-3">
+        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-start mb-3">
           <h6 class="text-warning-emphasis mb-0 fw-semibold">
             <i class="bi bi-hammer me-2"></i>Entrepreneur Principal
           </h6>
@@ -88,23 +88,23 @@
 
         <!-- Première rangée : informations principales -->
         <div class="row g-2 mb-3">
-          <div class="col">
+          <div class="col-12 col-md">
             <%= form.label :entrepreneur_principal_nom, "Nom", class: "form-label" %>
             <%= form.text_field :entrepreneur_principal_nom, class: "form-control", placeholder: "Ex: Pierre Martin" %>
           </div>
-          <div class="col">
+          <div class="col-12 col-md">
             <%= form.label :entrepreneur_principal_entreprise, "Entreprise", class: "form-label" %>
             <%= form.text_field :entrepreneur_principal_entreprise, class: "form-control", placeholder: "Ex: Entreprise Martin SPRL" %>
           </div>
-          <div class="col">
+          <div class="col-12 col-md">
             <%= form.label :entrepreneur_principal_numero_tva, "N° TVA", class: "form-label" %>
             <%= form.text_field :entrepreneur_principal_numero_tva, class: "form-control", placeholder: "Ex: BE0123456789" %>
           </div>
-          <div class="col">
+          <div class="col-12 col-md">
             <%= form.label :entrepreneur_principal_telephone, "Téléphone", class: "form-label" %>
             <%= form.text_field :entrepreneur_principal_telephone, class: "form-control", placeholder: "Ex: +32 123 45 67 89", type: "tel" %>
           </div>
-          <div class="col">
+          <div class="col-12 col-md">
             <%= form.label :entrepreneur_principal_email, "Email", class: "form-label" %>
             <%= form.email_field :entrepreneur_principal_email, class: "form-control", placeholder: "Ex: contact@entreprise-martin.be" %>
           </div>
@@ -135,7 +135,7 @@
         <% if @project.additional_entrepreneurs.present? %>
           <% JSON.parse(@project.additional_entrepreneurs).each_with_index do |entrepreneur, index| %>
             <div class="entrepreneur-item border rounded p-3 mb-3" style="background-color: #f8f9fa;">
-              <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="d-flex flex-wrap gap-2 justify-content-between align-items-start mb-3">
                 <h6 class="text-warning-emphasis mb-0 fw-semibold">
                   <i class="bi bi-hammer me-2"></i>Entrepreneur <%= index + 2 %>
                 </h6>
@@ -146,23 +146,23 @@
 
               <!-- Première rangée : informations principales -->
               <div class="row g-2 mb-3">
-                <div class="col">
+                <div class="col-12 col-md">
                   <label class="form-label">Nom</label>
                   <input type="text" class="form-control" name="additional_entrepreneurs[][nom]" value="<%= entrepreneur['nom'] %>" placeholder="Ex: Pierre Martin">
                 </div>
-                <div class="col">
+                <div class="col-12 col-md">
                   <label class="form-label">Entreprise</label>
                   <input type="text" class="form-control" name="additional_entrepreneurs[][entreprise]" value="<%= entrepreneur['entreprise'] %>" placeholder="Ex: Entreprise Martin SPRL">
                 </div>
-                <div class="col">
+                <div class="col-12 col-md">
                   <label class="form-label">N° TVA</label>
                   <input type="text" class="form-control" name="additional_entrepreneurs[][numero_tva]" value="<%= entrepreneur['numero_tva'] %>" placeholder="Ex: BE0123456789">
                 </div>
-                <div class="col">
+                <div class="col-12 col-md">
                   <label class="form-label">Téléphone</label>
                   <input type="tel" class="form-control" name="additional_entrepreneurs[][telephone]" value="<%= entrepreneur['telephone'] %>" placeholder="Ex: +32 123 45 67 89">
                 </div>
-                <div class="col">
+                <div class="col-12 col-md">
                   <label class="form-label">Email</label>
                   <input type="email" class="form-control" name="additional_entrepreneurs[][email]" value="<%= entrepreneur['email'] %>" placeholder="Ex: contact@entreprise-martin.be">
                 </div>

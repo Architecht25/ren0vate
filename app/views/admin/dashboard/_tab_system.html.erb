@@ -3,10 +3,10 @@
 
       <!-- Vue d'ensemble du système -->
       <div class="row mb-4">
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
             <div class="card-body text-white">
-              <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <div>
                   <h5 class="mb-0"><%= @system_info[:environment][:rails_env].upcase %></h5>
                   <small class="opacity-75">Environnement</small>
@@ -16,10 +16,10 @@
             </div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
             <div class="card-body text-white">
-              <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <div>
                   <h5 class="mb-0"><%= @system_info[:performance][:active_connections] %></h5>
                   <small class="opacity-75">Connexions DB actives</small>
@@ -29,10 +29,10 @@
             </div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
             <div class="card-body text-white">
-              <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <div>
                   <h5 class="mb-0"><%= @system_info[:security][:active_sessions] %></h5>
                   <small class="opacity-75">Sessions actives</small>
@@ -42,10 +42,10 @@
             </div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
             <div class="card-body text-white">
-              <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <div>
                   <h5 class="mb-0"><%= @system_info[:services][:database][:response_time] %></h5>
                   <small class="opacity-75">Latence DB</small>
@@ -112,7 +112,7 @@
             </div>
             <div class="card-body">
               <!-- Base de données -->
-              <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 p-3 bg-light rounded">
                 <div>
                   <h6 class="mb-1"><i class="bi bi-database me-2"></i>Base de données</h6>
                   <small class="text-muted">Connexions: <%= @system_info[:services][:database][:connection_count] %></small>
@@ -124,7 +124,7 @@
               </div>
 
               <!-- Email -->
-              <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 p-3 bg-light rounded">
                 <div>
                   <h6 class="mb-1"><i class="bi bi-envelope me-2"></i>Service Email</h6>
                   <small class="text-muted"><%= @system_info[:services][:email][:delivery_method] %></small>
@@ -137,7 +137,7 @@
               </div>
 
               <!-- Stockage -->
-              <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 p-3 bg-light rounded">
                 <div>
                   <h6 class="mb-1"><i class="bi bi-cloud-upload me-2"></i>Stockage</h6>
                   <small class="text-muted"><%= @system_info[:services][:storage][:service] %></small>
@@ -151,7 +151,7 @@
 
               <!-- APIs externes -->
               <% @system_info[:services][:external_apis].each do |api_name, api_info| %>
-                <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 p-3 bg-light rounded">
                   <div>
                     <h6 class="mb-1"><i class="bi bi-globe me-2"></i><%= api_name.to_s.humanize %></h6>
                     <small class="text-muted"><%= api_info[:service] if api_info[:service] %></small>
@@ -186,19 +186,19 @@
 
               <h6><i class="bi bi-shield-check me-2"></i>Sécurité</h6>
               <div class="mb-3">
-                <div class="d-flex justify-content-between">
+                <div class="d-flex flex-wrap justify-content-between gap-2">
                   <span>SSL/HTTPS:</span>
                   <span class="badge bg-<%= @system_info[:security][:ssl_info][:status].include?('✅') ? 'success' : 'warning' %>">
                     <%= @system_info[:security][:ssl_info][:status] %>
                   </span>
                 </div>
-                <div class="d-flex justify-content-between mt-2">
+                <div class="d-flex flex-wrap justify-content-between gap-2 mt-2">
                   <span>CSP:</span>
                   <span class="badge bg-<%= @system_info[:security][:csp_status][:status].include?('✅') ? 'success' : 'warning' %>">
                     <%= @system_info[:security][:csp_status][:csp] %>
                   </span>
                 </div>
-                <div class="d-flex justify-content-between mt-2">
+                <div class="d-flex flex-wrap justify-content-between gap-2 mt-2">
                   <span>Échecs de connexion (1h):</span>
                   <% failed_logins = @system_info[:security][:recent_failed_logins].is_a?(Numeric) ? @system_info[:security][:recent_failed_logins] : 0 %>
                   <span class="badge bg-<%= failed_logins > 5 ? 'danger' : 'success' %>">

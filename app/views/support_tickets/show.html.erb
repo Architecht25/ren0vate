@@ -5,11 +5,11 @@
     <div class="col-xl-8">
 
       <!-- En-tête ticket -->
-      <div class="d-flex align-items-center justify-content-between mb-3">
+      <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2 mb-3">
         <%= link_to support_tickets_path, class: "btn btn-sm btn-outline-secondary" do %>
           <i class="bi bi-arrow-left me-1"></i>Mes demandes
         <% end %>
-        <div class="d-flex gap-2">
+        <div class="d-flex flex-wrap gap-2">
           <span class="badge bg-<%= @ticket.status_color %> fs-6"><%= @ticket.status_label %></span>
           <% if @ticket.priority == 'urgent' %>
             <span class="badge bg-danger fs-6">Urgent</span>
@@ -50,7 +50,7 @@
                   · <%= msg.created_at.strftime('%d/%m à %Hh%M') %>
                 </div>
                 <div class="p-3 rounded-3 <%= is_admin ? 'bg-primary bg-opacity-10' : 'bg-light' %>"
-                     style="white-space: pre-wrap; font-size: 0.9rem;">
+                     style="white-space: pre-wrap; overflow-wrap: break-word; font-size: 0.9rem;">
                   <%= msg.body %>
                 </div>
               </div>
@@ -70,7 +70,7 @@
                     rows: 4,
                     class: "form-control mb-2",
                     placeholder: "Ajoutez des précisions ou répondez à l'équipe..." %>
-              <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <%= f.submit "Envoyer", class: "btn btn-primary" %>
                 <%= link_to close_support_ticket_path(@ticket), method: :patch,
                       class: "btn btn-outline-secondary btn-sm",
