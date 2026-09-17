@@ -16,10 +16,10 @@
 
     <div class="card-body px-4 py-4">
       <label class="form-label fw-semibold small">Votre lien personnel</label>
-      <div class="input-group mb-3">
+      <div class="d-flex flex-column flex-sm-row gap-2 mb-3">
         <input type="text" id="referral-url" class="form-control form-control-sm"
                value="<%= @referral_url %>" readonly>
-        <button class="btn btn-outline-secondary btn-sm" type="button"
+        <button class="btn btn-outline-secondary btn-sm text-nowrap" type="button"
                 onclick="copyReferral()" id="copy-btn">
           <i class="bi bi-clipboard me-1"></i>Copier
         </button>
@@ -33,13 +33,13 @@
 
       <p class="fw-semibold small mb-2">Ou envoyez directement par email</p>
       <%= form_with url: create_pro_referral_path, method: :post, local: true do |f| %>
-        <div class="input-group">
+        <div class="d-flex flex-column flex-sm-row gap-2">
           <%= f.email_field :client_email,
                 placeholder: "email@client.be",
                 class: "form-control form-control-sm",
                 required: true %>
           <%= f.submit "Envoyer l'invitation",
-                class: "btn btn-primary btn-sm" %>
+                class: "btn btn-primary btn-sm text-nowrap" %>
         </div>
       <% end %>
     </div>

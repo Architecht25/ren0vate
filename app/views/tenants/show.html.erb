@@ -1,5 +1,5 @@
 <div class="container-fluid px-4 py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+  <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2 mb-4 pb-3 border-bottom">
     <div class="d-flex align-items-center">
       <div class="icon-circle me-3" style="background: var(--bs-success-bg-subtle);">
         <i class="bi bi-person-fill text-success"></i>
@@ -9,7 +9,7 @@
         <small class="text-muted"><%= @property.titre.presence || @property.name %></small>
       </div>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex gap-2 flex-wrap">
       <%= link_to edit_property_tenant_path(@property, @tenant), class: "btn btn-outline-secondary btn-sm" do %>
         <i class="bi bi-pencil me-1"></i>Modifier
       <% end %>
@@ -29,16 +29,16 @@
           <h6 class="fw-semibold mb-3">Coordonnées</h6>
           <dl class="row small mb-0">
             <% if @tenant.email.present? %>
-              <dt class="col-4 text-muted">E-mail</dt>
-              <dd class="col-8"><%= mail_to @tenant.email %></dd>
+              <dt class="col-12 col-sm-4 text-muted">E-mail</dt>
+              <dd class="col-12 col-sm-8"><%= mail_to @tenant.email %></dd>
             <% end %>
             <% if @tenant.phone.present? %>
-              <dt class="col-4 text-muted">Tél.</dt>
-              <dd class="col-8"><%= @tenant.phone %></dd>
+              <dt class="col-12 col-sm-4 text-muted">Tél.</dt>
+              <dd class="col-12 col-sm-8"><%= @tenant.phone %></dd>
             <% end %>
             <% if @tenant.notes.present? %>
-              <dt class="col-4 text-muted">Notes</dt>
-              <dd class="col-8"><%= @tenant.notes %></dd>
+              <dt class="col-12 col-sm-4 text-muted">Notes</dt>
+              <dd class="col-12 col-sm-8"><%= @tenant.notes %></dd>
             <% end %>
           </dl>
         </div>

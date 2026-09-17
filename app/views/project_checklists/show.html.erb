@@ -1,7 +1,7 @@
 <div class="container-fluid px-4 py-4">
 
   <!-- ── Header ─────────────────────────────────────────────────────────────── -->
-  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+  <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2 mb-4 pb-3 border-bottom">
     <div class="d-flex align-items-center">
       <div class="icon-circle me-3">
         <i class="bi <%= @checklist.checklist_template.phase_icon %>"></i>
@@ -19,7 +19,7 @@
         </small>
       </div>
     </div>
-    <div class="d-flex gap-2 align-items-center">
+    <div class="d-flex gap-2 align-items-center flex-wrap">
       <!-- Progression -->
       <div class="text-end me-3" style="min-width:80px;">
         <div class="fw-bold text-primary"><%= @checklist.progress_pct %>%</div>
@@ -69,13 +69,13 @@
                 <% if item.checked %>
                   <input type="hidden" name="checked" value="false">
                   <button type="submit" class="btn btn-success rounded-circle p-0 d-flex align-items-center justify-content-center"
-                          style="width:28px;height:28px;" title="Cocher / décocher">
+                          style="width:38px;height:38px;" title="Cocher / décocher">
                     <i class="bi bi-check2 text-white" style="font-size:14px;"></i>
                   </button>
                 <% else %>
                   <input type="hidden" name="checked" value="true">
                   <button type="submit" class="btn btn-outline-secondary rounded-circle p-0 d-flex align-items-center justify-content-center"
-                          style="width:28px;height:28px;" title="Marquer OK">
+                          style="width:38px;height:38px;" title="Marquer OK">
                     <i class="bi bi-circle" style="font-size:14px;"></i>
                   </button>
                 <% end %>
@@ -110,7 +110,7 @@
               <% unless item.checked %>
                 <div class="mt-2">
                   <%= form_with url: project_checklist_item_path(item), method: :patch,
-                                data: { turbo: false }, class: "d-flex gap-2 align-items-center" do |f| %>
+                                data: { turbo: false }, class: "d-flex gap-2 align-items-center flex-wrap" do |f| %>
                     <input type="hidden" name="checked" value="true">
                     <input type="text" name="notes" value="<%= item.notes %>"
                            class="form-control form-control-sm rounded-3 flex-grow-1"
