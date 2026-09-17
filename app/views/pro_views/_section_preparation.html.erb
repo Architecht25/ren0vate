@@ -129,16 +129,16 @@
                           multipart: true, class: "mt-2" do |f| %>
               <%= hidden_field_tag :type_facture, 'devis' %>
               <div class="row g-2 align-items-end">
-                <div class="col-md-5">
+                <div class="col-12 col-md-5">
                   <%= label_tag :facture_pdf, "Fichier PDF / image", class: "form-label mb-0", style: "font-size:0.8rem;" %>
                   <%= file_field_tag :facture_pdf, class: "form-control form-control-sm mt-1", accept: ".pdf,.jpg,.jpeg,.png" %>
                 </div>
-                <div class="col-md-3">
+                <div class="col-12 col-md-3">
                   <%= label_tag :montant_ttc, "Montant TTC (€)", class: "form-label mb-0", style: "font-size:0.8rem;" %>
                   <%= number_field_tag :montant_ttc, nil, class: "form-control form-control-sm mt-1",
                         placeholder: "Ex: 12500", min: 0, step: 0.01 %>
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-4">
                   <%= f.submit "Envoyer mon devis", class: "btn btn-warning btn-sm w-100", style: "font-size:0.8rem;" %>
                 </div>
               </div>
@@ -197,7 +197,7 @@
       <%# ── BLOC ARCHITECTE : Permis, Plans & Métré ─────────────────────── %>
       <% if @membership.can_manage_permis? %>
         <div class="card border-0 shadow-sm rounded-3 mb-3" style="border-left:3px solid #0dcaf0 !important;">
-          <div class="card-header bg-white border-bottom pt-3 pb-2 px-4 d-flex align-items-center justify-content-between">
+          <div class="card-header bg-white border-bottom pt-3 pb-2 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
             <h5 class="mb-0 fw-semibold" style="font-size:0.95rem;">
               <i class="bi bi-building-gear me-2 text-info"></i>Permis d'urbanisme
             </h5>
@@ -236,7 +236,7 @@
                 <span class="text-muted fw-semibold" style="font-size:0.82rem;">Permis non requis</span>
               </div>
             <% elsif current.present? %>
-              <div class="d-flex align-items-center mb-3" style="gap:0;">
+              <div class="d-flex align-items-center flex-wrap mb-3" style="gap:0;">
                 <% stepper_steps.each_with_index do |step, idx| %>
                   <%
                     is_done    = current_idx && idx < current_idx
@@ -350,7 +350,7 @@
                       <div class="text-truncate" style="font-size:0.8rem;"><%= doc.file_name.presence || "Document permis" %></div>
                       <div class="text-muted" style="font-size:0.7rem;"><%= doc.created_at.strftime("%d/%m/%Y") %></div>
                     </div>
-                    <%= link_to rails_blob_path(doc.file, disposition: 'inline'), target: '_blank', class: "btn btn-sm btn-outline-secondary py-0 px-1" do %>
+                    <%= link_to rails_blob_path(doc.file, disposition: 'inline'), target: '_blank', class: "btn btn-sm btn-outline-secondary py-1 px-2" do %>
                       <i class="bi bi-eye" style="font-size:0.75rem;"></i>
                     <% end %>
                   </div>
@@ -362,12 +362,12 @@
             <%= form_with url: upload_document_pro_project_path(@project), method: :post, multipart: true, class: "mb-0" do |f| %>
               <%= hidden_field_tag :type_document, 'permis_urbanisme' %>
               <div class="row g-2 align-items-end">
-                <div class="col-8">
+                <div class="col-12 col-md-8">
                   <label class="form-label text-muted mb-0" style="font-size:0.75rem;">Ajouter un document permis</label>
                   <%= file_field_tag :document_file, class: "form-control form-control-sm mt-1 rounded-3",
                         accept: ".pdf,.jpg,.jpeg,.png" %>
                 </div>
-                <div class="col-4">
+                <div class="col-12 col-md-4">
                   <button type="submit" class="btn btn-sm btn-outline-secondary w-100 rounded-3" style="font-size:0.78rem;">
                     <i class="bi bi-upload me-1"></i>Ajouter
                   </button>
@@ -394,7 +394,7 @@
                     <div class="text-muted" style="font-size:0.7rem;"><%= doc.created_at.strftime("%d/%m/%Y") %></div>
                   </div>
                   <%= link_to rails_blob_path(doc.file, disposition: 'inline'), target: '_blank',
-                        class: "btn btn-sm btn-outline-info py-0 px-2 flex-shrink-0" do %>
+                        class: "btn btn-sm btn-outline-info py-1 px-2 flex-shrink-0" do %>
                     <i class="bi bi-eye" style="font-size:0.75rem;"></i>
                   <% end %>
                 </div>
@@ -407,12 +407,12 @@
             <%= form_with url: upload_document_pro_project_path(@project), method: :post, multipart: true do |f| %>
               <%= hidden_field_tag :type_document, 'plan' %>
               <div class="row g-2 align-items-end">
-                <div class="col-8">
+                <div class="col-12 col-md-8">
                   <label class="form-label text-muted mb-0" style="font-size:0.75rem;">Ajouter un plan (PDF/image)</label>
                   <%= file_field_tag :document_file, class: "form-control form-control-sm mt-1 rounded-3",
                         accept: ".pdf,.jpg,.jpeg,.png,.dwg" %>
                 </div>
-                <div class="col-4">
+                <div class="col-12 col-md-4">
                   <button type="submit" class="btn btn-sm btn-outline-info w-100 rounded-3" style="font-size:0.78rem;">
                     <i class="bi bi-upload me-1"></i>Ajouter
                   </button>
@@ -445,7 +445,7 @@
                     <div class="text-muted" style="font-size:0.7rem;"><%= doc.created_at.strftime("%d/%m/%Y") %></div>
                   </div>
                   <%= link_to rails_blob_path(doc.file, disposition: 'inline'), target: '_blank',
-                        class: "btn btn-sm btn-outline-info py-0 px-2 flex-shrink-0" do %>
+                        class: "btn btn-sm btn-outline-info py-1 px-2 flex-shrink-0" do %>
                     <i class="bi bi-eye" style="font-size:0.75rem;"></i>
                   <% end %>
                 </div>
@@ -458,12 +458,12 @@
             <%= form_with url: upload_document_pro_project_path(@project), method: :post, multipart: true do |f| %>
               <%= hidden_field_tag :type_document, 'metre' %>
               <div class="row g-2 align-items-end">
-                <div class="col-8">
+                <div class="col-12 col-md-8">
                   <label class="form-label text-muted mb-0" style="font-size:0.75rem;">Déposer un métré (PDF / Excel)</label>
                   <%= file_field_tag :document_file, class: "form-control form-control-sm mt-1 rounded-3",
                         accept: ".pdf,.xlsx,.xls,.csv,.jpg,.jpeg,.png" %>
                 </div>
-                <div class="col-4">
+                <div class="col-12 col-md-4">
                   <button type="submit" class="btn btn-sm btn-info w-100 rounded-3 text-white" style="font-size:0.78rem;">
                     <i class="bi bi-upload me-1"></i>Déposer
                   </button>
@@ -494,7 +494,7 @@
                   <div class="text-muted" style="font-size:0.7rem;"><%= doc.created_at.strftime("%d/%m/%Y") %></div>
                 </div>
                 <%= link_to rails_blob_path(doc.file, disposition: 'inline'), target: '_blank',
-                      class: "btn btn-sm btn-outline-warning py-0 px-2 flex-shrink-0" do %>
+                      class: "btn btn-sm btn-outline-warning py-1 px-2 flex-shrink-0" do %>
                   <i class="bi bi-download" style="font-size:0.75rem;"></i>
                 <% end %>
               </div>

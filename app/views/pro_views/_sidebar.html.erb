@@ -11,24 +11,24 @@
           <div class="card-body px-4 py-3" style="font-size:0.82rem;">
             <dl class="row mb-0">
               <% if @property.try(:type_bien).present? %>
-                <dt class="col-6 text-muted fw-normal">Type</dt>
-                <dd class="col-6"><%= @property.type_bien.humanize rescue @property.type_bien %></dd>
+                <dt class="col-12 col-sm-4 text-muted fw-normal">Type</dt>
+                <dd class="col-12 col-sm-8"><%= @property.type_bien.humanize rescue @property.type_bien %></dd>
               <% end %>
               <% if @property.try(:annee_construction).present? %>
-                <dt class="col-6 text-muted fw-normal">Année</dt>
-                <dd class="col-6"><%= @property.annee_construction %></dd>
+                <dt class="col-12 col-sm-4 text-muted fw-normal">Année</dt>
+                <dd class="col-12 col-sm-8"><%= @property.annee_construction %></dd>
               <% end %>
               <% if @property.try(:superficie).present? %>
-                <dt class="col-6 text-muted fw-normal">Surface</dt>
-                <dd class="col-6"><%= @property.superficie %> m²</dd>
+                <dt class="col-12 col-sm-4 text-muted fw-normal">Surface</dt>
+                <dd class="col-12 col-sm-8"><%= @property.superficie %> m²</dd>
               <% end %>
               <% if @property.try(:region).present? %>
-                <dt class="col-6 text-muted fw-normal">Région</dt>
-                <dd class="col-6"><%= @property.region.capitalize %></dd>
+                <dt class="col-12 col-sm-4 text-muted fw-normal">Région</dt>
+                <dd class="col-12 col-sm-8"><%= @property.region.capitalize %></dd>
               <% end %>
               <% if @property.try(:code_postal).present? %>
-                <dt class="col-6 text-muted fw-normal">Code postal</dt>
-                <dd class="col-6"><%= @property.code_postal %></dd>
+                <dt class="col-12 col-sm-4 text-muted fw-normal">Code postal</dt>
+                <dd class="col-12 col-sm-8"><%= @property.code_postal %></dd>
               <% end %>
             </dl>
           </div>
@@ -94,24 +94,24 @@
             </h5>
           </div>
           <div class="card-body px-3 py-2">
-            <div class="d-flex align-items-center gap-2 mb-2">
+            <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
               <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center flex-shrink-0"
                    style="width:28px;height:28px;">
                 <i class="bi bi-house-fill text-primary" style="font-size:0.65rem;"></i>
               </div>
-              <div>
-                <div class="fw-medium" style="font-size:0.8rem;"><%= @project.user.full_name %></div>
+              <div class="text-truncate" style="min-width:0;">
+                <div class="fw-medium text-truncate" style="font-size:0.8rem;"><%= @project.user.full_name %></div>
                 <div class="text-muted" style="font-size:0.68rem;">Propriétaire</div>
               </div>
             </div>
             <% @members.each do |m| %>
-              <div class="d-flex align-items-center gap-2 mb-2">
+              <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
                 <div class="rounded-circle bg-light d-flex align-items-center justify-content-center flex-shrink-0 border"
                      style="width:28px;height:28px;">
                   <i class="bi bi-person text-muted" style="font-size:0.65rem;"></i>
                 </div>
-                <div>
-                  <div class="fw-medium" style="font-size:0.8rem;"><%= m.user.full_name.presence || m.invited_email %></div>
+                <div class="text-truncate" style="min-width:0;">
+                  <div class="fw-medium text-truncate" style="font-size:0.8rem;"><%= m.user.full_name.presence || m.invited_email %></div>
                   <div class="text-muted" style="font-size:0.68rem;"><%= m.role_label %></div>
                 </div>
               </div>
