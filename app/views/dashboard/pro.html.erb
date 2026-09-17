@@ -95,17 +95,17 @@
                 <span class="fw-semibold small text-muted">Entrepreneur</span>
               </div>
               <div class="row g-2 text-center">
-                <div class="col-4">
+                <div class="col-12 col-sm-4">
                   <div class="fw-bold text-warning" style="font-size:1.1rem;"><%= ent_ms.size %></div>
                   <small class="text-muted">Chantier<%= ent_ms.size > 1 ? 's' : '' %></small>
                 </div>
-                <div class="col-4">
+                <div class="col-12 col-sm-4">
                   <div class="fw-bold <%= ent_total_attente > 0 ? 'text-warning' : 'text-success' %>" style="font-size:1.1rem;">
                     <%= ent_total_attente > 0 ? "#{number_with_delimiter(ent_total_attente.to_i, delimiter: '.')} €" : "✓" %>
                   </div>
                   <small class="text-muted">En attente</small>
                 </div>
-                <div class="col-4">
+                <div class="col-12 col-sm-4">
                   <div class="fw-bold <%= ent_devis_pending.any? ? 'text-danger' : 'text-success' %>" style="font-size:1.1rem;">
                     <%= ent_devis_pending.any? ? ent_devis_pending.size : "✓" %>
                   </div>
@@ -122,15 +122,15 @@
                 <span class="fw-semibold small text-muted">Architecte</span>
               </div>
               <div class="row g-2 text-center">
-                <div class="col-4">
+                <div class="col-12 col-sm-4">
                   <div class="fw-bold text-info" style="font-size:1.1rem;"><%= arch_ms.size %></div>
                   <small class="text-muted">Projet<%= arch_ms.size > 1 ? 's' : '' %></small>
                 </div>
-                <div class="col-4">
+                <div class="col-12 col-sm-4">
                   <div class="fw-bold text-info" style="font-size:1.1rem;"><%= arch_phases_avg %>&thinsp;%</div>
                   <small class="text-muted">Avancement moyen</small>
                 </div>
-                <div class="col-4">
+                <div class="col-12 col-sm-4">
                   <div class="fw-bold text-info" style="font-size:1.1rem;"><%= arch_docs_total %></div>
                   <small class="text-muted">Documents</small>
                 </div>
@@ -139,19 +139,19 @@
           </div>
         <% else %>
           <%# KPIs mono-rôle %>
-          <div class="col-4">
+          <div class="col-12 col-sm-4">
             <div class="rounded-3 text-center p-3" style="background: rgba(255,255,255,0.9); box-shadow: var(--ren0vate-shadow-sm);">
               <div class="h3 fw-bold mb-0" style="color: var(--ren0vate-primary);"><%= @project_count %></div>
               <small class="text-muted">Chantier<%= @project_count > 1 ? 's' : '' %></small>
             </div>
           </div>
-          <div class="col-4">
+          <div class="col-12 col-sm-4">
             <div class="rounded-3 text-center p-3" style="background: rgba(255,255,255,0.9); box-shadow: var(--ren0vate-shadow-sm);">
               <div class="h3 fw-bold mb-0" style="color: var(--ren0vate-success-dark);"><%= @active_members.size %></div>
               <small class="text-muted">Actif<%= @active_members.size > 1 ? 's' : '' %></small>
             </div>
           </div>
-          <div class="col-4">
+          <div class="col-12 col-sm-4">
             <div class="rounded-3 text-center p-3" style="background: rgba(255,255,255,0.9); box-shadow: var(--ren0vate-shadow-sm);">
               <div class="h3 fw-bold mb-0" style="color: var(--ren0vate-accent);"><%= @pending_members.size %></div>
               <small class="text-muted">En attente</small>
@@ -208,7 +208,7 @@
         <div class="p-4">
           <% if multi_role %>
             <div class="row g-3">
-              <div class="col-md-6">
+              <div class="col-12 col-md-6">
                 <div class="rounded-3 p-3 h-100 d-flex flex-column"
                      style="background:rgba(255,193,7,0.07);border:1.5px solid rgba(255,193,7,0.4);">
                   <div class="d-flex align-items-center gap-2 mb-2">
@@ -223,7 +223,7 @@
                   <% end %>
                 </div>
               </div>
-              <div class="col-md-6">
+              <div class="col-12 col-md-6">
                 <div class="rounded-3 p-3 h-100 d-flex flex-column"
                      style="background:rgba(13,202,240,0.07);border:1.5px solid rgba(13,202,240,0.4);">
                   <div class="d-flex align-items-center gap-2 mb-2">
@@ -247,12 +247,12 @@
               L'assistant connaît vos chantiers assignés, les maîtres d'ouvrage et les travaux en cours.
             </p>
             <div class="row g-3">
-              <div class="col-md-6">
+              <div class="col-12 col-md-6">
                 <%= link_to expert_decision_hub_index_path(all: 1, pro_role: single_role), class: "btn btn-ren0vate fw-semibold w-100" do %>
                   <i class="bi bi-chat-dots-fill me-2"></i>Tous mes chantiers
                 <% end %>
               </div>
-              <div class="col-md-6">
+              <div class="col-12 col-md-6">
                 <%= link_to expert_decision_hub_index_path(pro_role: single_role), class: "btn btn-primary fw-semibold w-100" do %>
                   <i class="bi bi-arrow-right-circle me-2"></i>Choisir un chantier
                 <% end %>
@@ -283,7 +283,7 @@
         <% if multi_role %>
           <div class="row g-3">
             <%# Entrepreneur : 3 derniers %>
-            <div class="col-lg-6">
+            <div class="col-12 col-lg-6">
               <div class="d-flex align-items-center gap-2 mb-2 pb-1" style="border-bottom:2px solid #ffc107;">
                 <i class="bi bi-hammer text-warning"></i>
                 <span class="fw-semibold small">Entrepreneur</span>
@@ -293,7 +293,7 @@
               <% end %>
             </div>
             <%# Architecte : 3 derniers %>
-            <div class="col-lg-6">
+            <div class="col-12 col-lg-6">
               <div class="d-flex align-items-center gap-2 mb-2 pb-1" style="border-bottom:2px solid #0dcaf0;">
                 <i class="bi bi-compass text-info"></i>
                 <span class="fw-semibold small">Architecte</span>

@@ -57,19 +57,19 @@
     <!-- KPIs -->
     <% if has_projects %>
       <div class="row g-3 mb-4 w-100" style="max-width: 780px;">
-        <div class="col-4">
+        <div class="col-12 col-sm-4">
           <div class="rounded-3 text-center p-3" style="background: rgba(255,255,255,0.9); box-shadow: var(--ren0vate-shadow-sm);">
             <div class="h3 fw-bold mb-0" style="color: #6366f1;"><%= client_count %></div>
             <small class="text-muted">Client<%= client_count > 1 ? 's' : '' %></small>
           </div>
         </div>
-        <div class="col-4">
+        <div class="col-12 col-sm-4">
           <div class="rounded-3 text-center p-3" style="background: rgba(255,255,255,0.9); box-shadow: var(--ren0vate-shadow-sm);">
             <div class="h3 fw-bold mb-0" style="color: var(--ren0vate-success-dark);"><%= @project_count %></div>
             <small class="text-muted">Dossier<%= @project_count > 1 ? 's' : '' %> actif<%= @project_count > 1 ? 's' : '' %></small>
           </div>
         </div>
-        <div class="col-4">
+        <div class="col-12 col-sm-4">
           <div class="rounded-3 text-center p-3" style="background: rgba(255,255,255,0.9); box-shadow: var(--ren0vate-shadow-sm);">
             <div class="h3 fw-bold mb-0" style="color: var(--ren0vate-accent);"><%= pending_count %></div>
             <small class="text-muted">En attente</small>
@@ -110,7 +110,7 @@
             </p>
 
             <div class="row g-3 mb-3">
-              <div class="col-md-6">
+              <div class="col-12 col-md-6">
                 <div class="rounded-3 p-3 h-100 d-flex flex-column"
                      style="background: rgba(99,102,241,0.07); border: 1.5px solid rgba(99,102,241,0.3);">
                   <div class="d-flex align-items-center gap-2 mb-2">
@@ -125,7 +125,7 @@
                   <% end %>
                 </div>
               </div>
-              <div class="col-md-6">
+              <div class="col-12 col-md-6">
                 <div class="rounded-3 p-3 h-100 d-flex flex-column"
                      style="background: rgba(var(--ren0vate-primary-rgb), 0.05); border: 1.5px solid rgba(var(--ren0vate-primary-rgb), 0.2);">
                   <div class="d-flex align-items-center gap-2 mb-2">
@@ -185,7 +185,7 @@
           <i class="bi bi-table me-2"></i>Mes dossiers clients
         </h5>
 
-        <div class="rounded-3 overflow-hidden" style="background: rgba(255,255,255,0.95); box-shadow: var(--ren0vate-shadow-sm); border: 1px solid var(--ren0vate-border);">
+        <div class="table-responsive rounded-3 overflow-hidden" style="background: rgba(255,255,255,0.95); box-shadow: var(--ren0vate-shadow-sm); border: 1px solid var(--ren0vate-border);">
           <table class="table table-hover mb-0" style="font-size: 0.9rem;">
             <thead style="background: rgba(var(--ren0vate-primary-rgb), 0.06);">
               <tr>
@@ -254,11 +254,12 @@
                       <button class="btn btn-sm btn-outline-secondary"
                               type="button"
                               title="Notifier le client"
+                              style="min-width: 38px; min-height: 38px; display: inline-flex; align-items: center; justify-content: center;"
                               data-bs-toggle="collapse"
                               data-bs-target="#notify-form-<%= project.id %>">
                         <i class="bi bi-bell"></i>
                       </button>
-                      <%= link_to project_path(project), class: "btn btn-sm btn-outline-primary", title: "Ouvrir le dossier" do %>
+                      <%= link_to project_path(project), class: "btn btn-sm btn-outline-primary", title: "Ouvrir le dossier", style: "min-width: 38px; min-height: 38px; display: inline-flex; align-items: center; justify-content: center;" do %>
                         <i class="bi bi-arrow-right"></i>
                       <% end %>
                     </div>
