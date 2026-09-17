@@ -1,17 +1,10 @@
 <div class="container-fluid px-4 py-4">
-  <!-- Header épuré -->
-  <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2 mb-4 pb-3 border-bottom">
-    <div class="d-flex align-items-center">
-      <div class="icon-circle me-3">
-        <i class="bi bi-tags"></i>
-      </div>
-      <h1 class="h3 text-primary-custom mb-0 fw-normal">Catégories de revenus</h1>
-    </div>
+  <%= render layout: "shared/page_header", locals: { title: "Catégories de revenus", icon: "bi-tags" } do %>
     <%= link_to root_path, class: "btn btn-outline-primary-custom px-4" do %>
       <i class="bi bi-arrow-left me-2"></i>
       Retour à l'accueil
     <% end %>
-  </div>
+  <% end %>
 
   <!-- Liste des catégories groupées par région -->
   <% categories_with_region = @categories.select { |category| category.region.present? } %>

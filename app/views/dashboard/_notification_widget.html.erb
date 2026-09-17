@@ -1,0 +1,12 @@
+<!-- Widget Notifications flottant (desktop uniquement) -->
+<div class="notification-widget position-fixed d-none d-md-block" style="top: 80px; right: 20px; z-index: 2000;">
+  <% unread_count = current_user.respond_to?(:notifications) ? current_user.notifications.unread.count : 0 %>
+  <%= link_to notifications_path, class: "btn btn-outline-primary notification-widget-btn", style: "border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);" do %>
+    <span class="position-relative d-inline-flex">
+      <i class="bi bi-bell fs-4"></i>
+      <% if unread_count > 0 %>
+        <span class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle" style="font-size: 0.65rem;"><%= unread_count %></span>
+      <% end %>
+    </span>
+  <% end %>
+</div>

@@ -1,0 +1,26 @@
+<%#
+  Partial d'en-tête de page standardisé, mobile-first.
+  Usage : render layout: "shared/page_header", locals: { title:, icon:, subtitle: } avec un bloc
+  contenant les actions (yield). Voir CLAUDE.md pour un exemple complet.
+%>
+<div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2 mb-4 pb-3 border-bottom">
+  <div class="d-flex align-items-center">
+    <% if local_assigns[:icon].present? %>
+      <div class="icon-circle me-3">
+        <i class="bi <%= icon %>"></i>
+      </div>
+    <% end %>
+    <div>
+      <h1 class="h3 text-primary-custom mb-0 fw-normal"><%= title %></h1>
+      <% if local_assigns[:subtitle].present? %>
+        <small class="text-muted-custom"><%= subtitle %></small>
+      <% end %>
+    </div>
+  </div>
+  <% content = yield %>
+  <% if content.present? %>
+    <div class="d-flex flex-wrap gap-2">
+      <%= content %>
+    </div>
+  <% end %>
+</div>
