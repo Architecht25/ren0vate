@@ -530,6 +530,16 @@ $bottom-nav-height: 62px;
   flex-shrink: 0;
 }
 
+/* La sidebar mobile (drawer plein écran, position: fixed) passe sous la
+   bottom nav (z-index supérieur) : sans cette marge, ses derniers liens
+   (Support prioritaire, Déconnexion) restent inaccessibles même en scrollant
+   jusqu'en bas du menu. */
+@media (max-width: 768px) {
+  .sidebar-nav {
+    padding-bottom: calc(#{$bottom-nav-height} + env(safe-area-inset-bottom, 0px) + 12px);
+  }
+}
+
 /* ─── Items ───────────────────────────────────────── */
 .bottom-nav-item {
   flex: 1;
