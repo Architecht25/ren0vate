@@ -4,7 +4,7 @@
   <div class="row">
     <div class="col-12">
       <!-- En-tête -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2 mb-4">
         <div>
           <h1 class="h3 mb-1">Suivi de demande #<%= @request_progress.id %></h1>
           <nav aria-label="breadcrumb">
@@ -45,7 +45,7 @@
 
       <div class="row">
         <!-- Informations principales -->
-        <div class="col-lg-8">
+        <div class="col-12 col-lg-8">
           <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
               <h5 class="mb-0">Détails du suivi</h5>
@@ -57,8 +57,9 @@
             </div>
             <div class="card-body">
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                   <h6 class="text-muted">Informations de base</h6>
+                  <div class="table-responsive">
                   <table class="table table-borderless table-sm">
                     <% if @request_progress.form_type.present? %>
                     <tr>
@@ -108,8 +109,9 @@
                       </tr>
                     <% end %>
                   </table>
+                  </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                   <h6 class="text-muted">Progression</h6>
                   <div class="mb-3">
                     <div class="d-flex justify-content-between mb-1">
@@ -127,6 +129,7 @@
                     </div>
                   </div>
 
+                  <div class="table-responsive">
                   <table class="table table-borderless table-sm">
                     <% if @request_progress.date_soumission %>
                       <tr>
@@ -164,6 +167,7 @@
                       </tr>
                     <% end %>
                   </table>
+                  </div>
                 </div>
               </div>
 
@@ -184,7 +188,7 @@
             </div>
             <div class="card-body">
               <div class="row text-center">
-                <div class="col-md-4">
+                <div class="col-12 col-sm-4 col-md-4">
                   <div class="border rounded p-3">
                     <h4 class="text-primary mb-1">
                       <%= number_to_currency(@request_progress.montant_demande || 0, unit: "€", delimiter: ".", separator: ",", format: "%n %u") %>
@@ -192,7 +196,7 @@
                     <small class="text-muted">Montant demandé</small>
                   </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-sm-4 col-md-4">
                   <div class="border rounded p-3">
                     <h4 class="text-success mb-1">
                       <%= number_to_currency(@request_progress.montant_accorde || 0, unit: "€", delimiter: ".", separator: ",", format: "%n %u") %>
@@ -200,7 +204,7 @@
                     <small class="text-muted">Montant accordé</small>
                   </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-sm-4 col-md-4">
                   <div class="border rounded p-3">
                     <h4 class="text-info mb-1">
                       <%= @request_progress.taux_octroi %>%
@@ -215,7 +219,7 @@
           <!-- Demandes de complément -->
           <% if @request_progress.complement_requests.any? %>
             <div class="card mb-4">
-              <div class="card-header d-flex justify-content-between align-items-center">
+              <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center">
                 <h5 class="mb-0">
                   <i class="bi bi-clipboard-plus me-2"></i>Demandes de complément
                 </h5>
@@ -229,7 +233,7 @@
               <div class="card-body">
                 <% @request_progress.complement_requests.order(created_at: :desc).limit(3).each do |complement| %>
                   <div class="border rounded p-3 mb-3">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-start mb-2">
                       <div>
                         <h6 class="mb-1">
                           <span class="badge bg-<%= complement.pending? ? 'warning' :
@@ -317,7 +321,7 @@
             </div>
             <div class="card-body">
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                   <h6>Document PDF administratif</h6>
                   <% if @request_progress.document_suivi_pdf.attached? %>
                     <div class="d-flex align-items-center">
@@ -348,7 +352,7 @@
                     <% end %>
                   <% end %>
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                   <h6>Photo du courrier</h6>
                   <% if @request_progress.document_suivi_photo.attached? %>
                     <div class="d-flex align-items-center">
@@ -385,7 +389,7 @@
         </div>
 
         <!-- Sidebar -->
-        <div class="col-lg-4">
+        <div class="col-12 col-lg-4">
           <!-- Informations de la demande -->
           <div class="card mb-4">
             <div class="card-header">

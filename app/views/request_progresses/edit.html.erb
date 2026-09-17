@@ -2,10 +2,10 @@
 
 <div class="container-fluid px-4 py-4">
   <div class="row justify-content-center">
-    <div class="col-lg-7">
+    <div class="col-12 col-lg-7">
 
       <!-- Header -->
-      <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+      <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2 mb-4 pb-3 border-bottom">
         <div>
           <h1 class="h3 text-primary-custom mb-0 fw-normal">Modifier le suivi</h1>
           <small class="text-muted">
@@ -41,7 +41,7 @@
             <%# Type de suivi : formulaire ou prime individuelle %>
             <div class="mb-3 p-3 rounded-3 border bg-light">
               <p class="small fw-semibold mb-2">Type de suivi</p>
-              <div class="d-flex gap-4">
+              <div class="d-flex flex-wrap gap-4">
                 <div class="form-check">
                   <input class="form-check-input" type="radio" name="suivi_type" id="suivi_formulaire" value="formulaire"
                          <%= @request_progress.form_type.present? ? 'checked' : '' %>>
@@ -142,7 +142,7 @@
                     <i class="bi bi-file-earmark-pdf text-danger"></i>
                     <%= link_to @request_progress.document_suivi_pdf.filename,
                                 rails_blob_path(@request_progress.document_suivi_pdf, disposition: :attachment),
-                                target: "_blank", class: "small text-truncate" %>
+                                target: "_blank", class: "small text-truncate", style: "min-width: 0;" %>
                   </div>
                 <% end %>
                 <%= form.file_field :document_suivi_pdf, class: "form-control form-control-sm", accept: ".pdf" %>
@@ -155,7 +155,7 @@
                     <i class="bi bi-image text-primary"></i>
                     <%= link_to @request_progress.document_suivi_photo.filename,
                                 rails_blob_path(@request_progress.document_suivi_photo, disposition: :attachment),
-                                target: "_blank", class: "small text-truncate" %>
+                                target: "_blank", class: "small text-truncate", style: "min-width: 0;" %>
                   </div>
                 <% end %>
                 <%= form.file_field :document_suivi_photo, class: "form-control form-control-sm", accept: "image/*" %>
@@ -172,7 +172,7 @@
             </div>
 
             <%# Méta-infos discrètes %>
-            <div class="text-muted mb-4" style="font-size:0.75rem;">
+            <div class="text-muted mb-4" style="font-size:0.75rem; word-wrap: break-word;">
               <i class="bi bi-clock me-1"></i>Créé le <%= l(@request_progress.created_at, format: :short) %>
               <% if @request_progress.date_derniere_maj %>
                 &nbsp;·&nbsp;Mis à jour le <%= l(@request_progress.date_derniere_maj, format: :short) %>
@@ -182,7 +182,7 @@
               <% end %>
             </div>
 
-            <div class="d-flex justify-content-end gap-2 pt-2 border-top">
+            <div class="d-flex justify-content-end flex-wrap gap-2 pt-2 border-top">
               <%= link_to "Annuler", @request_progress, class: "btn btn-outline-secondary btn-sm" %>
               <%= form.submit "Enregistrer", class: "btn btn-primary-custom btn-sm px-4" %>
             </div>

@@ -3,7 +3,7 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-12">
-      <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2 mb-4">
         <h1 class="h3 mb-0">
           <%= t('request_progress.index_title') %>
           <% if @request && @request.property %>
@@ -11,7 +11,7 @@
           <% end %>
         </h1>
 
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex flex-wrap align-items-center gap-2">
           <% if @property %>
             <%= link_to dashboard_property_path(@property), class: "btn btn-outline-secondary" do %>
               <i class="bi bi-arrow-left me-1"></i>Dashboard bien
@@ -46,7 +46,7 @@
 
       <!-- Statistiques -->
       <div class="row mb-4">
-        <div class="col-md-2">
+        <div class="col-6 col-md-2">
           <div class="card text-center h-100">
             <div class="card-body d-flex flex-column justify-content-center">
               <h5 class="card-title text-primary"><%= @stats[:total] %></h5>
@@ -54,7 +54,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-6 col-md-2">
           <div class="card text-center h-100">
             <div class="card-body d-flex flex-column justify-content-center">
               <h5 class="card-title text-warning"><%= @stats[:en_attente] %></h5>
@@ -62,7 +62,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-6 col-md-2">
           <div class="card text-center h-100">
             <div class="card-body d-flex flex-column justify-content-center">
               <h5 class="card-title text-success"><%= @stats[:accordees] %></h5>
@@ -70,7 +70,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="card text-center h-100">
             <div class="card-body d-flex flex-column justify-content-center">
               <h5 class="card-title text-info"><%= number_to_currency(@stats[:montant_total_demande], unit: "€", precision: 0, delimiter: ".", format: "%n %u") %></h5>
@@ -78,7 +78,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="card text-center h-100">
             <div class="card-body d-flex flex-column justify-content-center">
               <h5 class="card-title text-success"><%= number_to_currency(@stats[:montant_total_accorde], unit: "€", precision: 0, delimiter: ".", format: "%n %u") %></h5>
@@ -90,7 +90,7 @@
 
       <!-- Statistiques de délais -->
       <div class="row mb-4">
-        <div class="col-md-2">
+        <div class="col-6 col-md-2">
           <div class="card text-center border-danger h-100">
             <div class="card-body d-flex flex-column justify-content-center">
               <h5 class="card-title text-danger">
@@ -101,7 +101,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-6 col-md-2">
           <div class="card text-center border-warning h-100">
             <div class="card-body d-flex flex-column justify-content-center">
               <h5 class="card-title text-warning">
@@ -112,7 +112,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-6 col-md-4">
           <div class="card h-100">
             <div class="card-body d-flex flex-column justify-content-center">
               <h6 class="card-title">Délais moyen de réponse de l'administration</h6>
@@ -133,7 +133,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-6 col-md-4">
           <div class="card h-100 border-info">
             <div class="card-body d-flex flex-column justify-content-center">
               <h6 class="card-title text-info">
@@ -158,7 +158,7 @@
       <div class="card mb-4">
         <div class="card-body">
           <%= form_with url: request.path, method: :get, local: true, class: "row g-3" do |form| %>
-            <div class="col-md-3">
+            <div class="col-12 col-sm-6 col-md-3">
               <%= form.select :status,
                               options_from_collection_for_select(
                                 RequestProgress.status_administratifs.keys.map { |k| [k, t("request_progress.status.#{k}")] },
@@ -167,7 +167,7 @@
                               { prompt: "Tous les statuts" },
                               { class: "form-select" } %>
             </div>
-            <div class="col-md-3">
+            <div class="col-12 col-sm-6 col-md-3">
               <%= form.select :region,
                               options_for_select([
                                 ['Wallonie', 'wallonie'],
@@ -177,10 +177,10 @@
                               { prompt: "Toutes les régions" },
                               { class: "form-select" } %>
             </div>
-            <div class="col-md-2">
+            <div class="col-12 col-sm-6 col-md-2">
               <%= form.submit "Filtrer", class: "btn btn-outline-primary" %>
             </div>
-            <div class="col-md-2">
+            <div class="col-12 col-sm-6 col-md-2">
               <%= link_to "Réinitialiser", request.path, class: "btn btn-outline-secondary" %>
             </div>
           <% end %>
@@ -313,7 +313,7 @@
             </div>
 
             <!-- Pagination -->
-            <div class="card-footer d-flex justify-content-between align-items-center">
+            <div class="card-footer d-flex flex-column flex-sm-row gap-2 justify-content-between align-items-center">
               <div class="text-muted">
                 Affichage de <%= (@offset + 1) %> à <%= [@offset + @per_page, @total_count].min %> sur <%= @total_count %> résultats
               </div>
