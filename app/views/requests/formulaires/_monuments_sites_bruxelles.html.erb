@@ -4,7 +4,7 @@
       <div class="card shadow-sm rounded-4 overflow-hidden border-0">
         <%# En-tête avec gradient bleu %>
         <div class="p-4 text-white" style="background: linear-gradient(135deg, #0d6efd 0%, #084298 100%);">
-          <div class="d-flex align-items-center gap-3">
+          <div class="d-flex align-items-center gap-3 flex-wrap">
             <div class="bg-white bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
                  style="width:52px;height:52px;">
               <i class="bi bi-bank fs-4"></i>
@@ -24,14 +24,14 @@
               Arrêté du Gouvernement de la Région de Bruxelles-Capitale du 2 mai 2024 fixant les conditions d'octroi d'une subvention pour des travaux de conservation à un bien classé.
             </p>
             <div class="row g-3">
-              <div class="col-md-6">
+              <div class="col-12 col-md-6">
                 <h6 class="fw-semibold"><i class="bi bi-tools me-1"></i> Pour quels travaux ?</h6>
                 <ul class="small">
                   <li>Les travaux d'entretien et de restauration nécessaires à la bonne conservation d'un bien classé</li>
                   <li>Les études préalables nécessaires à la réalisation de ces travaux</li>
                 </ul>
               </div>
-              <div class="col-md-6">
+              <div class="col-12 col-md-6">
                 <h6><i class="bi bi-people-fill"></i> Qui peut en bénéficier ?</h6>
                 <ul class="small">
                   <li>Propriétaires ou titulaires de droits réels</li>
@@ -61,7 +61,7 @@
             <div class="form-group mb-4">
               <label class="form-label fw-bold">Type de bénéficiaire *</label>
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                   <div class="form-check">
                     <%= radio_button_tag 'beneficiaire_type', 'personne_physique', true,
                         class: 'form-check-input',
@@ -71,7 +71,7 @@
                     </label>
                   </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                   <div class="form-check">
                     <%= radio_button_tag 'beneficiaire_type', 'personne_morale', false,
                         class: 'form-check-input',
@@ -95,7 +95,7 @@
                 </h5>
 
                 <div class="row mb-3">
-                  <div class="col-md-4">
+                  <div class="col-12 col-sm-6 col-md-4">
                     <label class="form-label">Civilité *</label>
                     <select class="form-select" name="civilite" required>
                       <option value="">Sélectionner...</option>
@@ -104,7 +104,7 @@
                       <option value="autre">Autre</option>
                     </select>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-12 col-sm-6 col-md-4">
                     <%= form.label :beneficiaire_nom, class: "form-label" do %>
                       Nom *
                       <%= badge_prerempli(@form_data, :applicant_last_name) if @form_data.present? %>
@@ -114,7 +114,7 @@
                         class: "form-control",
                         required: true %>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-12 col-sm-6 col-md-4">
                     <%= form.label :beneficiaire_prenom, class: "form-label" do %>
                       Prénom *
                       <%= badge_prerempli(@form_data, :applicant_first_name) if @form_data.present? %>
@@ -127,7 +127,7 @@
                 </div>
 
                 <div class="row mb-3">
-                  <div class="col-md-4">
+                  <div class="col-12 col-sm-6 col-md-4">
                     <%= form.label :numero_national, class: "form-label" do %>
                       N° National *
                       <%= badge_prerempli(@form_data, :applicant_national_number) if @form_data.present? %>
@@ -137,7 +137,7 @@
                         class: "form-control",
                         required: true %>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-12 col-sm-6 col-md-4">
                     <%= form.label :beneficiaire_rue, class: "form-label" do %>
                       Rue *
                       <%= badge_prerempli(@form_data, :applicant_street) if @form_data.present? %>
@@ -147,7 +147,7 @@
                         class: "form-control",
                         required: true %>
                   </div>
-                  <div class="col-md-2">
+                  <div class="col-6 col-sm-4 col-md-2">
                     <%= form.label :beneficiaire_numero, class: "form-label" do %>
                       N° *
                       <%= badge_prerempli(@form_data, :applicant_number) if @form_data.present? %>
@@ -157,14 +157,14 @@
                         class: "form-control",
                         required: true %>
                   </div>
-                  <div class="col-md-2">
+                  <div class="col-6 col-sm-4 col-md-2">
                     <label class="form-label">Boîte</label>
                     <%= form.text_field :beneficiaire_boite, class: "form-control" %>
                   </div>
                 </div>
 
                 <div class="row mb-3">
-                  <div class="col-md-3">
+                  <div class="col-6 col-md-3">
                     <%= form.label :beneficiaire_code_postal, class: "form-label" do %>
                       Code postal *
                       <%= badge_prerempli(@form_data, :applicant_postal_code) if @form_data.present? %>
@@ -174,7 +174,7 @@
                         class: "form-control",
                         required: true %>
                   </div>
-                  <div class="col-md-3">
+                  <div class="col-6 col-md-3">
                     <%= form.label :beneficiaire_commune, class: "form-label" do %>
                       Commune *
                       <%= badge_prerempli(@form_data, :applicant_city) if @form_data.present? %>
@@ -184,7 +184,7 @@
                         class: "form-control",
                         required: true %>
                   </div>
-                  <div class="col-md-3">
+                  <div class="col-6 col-md-3">
                     <%= form.label :beneficiaire_telephone, class: "form-label" do %>
                       Téléphone *
                       <%= badge_prerempli(@form_data, :applicant_phone) if @form_data.present? %>
@@ -194,7 +194,7 @@
                         class: "form-control",
                         required: true %>
                   </div>
-                  <div class="col-md-3">
+                  <div class="col-6 col-md-3">
                     <%= form.label :beneficiaire_email, class: "form-label" do %>
                       E-mail *
                       <%= badge_prerempli(@form_data, :applicant_email) if @form_data.present? %>
@@ -222,11 +222,11 @@
                 <h5><i class="bi bi-building"></i> Personne morale</h5>
 
                 <div class="row mb-3">
-                  <div class="col-md-8">
+                  <div class="col-12 col-md-8">
                     <label class="form-label">Nom et raison sociale *</label>
                     <%= form.text_field :personne_morale_nom, class: "form-control" %>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-12 col-sm-6 col-md-4">
                     <label class="form-label">N° d'entreprise *</label>
                     <%= form.text_field :numero_entreprise, class: "form-control" %>
                   </div>
@@ -234,7 +234,7 @@
 
                 <h6>Représenté par (le mandaté)</h6>
                 <div class="row mb-3">
-                  <div class="col-md-3">
+                  <div class="col-6 col-md-3">
                     <label class="form-label">Civilité *</label>
                     <select class="form-select" name="mandataire_civilite">
                       <option value="">Sélectionner...</option>
@@ -243,49 +243,49 @@
                       <option value="autre">Autre</option>
                     </select>
                   </div>
-                  <div class="col-md-3">
+                  <div class="col-6 col-md-3">
                     <label class="form-label">Nom *</label>
                     <%= form.text_field :mandataire_nom, class: "form-control" %>
                   </div>
-                  <div class="col-md-3">
+                  <div class="col-6 col-md-3">
                     <label class="form-label">Prénom *</label>
                     <%= form.text_field :mandataire_prenom, class: "form-control" %>
                   </div>
-                  <div class="col-md-3">
+                  <div class="col-6 col-md-3">
                     <label class="form-label">Fonction *</label>
                     <%= form.text_field :mandataire_fonction, class: "form-control" %>
                   </div>
                 </div>
 
                 <div class="row mb-3">
-                  <div class="col-md-6">
+                  <div class="col-12 col-md-6">
                     <label class="form-label">Rue *</label>
                     <%= form.text_field :mandataire_rue, class: "form-control" %>
                   </div>
-                  <div class="col-md-1">
+                  <div class="col-6 col-sm-3 col-md-1">
                     <label class="form-label">N° *</label>
                     <%= form.text_field :mandataire_numero, class: "form-control" %>
                   </div>
-                  <div class="col-md-1">
+                  <div class="col-6 col-sm-3 col-md-1">
                     <label class="form-label">Boîte</label>
                     <%= form.text_field :mandataire_boite, class: "form-control" %>
                   </div>
-                  <div class="col-md-2">
+                  <div class="col-6 col-sm-4 col-md-2">
                     <label class="form-label">Code postal *</label>
                     <%= form.text_field :mandataire_code_postal, class: "form-control" %>
                   </div>
-                  <div class="col-md-2">
+                  <div class="col-6 col-sm-4 col-md-2">
                     <label class="form-label">Commune *</label>
                     <%= form.text_field :mandataire_commune, class: "form-control" %>
                   </div>
                 </div>
 
                 <div class="row mb-3">
-                  <div class="col-md-6">
+                  <div class="col-12 col-md-6">
                     <label class="form-label">Téléphone *</label>
                     <%= form.telephone_field :mandataire_telephone, class: "form-control" %>
                   </div>
-                  <div class="col-md-6">
+                  <div class="col-12 col-md-6">
                     <label class="form-label">E-mail *</label>
                     <%= form.email_field :mandataire_email, class: "form-control" %>
                   </div>
@@ -295,7 +295,7 @@
                 <div class="card border-secondary p-3 mt-3">
                   <h6>Personne de contact (si différent des représentants légaux)</h6>
                   <div class="row">
-                    <div class="col-md-2">
+                    <div class="col-6 col-sm-4 col-md-2">
                       <label class="form-label">Civilité</label>
                       <select class="form-select" name="contact_civilite">
                         <option value="">Sélectionner...</option>
@@ -304,19 +304,19 @@
                         <option value="autre">Autre</option>
                       </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-6 col-md-3">
                       <label class="form-label">Nom</label>
                       <%= form.text_field :contact_nom, class: "form-control" %>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-6 col-md-3">
                       <label class="form-label">Prénom</label>
                       <%= form.text_field :contact_prenom, class: "form-control" %>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-6 col-sm-4 col-md-2">
                       <label class="form-label">Téléphone</label>
                       <%= form.telephone_field :contact_telephone, class: "form-control" %>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-6 col-sm-4 col-md-2">
                       <label class="form-label">E-mail</label>
                       <%= form.email_field :contact_email, class: "form-control" %>
                     </div>
@@ -327,7 +327,7 @@
                 <div class="mt-3">
                   <label class="form-label fw-bold">Le demandeur est un bénéficiaire public :</label>
                   <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-12 col-sm-6 col-md-4">
                       <div class="form-check">
                         <%= check_box_tag 'beneficiaire_public_commune', '1', false, class: 'form-check-input' %>
                         <label class="form-check-label">Commune</label>
@@ -337,7 +337,7 @@
                         <label class="form-check-label">C.P.A.S.</label>
                       </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-12 col-sm-6 col-md-4">
                       <div class="form-check">
                         <%= check_box_tag 'beneficiaire_public_sisp', '1', false, class: 'form-check-input' %>
                         <label class="form-check-label">SISP (société immobilière de service public)</label>
@@ -347,7 +347,7 @@
                         <label class="form-check-label">Établissement chargé de la gestion des intérêts matériels d'une communauté cultuelle locale</label>
                       </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-12 col-sm-6 col-md-4">
                       <div class="form-check">
                         <%= check_box_tag 'beneficiaire_public_philosophique', '1', false, class: 'form-check-input' %>
                         <label class="form-check-label">Établissement chargé de la gestion des communautés philosophiques non confessionnelles (CAL ou UVVV)</label>
@@ -374,30 +374,30 @@
               <h5><i class="bi bi-bank"></i> Identification du bien classé</h5>
 
               <div class="row mb-3">
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                   <label class="form-label">Rue *</label>
                   <%= form.text_field :bien_rue, class: "form-control", required: true %>
                 </div>
-                <div class="col-md-2">
+                <div class="col-6 col-sm-4 col-md-2">
                   <label class="form-label">N° *</label>
                   <%= form.text_field :bien_numero, class: "form-control", required: true %>
                 </div>
-                <div class="col-md-1">
+                <div class="col-6 col-sm-3 col-md-1">
                   <label class="form-label">Boîte</label>
                   <%= form.text_field :bien_boite, class: "form-control" %>
                 </div>
-                <div class="col-md-3">
+                <div class="col-6 col-md-3">
                   <label class="form-label">Code postal *</label>
                   <%= form.text_field :bien_code_postal, class: "form-control", required: true %>
                 </div>
               </div>
 
               <div class="row mb-3">
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                   <label class="form-label">Commune *</label>
                   <%= form.text_field :bien_commune, class: "form-control", required: true %>
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                   <label class="form-label">Dénomination éventuelle</label>
                   <%= form.text_field :bien_denomination, class: "form-control" %>
                 </div>
@@ -406,7 +406,7 @@
               <div class="mb-3">
                 <label class="form-label fw-bold">Droit du bénéficiaire sur le bien *</label>
                 <div class="row">
-                  <div class="col-md-6">
+                  <div class="col-12 col-md-6">
                     <div class="form-check">
                       <%= radio_button_tag 'droit_beneficiaire', 'proprietaire', false, class: 'form-check-input', required: true %>
                       <label class="form-check-label">Propriétaire(s) du bien ou titulaire d'un droit réel (usufruit, emphytéose ou superficie)</label>
@@ -416,7 +416,7 @@
                       <label class="form-check-label">Représentant d'une copropriété <small class="text-muted">(joindre copie de la décision de copropriété)</small></label>
                     </div>
                   </div>
-                  <div class="col-md-6">
+                  <div class="col-12 col-md-6">
                     <div class="form-check">
                       <%= radio_button_tag 'droit_beneficiaire', 'locataire', false, class: 'form-check-input', required: true %>
                       <label class="form-check-label">Locataire <small class="text-muted">(joindre copie du contrat de bail et autorisation du propriétaire)</small></label>
@@ -471,18 +471,18 @@
               </div>
 
               <div class="row mb-3">
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                   <label class="form-label fw-bold">ÉTUDES :</label>
                   <%= form.text_area :etudes_description, class: "form-control", rows: 4, placeholder: "Décrire les études préalables nécessaires..." %>
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                   <label class="form-label fw-bold">TRAVAUX :</label>
                   <%= form.text_area :travaux_description, class: "form-control", rows: 4, placeholder: "Décrire les travaux de conservation...", required: true %>
                 </div>
               </div>
 
               <div class="row mb-3">
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                   <label class="form-label fw-bold">Montant total estimé (hors TVA) *</label>
                   <div class="input-group">
                     <%= form.number_field :montant_estime, class: "form-control", step: 0.01, required: true %>
@@ -490,7 +490,7 @@
                   </div>
                   <small class="text-muted">Inclut études, travaux et honoraires (architecte, sécurité de chantier, ingénieur, ...)</small>
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                   <label class="form-label fw-bold">Autorisations</label>
                   <div class="form-check">
                     <%= radio_button_tag 'autorisation_type', 'permis', false, class: 'form-check-input' %>
@@ -510,11 +510,11 @@
               </div>
 
               <div class="row">
-                <div class="col-md-8">
+                <div class="col-12 col-md-8">
                   <label class="form-label fw-bold">Numéro de compte bancaire (IBAN) *</label>
                   <%= form.text_field :iban, class: "form-control", required: true, placeholder: "BE__ ____ ____ ____" %>
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-sm-6 col-md-4">
                   <label class="form-label fw-bold">BIC</label>
                   <%= form.text_field :bic, class: "form-control" %>
                 </div>
@@ -538,7 +538,7 @@
               <h5><i class="bi bi-cloud-upload-fill"></i> Documents obligatoires à joindre</h5>
 
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                   <h6>Droits sur le bien :</h6>
                   <ul class="list-unstyled">
                     <li><i class="bi bi-paperclip text-primary"></i> Attestation de propriété ou autre droit réel</li>
@@ -556,7 +556,7 @@
                     <li><i class="bi bi-paperclip text-primary"></i> Attestation d'identité du titulaire ou RIB</li>
                   </ul>
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                   <h6>Estimations des montants :</h6>
                   <ul class="list-unstyled">
                     <li><i class="bi bi-paperclip text-primary"></i> Au moins 3 devis détaillés (si > 30.000€ travaux ou > 8.500€ services)</li>
@@ -588,11 +588,11 @@
                 </div>
                 <div class="mt-2" id="convention_details" style="display: none;">
                   <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-12 col-md-6">
                       <label class="form-label">Référence de la convention</label>
                       <%= text_field_tag 'convention_reference', '', class: 'form-control' %>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-12 col-md-6">
                       <label class="form-label">Date de signature</label>
                       <%= date_field_tag 'convention_date', '', class: 'form-control' %>
                     </div>
