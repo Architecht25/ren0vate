@@ -1,7 +1,7 @@
 class NotificationsController < ApplicationController
   before_action :authenticate_user!
-  before_action :ensure_admin, only: [:new_admin, :create_admin, :generate_automatic, :edit, :update, :destroy]
-  before_action :set_notification, only: [:show, :edit, :update, :destroy, :mark_as_read]
+  before_action :ensure_admin, only: [:new_admin, :create_admin, :generate_automatic, :destroy]
+  before_action :set_notification, only: [:show, :destroy, :mark_as_read]
 
   def index
     @notifications = current_user.notifications

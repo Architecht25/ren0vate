@@ -150,6 +150,18 @@ SENTRY_DSN            # Error tracking (branché le 09/09/2026, actif en product
 - **BCE** : vérification via API VIES publique (`ec.europa.eu/taxation_customs/vies`) — gratuit, pas de clé
 - **Sentry** : branché le 09/09/2026 (`sentry-ruby`/`sentry-rails`), actif uniquement en production (`config.enabled_environments = %w[production]`), 10% des transactions tracées (`traces_sample_rate = 0.1`, plan gratuit), `national_number`/`iban` retirés des payloads avant envoi (`before_send`), exceptions `RoutingError`/`RecordNotFound`/`Rack::Attack::Error`/`Encoding::CompatibilityError` exclues du bruit (dernier ajouté le 13/09/2026 — scans bot envoyant des `POST /` avec un corps en UTF-16LE, aucune route `POST` n'existe sur `root`)
 - **rack-attack** : gem présente et middleware activé (`config/initializers/rack_attack.rb`) — pas encore documenté ailleurs dans ce fichier avant le 10/09/2026
+- **DB développement réelle** : PostgreSQL local (pas SQLite malgré la ligne "DB développement" ci-dessus, jamais corrigée depuis un ancien setup — à vérifier via `config/database.yml` si doute)
+
+## Responsivité mobile (sweep complet du 17/09/2026)
+
+Audit + correction de toutes les vues de l'app (~35 modules) pour la responsivité smartphone. Règles à respecter pour tout nouveau développement de vue :
+
+- **Anti-pattern n°1, de loin le plus répété** : une colonne Bootstrap avec seulement `col-lg-N`/`col-md-N`/`col-xl-N` et **pas de `col-12` de base** devient un flex-item "shrink-to-fit" en dessous du breakpoint au lieu de s'empiler en pleine largeur. Toujours écrire `col-12 col-md-6`, jamais `col-md-6` seul.
+- **En-têtes de page** : `d-flex justify-content-between align-items-center` (sans wrap) déborde en mobile dès que le titre + les actions ne tiennent pas sur une ligne. Pattern correct : `d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2`.
+- **Rangées d'onglets/nav-pills** : utiliser la classe utilitaire partagée `.tabs-scroll-x` (définie dans `app/assets/stylesheets/pages/_properties.scss`, compilée globalement) pour un scroll horizontal propre au lieu d'un retour à la ligne moche ou d'un débordement.
+- **Vues PDF/print** méritent la même vérification mobile que les vues normales (souvent oubliées).
+- **Vérifications systématiques utiles en cas de bug 500 sur une vue** : (1) le nom du route helper existe-t-il vraiment (`rails routes | grep`), erreurs fréquentes de nommage type `property_dashboard_path` vs `dashboard_property_path` ; (2) toute variable d'instance utilisée dans la vue est-elle bien assignée dans **chaque** action du controller qui rend cette vue, pas seulement l'action "principale" ; (3) tout `has_many` déclaré sur un modèle a-t-il bien un fichier modèle correspondant (Zeitwerk collapse peut masquer l'absence d'un fichier sans erreur au boot — ex. `ChantierAnalyse` manquait totalement alors que la table et les usages existaient, cassait `/analytics` et le job `ChantierVisionJob` silencieusement).
+- **Couverture de tests quasi nulle** : seuls 6 fichiers `test/integration/*_smoke_test.rb` existaient avant le 17/09/2026, couvrant une fraction minime des routes. Chrome/Selenium indisponible en local (mais présent en CI, `.github/workflows/ci.yml` installe `google-chrome-stable`) → préférer étendre le pattern `ActionDispatch::IntegrationTest` léger existant plutôt que d'écrire des System Tests non vérifiables localement. Pattern de référence : `test/integration/simulation_smoke_test.rb` (`Devise::Test::IntegrationHelpers`, fixtures explicites, `Property.create!(..., skip_onboarding_validation: true)` pour bypasser les validations régionales à l'onboarding).
 
 ## Stripe — État au 27 avril 2026
 
