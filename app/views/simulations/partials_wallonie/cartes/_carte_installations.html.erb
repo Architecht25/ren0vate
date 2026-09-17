@@ -1,6 +1,6 @@
 <div class="col-12">
   <div class="card border-0 shadow overflow-hidden card-premium" data-controller="wallonie-simulation-card" data-wallonie-simulation-card-slug-value="wallonie_installation_electrique">
-    <div class="d-flex">
+    <div class="d-flex flex-wrap">
       <div class="flex-shrink-0 position-relative" style="width: 140px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_280,h_200,q_auto,f_auto/electricité_eydyhu'); background-size: cover; background-position: center;">
         <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(51,65,85,0.65), rgba(51,65,85,0.45);">
           <i class="bi bi-lightning fs-3 text-white drop-shadow mb-1"></i>
@@ -10,7 +10,7 @@
       </div>
       <div class="flex-grow-1 p-3 d-flex align-items-center">
         <div class="row g-3 w-100 align-items-end">
-          <div class="col-sm-6 col-md-5">
+          <div class="col-12 col-sm-6 col-md-5">
             <% cond = condition_prime_wallonie("wallonie_installation_electrique") %>
             <label class="form-label small fw-medium mb-1">Remise en conformité :
               <% if cond.present? %><i class="bi bi-info-circle text-info ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="<%= h(cond) %>" data-bs-placement="top"></i><% end %>
@@ -23,7 +23,7 @@
               <option value="1">Oui</option>
             </select>
           </div>
-          <div class="col-sm-6 col-md-4 offset-md-3 d-flex align-items-end justify-content-end">
+          <div class="col-12 col-sm-6 col-md-4 offset-md-3 d-flex align-items-end justify-content-end">
             <div class="text-end">
               <small class="text-muted d-block">Prime calculée :</small>
               <span class="badge fs-6" style="background-color: var(--ren0vate-accent); color: white;" data-wallonie-simulation-card-target="total">0 €</span>

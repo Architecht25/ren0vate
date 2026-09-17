@@ -1,7 +1,7 @@
 <!-- CARTE 2: TOITURE - Horizontal layout -->
 <div class="col-12">
   <div class="card border-0 shadow overflow-hidden card-premium" data-controller="wallonie-simulation-card" data-wallonie-simulation-card-slug-value="wallonie_toiture_global">
-    <div class="d-flex">
+    <div class="d-flex flex-wrap">
       <!-- Bannière latérale -->
       <div class="flex-shrink-0 position-relative" style="width: 140px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_280,h_200,q_auto,f_auto/renovation_toiture_guwknw'); background-size: cover; background-position: center;">
         <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(51,65,85,0.65), rgba(51,65,85,0.45);">
@@ -17,7 +17,7 @@
               ['wallonie_toiture_appropriation_charpente','Appropriation charpente','inputCharpente',nil,nil,'resultCharpente','calculateToiture','change'],
               ['wallonie_toiture_evacuation_eaux_pluviales','Évacuation eaux pluviales','inputEvacuation',nil,nil,'resultEvacuation','calculateToiture','change']
           ].each do |slug, lbl, tgt, type, ph, res_tgt, action, evt| %>
-          <div class="col-md-4 col-lg-2">
+          <div class="col-12 col-sm-6 col-md-4 col-lg-2">
             <% cond = condition_prime_wallonie(slug) %>
             <label class="form-label small fw-medium mb-1"><%= lbl %>
               <% if cond.present? %><i class="bi bi-info-circle text-info ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="<%= h(cond) %>" data-bs-placement="top"></i><% end %>
@@ -46,7 +46,7 @@
           <% [['wallonie_toiture_isolation_thermique','Isolation thermique (m²)','inputIsolationThermique','number','Surface m²','resultIsolationThermique','calculateToiture','input'],
               ['wallonie_toiture_isolation_biosource','Isolation biosourcée (m²)','inputIsolationBiosource','number','Surface m²','resultIsolationBiosource','calculateToiture','input']
           ].each do |slug, lbl, tgt, type, ph, res_tgt, action, evt| %>
-          <div class="col-md-4 col-lg-2">
+          <div class="col-12 col-sm-6 col-md-4 col-lg-2">
             <% cond = condition_prime_wallonie(slug) %>
             <label class="form-label small fw-medium mb-1"><%= lbl %>
               <% if cond.present? %><i class="bi bi-info-circle text-info ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="<%= h(cond) %>" data-bs-placement="top"></i><% end %>
@@ -61,7 +61,7 @@
           </div>
           <% end %>
           <!-- Total -->
-          <div class="col-md-4 col-lg-2 ms-auto d-flex align-items-end justify-content-end">
+          <div class="col-12 col-sm-6 col-md-4 col-lg-2 ms-auto d-flex align-items-end justify-content-end">
             <div class="text-end">
               <strong class="small d-block fw-semibold" style="color: var(--ren0vate-accent);">Total Toiture :</strong>
               <span class="badge fs-6" style="background-color: var(--ren0vate-accent); color: white;" data-wallonie-simulation-card-target="total">0 €</span>
