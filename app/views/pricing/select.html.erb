@@ -4,8 +4,8 @@
 
   <%# ── Étapes ── %>
   <div class="row mb-5">
-    <div class="col-lg-10 mx-auto">
-      <div class="d-flex align-items-center justify-content-between">
+    <div class="col-12 col-lg-10 mx-auto">
+      <div class="d-flex align-items-center justify-content-between flex-wrap">
         <div class="text-center">
           <div class="step-circle-sel active-step mx-auto">1</div>
           <div class="step-label-sel text-primary fw-semibold mt-1">Sélection</div>
@@ -43,19 +43,19 @@
 
       <!-- Stats utilisateur -->
       <div class="row mt-4 g-3 justify-content-center">
-        <div class="col-md-4 col-sm-4">
+        <div class="col-12 col-sm-4 col-md-4">
           <div class="bg-light p-3 rounded text-center">
             <h5 class="text-primary mb-1"><%= @current_user_context[:properties_count] %></h5>
             <small class="text-muted">Bien<%= 's' if @current_user_context[:properties_count] != 1 %></small>
           </div>
         </div>
-        <div class="col-md-4 col-sm-4">
+        <div class="col-12 col-sm-4 col-md-4">
           <div class="bg-light p-3 rounded text-center">
             <h5 class="text-warning mb-1"><%= @current_user_context[:projects_count] %></h5>
             <small class="text-muted">Projet<%= 's' if @current_user_context[:projects_count] != 1 %></small>
           </div>
         </div>
-        <div class="col-md-4 col-sm-4">
+        <div class="col-12 col-sm-4 col-md-4">
           <div class="bg-light p-3 rounded text-center">
             <h5 class="text-success mb-1"><%= @current_user_context[:simulations_count] %></h5>
             <small class="text-muted">Simulation<%= 's' if @current_user_context[:simulations_count] != 1 %></small>
@@ -67,7 +67,7 @@
 
   <!-- Formule actuelle -->
   <div class="row mb-4">
-    <div class="col-lg-6 mx-auto">
+    <div class="col-12 col-lg-6 mx-auto">
       <div class="alert alert-info d-flex align-items-center">
         <i class="bi bi-info-circle-fill me-3 fs-4"></i>
         <div>
@@ -94,7 +94,7 @@
     </div>
     <div class="col-12">
       <div class="row g-3 text-center">
-        <div class="col-md-4">
+        <div class="col-12 col-sm-6 col-md-4">
           <a href="#offres-proprietaires" class="text-decoration-none">
             <div class="card border-primary h-100 p-4 actor-card">
               <i class="bi bi-house-heart fs-1 text-primary mb-3"></i>
@@ -104,7 +104,7 @@
             </div>
           </a>
         </div>
-        <div class="col-md-4">
+        <div class="col-12 col-sm-6 col-md-4">
           <a href="#offres-professionnels" class="text-decoration-none">
             <div class="card border-success h-100 p-4 actor-card">
               <i class="bi bi-person-workspace fs-1 text-success mb-3"></i>
@@ -117,7 +117,7 @@
             </div>
           </a>
         </div>
-        <div class="col-md-4">
+        <div class="col-12 col-sm-6 col-md-4">
           <a href="#offres-professionnels" class="text-decoration-none">
             <div class="card border-warning h-100 p-4 actor-card">
               <i class="bi bi-hammer fs-1 text-warning mb-3"></i>
@@ -150,7 +150,7 @@
   <div class="row g-4 justify-content-center mb-5">
 
     <!-- STARTER (0€) -->
-    <div class="col-xl-3 col-lg-6 col-md-6" data-tier-key="freemium">
+    <div class="col-12 col-md-6 col-lg-6 col-xl-3" data-tier-key="freemium">
       <div class="card h-100 border-secondary position-relative">
         <% if @current_user_context[:current_tier] == :freemium %>
           <div class="position-absolute top-0 end-0 m-2">
@@ -193,7 +193,7 @@
     </div>
 
     <!-- PROPRIÉTAIRE (39€) -->
-    <div class="col-xl-3 col-lg-6 col-md-6" data-tier-key="individual">
+    <div class="col-12 col-md-6 col-lg-6 col-xl-3" data-tier-key="individual">
       <% individual = @pricing_tiers[:individual] %>
       <% is_rec_ind = @current_user_context[:recommended_tier] == :individual %>
       <div class="card h-100 position-relative shadow-lg" style="border: 2px solid var(--ren0vate-accent) !important; transform: scale(1.02); z-index: 1;">
@@ -236,7 +236,7 @@
     </div>
 
     <!-- INVESTISSEUR (89€) -->
-    <div class="col-xl-3 col-lg-6 col-md-6" data-tier-key="portfolio">
+    <div class="col-12 col-md-6 col-lg-6 col-xl-3" data-tier-key="portfolio">
       <% portfolio = @pricing_tiers[:portfolio] %>
       <% is_rec_port = @current_user_context[:recommended_tier] == :portfolio %>
       <div class="card h-100 border-warning <%= 'shadow-lg' if is_rec_port %>">
@@ -279,7 +279,7 @@
     </div>
 
     <!-- PREMIUM (149€) -->
-    <div class="col-xl-3 col-lg-6 col-md-6" data-tier-key="premium_mixed">
+    <div class="col-12 col-md-6 col-lg-6 col-xl-3" data-tier-key="premium_mixed">
       <% premium = @pricing_tiers[:premium_mixed] %>
       <% is_rec_prem = @current_user_context[:recommended_tier] == :premium_mixed %>
       <div class="card h-100 border-danger <%= 'shadow-lg' if is_rec_prem %>">
@@ -400,7 +400,7 @@
   <div class="row g-4 justify-content-center mb-5 pt-4">
 
     <!-- PRO (99€) -->
-    <div class="col-xl-5 col-lg-6" data-tier-key="professional">
+    <div class="col-12 col-lg-6 col-xl-5" data-tier-key="professional">
       <% pro = @pricing_tiers[:professional] %>
       <div class="card h-100 border-success position-relative
         <%= 'shadow-lg' if @current_user_context[:recommended_tier] == :professional %>">
@@ -426,14 +426,14 @@
             <small><i class="bi bi-graph-up-arrow me-1"></i><%= pro[:roi] %></small>
           </div>
           <div class="row">
-            <div class="col-6">
+            <div class="col-12 col-sm-6">
               <ul class="list-unstyled">
                 <% pro[:features].first((pro[:features].length / 2.0).ceil).each do |f| %>
                   <%= render_pricing_feature(f, small: true) %>
                 <% end %>
               </ul>
             </div>
-            <div class="col-6">
+            <div class="col-12 col-sm-6">
               <ul class="list-unstyled">
                 <% pro[:features].last(pro[:features].length / 2).each do |f| %>
                   <%= render_pricing_feature(f, small: true) %>
@@ -457,7 +457,7 @@
     </div>
 
     <!-- ENTREPRISE (299€) -->
-    <div class="col-xl-5 col-lg-6" data-tier-key="enterprise">
+    <div class="col-12 col-lg-6 col-xl-5" data-tier-key="enterprise">
       <% ent = @pricing_tiers[:enterprise] %>
       <div class="card h-100 border-dark position-relative
         <%= 'shadow-lg' if @current_user_context[:recommended_tier] == :enterprise %>">
@@ -478,14 +478,14 @@
             <small><i class="bi bi-award me-1"></i><%= ent[:roi] %></small>
           </div>
           <div class="row">
-            <div class="col-6">
+            <div class="col-12 col-sm-6">
               <ul class="list-unstyled">
                 <% ent[:features].first((ent[:features].length / 2.0).ceil).each do |f| %>
                   <%= render_pricing_feature(f, small: true) %>
                 <% end %>
               </ul>
             </div>
-            <div class="col-6">
+            <div class="col-12 col-sm-6">
               <ul class="list-unstyled">
                 <% ent[:features].last(ent[:features].length / 2).each do |f| %>
                   <%= render_pricing_feature(f, small: true) %>
@@ -522,15 +522,15 @@
           Testez votre nouvelle formule sans risque. Remboursement intégral sous 30 jours si vous n'êtes pas satisfait.
         </p>
         <div class="row mt-4">
-          <div class="col-4">
+          <div class="col-12 col-sm-4">
             <i class="bi bi-lightning-charge text-warning fs-3"></i>
             <div class="small text-muted">Activation immédiate</div>
           </div>
-          <div class="col-4">
+          <div class="col-12 col-sm-4">
             <i class="bi bi-arrow-up-circle text-success fs-3"></i>
             <div class="small text-muted">Upgrade facile</div>
           </div>
-          <div class="col-4">
+          <div class="col-12 col-sm-4">
             <i class="bi bi-headset text-primary fs-3"></i>
             <div class="small text-muted">Support dédié</div>
           </div>

@@ -3,8 +3,8 @@
 <div class="container py-5">
   <!-- Progress Bar -->
   <div class="row mb-5">
-    <div class="col-lg-8 mx-auto">
-      <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="col-12 col-lg-8 mx-auto">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
         <div class="step completed">
           <div class="step-circle bg-success text-white">
             <i class="bi bi-check"></i>
@@ -32,7 +32,7 @@
 
   <!-- Header -->
   <div class="row mb-4">
-    <div class="col-lg-8 mx-auto text-center">
+    <div class="col-12 col-lg-8 mx-auto text-center">
       <h1 class="display-6 fw-bold mb-3">
         <i class="bi bi-clipboard-check text-primary me-3"></i>
         Résumé de votre abonnement
@@ -45,7 +45,7 @@
 
   <div class="row">
     <!-- Résumé de commande -->
-    <div class="col-lg-7 mb-4">
+    <div class="col-12 col-lg-7 mb-4">
       <div class="card shadow-sm">
         <div class="card-header bg-light">
           <h4 class="mb-0">
@@ -56,7 +56,7 @@
         <div class="card-body">
           <!-- Tier sélectionné -->
           <div class="row align-items-center mb-4 p-3 bg-light rounded">
-            <div class="col-md-8">
+            <div class="col-12 col-md-8">
               <div class="d-flex align-items-center">
                 <div class="tier-icon bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
                   <% case @tier %>
@@ -79,7 +79,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-md-4 text-end">
+            <div class="col-12 col-md-4 text-end">
               <div class="tier-price">
                 <span class="h4 fw-bold text-primary"><%= @selected_tier[:price] %>€</span>
                 <div class="text-muted">/mois</div>
@@ -95,7 +95,7 @@
             </h6>
             <div class="row">
               <% @selected_tier[:features].each_with_index do |feature, index| %>
-                <div class="col-md-6 mb-2">
+                <div class="col-12 col-md-6 mb-2">
                   <small class="d-flex align-items-start">
                     <i class="bi bi-check text-success me-2 mt-1"></i>
                     <%= feature %>
@@ -137,7 +137,7 @@
     </div>
 
     <!-- Sidebar de commande -->
-    <div class="col-lg-5">
+    <div class="col-12 col-lg-5">
       <div class="card shadow-sm sticky-top" style="top: 20px;">
         <div class="card-header bg-primary text-white">
           <h5 class="mb-0">
@@ -149,17 +149,17 @@
           <!-- Cycle de facturation -->
           <div class="billing-cycle mb-4">
             <label class="form-label fw-bold">Cycle de facturation :</label>
-            <div class="btn-group w-100" role="group">
+            <div class="d-flex flex-wrap gap-2" role="group">
               <input type="radio" class="btn-check" name="billing_cycle" id="monthly" value="monthly"
                      <%= 'checked' if @billing_cycle == 'monthly' %>>
-              <label class="btn btn-outline-primary" for="monthly">
+              <label class="btn btn-outline-primary flex-fill" for="monthly">
                 <div>Mensuel</div>
                 <small class="text-muted"><%= @selected_tier[:price] %>€/mois</small>
               </label>
 
               <input type="radio" class="btn-check" name="billing_cycle" id="yearly" value="yearly"
                      <%= 'checked' if @billing_cycle == 'yearly' %>>
-              <label class="btn btn-outline-success" for="yearly">
+              <label class="btn btn-outline-success flex-fill" for="yearly">
                 <div>Annuel</div>
                 <small class="text-success">
                   <%= @selected_tier[:annual_total] || @selected_tier[:price] * 10 %>€/an
@@ -183,7 +183,7 @@
 
             <hr>
 
-            <div class="d-flex justify-content-between fw-bold fs-5">
+            <div class="d-flex justify-content-between fw-bold fs-5 flex-wrap gap-1">
               <span>Total <span class="billing-period">mensuel</span> <small class="text-muted fw-normal" style="font-size:0.75rem;">TTC</small></span>
               <span class="total-amount text-primary"><%= @selected_tier[:price] %>€</span>
             </div>
@@ -303,13 +303,13 @@
             Profil utilisateur
           </h6>
           <div class="row">
-            <div class="col-md-4">
+            <div class="col-6 col-md-4">
               <strong><%= @current_user_context[:properties_count] %></strong> propriété<%= 's' if @current_user_context[:properties_count] > 1 %>
             </div>
-            <div class="col-md-4">
+            <div class="col-6 col-md-4">
               <strong><%= @current_user_context[:simulations_count] %></strong> simulation<%= 's' if @current_user_context[:simulations_count] > 1 %>
             </div>
-            <div class="col-md-4">
+            <div class="col-6 col-md-4">
               <strong><%= @current_user_context[:projects_count] %></strong> projet<%= 's' if @current_user_context[:projects_count] > 1 %>
             </div>
           </div>
