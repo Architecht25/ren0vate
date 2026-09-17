@@ -1,6 +1,6 @@
 <div class="container-fluid px-4 py-4">
   <!-- Header du dashboard -->
-  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+  <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2 mb-4 pb-3 border-bottom">
     <div class="d-flex align-items-center">
       <div class="icon-circle me-3">
         <i class="bi bi-calculator"></i>
@@ -22,7 +22,7 @@
 
   <!-- Alertes critiques en haut -->
   <% if @analyse[:alertes_delais][:status] == 'critique' || @analyse[:alertes_delais][:status] == 'expire' %>
-    <div class="alert alert-danger d-flex align-items-center mb-4">
+    <div class="alert alert-danger d-flex align-items-center flex-wrap mb-4">
       <i class="bi bi-exclamation-triangle-fill me-3"></i>
       <div>
         <strong>URGENT - Délai de demande de prime !</strong><br>
@@ -30,7 +30,7 @@
       </div>
     </div>
   <% elsif @analyse[:alertes_delais][:status] == 'attention' %>
-    <div class="alert alert-warning d-flex align-items-center mb-4">
+    <div class="alert alert-warning d-flex align-items-center flex-wrap mb-4">
       <i class="bi bi-clock-fill me-3"></i>
       <div>
         <strong>Attention au délai</strong><br>
@@ -41,7 +41,7 @@
 
   <div class="row">
     <!-- Comparaison Devis vs Factures -->
-    <div class="col-lg-8">
+    <div class="col-12 col-lg-8">
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-light">
           <h5 class="card-title mb-0">
@@ -52,7 +52,7 @@
         <div class="card-body">
           <% if @analyse[:comparaison_devis][:status] != 'no_devis' && @analyse[:comparaison_devis][:status] != 'no_factures' %>
             <div class="row align-items-center mb-4">
-              <div class="col-md-4">
+              <div class="col-12 col-md-4">
                 <div class="text-center">
                   <div class="h4 text-info mb-1">
                     <%= number_to_currency(@analyse[:comparaison_devis][:montant_devis], unit: '€ ', precision: 2) %>
@@ -60,7 +60,7 @@
                   <small class="text-muted">Montant Devis</small>
                 </div>
               </div>
-              <div class="col-md-4">
+              <div class="col-12 col-md-4">
                 <div class="text-center">
                   <div class="progress mb-2" style="height: 10px;">
                     <% pourcentage = (@analyse[:comparaison_devis][:total_factures] / @analyse[:comparaison_devis][:montant_devis] * 100).round(1) %>
@@ -75,7 +75,7 @@
                   <small class="text-muted"><%= pourcentage %>% réalisé</small>
                 </div>
               </div>
-              <div class="col-md-4">
+              <div class="col-12 col-md-4">
                 <div class="text-center">
                   <div class="h4 mb-1
                     <%= 'text-success' if @analyse[:comparaison_devis][:ecart] == 0 %>
@@ -163,7 +163,7 @@
     </div>
 
     <!-- Sidebar avec statistiques et alertes -->
-    <div class="col-lg-4">
+    <div class="col-12 col-lg-4">
       <!-- Statistiques rapides -->
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-light">
@@ -205,7 +205,7 @@
           </div>
           <div class="card-body">
             <% if @analyse[:alertes_delais][:facture_solde] %>
-              <div class="d-flex align-items-center mb-3">
+              <div class="d-flex align-items-center flex-wrap mb-3">
                 <div class="me-3">
                   <i class="bi bi-receipt text-success" style="font-size: 1.5rem;"></i>
                 </div>
@@ -293,7 +293,7 @@
       <div class="card-body">
         <div class="row">
           <% if @analyse[:factures_manquantes].any? %>
-            <div class="col-md-6">
+            <div class="col-12 col-md-6">
               <h6 class="text-danger">Documents manquants:</h6>
               <% @analyse[:factures_manquantes].each do |anomalie| %>
                 <div class="alert alert-<%= anomalie[:severite] == 'haute' ? 'danger' : 'warning' %> alert-sm">
@@ -305,7 +305,7 @@
           <% end %>
 
           <% if @analyse[:anomalies].any? %>
-            <div class="col-md-6">
+            <div class="col-12 col-md-6">
               <h6 class="text-warning">Anomalies détectées:</h6>
               <% @analyse[:anomalies].each do |anomalie| %>
                 <div class="alert alert-<%= anomalie[:severite] == 'haute' ? 'danger' : anomalie[:severite] == 'moyenne' ? 'warning' : 'info' %> alert-sm">
@@ -332,7 +332,7 @@
       <div class="card-body">
         <div class="row">
           <% @analyse[:recommandations].each do |rec| %>
-            <div class="col-md-6 mb-3">
+            <div class="col-12 col-md-6 mb-3">
               <div class="border-start border-<%= rec[:priorite] == 'urgente' ? 'danger' : rec[:priorite] == 'haute' ? 'warning' : 'info' %> border-3 ps-3">
                 <h6 class="text-<%= rec[:priorite] == 'urgente' ? 'danger' : rec[:priorite] == 'haute' ? 'warning' : 'info' %>">
                   <%= rec[:action] %>
