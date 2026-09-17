@@ -1,7 +1,7 @@
 <% content_for :title, "Analytics — #{current_user.first_name}" %>
 
 <div class="container-fluid py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2 mb-4">
     <div>
       <h1 class="h3 fw-bold mb-1">
         <i class="bi bi-bar-chart-line text-primary me-2"></i>Analytics
@@ -17,25 +17,25 @@
 
   <!-- KPI globaux -->
   <div class="row g-3 mb-4">
-    <div class="col-md-3 col-sm-6">
+    <div class="col-12 col-md-3 col-sm-6">
       <div class="card border-0 shadow-sm text-center py-3">
         <div class="h2 fw-bold text-primary mb-1"><%= @total_projects %></div>
         <div class="text-muted small">Projets totaux</div>
       </div>
     </div>
-    <div class="col-md-3 col-sm-6">
+    <div class="col-12 col-md-3 col-sm-6">
       <div class="card border-0 shadow-sm text-center py-3">
         <div class="h2 fw-bold text-warning mb-1"><%= @active_projects %></div>
         <div class="text-muted small">Projets actifs</div>
       </div>
     </div>
-    <div class="col-md-3 col-sm-6">
+    <div class="col-12 col-md-3 col-sm-6">
       <div class="card border-0 shadow-sm text-center py-3">
         <div class="h2 fw-bold text-success mb-1"><%= number_to_currency(@budget_total, unit: '€', format: '%n %u', delimiter: ' ') %></div>
         <div class="text-muted small">Factures totales</div>
       </div>
     </div>
-    <div class="col-md-3 col-sm-6">
+    <div class="col-12 col-md-3 col-sm-6">
       <div class="card border-0 shadow-sm text-center py-3">
         <div class="h2 fw-bold text-info mb-1"><%= number_to_currency(@total_primes_potentielles, unit: '€', format: '%n %u', delimiter: ' ') %></div>
         <div class="text-muted small">Primes potentielles</div>
@@ -46,7 +46,7 @@
   <div class="row g-4 mb-4">
 
     <!-- Avancement moyen -->
-    <div class="col-md-4">
+    <div class="col-12 col-md-4">
       <div class="card border-0 shadow-sm h-100">
         <div class="card-body text-center">
           <h6 class="fw-semibold mb-3">Avancement chantiers actifs</h6>
@@ -66,7 +66,7 @@
     </div>
 
     <!-- Statut paiements -->
-    <div class="col-md-4">
+    <div class="col-12 col-md-4">
       <div class="card border-0 shadow-sm h-100">
         <div class="card-body">
           <h6 class="fw-semibold mb-3">Statut des paiements</h6>
@@ -83,7 +83,7 @@
     </div>
 
     <!-- Top types de travaux -->
-    <div class="col-md-4">
+    <div class="col-12 col-md-4">
       <div class="card border-0 shadow-sm h-100">
         <div class="card-body">
           <h6 class="fw-semibold mb-3">Types de travaux (devis)</h6>
@@ -114,10 +114,10 @@
       <div class="card-body">
         <h6 class="fw-semibold mb-3">Dépenses mensuelles — 12 derniers mois</h6>
         <% max_depense = @depenses_mensuelles.map { |d| d[:total] }.max.to_f %>
-        <div class="d-flex align-items-end gap-2" style="height:100px;">
+        <div class="d-flex align-items-end gap-2" style="height:100px; overflow-x: auto;">
           <% @depenses_mensuelles.each do |d| %>
             <% hauteur = max_depense > 0 ? ((d[:total] / max_depense) * 90).round : 0 %>
-            <div class="flex-fill text-center" title="<%= d[:mois] %> : <%= number_to_currency(d[:total], unit: '€', format: '%n %u') %>">
+            <div class="flex-fill text-center" style="min-width: 24px;" title="<%= d[:mois] %> : <%= number_to_currency(d[:total], unit: '€', format: '%n %u') %>">
               <div class="bg-primary rounded-top mx-auto" style="width:80%;height:<%= hauteur %>px;min-height:4px;"></div>
               <div class="text-muted" style="font-size:0.6rem;"><%= d[:mois].last(5) %></div>
             </div>
@@ -168,7 +168,7 @@
                   <td class="text-end"><%= number_to_currency(s[:total_facture], unit: '€', format: '%n %u', delimiter: ' ') %></td>
                   <td class="text-end"><%= s[:nb_factures] %></td>
                   <td>
-                    <%= link_to s[:project], class: "btn btn-sm btn-outline-primary" do %>
+                    <%= link_to s[:project], class: "btn btn-sm btn-outline-primary", style: "min-width: 32px; min-height: 32px;" do %>
                       <i class="bi bi-arrow-right"></i>
                     <% end %>
                   </td>
