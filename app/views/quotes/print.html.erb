@@ -1,9 +1,9 @@
 <% content_for :title, "Devis estimatif ##{@quote.id} — #{@property.titre || @property.commune}" %>
 
 <!-- Barre d'actions (cachée à l'impression) -->
-<div class="no-print d-flex align-items-center justify-content-between px-4 py-2"
+<div class="no-print d-flex flex-wrap align-items-center justify-content-between gap-2 px-4 py-2"
      style="background:#f8f9fa; border-bottom:1px solid #dee2e6; position:sticky; top:0; z-index:10;">
-  <div class="d-flex gap-2">
+  <div class="d-flex flex-wrap gap-2">
     <button onclick="window.print()" class="btn btn-sm btn-primary">
       <i class="bi bi-printer me-1"></i>Imprimer / Enregistrer PDF
     </button>
@@ -16,7 +16,7 @@
 
 <!-- En-tête -->
 <div class="print-header">
-  <div class="d-flex justify-content-between align-items-start">
+  <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
     <div>
       <h2 class="mb-1" style="font-size:1.3rem;">DEVIS ESTIMATIF &nbsp;#<%= @quote.id %></h2>
       <div style="opacity:0.8; font-size:0.88rem;">
@@ -54,7 +54,7 @@
 
   <!-- Résumé chiffres clés -->
   <div class="row g-3 mb-4">
-    <div class="col-4">
+    <div class="col-12 col-sm-4">
       <div class="border rounded p-3 text-center">
         <div class="text-muted small mb-1">Fourchette basse</div>
         <div class="fw-bold text-success" style="font-size:1.1rem;">
@@ -62,7 +62,7 @@
         </div>
       </div>
     </div>
-    <div class="col-4">
+    <div class="col-12 col-sm-4">
       <div class="border-2 rounded p-3 text-center" style="border:2px solid #1e3a5f; background:#f0f4f8;">
         <div class="text-muted small mb-1">Estimation moyenne</div>
         <div class="fw-bold" style="font-size:1.15rem; color:#1e3a5f;">
@@ -70,7 +70,7 @@
         </div>
       </div>
     </div>
-    <div class="col-4">
+    <div class="col-12 col-sm-4">
       <div class="border rounded p-3 text-center">
         <div class="text-muted small mb-1">Fourchette haute</div>
         <div class="fw-bold text-warning" style="font-size:1.1rem;">
@@ -81,6 +81,7 @@
   </div>
 
   <!-- Tableau détail travaux -->
+  <div class="table-responsive">
   <table class="table table-bordered mb-4" style="font-size:0.85rem;">
     <thead style="background:#1e3a5f; color:white;">
       <tr>
@@ -131,6 +132,7 @@
       </tr>
     </tfoot>
   </table>
+  </div>
 
   <!-- Durée + infos -->
   <div class="row mb-4">
