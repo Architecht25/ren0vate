@@ -70,7 +70,7 @@ class ContractTemplatesController < ApplicationController
   end
 
   def show
-    # Template details page
+    @templates = get_all_templates
   end
 
   def download

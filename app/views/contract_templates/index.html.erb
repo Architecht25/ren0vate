@@ -48,7 +48,7 @@
   <!-- Filtres par catégorie -->
   <div class="row mb-4">
     <div class="col-12">
-      <div class="btn-group" role="group" aria-label="Filtrer par catégorie">
+      <div class="d-flex flex-wrap gap-2" role="group" aria-label="Filtrer par catégorie">
         <button type="button" class="btn btn-outline-primary active" data-filter="all">
           Tous les templates (<%= @templates.count %>)
         </button>
@@ -64,7 +64,7 @@
   <!-- Grid de templates -->
   <div class="row g-4">
     <% @templates.each do |template| %>
-      <div class="col-md-6 col-lg-4 template-card" data-category="<%= template[:category].downcase %>">
+      <div class="col-12 col-md-6 col-lg-4 template-card" data-category="<%= template[:category].downcase %>">
         <div class="card h-100 shadow-sm hover-lift">
           <!-- Badge catégorie -->
           <div class="card-header bg-white border-bottom-0 pt-4">
@@ -226,35 +226,3 @@
   });
 </script>
 
-<%
-  # Helper methods for view
-  def category_badge_class(category)
-    case category
-    when 'Architecte'
-      'bg-primary'
-    when 'Entrepreneur'
-      'bg-success'
-    when 'Coordination'
-      'bg-warning'
-    when 'Études'
-      'bg-info'
-    else
-      'bg-secondary'
-    end
-  end
-
-  def category_icon(category)
-    case category
-    when 'Architecte'
-      'bi-pencil-square'
-    when 'Entrepreneur'
-      'bi-tools'
-    when 'Coordination'
-      'bi-diagram-3'
-    when 'Études'
-      'bi-graph-up'
-    else
-      'bi-file-earmark-text'
-    end
-  end
-%>

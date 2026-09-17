@@ -1,6 +1,6 @@
 <div class="container-fluid px-4 py-4">
   <!-- Header épuré -->
-  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+  <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2 mb-4 pb-3 border-bottom">
     <div class="d-flex align-items-center">
       <div class="icon-circle me-3">
         <i class="bi bi-tag"></i>
@@ -10,7 +10,7 @@
         <p class="text-muted mb-0"><%= @category.description %></p>
       </div>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex flex-wrap gap-2">
       <%= link_to edit_category_path(@category), class: "btn btn-warning px-4" do %>
         <i class="bi bi-pencil me-2"></i>
         Modifier
@@ -24,10 +24,10 @@
 
   <!-- Contenu principal -->
   <div class="row justify-content-center">
-    <div class="col-lg-10">
+    <div class="col-12 col-lg-10">
       <div class="row g-3 justify-content-center">
         <!-- Informations générales -->
-        <div class="col-md-4">
+        <div class="col-12 col-md-4">
           <div class="card border-0 shadow-sm h-100">
             <div class="card-body p-3 text-center">
               <div class="icon-circle mx-auto mb-3" style="width: 45px; height: 45px;">
@@ -61,7 +61,7 @@
         </div>
 
         <!-- Seuils de revenus -->
-        <div class="col-md-4">
+        <div class="col-12 col-md-4">
           <div class="card border-0 shadow-sm h-100">
             <div class="card-body p-3 text-center">
               <div class="icon-circle mx-auto mb-3" style="width: 45px; height: 45px;">
@@ -69,25 +69,25 @@
               </div>
               <h6 class="card-title text-primary-custom mb-3">Seuils de revenus</h6>
               <div class="row g-2">
-                <div class="col-6">
+                <div class="col-12 col-sm-6">
                   <div class="bg-light-custom rounded p-2">
                     <small class="text-muted-custom d-block mb-1">Seul</small>
                     <strong class="text-success small"><%= number_with_delimiter(@category.seuil_seul) %>€</strong>
                   </div>
                 </div>
-                <div class="col-6">
+                <div class="col-12 col-sm-6">
                   <div class="bg-light-custom rounded p-2">
                     <small class="text-muted-custom d-block mb-1">Avec charge</small>
                     <strong class="text-success small"><%= number_with_delimiter(@category.seuil_seul_avec_charge) %>€</strong>
                   </div>
                 </div>
-                <div class="col-6">
+                <div class="col-12 col-sm-6">
                   <div class="bg-light-custom rounded p-2">
                     <small class="text-muted-custom d-block mb-1">Couple</small>
                     <strong class="text-success small"><%= number_with_delimiter(@category.couple_sans_charge) %>€</strong>
                   </div>
                 </div>
-                <div class="col-6">
+                <div class="col-12 col-sm-6">
                   <div class="bg-light-custom rounded p-2">
                     <small class="text-muted-custom d-block mb-1">Par personne +</small>
                     <strong class="text-info small">+<%= number_with_delimiter(@category.increment_par_personne) %>€</strong>
@@ -100,7 +100,7 @@
 
         <!-- Conditions d'éligibilité (Flandre uniquement) -->
         <% if @category.region.to_s.downcase == 'flandre' || @category.region.blank? %>
-          <div class="col-md-4">
+          <div class="col-12 col-md-4">
             <div class="card border-0 shadow-sm h-100">
               <div class="card-body p-3 text-center">
                 <div class="icon-circle mx-auto mb-3" style="width: 45px; height: 45px;">
@@ -138,7 +138,7 @@
           </div>
         <% else %>
           <!-- Informations régionales pour Bruxelles et Wallonie -->
-          <div class="col-md-4">
+          <div class="col-12 col-md-4">
             <div class="card border-0 shadow-sm h-100">
               <div class="card-body p-3 text-center">
                 <div class="icon-circle mx-auto mb-3" style="width: 45px; height: 45px;">
