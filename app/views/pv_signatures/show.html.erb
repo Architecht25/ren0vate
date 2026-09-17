@@ -59,7 +59,7 @@
     <!-- Carte : votre rôle -->
     <div class="card shadow-sm border-0 mb-4">
       <div class="card-body p-4">
-        <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="d-flex align-items-center gap-3 flex-wrap gap-2 mb-3">
           <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center flex-shrink-0"
                style="width:44px;height:44px;">
             <i class="bi bi-person-check fs-4 text-primary"></i>
@@ -105,11 +105,11 @@
 
         <!-- Infos projet -->
         <div class="row g-2 mb-3 small">
-          <div class="col-6">
+          <div class="col-12 col-sm-6">
             <span class="text-muted">Projet :</span>
             <strong class="ms-1"><%= @pv.project.nom %></strong>
           </div>
-          <div class="col-6">
+          <div class="col-12 col-sm-6">
             <span class="text-muted">Adresse :</span>
             <span class="ms-1"><%= @pv.project.property&.adresse.presence || "—" %></span>
           </div>
@@ -168,7 +168,7 @@
             { role: :entrepreneur, nom: @pv.nom_entrepreneur, signed: @pv.signed_entrepreneur?, at: @pv.signed_entrepreneur_at, label: "Entrepreneur", skip: @pv.email_entrepreneur.blank? }
           ].each do |s| %>
             <% next if s[:skip] %>
-            <div class="col-sm-4">
+            <div class="col-12 col-sm-4">
               <div class="sig-box <%= s[:signed] ? 'signed' : 'pending' %>">
                 <div class="role-badge text-<%= s[:signed] ? 'success' : 'secondary' %> mb-1"><%= s[:label] %></div>
                 <div class="fw-medium"><%= s[:nom].presence || "—" %></div>

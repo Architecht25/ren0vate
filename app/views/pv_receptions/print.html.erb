@@ -6,6 +6,13 @@
   .pv-section h3 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
                    color: #1e3a5f; border-bottom: 2px solid #1e3a5f; padding-bottom: 3px; margin-bottom: 10px; }
   .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; font-size: 11px; }
+  .signatures-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .pv-container { max-width: 860px; margin: 0 auto; padding: 24px; }
+  @media (max-width: 576px) {
+    .info-grid { grid-template-columns: repeat(2, 1fr); }
+    .signatures-grid { grid-template-columns: 1fr; }
+    .pv-container { padding: 12px; }
+  }
   .info-cell .label { color: #888; margin-bottom: 1px; }
   .info-cell .val { font-weight: 600; }
   table { width: 100%; border-collapse: collapse; font-size: 11px; }
@@ -30,7 +37,7 @@
   @media print { .no-print { display: none !important; } }
 </style>
 
-<div class="no-print container py-3 d-flex gap-2">
+<div class="no-print container py-3 d-flex gap-2 flex-wrap">
   <button onclick="window.print()" class="btn btn-primary btn-sm">
     <i class="bi bi-printer me-1"></i>Imprimer / Enregistrer en PDF
   </button>
@@ -39,10 +46,10 @@
   <% end %>
 </div>
 
-<div style="max-width:860px;margin:0 auto;padding:24px;">
+<div class="pv-container">
 
   <%# ── En-tête officiel ── %>
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;border-bottom:3px solid #1e3a5f;padding-bottom:12px;">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;border-bottom:3px solid #1e3a5f;padding-bottom:12px;">
     <div>
       <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Document officiel</div>
       <div style="font-size:20px;font-weight:700;color:#1e3a5f;">Procès-Verbal de Réception de Chantier</div>
@@ -97,6 +104,7 @@
   <% if lots.any? %>
     <div class="pv-section">
       <h3>3. Lots réceptionnés (<%= lots.size %>)</h3>
+      <div style="overflow-x:auto;">
       <table>
         <thead>
           <tr>
@@ -134,6 +142,7 @@
           <% end %>
         </tbody>
       </table>
+      </div>
     </div>
   <% end %>
 
@@ -171,7 +180,7 @@
   <% sec_num = lots.any? ? 5 : 4 %>
   <div class="pv-section">
     <h3><%= sec_num %>. Signatures des parties</h3>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+    <div class="signatures-grid">
 
       <div class="sig-box">
         <div class="sig-label">Maître d'ouvrage</div>

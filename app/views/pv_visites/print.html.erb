@@ -11,6 +11,7 @@
   .pv-section h3 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
                    color: #1e3a5f; border-bottom: 2px solid #1e3a5f; padding-bottom: 3px; margin-bottom: 10px; }
   .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; font-size: 11px; }
+  @media (max-width: 576px) { .info-grid { grid-template-columns: repeat(2, 1fr); } }
   .info-cell .label { color: #888; margin-bottom: 1px; }
   .info-cell .val { font-weight: 600; }
   table { width: 100%; border-collapse: collapse; font-size: 11px; }
@@ -20,6 +21,7 @@
   .lot-box { border: 1px solid #e0e0e0; border-radius: 4px; padding: 8px; margin-bottom: 8px; page-break-inside: avoid; }
   .lot-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-weight: 700; }
   .lot-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; font-size: 10px; }
+  @media (max-width: 576px) { .lot-grid { grid-template-columns: 1fr; } }
   .lot-col .col-label { color: #888; margin-bottom: 2px; }
   .progress-bar-wrap { display: flex; align-items: center; gap: 6px; }
   .progress-bar-bg { background: #e9ecef; border-radius: 3px; height: 6px; width: 80px; display: inline-block; }
@@ -27,6 +29,8 @@
   .clause-box { border: 1px solid #1e3a5f; border-radius: 4px; padding: 10px 14px; background: #f8f9fa; font-size: 11px; font-style: italic; }
   .sig-box { border: 1px solid #ccc; border-radius: 4px; padding: 10px; min-height: 60px; }
   .sig-label { font-size: 9px; font-weight: 700; text-transform: uppercase; color: #888; margin-bottom: 3px; }
+  .visa-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  @media (max-width: 576px) { .visa-grid { grid-template-columns: 1fr; } }
   @media print { .no-print { display: none !important; } }
 </style>
 
@@ -42,7 +46,7 @@
 <div style="max-width:860px;margin:0 auto;padding:24px;">
 
   <%# ── En-tête officiel ── %>
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;border-bottom:3px solid #1e3a5f;padding-bottom:12px;">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;border-bottom:3px solid #1e3a5f;padding-bottom:12px;">
     <div>
       <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Document de suivi de chantier</div>
       <div style="font-size:20px;font-weight:700;color:#1e3a5f;">Procès-Verbal de Visite de Chantier</div>
@@ -72,15 +76,17 @@
   <%# ── 2. Participants ── %>
   <div class="pv-section">
     <h3>2. Participants</h3>
-    <table>
-      <thead><tr><th style="width:50%;">Présents</th><th>Absents / excusés</th></tr></thead>
-      <tbody>
-        <tr>
-          <td><%= @pv_visite.presents.presence || "—" %></td>
-          <td><%= @pv_visite.absents.presence || "—" %></td>
-        </tr>
-      </tbody>
-    </table>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr><th style="width:50%;">Présents</th><th>Absents / excusés</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><%= @pv_visite.presents.presence || "—" %></td>
+            <td><%= @pv_visite.absents.presence || "—" %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <%# ── 3. Observations générales ── %>
@@ -123,27 +129,29 @@
   <div class="pv-section">
     <h3>5. Points constatés / réserves (<%= @pv_visite.points_liste.size %>)</h3>
     <% if @pv_visite.points_liste.any? %>
-      <table>
-        <thead>
-          <tr>
-            <th>#</th><th>Description</th><th>Localisation</th><th>Nature</th><th>Priorité</th><th>Responsable</th><th>Délai</th><th>Statut</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @pv_visite.points_liste.each_with_index do |pt, i| %>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
             <tr>
-              <td><%= i + 1 %></td>
-              <td><%= pt[:description] %></td>
-              <td><%= pt[:localisation].presence || "—" %></td>
-              <td><span class="badge-small"><%= nature_labels[pt[:nature]] || pt[:nature] || "Défaut" %></span></td>
-              <td><span class="badge-small"><%= (pt[:priorite] || "normal").capitalize %></span></td>
-              <td><%= pt[:responsable].presence || "—" %></td>
-              <td><%= pt[:delai].presence || "—" %></td>
-              <td><span class="badge-small"><%= (pt[:statut] || "ouvert").capitalize %></span></td>
+              <th>#</th><th>Description</th><th>Localisation</th><th>Nature</th><th>Priorité</th><th>Responsable</th><th>Délai</th><th>Statut</th>
             </tr>
-          <% end %>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <% @pv_visite.points_liste.each_with_index do |pt, i| %>
+              <tr>
+                <td><%= i + 1 %></td>
+                <td><%= pt[:description] %></td>
+                <td><%= pt[:localisation].presence || "—" %></td>
+                <td><span class="badge-small"><%= nature_labels[pt[:nature]] || pt[:nature] || "Défaut" %></span></td>
+                <td><span class="badge-small"><%= (pt[:priorite] || "normal").capitalize %></span></td>
+                <td><%= pt[:responsable].presence || "—" %></td>
+                <td><%= pt[:delai].presence || "—" %></td>
+                <td><span class="badge-small"><%= (pt[:statut] || "ouvert").capitalize %></span></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
     <% else %>
       <p style="color:#198754;margin:0;"><strong>✓</strong> Aucun point particulier constaté lors de cette visite.</p>
     <% end %>
@@ -153,19 +161,21 @@
   <% if @pv_visite.decisions_liste.any? %>
     <div class="pv-section">
       <h3>6. Décisions actées</h3>
-      <table>
-        <thead><tr><th>#</th><th>Décision</th><th>Responsable</th><th>Échéance</th></tr></thead>
-        <tbody>
-          <% @pv_visite.decisions_liste.each_with_index do |d, i| %>
-            <tr>
-              <td><%= i + 1 %></td>
-              <td><%= d[:description] %></td>
-              <td><%= d[:responsable].presence || "—" %></td>
-              <td><%= d[:delai].presence || "—" %></td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>#</th><th>Décision</th><th>Responsable</th><th>Échéance</th></tr></thead>
+          <tbody>
+            <% @pv_visite.decisions_liste.each_with_index do |d, i| %>
+              <tr>
+                <td><%= i + 1 %></td>
+                <td><%= d[:description] %></td>
+                <td><%= d[:responsable].presence || "—" %></td>
+                <td><%= d[:delai].presence || "—" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
     </div>
   <% end %>
 
@@ -185,7 +195,7 @@
   <%# ── 8. Visa ── %>
   <div class="pv-section">
     <h3>8. Visa de l'architecte</h3>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+    <div class="visa-grid">
       <div class="sig-box">
         <div class="sig-label">Architecte (auteur)</div>
         <div style="font-weight:600;"><%= @pv_visite.auteur.full_name %></div>

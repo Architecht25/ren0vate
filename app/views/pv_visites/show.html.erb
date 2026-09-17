@@ -72,17 +72,17 @@
     </div>
     <div class="card-body px-4 py-3">
       <div class="row g-3 small">
-        <div class="col-sm-3"><div class="text-muted">Date</div><div class="fw-semibold"><%= @pv_visite.date_visite.strftime('%d/%m/%Y') %></div></div>
+        <div class="col-12 col-sm-3"><div class="text-muted">Date</div><div class="fw-semibold"><%= @pv_visite.date_visite.strftime('%d/%m/%Y') %></div></div>
         <% if @pv_visite.heure_visite.present? %>
-          <div class="col-sm-2"><div class="text-muted">Heure</div><div class="fw-semibold"><%= @pv_visite.heure_visite %></div></div>
+          <div class="col-12 col-sm-2"><div class="text-muted">Heure</div><div class="fw-semibold"><%= @pv_visite.heure_visite %></div></div>
         <% end %>
         <% if @pv_visite.meteo.present? %>
-          <div class="col-sm-2"><div class="text-muted">Météo</div><div class="fw-semibold"><%= @pv_visite.meteo %></div></div>
+          <div class="col-12 col-sm-2"><div class="text-muted">Météo</div><div class="fw-semibold"><%= @pv_visite.meteo %></div></div>
         <% end %>
-        <div class="col-sm-3"><div class="text-muted">Architecte</div><div class="fw-semibold"><%= @pv_visite.auteur.full_name %></div></div>
-        <div class="col-sm-4"><div class="text-muted">Adresse du chantier</div><div class="fw-semibold"><%= @project.property&.adresse.presence || "—" %></div></div>
+        <div class="col-12 col-sm-3"><div class="text-muted">Architecte</div><div class="fw-semibold"><%= @pv_visite.auteur.full_name %></div></div>
+        <div class="col-12 col-sm-4"><div class="text-muted">Adresse du chantier</div><div class="fw-semibold"><%= @project.property&.adresse.presence || "—" %></div></div>
         <% if @pv_visite.coordinateur_sps.present? %>
-          <div class="col-sm-4"><div class="text-muted">Coordinateur SPS</div><div class="fw-semibold"><%= @pv_visite.coordinateur_sps %></div></div>
+          <div class="col-12 col-sm-4"><div class="text-muted">Coordinateur SPS</div><div class="fw-semibold"><%= @pv_visite.coordinateur_sps %></div></div>
         <% end %>
       </div>
     </div>
@@ -96,13 +96,13 @@
     <div class="card-body px-4 py-3">
       <div class="row g-3 small">
         <% if @pv_visite.presents.present? %>
-          <div class="col-sm-6">
+          <div class="col-12 col-sm-6">
             <div class="text-muted mb-1 fw-semibold"><i class="bi bi-person-check-fill text-success me-1"></i>Présents</div>
             <div class="bg-light rounded-3 px-3 py-2"><%= simple_format @pv_visite.presents %></div>
           </div>
         <% end %>
         <% if @pv_visite.absents.present? %>
-          <div class="col-sm-6">
+          <div class="col-12 col-sm-6">
             <div class="text-muted mb-1 fw-semibold"><i class="bi bi-person-x-fill text-danger me-1"></i>Absents / excusés</div>
             <div class="bg-light rounded-3 px-3 py-2"><%= simple_format @pv_visite.absents %></div>
           </div>
