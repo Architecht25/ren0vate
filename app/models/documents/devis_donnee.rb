@@ -37,8 +37,12 @@ class DevisDonnee < ApplicationRecord
     autre
   ].freeze
 
+  # ── Statuts de l'analyse de contenu (ventilation par poste) ─────────────────
+  STATUTS_ANALYSE_CONTENU = %w[non_lancee en_cours termine echec].freeze
+
   # ── Validations ─────────────────────────────────────────────────────────────
   validates :confiance_ocr, numericality: { in: 0..100 }, allow_nil: true
+  validates :analyse_contenu_statut, inclusion: { in: STATUTS_ANALYSE_CONTENU }
   validates :montant_total_htva,
             numericality: { greater_than: 0 },
             allow_nil: true
@@ -150,30 +154,84 @@ class DevisDonnee < ApplicationRecord
     (Array(tous_types) - Array(types_travaux_detectes)).uniq
   end
 
+  TYPES_TRAVAUX_LIBELLES = {
+    'isolation_toit'              => "Isolation toiture",
+    'isolation_facade'            => "Isolation façade",
+    'isolation_sol'               => "Isolation du sol",
+    'isolation_murs'              => "Isolation murs int.",
+    'chassis_vitrage'             => "Châssis / vitrages",
+    'chauffage'                   => "Chauffage",
+    'sanitaire'                   => "Sanitaire / égouttage",
+    'electricite'                 => "Électricité",
+    'gaz'                         => "Gaz",
+    'maconnerie'                  => "Maçonnerie",
+    'carrelage_revetement'        => "Carrelage / revêtement",
+    'plafonnage_peinture'         => "Plafonnage / peinture",
+    'toiture'                     => "Toiture / zinc",
+    'pompe_chaleur'               => "Pompe à chaleur",
+    'ventilation'                 => "Ventilation",
+    'chauffe_eau_thermodynamique' => "Chauffe-eau thermo.",
+    'photovoltaique'              => "Photovoltaïque",
+    'eclairage'                   => "Éclairage",
+    'audit_energetique'           => "Audit énergétique",
+    'renovation_generale'         => "Rénovation générale",
+    'autre'                       => "Autre"
+  }.freeze
+
+  def self.categorie_libelle(categorie)
+    TYPES_TRAVAUX_LIBELLES.fetch(categorie.to_s, categorie.to_s.humanize)
+  end
+
   def types_travaux_libelles
-    labels = {
-      'isolation_toit'              => "Isolation toiture",
-      'isolation_facade'            => "Isolation façade",
-      'isolation_sol'               => "Isolation du sol",
-      'isolation_murs'              => "Isolation murs int.",
-      'chassis_vitrage'             => "Châssis / vitrages",
-      'chauffage'                   => "Chauffage",
-      'sanitaire'                   => "Sanitaire / égouttage",
-      'electricite'                 => "Électricité",
-      'gaz'                         => "Gaz",
-      'maconnerie'                  => "Maçonnerie",
-      'carrelage_revetement'        => "Carrelage / revêtement",
-      'plafonnage_peinture'         => "Plafonnage / peinture",
-      'toiture'                     => "Toiture / zinc",
-      'pompe_chaleur'               => "Pompe à chaleur",
-      'ventilation'                 => "Ventilation",
-      'chauffe_eau_thermodynamique' => "Chauffe-eau thermo.",
-      'photovoltaique'              => "Photovoltaïque",
-      'eclairage'                   => "Éclairage",
-      'audit_energetique'           => "Audit énergétique",
-      'renovation_generale'         => "Rénovation générale",
-      'autre'                       => "Autre"
-    }
-    Array(types_travaux_detectes).map { |t| labels.fetch(t, t.humanize) }
+    Array(types_travaux_detectes).map { |t| self.class.categorie_libelle(t) }
+  end
+
+  # ── Analyse de contenu (ventilation par poste) ──────────────────────────────
+  # Un devis entrepreneur voit d'abord son montant total/ses dates extraits en
+  # synchrone (categorie/montant/dates — cf. OcrController#scan_devis), puis, en
+  # tâche de fond (DevisContenuExtractionJob), la ventilation ligne par ligne du
+  # métré qui alimente le graphique de répartition budgétaire par poste.
+
+  def analyse_contenu_en_cours?
+    analyse_contenu_statut == 'en_cours'
+  end
+
+  def analyse_contenu_terminee?
+    analyse_contenu_statut == 'termine'
+  end
+
+  def analyse_contenu_echouee?
+    analyse_contenu_statut == 'echec'
+  end
+
+  def postes
+    (postes_json || []).map(&:with_indifferent_access)
+  end
+
+  # Répartition du montant HTVA par catégorie de travaux, triée du poste le plus
+  # important au plus faible — donnée d'entrée directe du graphique.
+  def repartition_par_categorie
+    postes.group_by { |p| p[:categorie] }
+          .transform_values { |lignes| lignes.sum { |l| l[:montant_htva].to_f }.round(2) }
+          .sort_by { |_categorie, montant| -montant }
+  end
+
+  def appliquer_resultat_analyse_contenu!(result)
+    update!(
+      analyse_contenu_statut:       'termine',
+      postes_json:                  result[:postes] || [],
+      analyse_contenu_confiance:    result[:confiance],
+      analyse_contenu_erreur:       nil,
+      analyse_contenu_effectuee_at: Time.current
+    )
+  end
+
+  def marquer_echec_analyse_contenu!(message = nil)
+    update!(
+      analyse_contenu_statut:       'echec',
+      analyse_contenu_erreur:       message.to_s.truncate(255),
+      analyse_contenu_effectuee_at: Time.current
+    )
+    Rails.logger.error("DevisDonnee##{id}: échec analyse de contenu — #{message}") if message.present?
   end
 end

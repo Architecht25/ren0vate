@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_06_093200) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_18_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -268,6 +268,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_06_093200) do
   end
 
   create_table "devis_donnees", force: :cascade do |t|
+    t.decimal "analyse_contenu_confiance", precision: 5, scale: 2
+    t.datetime "analyse_contenu_effectuee_at"
+    t.string "analyse_contenu_erreur"
+    t.string "analyse_contenu_statut", default: "non_lancee", null: false
     t.string "categorie_emetteur"
     t.decimal "confiance_ocr", precision: 5, scale: 2
     t.datetime "created_at", null: false
@@ -281,6 +285,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_06_093200) do
     t.string "numero_bce_entreprise"
     t.string "numero_devis"
     t.string "numero_tva_entreprise"
+    t.jsonb "postes_json", default: [], null: false
     t.bigint "project_id"
     t.bigint "property_id"
     t.decimal "surface_travaux", precision: 8, scale: 2
@@ -290,6 +295,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_06_093200) do
     t.datetime "updated_at", null: false
     t.boolean "valide_manuellement", default: false, null: false
     t.date "validite_devis"
+    t.index ["analyse_contenu_statut"], name: "index_devis_donnees_on_analyse_contenu_statut"
     t.index ["categorie_emetteur"], name: "index_devis_donnees_on_categorie_emetteur"
     t.index ["document_id"], name: "index_devis_donnees_on_document_id"
     t.index ["extraction_complete"], name: "index_devis_donnees_on_extraction_complete"

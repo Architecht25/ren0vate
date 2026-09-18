@@ -518,7 +518,8 @@ class OcrController < ApplicationController
         confiance_ocr:          result[:confiance_extraction],
         extraction_complete:    result[:extraction_complete],
         texte_ocr_brut:         result[:texte_brut],
-        donnees_extraites:      result[:donnees_devis].to_h
+        donnees_extraites:      result[:donnees_devis].to_h,
+        analyse_contenu_statut: 'en_cours'
       )
 
       # Mise à jour automatique du champ devis_montant du projet si confiance >= 75
@@ -526,6 +527,10 @@ class OcrController < ApplicationController
         champ_montant = categorie == 'architecte' ? :architecte_devis_montant : :contractor_devis_montant
         project.update(champ_montant => result[:montant_total_htva])
       end
+
+      # Ventilation par poste (graphique de répartition budgétaire) — appel Claude
+      # vision PDF plus coûteux, fait en tâche de fond (cf. DevisContenuExtractionJob).
+      DevisContenuExtractionJob.perform_later(devis_donnee.id, document.id)
 
       notify_admin_document_uploaded(document, project: project)
 
@@ -563,6 +568,30 @@ class OcrController < ApplicationController
         details: Rails.env.development? ? e.message : nil
       }, status: :internal_server_error
     end
+  end
+
+  # GET /ocr/devis_analyse_contenu_statut?devis_donnee_id=123 — polling front-end
+  # Tant que DevisContenuExtractionJob tourne encore ({ statut: 'en_cours' }), le
+  # front-end réinterroge cette route (cf. #scan_peb_statut, même pattern).
+  def devis_analyse_contenu_statut
+    devis_donnee = DevisDonnee.where(project: current_user.projects).find_by(id: params[:devis_donnee_id])
+
+    return render json: { error: 'Devis introuvable' }, status: :not_found unless devis_donnee
+
+    return render json: { statut: 'en_cours' } if devis_donnee.analyse_contenu_en_cours?
+
+    if devis_donnee.analyse_contenu_echouee?
+      return render json: { statut: 'echec', success: false, error: devis_donnee.analyse_contenu_erreur }
+    end
+
+    render json: {
+      statut:             devis_donnee.analyse_contenu_statut,
+      success:            devis_donnee.analyse_contenu_terminee?,
+      devis_donnee_id:    devis_donnee.id,
+      repartition:        devis_donnee.repartition_par_categorie.map { |cat, montant| { categorie: cat, libelle: DevisDonnee.categorie_libelle(cat), montant_htva: montant } },
+      postes:             devis_donnee.postes,
+      confiance:          devis_donnee.analyse_contenu_confiance
+    }
   end
 
   # POST /ocr/analyser_devis
