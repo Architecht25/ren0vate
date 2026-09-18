@@ -160,8 +160,9 @@ class CorePagesSmokeTest < ActionDispatch::IntegrationTest
   end
 
   # ─── Contract templates ──────────────────────────────────────────────────
-  # (couvre les deux bugs réels corrigés le 17/09/2026 : helper défini après
-  # usage sur index, @templates jamais assigné sur show)
+  # (couvre les bugs réels corrigés le 17-18/09/2026 : helper défini après
+  # usage sur index, @templates jamais assigné sur show, render pdf: inutilisable
+  # sans wicked_pdf + layout/template PDF manquants sur preview/download)
 
   test "liste des templates de contrats accessible" do
     get contract_templates_path(locale: :fr)
@@ -171,6 +172,20 @@ class CorePagesSmokeTest < ActionDispatch::IntegrationTest
   test "détail d'un template de contrat accessible" do
     get contract_template_path("architecte_mission_complete", locale: :fr)
     assert_response :success
+  end
+
+  test "aperçu PDF d'un template de contrat" do
+    get preview_contract_template_path("architecte_mission_complete", format: :pdf, locale: :fr)
+    assert_response :success
+    assert_equal "application/pdf", response.media_type
+    assert response.body.start_with?("%PDF")
+  end
+
+  test "téléchargement PDF d'un template de contrat" do
+    get download_contract_template_path("entrepreneur_general", format: :pdf, locale: :fr)
+    assert_response :success
+    assert_equal "application/pdf", response.media_type
+    assert response.body.start_with?("%PDF")
   end
 
   # ─── Etats d'avancement ──────────────────────────────────────────────────

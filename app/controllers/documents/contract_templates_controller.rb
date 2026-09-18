@@ -74,31 +74,22 @@ class ContractTemplatesController < ApplicationController
   end
 
   def download
-    # Generate personalized PDF contract
-    respond_to do |format|
-      format.pdf do
-        render pdf: @template[:id],
-               template: 'contract_templates/pdf_template',
-               locals: { template: @template },
-               disposition: 'attachment'
-      end
-    end
+    send_template_pdf(disposition: "attachment")
   end
 
   def preview
-    # Preview template in browser
-    respond_to do |format|
-      format.html { render layout: 'pdf_preview' }
-      format.pdf do
-        render pdf: @template[:id],
-               template: 'contract_templates/pdf_template',
-               locals: { template: @template },
-               disposition: 'inline'
-      end
-    end
+    send_template_pdf(disposition: "inline")
   end
 
   private
+
+  def send_template_pdf(disposition:)
+    pdf_doc = Documents::ContractTemplatePdfService.new(@template).generate
+    send_data pdf_doc.render,
+              filename:    "#{@template[:id]}.pdf",
+              type:        "application/pdf",
+              disposition: disposition
+  end
 
   def set_template
     @template = get_all_templates.find { |t| t[:id] == params[:id] }
