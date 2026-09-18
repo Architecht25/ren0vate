@@ -160,6 +160,7 @@
                              style="width: <%= d.confiance_ocr.to_f.round(0) %>%"></div>
                       </div>
                     </div>
+                    <%= render "projects/partials_general/devis_analyse_contenu", d: d %>
                   </div>
                 </div>
               <% end %>
@@ -305,6 +306,7 @@
                              style="width: <%= d.confiance_ocr.to_f.round(0) %>%"></div>
                       </div>
                     </div>
+                    <%= render "projects/partials_general/devis_analyse_contenu", d: d %>
                   </div>
                 </div>
               <% end %>
@@ -1137,4 +1139,174 @@
     });
   })();
 })();
+</script>
+
+<%# ── Analyse de contenu : répartition budgétaire par poste (graphique) ────────
+    Le montant total du devis est déjà extrait en synchrone plus haut ; cette
+    ventilation par poste (Bots::DevisContenuClaudeService, appel Claude vision
+    PDF plus coûteux) tourne en tâche de fond (DevisContenuExtractionJob) — d'où
+    le badge "Analyse du contenu…" + polling ci-dessous pour les devis encore
+    en_cours au moment du rendu de la page (c'est ici, dans la Synthèse des
+    devis, que l'utilisateur dépose son devis définitif/accepté). %>
+<script type="module" nonce="<%= content_security_policy_nonce %>">
+import Chart from 'chart.js/auto';
+
+const devisCharts = new Map(); // devisDonneeId -> Chart instance
+
+function currencyBe(n) {
+  return Math.round(n).toLocaleString('fr-BE') + ' €';
+}
+
+// Regroupe les catégories au-delà des 7 premières sous "Autres" — un graphique
+// à 15+ barres devient illisible et n'apporte plus rien à la décision.
+function repartitionPourGraphique(repartition) {
+  const triee = [...repartition].sort((a, b) => b.montant_htva - a.montant_htva);
+  if (triee.length <= 7) return triee;
+  const tete = triee.slice(0, 7);
+  const autres = triee.slice(7).reduce((sum, r) => sum + r.montant_htva, 0);
+  return [...tete, { categorie: 'autre', libelle: 'Autres postes', montant_htva: autres }];
+}
+
+function renderDevisContenuChart(devisDonneeId, repartition, meta) {
+  const canvas = document.querySelector(`.devis-contenu-chart[data-devis-donnee-id="${devisDonneeId}"]`);
+  const panel  = document.querySelector(`.devis-contenu-postes[data-devis-donnee-id="${devisDonneeId}"]`);
+  if (!canvas) return;
+
+  const donnees = repartitionPourGraphique(repartition);
+
+  devisCharts.get(devisDonneeId)?.destroy();
+  devisCharts.set(devisDonneeId, new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: donnees.map(d => d.libelle),
+      datasets: [{
+        data: donnees.map(d => d.montant_htva),
+        backgroundColor: '#0d6efd',
+        borderRadius: 4,
+        borderSkipped: false,
+        barThickness: 14
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: ctx => currencyBe(ctx.parsed.x) + ' HTVA' }
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          grid: { color: '#eee' },
+          ticks: { font: { size: 10 }, callback: v => currencyBe(v) }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { font: { size: 10 } }
+        }
+      }
+    }
+  }));
+
+  if (panel) {
+    const total = donnees.reduce((sum, d) => sum + d.montant_htva, 0);
+    const lignes = donnees.map(d => `
+      <div class="d-flex justify-content-between border-bottom py-1">
+        <span>${d.libelle}</span>
+        <span class="fw-medium">${currencyBe(d.montant_htva)}</span>
+      </div>
+    `).join('');
+    const metaHtml = meta ? `
+      <div class="text-muted mb-2" style="font-size:0.68rem;">
+        ${meta.postesCount ?? '?'} poste(s) détecté(s) — confiance ${meta.confiance ? Math.round(meta.confiance) + ' %' : 'N/A'}
+      </div>
+    ` : '';
+    panel.innerHTML = `
+      ${metaHtml}
+      ${lignes}
+      <div class="d-flex justify-content-between pt-2 fw-semibold" style="font-size:0.75rem;">
+        <span>Total ventilé</span><span>${currencyBe(total)}</span>
+      </div>
+    `;
+  }
+}
+
+function toggleDetailBlock(devisDonneeId) {
+  const block = document.querySelector(`.devis-contenu-detail-block[data-devis-donnee-id="${devisDonneeId}"]`);
+  if (!block) return;
+  block.classList.toggle('d-none');
+  return !block.classList.contains('d-none');
+}
+
+document.querySelectorAll('.devis-contenu-toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.devisDonneeId;
+    const opened = toggleDetailBlock(id);
+    if (!opened) return;
+
+    if (!devisCharts.has(id)) {
+      const repartition = JSON.parse(btn.dataset.repartition || '[]');
+      renderDevisContenuChart(id, repartition, {
+        confiance: parseFloat(btn.dataset.confiance),
+        postesCount: parseInt(btn.dataset.postesCount, 10)
+      });
+    }
+  });
+});
+
+// ── Polling des analyses encore en cours au chargement de la page ───────────
+document.querySelectorAll('.devis-contenu-pending').forEach(pendingEl => {
+  const id = pendingEl.dataset.devisDonneeId;
+  let attempts = 0;
+  const MAX_ATTEMPTS = 40; // ~2 minutes, même budget que le polling PEB
+
+  const timer = setInterval(() => {
+    attempts += 1;
+    if (attempts > MAX_ATTEMPTS) {
+      clearInterval(timer);
+      pendingEl.remove();
+      return;
+    }
+
+    fetch(`<%= ocr_devis_analyse_contenu_statut_path %>?devis_donnee_id=${encodeURIComponent(id)}`, {
+      headers: { 'Accept': 'application/json' }
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.statut === 'en_cours') return;
+        clearInterval(timer);
+
+        if (!data.success) {
+          pendingEl.remove(); // échec de l'analyse de contenu — le montant total reste utilisable
+          return;
+        }
+
+        // Remplace le spinner par le bouton "Répartition par poste" et affiche
+        // directement le graphique — l'utilisateur vient de déposer ce devis,
+        // pas besoin d'un second clic pour voir le résultat.
+        const wrapper = document.createElement('div');
+        wrapper.className = 'mt-2';
+        wrapper.innerHTML = `
+          <button type="button" class="btn btn-link btn-sm p-0 devis-contenu-toggle-btn" style="font-size:0.7rem;" data-devis-donnee-id="${id}">
+            <i class="bi bi-pie-chart me-1"></i>Voir la répartition par poste
+          </button>
+          <div class="devis-contenu-detail-block mt-2 p-2 border rounded-2 bg-light" data-devis-donnee-id="${id}">
+            <canvas class="devis-contenu-chart" data-devis-donnee-id="${id}" height="160"></canvas>
+            <div class="devis-contenu-postes mt-2" data-devis-donnee-id="${id}" style="font-size:0.72rem;"></div>
+          </div>
+        `;
+        wrapper.querySelector('.devis-contenu-toggle-btn').addEventListener('click', () => toggleDetailBlock(id));
+        pendingEl.replaceWith(wrapper);
+
+        renderDevisContenuChart(id, data.repartition || [], {
+          confiance: data.confiance,
+          postesCount: (data.postes || []).length
+        });
+      })
+      .catch(() => { /* erreur ponctuelle de polling — on retente au prochain tick */ });
+  }, 3000);
+});
 </script>

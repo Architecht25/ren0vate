@@ -1,9 +1,11 @@
 require "test_helper"
 
 # Smoke tests de l'analyse de contenu des devis (ventilation par poste + graphique
-# dans le comparateur de devis, cf. OcrController#scan_devis / #devis_analyse_contenu_statut,
-# DevisContenuExtractionJob, Bots::DevisContenuClaudeService).
-# Objectif : vérifier que project#show s'affiche sans 500 avec des DevisDonnee
+# dans la Synthèse des devis, cf. OcrController#scan_devis / #devis_analyse_contenu_statut,
+# DevisContenuExtractionJob, Bots::DevisContenuClaudeService). Affiché dans
+# projects#edit_budget (context: devis) — la page où l'utilisateur dépose son
+# devis définitif/accepté par intervenant (architecte/entrepreneur).
+# Objectif : vérifier que cette page s'affiche sans 500 avec des DevisDonnee
 # dans chaque statut d'analyse de contenu, et que le polling front-end répond
 # correctement et reste scopé à l'utilisateur.
 class DevisAnalyseContenuSmokeTest < ActionDispatch::IntegrationTest
@@ -40,21 +42,21 @@ class DevisAnalyseContenuSmokeTest < ActionDispatch::IntegrationTest
     )
   end
 
-  test "project#show s'affiche avec un devis dont l'analyse de contenu est terminée" do
+  test "synthèse des devis (edit_budget) s'affiche avec un devis dont l'analyse de contenu est terminée" do
     build_devis_donnee(statut: "termine", with_postes: true)
-    get project_path(@project, locale: :fr)
+    get edit_budget_project_path(@project, context: "devis", locale: :fr)
     assert_response :success
   end
 
-  test "project#show s'affiche avec un devis dont l'analyse de contenu est en cours" do
+  test "synthèse des devis (edit_budget) s'affiche avec un devis dont l'analyse de contenu est en cours" do
     build_devis_donnee(statut: "en_cours")
-    get project_path(@project, locale: :fr)
+    get edit_budget_project_path(@project, context: "devis", locale: :fr)
     assert_response :success
   end
 
-  test "project#show s'affiche avec un devis dont l'analyse de contenu a échoué" do
+  test "synthèse des devis (edit_budget) s'affiche avec un devis dont l'analyse de contenu a échoué" do
     build_devis_donnee(statut: "echec")
-    get project_path(@project, locale: :fr)
+    get edit_budget_project_path(@project, context: "devis", locale: :fr)
     assert_response :success
   end
 

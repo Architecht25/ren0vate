@@ -87,15 +87,6 @@
               min_montant = montants.min
               max_montant = montants.max
               has_surface_col = tous_devis.any?(&:surface_travaux)
-
-              total_colspan = 4 # Entreprise, HTVA, TVAC, TVA
-              total_colspan += 1 if has_surface_col
-              total_colspan += 1 # Travaux
-              total_colspan += 1 if tous_types_union.size > 1 # Postes manquants
-              total_colspan += 1 # Validité
-              total_colspan += 1 if montant_estimatif.to_f > 0 # Écart estimatif
-              total_colspan += 1 # Confiance
-              total_colspan += 1 if tous_devis.size > 1 # Score
             %>
             <% tous_devis.each do |d| %>
               <%
@@ -125,23 +116,6 @@
                   <% end %>
                   <% if d.date_devis.present? %>
                     <div class="text-muted" style="font-size:0.68rem;"><%= d.date_devis.strftime('%d/%m/%Y') %></div>
-                  <% end %>
-                  <%# ── Analyse de contenu (ventilation par poste) ──────────────── %>
-                  <% if d.analyse_contenu_terminee? %>
-                    <button type="button"
-                            class="btn btn-link btn-sm p-0 devis-contenu-toggle-btn"
-                            style="font-size:0.68rem;"
-                            data-devis-donnee-id="<%= d.id %>"
-                            data-repartition='<%= d.repartition_par_categorie.map { |cat, montant| { categorie: cat, libelle: DevisDonnee.categorie_libelle(cat), montant_htva: montant } }.to_json %>'
-                            data-confiance="<%= d.analyse_contenu_confiance %>"
-                            data-postes-count="<%= d.postes.size %>">
-                      <i class="bi bi-pie-chart me-1"></i>Répartition par poste
-                    </button>
-                  <% elsif d.analyse_contenu_en_cours? %>
-                    <div class="text-muted devis-contenu-pending" data-devis-donnee-id="<%= d.id %>" style="font-size:0.68rem;">
-                      <span class="spinner-border spinner-border-sm" style="width:0.6rem;height:0.6rem;"></span>
-                      Analyse du contenu…
-                    </div>
                   <% end %>
                 </td>
                 <td class="text-end fw-semibold">
@@ -253,20 +227,6 @@
                   </td>
                 <% end %>
               </tr>
-              <% if d.analyse_contenu_terminee? || d.analyse_contenu_en_cours? %>
-                <tr class="devis-contenu-detail-row d-none" data-devis-donnee-id="<%= d.id %>">
-                  <td colspan="<%= total_colspan %>" class="p-3" style="background:#fdfaf3;">
-                    <div class="row g-3 align-items-center">
-                      <div class="col-12 col-md-5">
-                        <canvas class="devis-contenu-chart" data-devis-donnee-id="<%= d.id %>" height="140"></canvas>
-                      </div>
-                      <div class="col-12 col-md-7">
-                        <div class="devis-contenu-postes" style="font-size:0.72rem;max-height:180px;overflow-y:auto;"></div>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              <% end %>
             <% end %>
           </tbody>
           <% if tous_devis.size > 1 && montants.size > 1 %>
@@ -430,186 +390,5 @@ document.getElementById('devis-ia-btn')?.addEventListener('click', function() {
     result.style.display = 'block';
     result.innerHTML = '<div class="alert alert-danger py-2 mb-0" style="font-size:0.78rem;">Erreur réseau — réessayez.</div>';
   });
-});
-</script>
-
-<%# ── Analyse de contenu : répartition budgétaire par poste (graphique) ────────
-    Le montant total du devis est déjà extrait en synchrone plus haut ; cette
-    ventilation par poste (Bots::DevisContenuClaudeService, appel Claude vision
-    PDF plus coûteux) tourne en tâche de fond (DevisContenuExtractionJob) — d'où
-    le badge "Analyse du contenu…" + polling ci-dessous pour les devis encore
-    en_cours au moment du rendu de la page. %>
-<script type="module" nonce="<%= content_security_policy_nonce %>">
-import Chart from 'chart.js/auto';
-
-const devisCharts = new Map(); // devisDonneeId -> Chart instance
-
-function currencyBe(n) {
-  return Math.round(n).toLocaleString('fr-BE') + ' €';
-}
-
-// Regroupe les catégories au-delà des 7 premières sous "Autres" — un graphique
-// à 15+ barres devient illisible et n'apporte plus rien à la décision.
-function repartitionPourGraphique(repartition) {
-  const triee = [...repartition].sort((a, b) => b.montant_htva - a.montant_htva);
-  if (triee.length <= 7) return triee;
-  const tete = triee.slice(0, 7);
-  const autres = triee.slice(7).reduce((sum, r) => sum + r.montant_htva, 0);
-  return [...tete, { categorie: 'autre', libelle: 'Autres postes', montant_htva: autres }];
-}
-
-function renderDevisContenuChart(devisDonneeId, repartition, meta) {
-  const canvas = document.querySelector(`.devis-contenu-chart[data-devis-donnee-id="${devisDonneeId}"]`);
-  const panel  = document.querySelector(`.devis-contenu-postes[data-devis-donnee-id="${devisDonneeId}"]`) ||
-                 document.querySelector(`tr.devis-contenu-detail-row[data-devis-donnee-id="${devisDonneeId}"] .devis-contenu-postes`);
-  if (!canvas) return;
-
-  const donnees = repartitionPourGraphique(repartition);
-
-  devisCharts.get(devisDonneeId)?.destroy();
-  devisCharts.set(devisDonneeId, new Chart(canvas, {
-    type: 'bar',
-    data: {
-      labels: donnees.map(d => d.libelle),
-      datasets: [{
-        data: donnees.map(d => d.montant_htva),
-        backgroundColor: '#d97706',
-        borderRadius: 4,
-        borderSkipped: false,
-        barThickness: 14
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: { label: ctx => currencyBe(ctx.parsed.x) + ' HTVA' }
-        }
-      },
-      scales: {
-        x: {
-          beginAtZero: true,
-          grid: { color: '#eee' },
-          ticks: { font: { size: 10 }, callback: v => currencyBe(v) }
-        },
-        y: {
-          grid: { display: false },
-          ticks: { font: { size: 10 } }
-        }
-      }
-    }
-  }));
-
-  if (panel) {
-    const total = donnees.reduce((sum, d) => sum + d.montant_htva, 0);
-    const lignes = donnees.map(d => `
-      <div class="d-flex justify-content-between border-bottom py-1">
-        <span>${d.libelle}</span>
-        <span class="fw-medium">${currencyBe(d.montant_htva)}</span>
-      </div>
-    `).join('');
-    const metaHtml = meta ? `
-      <div class="text-muted mb-2" style="font-size:0.68rem;">
-        ${meta.postesCount ?? '?'} poste(s) détecté(s) — confiance ${meta.confiance ? Math.round(meta.confiance) + ' %' : 'N/A'}
-      </div>
-    ` : '';
-    panel.innerHTML = `
-      ${metaHtml}
-      ${lignes}
-      <div class="d-flex justify-content-between pt-2 fw-semibold" style="font-size:0.75rem;">
-        <span>Total ventilé</span><span>${currencyBe(total)}</span>
-      </div>
-    `;
-  }
-}
-
-function toggleDetailRow(devisDonneeId) {
-  const row = document.querySelector(`tr.devis-contenu-detail-row[data-devis-donnee-id="${devisDonneeId}"]`);
-  if (!row) return;
-  row.classList.toggle('d-none');
-  return !row.classList.contains('d-none');
-}
-
-document.querySelectorAll('.devis-contenu-toggle-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const id = btn.dataset.devisDonneeId;
-    const opened = toggleDetailRow(id);
-    if (!opened) return;
-
-    if (!devisCharts.has(id)) {
-      const repartition = JSON.parse(btn.dataset.repartition || '[]');
-      renderDevisContenuChart(id, repartition, {
-        confiance: parseFloat(btn.dataset.confiance),
-        postesCount: parseInt(btn.dataset.postesCount, 10)
-      });
-    }
-  });
-});
-
-// ── Polling des analyses encore en cours au chargement de la page ───────────
-document.querySelectorAll('.devis-contenu-pending').forEach(pendingEl => {
-  const id = pendingEl.dataset.devisDonneeId;
-  let attempts = 0;
-  const MAX_ATTEMPTS = 40; // ~2 minutes, même budget que le polling PEB
-
-  const timer = setInterval(() => {
-    attempts += 1;
-    if (attempts > MAX_ATTEMPTS) {
-      clearInterval(timer);
-      pendingEl.remove();
-      return;
-    }
-
-    fetch(`<%= ocr_devis_analyse_contenu_statut_path %>?devis_donnee_id=${encodeURIComponent(id)}`, {
-      headers: { 'Accept': 'application/json' }
-    })
-      .then(r => r.json())
-      .then(data => {
-        if (data.statut === 'en_cours') return;
-        clearInterval(timer);
-
-        if (!data.success) {
-          pendingEl.remove(); // échec de l'analyse de contenu — le reste du comparateur reste utilisable
-          return;
-        }
-
-        // Remplace le spinner par le bouton "Répartition par poste"
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'btn btn-link btn-sm p-0 devis-contenu-toggle-btn';
-        btn.style.fontSize = '0.68rem';
-        btn.dataset.devisDonneeId = id;
-        btn.dataset.repartition = JSON.stringify(data.repartition || []);
-        btn.dataset.confiance = data.confiance ?? '';
-        btn.dataset.postesCount = (data.postes || []).length;
-        btn.innerHTML = '<i class="bi bi-pie-chart me-1"></i>Répartition par poste';
-        btn.addEventListener('click', () => {
-          const opened = toggleDetailRow(id);
-          if (opened && !devisCharts.has(id)) {
-            renderDevisContenuChart(id, JSON.parse(btn.dataset.repartition || '[]'), {
-              confiance: parseFloat(btn.dataset.confiance),
-              postesCount: parseInt(btn.dataset.postesCount, 10)
-            });
-          }
-        });
-
-        pendingEl.replaceWith(btn);
-
-        // Une fois l'analyse prête, on l'affiche directement plutôt que de
-        // forcer un second clic — l'utilisateur vient de la demander via l'upload.
-        const row = document.querySelector(`tr.devis-contenu-detail-row[data-devis-donnee-id="${id}"]`);
-        if (row) {
-          row.classList.remove('d-none');
-          renderDevisContenuChart(id, data.repartition || [], {
-            confiance: data.confiance,
-            postesCount: (data.postes || []).length
-          });
-        }
-      })
-      .catch(() => { /* erreur ponctuelle de polling — on retente au prochain tick */ });
-  }, 3000);
 });
 </script>

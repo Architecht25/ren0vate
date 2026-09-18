@@ -1,0 +1,29 @@
+<%# Analyse de contenu d'un devis (ventilation budgétaire par poste) — affichée
+    directement sous chaque devis architecte/entrepreneur scanné dans la
+    "Synthèse des devis" (edit_budget, context: devis), là où l'utilisateur
+    dépose son devis définitif/accepté. Le montant total est déjà visible plus
+    haut ; ce bloc apporte l'analyse plus fine (Bots::DevisContenuClaudeService,
+    DevisContenuExtractionJob) sous forme de graphique.
+    local: d (DevisDonnee) %>
+<% if d.analyse_contenu_terminee? %>
+  <div class="mt-2">
+    <button type="button"
+            class="btn btn-link btn-sm p-0 devis-contenu-toggle-btn"
+            style="font-size:0.7rem;"
+            data-devis-donnee-id="<%= d.id %>"
+            data-repartition='<%= d.repartition_par_categorie.map { |cat, montant| { categorie: cat, libelle: DevisDonnee.categorie_libelle(cat), montant_htva: montant } }.to_json %>'
+            data-confiance="<%= d.analyse_contenu_confiance %>"
+            data-postes-count="<%= d.postes.size %>">
+      <i class="bi bi-pie-chart me-1"></i>Voir la répartition par poste
+    </button>
+    <div class="devis-contenu-detail-block d-none mt-2 p-2 border rounded-2 bg-light" data-devis-donnee-id="<%= d.id %>">
+      <canvas class="devis-contenu-chart" data-devis-donnee-id="<%= d.id %>" height="160"></canvas>
+      <div class="devis-contenu-postes mt-2" data-devis-donnee-id="<%= d.id %>" style="font-size:0.72rem;"></div>
+    </div>
+  </div>
+<% elsif d.analyse_contenu_en_cours? %>
+  <div class="text-muted mt-2 devis-contenu-pending" data-devis-donnee-id="<%= d.id %>" style="font-size:0.7rem;">
+    <span class="spinner-border spinner-border-sm" style="width:0.6rem;height:0.6rem;"></span>
+    Analyse du contenu en cours…
+  </div>
+<% end %>
