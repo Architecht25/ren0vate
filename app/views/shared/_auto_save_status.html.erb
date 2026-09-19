@@ -1,5 +1,12 @@
 <!-- Indicateur d'auto-save permanent -->
-<div id="auto-save-status" style="position: fixed; bottom: 20px; left: 20px; z-index: 1000;
+<style>
+  /* Sur mobile, la barre de navigation basse (62px, z-index 1042) masquerait
+     cet indicateur s'il restait à bottom:20px — on le remonte au-dessus. */
+  @media (max-width: 768px) {
+    .auto-save-status-widget { bottom: 80px !important; }
+  }
+</style>
+<div id="auto-save-status" class="auto-save-status-widget" style="position: fixed; bottom: 20px; left: 20px; z-index: 1000;
      background: rgba(255,255,255,0.95); border: 1px solid #ddd; border-radius: 8px;
      padding: 10px 15px; font-size: 13px; display: none; backdrop-filter: blur(5px);">
   <div class="d-flex align-items-center">
