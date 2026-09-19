@@ -273,10 +273,12 @@ module DocumentsHelper
     return nil unless document&.file&.attached?
     return nil unless document.file.content_type == 'application/pdf'
 
-    # Utiliser le nouveau service Documents::PdfPreviewService
-    Documents::PdfPreviewService.generate_preview_for_document(document)
+    # Lecture seule — jamais de génération bloquante ici (cf. pdf_preview_service.rb).
+    # Si absent du cache, la vue affiche le fallback Stimulus qui déclenche la
+    # génération en asynchrone via Api::PdfPreviewController#generate.
+    Documents::PdfPreviewService.cached_preview_url(document)
   rescue => e
-    Rails.logger.warn "Could not generate PDF preview for document #{document.id}: #{e.message}"
+    Rails.logger.warn "Could not read PDF preview cache for document #{document.id}: #{e.message}"
     nil
   end
 end
