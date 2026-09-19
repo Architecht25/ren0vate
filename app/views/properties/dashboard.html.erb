@@ -365,13 +365,16 @@
                 <div class="progress-bar bg-<%= prep_done == prep_items.count ? 'success' : prep_done >= prep_items.count / 2 ? 'warning' : 'danger' %>"
                      style="width: <%= (prep_done.to_f / prep_items.count * 100).round %>%"></div>
               </div>
-              <div class="d-flex flex-wrap gap-1 mt-1">
-                <% prep_items.each do |item| %>
-                  <span class="badge <%= item[:ok] ? 'bg-success-subtle text-success' : 'bg-light text-danger' %> border <%= item[:ok] ? 'border-success-subtle' : 'border-danger-subtle' %>" style="font-size: 0.7rem;">
-                    <i class="bi bi-<%= item[:ok] ? 'check' : 'x' %> me-1"></i><%= item[:label] %>
-                  </span>
-                <% end %>
-              </div>
+              <% missing_prep_items = prep_items.reject { |i| i[:ok] } %>
+              <% if missing_prep_items.any? %>
+                <div class="d-flex flex-wrap gap-1 mt-1">
+                  <% missing_prep_items.each do |item| %>
+                    <span class="badge bg-light text-danger border border-danger-subtle" style="font-size: 0.7rem;">
+                      <i class="bi bi-x me-1"></i><%= item[:label] %>
+                    </span>
+                  <% end %>
+                </div>
+              <% end %>
             </div>
 
             <!-- Suivi -->

@@ -6,8 +6,11 @@
           <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-auto" style="font-size:0.68rem;">Avant travaux</span>
         </div>
 
+      <div class="row g-3 mb-3">
+
       <%# SCOPE DES TRAVAUX (tous les devis estimatifs générés par le client) ── %>
-      <div class="card border-0 shadow-sm rounded-3 mb-3">
+      <div class="col-12 col-lg-6">
+      <div class="card border-0 shadow-sm rounded-3 h-100">
         <div class="card-header bg-white border-bottom pt-3 pb-2 px-4">
           <h5 class="mb-0 fw-semibold" style="font-size:0.95rem;">
             <i class="bi bi-list-check me-2 text-primary"></i>Scope des travaux (estimatif client)
@@ -89,10 +92,12 @@
           <% end %>
         </div>
       </div>
+      </div><%# /col Scope des travaux %>
 
       <%# UPLOAD DEVIS (entrepreneur uniquement) ── %>
       <% if @membership.can_upload_quote? %>
-        <div class="card border-0 shadow-sm rounded-3 mb-3">
+        <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm rounded-3 h-100">
           <div class="card-header bg-white border-bottom pt-3 pb-2 px-4">
             <h5 class="mb-0 fw-semibold" style="font-size:0.95rem;">
               <i class="bi bi-upload me-2 text-warning"></i>Votre devis
@@ -145,6 +150,7 @@
             <% end %>
           </div>
         </div>
+        </div><%# /col Votre devis %>
       <% end %>
 
       <%# VALIDATION DEVIS ENTREPRENEUR (propriétaire uniquement) ── %>
@@ -157,7 +163,8 @@
                                     .includes(:document)
         %>
         <% if devis_a_valider.any? %>
-          <div class="card border-0 shadow-sm rounded-3 mb-3"
+          <div class="col-12 col-lg-6">
+          <div class="card border-0 shadow-sm rounded-3 h-100"
                style="border:1px solid #ffc107 !important;">
             <div class="card-header pt-3 pb-2 px-4"
                  style="background:#fff8e1;border-bottom:1px solid #ffc107;">
@@ -191,12 +198,17 @@
               <% end %>
             </div>
           </div>
+          </div><%# /col Devis à valider %>
         <% end %>
       <% end %>
 
+      </div><%# /row Scope + Votre devis + Devis à valider %>
+
       <%# ── BLOC ARCHITECTE : Permis, Plans & Métré ─────────────────────── %>
       <% if @membership.can_manage_permis? %>
-        <div class="card border-0 shadow-sm rounded-3 mb-3" style="border-left:3px solid #0dcaf0 !important;">
+      <div class="row g-3 mb-3">
+        <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm rounded-3 h-100" style="border-left:3px solid #0dcaf0 !important;">
           <div class="card-header bg-white border-bottom pt-3 pb-2 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
             <h5 class="mb-0 fw-semibold" style="font-size:0.95rem;">
               <i class="bi bi-building-gear me-2 text-info"></i>Permis d'urbanisme
@@ -376,9 +388,11 @@
             <% end %>
           </div>
         </div>
+        </div><%# /col Permis d'urbanisme %>
 
         <%# ── Plans du bien ── %>
-        <div class="card border-0 shadow-sm rounded-3 mb-3" style="border-left:3px solid #0dcaf0 !important;">
+        <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm rounded-3 h-100" style="border-left:3px solid #0dcaf0 !important;">
           <div class="card-header bg-white border-bottom pt-3 pb-2 px-4">
             <h5 class="mb-0 fw-semibold" style="font-size:0.95rem;">
               <i class="bi bi-rulers me-2 text-info"></i>Plans architecturaux
@@ -421,6 +435,8 @@
             <% end %>
           </div>
         </div>
+        </div><%# /col Plans architecturaux %>
+      </div><%# /row Permis + Plans %>
 
         <%# ── Métré ── %>
         <div class="card border-0 shadow-sm rounded-3 mb-3" style="border-left:3px solid #0dcaf0 !important;">

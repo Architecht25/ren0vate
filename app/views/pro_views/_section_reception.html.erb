@@ -15,7 +15,9 @@
             @project.user_id == current_user.id || @membership.role == 'entrepreneur'
           end
         %>
-        <div class="card border-0 shadow-sm rounded-3">
+        <div class="row g-3">
+        <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm rounded-3 h-100">
           <div class="card-header bg-white border-bottom pt-3 pb-2 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
             <h5 class="mb-0 fw-semibold" style="font-size:0.95rem;">
               <i class="bi bi-file-earmark-check me-2 text-success"></i>Procès-verbal de réception
@@ -228,6 +230,7 @@
             <% end %>
           </div>
         </div>
+        </div><%# /col PV de réception %>
 
         <%# Phase réception — validation ── %>
         <%
@@ -236,7 +239,8 @@
           reception_me     = current_role && reception_d[current_role].present?
           reception_photos = (@photos_by_phase || {})['phase_reception'] || []
         %>
-        <div class="card border-0 shadow-sm rounded-3 mt-3"
+        <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm rounded-3 h-100"
              style="border:1px solid <%= reception_done ? '#a3cfbb' : '#e9ecef' %> !important;background:<%= reception_done ? '#f0faf4' : 'white' %>;">
           <div class="card-header border-bottom pt-3 pb-2 px-4 d-flex align-items-center justify-content-between"
                style="background:<%= reception_done ? '#d1e7dd' : 'white' %>;">
@@ -293,5 +297,7 @@
             <% end %>
           </div>
         </div>
+        </div><%# /col Valider la phase réception %>
+        </div><%# /row PV + Validation réception %>
 
       </div><%# /section-reception %>
