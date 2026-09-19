@@ -160,28 +160,20 @@ window.saveWallonieFormData = function(event) {
     if (response.ok) {
       console.log('✅ Sauvegarde réussie!');
 
-      // Afficher un message de succès
-      const successMsg = document.createElement('div');
-      successMsg.className = 'alert alert-success alert-dismissible fade show mt-3';
-      successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px;';
-      successMsg.innerHTML = `
-        <i class="bi bi-check-circle-fill me-2"></i>
-        <strong>Brouillon sauvegardé !</strong> Les données sont bien enregistrées.
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      `;
-      document.body.appendChild(successMsg);
-
-      // Réactiver le bouton
-      button.disabled = false;
-      button.textContent = originalText;
-
-      // NE PAS RECHARGER pour l'instant - pour déboguer
-      console.log('⚠️ Rechargement désactivé pour débogage');
-
-      // Retirer le message après 10 secondes
-      setTimeout(() => {
-        successMsg.remove();
-      }, 10000);
+      // Rediriger vers l'URL d'édition renvoyée par le serveur : indispensable
+      // pour que le prochain clic sur "Sauvegarder" mette à jour cette même
+      // demande (PATCH) au lieu d'en recréer une nouvelle (POST vers l'action
+      // create, puisque form.action ne change jamais tant qu'on reste sur
+      // cette page — sans redirection, chaque clic duplique la demande).
+      response.json().then(data => {
+        if (data && data.redirect) {
+          window.location.href = data.redirect;
+        } else {
+          window.location.reload();
+        }
+      }).catch(() => {
+        window.location.reload();
+      });
 
     } else {
       console.error('❌ Erreur lors de la sauvegarde:', response.status);

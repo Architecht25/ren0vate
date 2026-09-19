@@ -126,33 +126,22 @@ window.saveFormData = function() {
     if (response.ok) {
       console.log('✅ Sauvegarde réussie!');
 
-      // Afficher un message de succès
-      const successMsg = document.createElement('div');
-      successMsg.className = 'alert alert-success alert-dismissible fade show mt-3';
-      successMsg.innerHTML = `
-        <i class="bi bi-check-circle me-2"></i>
-        Formulaire sauvegardé avec succès !
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      `;
-
-      // Insérer le message au début du formulaire
-      const container = document.querySelector('.request-form-container');
-      if (container) {
-        container.insertBefore(successMsg, container.firstChild);
-      }
-
-      // Auto-masquer après 5 secondes
-      setTimeout(() => {
-        successMsg.remove();
-      }, 5000);
+      // Rediriger vers l'URL d'édition renvoyée par le serveur : indispensable
+      // pour que le prochain clic sur "Sauvegarder" mette à jour cette même
+      // demande (PATCH) au lieu d'en recréer une nouvelle (POST vers l'action
+      // create, puisque form.action ne change jamais tant qu'on reste sur
+      // cette page — sans redirection, chaque clic duplique la demande).
+      return response.json().then(data => {
+        if (data && data.redirect) {
+          window.location.href = data.redirect;
+        } else {
+          window.location.reload();
+        }
+      });
 
     } else {
       throw new Error(`HTTP ${response.status}`);
     }
-    return response.text();
-  })
-  .then(data => {
-    console.log('📄 Response data length:', data.length);
   })
   .catch(error => {
     console.error('❌ Erreur de sauvegarde:', error);

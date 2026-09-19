@@ -269,6 +269,24 @@ window.addEventListener('beforeunload', function(e) {
   transition: transform 0.2s ease;
 }
 
+/* Sur mobile, le widget support flottant occupe bottom:80px/right:15px —
+   décale ce bouton à gauche pour éviter qu'ils se chevauchent. */
+@media (max-width: 768px) {
+  .sticky-save-button button {
+    left: 16px !important;
+    right: auto !important;
+  }
+
+  /* Le bouton est position:fixed donc ne réserve aucun espace dans le flux :
+     sans cela, il se superpose au contenu réel en bas de page (ex. le
+     message d'éligibilité) au lieu de simplement flotter dans une zone
+     vide. On réserve ici la place qu'il occupe à l'écran. */
+  .sticky-save-button {
+    display: block;
+    height: 150px;
+  }
+}
+
 .sticky-save-button .btn-warning {
   animation: pulse-warning 2s infinite;
 }
