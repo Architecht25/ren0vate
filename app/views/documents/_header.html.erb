@@ -13,12 +13,9 @@
         <div class="min-width-0">
           <h1 class="h5 h3-md text-primary-custom mb-0 fw-semibold text-truncate"><%= @project.nom || "Projet sans nom" %></h1>
           <small class="text-muted d-none d-sm-block">
-            <% if @selected_document_type %>
-              Documents de type "<%= document_type_name(@selected_document_type) %>" • <%= @documents.count %> document(s)
-            <% elsif @selected_phase %>
-              Documents de la <%= @selected_phase.name.downcase %> • <%= @documents.count %> document(s)
-            <% else %>
-              Gestion de vos documents • <%= @documents.count %> document(s)
+            <i class="bi bi-tag me-1"></i><%= @project.type_display %>
+            <% if @project.property.present? %>
+              &nbsp;·&nbsp;<i class="bi bi-geo-alt me-1"></i><%= @project.property.rue %> <%= @project.property.numero %>, <%= @project.property.commune %>
             <% end %>
           </small>
         </div>
