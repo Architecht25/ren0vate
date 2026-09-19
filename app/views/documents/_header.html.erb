@@ -1,73 +1,126 @@
-<!-- Header épuré -->
-<div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2 mb-4 pb-3 border-bottom">
-  <div>
-    <h1 class="h3 text-primary-custom mb-1 fw-normal">
-      <i class="bi bi-folder2 me-2"></i>
-      Documents
-      <% if @property %>
-        - <%= @property.titre || "Bien sans nom" %>
-      <% elsif @project %>
-        - <%= @project.nom || "Projet sans nom" %>
+<% if @project %>
+  <%# Header aligné sur celui des onglets Préparation/Suivi/Réception (projects/show.html.erb) %>
+  <div class="mb-3 mb-md-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center gap-2">
+      <%= link_to @project, class: "btn btn-outline-secondary btn-sm d-md-none flex-shrink-0", aria: { label: "Retour" } do %>
+        <i class="bi bi-arrow-left"></i>
       <% end %>
-    </h1>
-    <p class="text-muted-custom mb-0">
-      <% if @selected_document_type %>
-        Documents de type "<%= document_type_name(@selected_document_type) %>" • <%= @documents.count %> document(s)
-        <% if @selected_phase %>
-          <span class="badge bg-<%= @selected_phase.color %> ms-2"><%= @selected_phase.name %></span>
+
+      <div class="d-flex align-items-center flex-grow-1 min-width-0">
+        <div class="icon-circle me-3 flex-shrink-0 d-none d-sm-flex">
+          <i class="bi bi-folder2"></i>
+        </div>
+        <div class="min-width-0">
+          <h1 class="h5 h3-md text-primary-custom mb-0 fw-semibold text-truncate"><%= @project.nom || "Projet sans nom" %></h1>
+          <small class="text-muted d-none d-sm-block">
+            <% if @selected_document_type %>
+              Documents de type "<%= document_type_name(@selected_document_type) %>" • <%= @documents.count %> document(s)
+            <% elsif @selected_phase %>
+              Documents de la <%= @selected_phase.name.downcase %> • <%= @documents.count %> document(s)
+            <% else %>
+              Gestion de vos documents • <%= @documents.count %> document(s)
+            <% end %>
+          </small>
+        </div>
+      </div>
+
+      <!-- Actions desktop -->
+      <div class="d-none d-md-flex gap-2 flex-shrink-0">
+        <button id="ocr-scan-all-btn" class="btn btn-outline-secondary btn-sm d-none" title="Scanner tous les documents avec OCR">
+          <i class="bi bi-search me-1"></i>Scanner tous
+          <span id="ocr-scan-all-progress" class="ms-1 small d-none"></span>
+        </button>
+        <%= link_to new_project_document_path(@project), class: "btn btn-primary-custom btn-sm" do %>
+          <i class="bi bi-plus-lg me-1"></i>Ajouter
         <% end %>
-      <% elsif @selected_phase %>
-        Documents de la <%= @selected_phase.name.downcase %> • <%= @documents.count %> document(s)
-      <% elsif params[:type_document].present? %>
-        <span class="text-success">
-          <i class="bi bi-filter me-1"></i>Photos du chantier • <%= @documents.count %> document(s)
-        </span>
-        <br>
-        <small class="text-muted">
-          Affichage filtré par type de document uniquement.
-          <%= link_to "Voir tous les documents",
-                     (@property ? property_documents_path(@property) :
-                      @project ? project_documents_path(@project) :
-                      documents_path),
-                     class: "text-primary" %> pour revenir à la vue complète.
-        </small>
+        <%= link_to @project, class: "btn btn-outline-secondary btn-sm" do %>
+          <i class="bi bi-arrow-left me-1"></i>Retour
+        <% end %>
+      </div>
+
+      <!-- Actions mobile — dropdown trois points -->
+      <div class="d-md-none flex-shrink-0">
+        <div class="dropdown">
+          <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Actions">
+            <i class="bi bi-three-dots-vertical"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow">
+            <li>
+              <%= link_to new_project_document_path(@project), class: "dropdown-item" do %>
+                <i class="bi bi-plus-lg me-2"></i>Ajouter un document
+              <% end %>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <%= render 'projects/partials_general/kpi_chips' %>
+  </div>
+
+  <% if params[:type_document].present? && !@selected_document_type %>
+    <div class="alert alert-success border-0 py-2 mb-3">
+      <i class="bi bi-filter me-1"></i>Photos du chantier • <%= @documents.count %> document(s)
+      <small class="text-muted ms-2">
+        Affichage filtré par type de document uniquement.
+        <%= link_to "Voir tous les documents", project_documents_path(@project), class: "text-primary" %> pour revenir à la vue complète.
+      </small>
+    </div>
+  <% end %>
+
+<% else %>
+  <!-- Header épuré -->
+  <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2 mb-4 pb-3 border-bottom">
+    <div>
+      <h1 class="h3 text-primary-custom mb-1 fw-normal">
+        <i class="bi bi-folder2 me-2"></i>
+        Documents
+        <% if @property %>
+          - <%= @property.titre || "Bien sans nom" %>
+        <% end %>
+      </h1>
+      <p class="text-muted-custom mb-0">
+        <% if @selected_document_type %>
+          Documents de type "<%= document_type_name(@selected_document_type) %>" • <%= @documents.count %> document(s)
+          <% if @selected_phase %>
+            <span class="badge bg-<%= @selected_phase.color %> ms-2"><%= @selected_phase.name %></span>
+          <% end %>
+        <% elsif @selected_phase %>
+          Documents de la <%= @selected_phase.name.downcase %> • <%= @documents.count %> document(s)
+        <% elsif params[:type_document].present? %>
+          <span class="text-success">
+            <i class="bi bi-filter me-1"></i>Photos du chantier • <%= @documents.count %> document(s)
+          </span>
+          <br>
+          <small class="text-muted">
+            Affichage filtré par type de document uniquement.
+            <%= link_to "Voir tous les documents",
+                       (@property ? property_documents_path(@property) : documents_path),
+                       class: "text-primary" %> pour revenir à la vue complète.
+          </small>
+        <% else %>
+          Gestion de vos documents • <%= @documents.count %> document(s)
+        <% end %>
+      </p>
+    </div>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+      <button id="ocr-scan-all-btn" class="btn btn-outline-secondary d-none" title="Scanner tous les documents avec OCR">
+        <i class="bi bi-search me-1"></i>Scanner tous
+        <span id="ocr-scan-all-progress" class="ms-1 small d-none"></span>
+      </button>
+      <span class="badge bg-light text-muted border" style="font-size:0.75rem;">
+        <i class="bi bi-eye me-1"></i>Vue <%= @property ? 'consultation' : 'consultative' %>
+      </span>
+      <% if @property %>
+        <%= link_to dashboard_property_path(@property),
+                    class: "btn btn-outline-secondary" do %>
+          <i class="bi bi-arrow-left me-1"></i>Dashboard bien
+        <% end %>
       <% else %>
-        Gestion de vos documents • <%= @documents.count %> document(s)
+        <%= link_to properties_path, class: "btn btn-outline-secondary" do %>
+          <i class="bi bi-arrow-left me-1"></i>Mes biens
+        <% end %>
       <% end %>
-    </p>
+    </div>
   </div>
-  <div class="d-flex flex-wrap gap-2 align-items-center">
-    <button id="ocr-scan-all-btn" class="btn btn-outline-secondary d-none" title="Scanner tous les documents avec OCR">
-      <i class="bi bi-search me-1"></i>Scanner tous
-      <span id="ocr-scan-all-progress" class="ms-1 small d-none"></span>
-    </button>
-    <% if @property %>
-      <span class="badge bg-light text-muted border" style="font-size:0.75rem;">
-        <i class="bi bi-eye me-1"></i>Vue consultation
-      </span>
-    <% elsif @project %>
-      <%= link_to new_project_document_path(@project),
-          class: "btn btn-primary-custom" do %>
-        <i class="bi bi-plus-lg me-2"></i>Ajouter un document
-      <% end %>
-    <% else %>
-      <span class="badge bg-light text-muted border" style="font-size:0.75rem;">
-        <i class="bi bi-eye me-1"></i>Vue consultative
-      </span>
-    <% end %>
-    <% if @property %>
-      <%= link_to dashboard_property_path(@property),
-                  class: "btn btn-outline-secondary" do %>
-        <i class="bi bi-arrow-left me-1"></i>Dashboard bien
-      <% end %>
-    <% elsif @project %>
-      <%= link_to @project, class: "btn btn-outline-secondary" do %>
-        <i class="bi bi-arrow-left me-1"></i>Retour projet
-      <% end %>
-    <% else %>
-      <%= link_to properties_path, class: "btn btn-outline-secondary" do %>
-        <i class="bi bi-arrow-left me-1"></i>Mes biens
-      <% end %>
-    <% end %>
-  </div>
-</div>
+<% end %>

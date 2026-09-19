@@ -20,6 +20,7 @@ class DocumentsController < ApplicationController
       else
         @documents = @documents.where(project: @project)
       end
+      @factures_count = @project.factures.count
     elsif @property
       # Agréger tous les docs du bien : ceux liés directement (property_id) ET
       # ceux liés à un projet du bien (project_id) même sans property_id explicite
