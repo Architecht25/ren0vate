@@ -76,6 +76,7 @@ class DashboardController < ApplicationController
     @pending_members = @project_members.where(status: 'pending')
     @projects        = @active_members.map(&:project).compact
     @project_count   = @projects.count
+    @single_active_project = @projects.first if @project_count == 1
     @referral_url    = "#{request.base_url}/?ref=#{current_user.referral_token}" if current_user.referral_token.present?
   rescue => e
     Rails.logger.error "Pro dashboard error: #{e.message}"
