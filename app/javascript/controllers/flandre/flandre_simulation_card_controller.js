@@ -242,7 +242,13 @@ export default class extends Controller {
         return 0
       }
 
-      return calculData.forfaits?.[typePompe] || 0
+      // Le forfait par type est plafonné à un pourcentage de la facture,
+      // comme pour warmtepompboiler (plafond_pourcentage défini côté seed) —
+      // sans ce plafond, le simulateur affichait le forfait plein même
+      // pour une facture nulle ou faible.
+      const forfait = calculData.forfaits?.[typePompe] || 0
+      const plafondPourcentage = calculData.plafond_pourcentage || 100
+      return Math.min(montantFacture * (plafondPourcentage / 100), forfait)
     } else {
       // Autres cas
       const forfait = calculData.forfait || 0

@@ -5,10 +5,11 @@
         <i class="bi bi-patch-check-fill text-white" style="font-size:1.1rem;"></i>
       </div>
       <div>
+        <% banner_region = local_assigns[:region].presence || (current_user.region if user_signed_in?) %>
         <div class="fw-semibold" style="color:var(--ren0vate-primary);">Expert Subsides IA
-          <% if user_signed_in? && current_user.region.present? %>
+          <% if banner_region.present? %>
             <span class="badge rounded-pill ms-1" style="background:var(--ren0vate-primary);color:#fff;font-size:.7rem;font-weight:500;">
-              <%= current_user.region.capitalize %>
+              <%= banner_region.capitalize %>
             </span>
           <% end %>
         </div>

@@ -73,10 +73,13 @@ module Regions
             plafond_pourcentage = category_data['plafond_pourcentage'].to_f
             montant = [val * (plafond_pourcentage / 100.0), forfait].min
           elsif prime_slug == 'warmtepomp'
-            # Pompe à chaleur
+            # Pompe à chaleur - forfait par type, plafonné à plafond_pourcentage
+            # de la facture (même logique que warmtepompboiler ci-dessus)
             type_pompe = input_type || 'air_eau'
             forfaits = category_data['forfaits'] || {}
-            montant = forfaits[type_pompe].to_f
+            forfait = forfaits[type_pompe].to_f
+            plafond_pourcentage = category_data['plafond_pourcentage'].to_f
+            montant = [val * (plafond_pourcentage / 100.0), forfait].min
           else
             montant = category_data['forfait'].to_f
           end
