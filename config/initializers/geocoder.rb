@@ -8,7 +8,7 @@ Geocoder.configure(
 
   # Configuration pour Nominatim (OpenStreetMap)
   nominatim: {
-    email: "admin@ren0vate.be" # Email requis pour Nominatim
+    email: "robin@architecht.be" # Email requis pour Nominatim
   },
 
   # Unités de distance
