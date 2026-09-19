@@ -1,21 +1,20 @@
 <%# Synthèse des devis — architecte, entrepreneur, châssis %>
 <% chassis_total = @project.bordereau_chassis_donnees.where.not(montant_tvac: nil).sum(:montant_tvac).to_f %>
-<div class="card border border-2 rounded-4 h-100">
-  <div class="card-header bg-white border-0 py-3">
-    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-      <div class="d-flex align-items-center">
-        <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;flex-shrink:0;">
-          <i class="bi bi-file-earmark-text text-white fs-6"></i>
-        </div>
-        <div>
-          <h5 class="card-title mb-0 text-dark fw-normal" style="font-size:0.95rem;">Synthèse des devis</h5>
-          <p class="text-muted mb-0" style="font-size:0.75rem;">Votre budget total consolidé par intervenant</p>
-        </div>
+<div class="card border-0 shadow-sm rounded-4 h-100">
+  <div class="card-header border-0 py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2"
+       style="background:linear-gradient(135deg,#14532d,#166534); border-radius: 1rem 1rem 0 0 !important;">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-file-earmark-text text-white fs-5"></i>
+      <div>
+        <span class="fw-semibold text-white">Synthèse des devis</span>
+        <div class="text-white opacity-75" style="font-size:0.75rem;">Votre budget total consolidé par intervenant</div>
       </div>
-      <%= link_to edit_budget_project_path(@project, context: 'devis'), class: "btn btn-sm btn-outline-success rounded-3" do %>
-        <i class="bi bi-pencil me-1"></i><span style="font-size:0.78rem;">Ajouter un devis</span>
-      <% end %>
     </div>
+    <%= link_to edit_budget_project_path(@project, context: 'devis'),
+          class: "btn btn-sm text-white rounded-3",
+          style: "background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);" do %>
+      <i class="bi bi-pencil me-1"></i><span style="font-size:0.78rem;">Ajouter un devis</span>
+    <% end %>
   </div>
   <div class="card-body p-3">
     <% architecte_effectif = @project.architecte_devis_montant_effectif
