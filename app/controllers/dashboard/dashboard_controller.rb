@@ -116,6 +116,9 @@ class DashboardController < ApplicationController
   def calculate_cockpit_data
     user_projects = current_user.projects
 
+    active_projects = user_projects.where.not(statut: 'annule')
+    @single_active_project = active_projects.first if active_projects.count == 1
+
     @budget_total = (user_projects.sum(:architecte_devis_montant).to_f +
                      user_projects.sum(:contractor_devis_montant).to_f).round
 

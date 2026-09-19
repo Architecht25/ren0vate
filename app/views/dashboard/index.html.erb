@@ -63,13 +63,18 @@
           <div class="d-flex align-items-center gap-3 flex-wrap">
             <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
                  style="width:56px; height:56px; background: rgba(255,255,255,0.2); font-size: 1.7rem;">
-              <i class="bi bi-speedometer2"></i>
+              <i class="bi bi-<%= @single_active_project ? 'hammer' : 'speedometer2' %>"></i>
             </div>
             <div class="flex-grow-1">
-              <h4 class="mb-1 fw-bold" style="color: var(--ren0vate-accent);">Situation actuelle</h4>
-              <p class="mb-0 opacity-90" style="font-size: 0.9rem;">
-                Budget engagé, primes attendues et alertes en cours sur vos chantiers
-              </p>
+              <% if @single_active_project %>
+                <h4 class="mb-1 fw-bold" style="color: var(--ren0vate-accent);">Chantier en cours</h4>
+                <p class="mb-0 opacity-90" style="font-size: 0.9rem;"><%= @single_active_project.name %></p>
+              <% else %>
+                <h4 class="mb-1 fw-bold" style="color: var(--ren0vate-accent);">Situation actuelle</h4>
+                <p class="mb-0 opacity-90" style="font-size: 0.9rem;">
+                  Budget engagé, primes attendues et alertes en cours sur vos chantiers
+                </p>
+              <% end %>
             </div>
             <% if @alerts.any? %>
               <span class="badge fs-6 fw-normal px-3 py-2 flex-shrink-0" style="background: rgba(255,255,255,0.2);">
@@ -79,50 +84,110 @@
           </div>
         </div>
 
-        <!-- KPIs -->
-        <div class="px-4 py-3">
-          <div class="row g-2">
+        <% if @single_active_project %>
+          <%
+            project = @single_active_project
+            current_phase = Project::PHASES_CHANTIER.find { |p| project.phase_pct(p[:key]) < 100 } || Project::PHASES_CHANTIER.last
+            global_pct = project.avancement_global_pct
+            bar_color = case global_pct
+              when 0..30 then '#dc3545'
+              when 31..60 then '#ffc107'
+              when 61..99 then '#0d6efd'
+              else '#198754'
+            end
+            next_action = @alerts.first
+          %>
+          <!-- Résumé narratif du chantier unique -->
+          <div class="px-4 py-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="small fw-medium" style="color: var(--ren0vate-text-secondary);">
+                <i class="bi <%= current_phase[:icon] %> me-1"></i>Phase : <%= current_phase[:label] %>
+              </span>
+              <span class="small fw-bold" style="color: <%= bar_color %>;"><%= global_pct %>% avancé</span>
+            </div>
+            <div style="height:8px; background:var(--ren0vate-light); border-radius:6px; overflow:hidden;">
+              <div style="height:100%; width:<%= global_pct %>%; background:<%= bar_color %>; border-radius:6px;"></div>
+            </div>
 
-            <div class="col-6 col-md-3">
-              <div class="rounded-3 p-3 text-center" style="background: var(--ren0vate-light); border: 1px solid var(--ren0vate-border);">
-                <div class="small mb-1" style="color: var(--ren0vate-text-muted); font-size: 0.75rem;"><i class="bi bi-hammer me-1"></i>Budget engagé</div>
-                <div class="fw-bold" style="font-size: 1.1rem; color: var(--ren0vate-primary);">
-                  <% if @budget_total > 0 %><%= number_with_delimiter(@budget_total, delimiter: ' ') %> €<% else %>—<% end %>
+            <div class="row g-2 mt-2">
+              <div class="col-6">
+                <div class="rounded-3 p-3 text-center" style="background: var(--ren0vate-light); border: 1px solid var(--ren0vate-border);">
+                  <div class="small mb-1" style="color: var(--ren0vate-text-muted); font-size: 0.75rem;"><i class="bi bi-hammer me-1"></i>Budget engagé</div>
+                  <div class="fw-bold" style="font-size: 1.1rem; color: var(--ren0vate-primary);">
+                    <% if @budget_total > 0 %><%= number_with_delimiter(@budget_total, delimiter: ' ') %> €<% else %>—<% end %>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="rounded-3 p-3 text-center" style="background: rgba(var(--ren0vate-success-rgb), 0.08); border: 1px solid rgba(var(--ren0vate-success-rgb), 0.25);">
+                  <div class="small mb-1" style="color: var(--ren0vate-text-muted); font-size: 0.75rem;"><i class="bi bi-gift me-1"></i>Primes attendues</div>
+                  <div class="fw-bold" style="font-size: 1.1rem; color: var(--ren0vate-success-dark);">
+                    <% if @primes_attendues > 0 %><%= number_with_delimiter(@primes_attendues, delimiter: ' ') %> €<% else %>—<% end %>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div class="col-6 col-md-3">
-              <div class="rounded-3 p-3 text-center" style="background: rgba(var(--ren0vate-success-rgb), 0.08); border: 1px solid rgba(var(--ren0vate-success-rgb), 0.25);">
-                <div class="small mb-1" style="color: var(--ren0vate-text-muted); font-size: 0.75rem;"><i class="bi bi-gift me-1"></i>Primes attendues</div>
-                <div class="fw-bold" style="font-size: 1.1rem; color: var(--ren0vate-success-dark);">
-                  <% if @primes_attendues > 0 %><%= number_with_delimiter(@primes_attendues, delimiter: ' ') %> €<% else %>—<% end %>
-                </div>
-              </div>
+            <div class="d-flex align-items-center gap-3 mt-3 p-3 rounded-3" style="background: rgba(var(--ren0vate-primary-rgb), 0.05); border: 1px solid rgba(var(--ren0vate-primary-rgb), 0.15);">
+              <i class="bi bi-arrow-right-circle-fill flex-shrink-0" style="color: var(--ren0vate-primary); font-size: 1.3rem;"></i>
+              <span class="flex-grow-1 small" style="color: var(--ren0vate-text-secondary);">
+                <% if next_action %>
+                  <%= next_action[:message] %>
+                <% else %>
+                  Continuez à faire avancer ce chantier — mettez à jour l'avancement, les devis ou les factures.
+                <% end %>
+              </span>
+              <%= link_to project_path(project), class: "btn btn-sm flex-shrink-0 fw-semibold text-white", style: "background: var(--ren0vate-primary); font-size: 0.8rem;" do %>
+                Voir le chantier <i class="bi bi-arrow-right ms-1"></i>
+              <% end %>
             </div>
-
-            <div class="col-6 col-md-3">
-              <div class="rounded-3 p-3 text-center" style="background: <%= @factures_en_attente_count > 0 ? 'rgba(var(--ren0vate-accent-rgb), 0.07)' : 'var(--ren0vate-light)' %>; border: 1px solid <%= @factures_en_attente_count > 0 ? 'rgba(var(--ren0vate-accent-rgb), 0.3)' : 'var(--ren0vate-border)' %>;">
-                <div class="small mb-1" style="color: var(--ren0vate-text-muted); font-size: 0.75rem;"><i class="bi bi-receipt me-1"></i>Factures en attente</div>
-                <div class="fw-bold d-flex align-items-center justify-content-center gap-1" style="font-size: 1.1rem; color: <%= @factures_en_attente_count > 0 ? 'var(--ren0vate-accent)' : 'var(--ren0vate-primary)' %>;">
-                  <%= @factures_en_attente_count %>
-                  <% if @factures_en_attente_count > 0 %><i class="bi bi-exclamation-circle-fill" style="font-size: 0.75rem;"></i><% end %>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-6 col-md-3">
-              <div class="rounded-3 p-3 text-center" style="background: var(--ren0vate-light); border: 1px solid var(--ren0vate-border);">
-                <div class="small mb-1" style="color: var(--ren0vate-text-muted); font-size: 0.75rem;"><i class="bi bi-buildings me-1"></i>Chantiers actifs</div>
-                <div class="fw-bold" style="font-size: 1.1rem; color: var(--ren0vate-primary);"><%= project_count %></div>
-              </div>
-            </div>
-
           </div>
-        </div>
+        <% else %>
+          <!-- KPIs agrégés (0 ou plusieurs chantiers) -->
+          <div class="px-4 py-3">
+            <div class="row g-2">
 
-        <!-- Alertes -->
-        <% if @alerts.any? %>
+              <div class="col-6 col-md-3">
+                <div class="rounded-3 p-3 text-center" style="background: var(--ren0vate-light); border: 1px solid var(--ren0vate-border);">
+                  <div class="small mb-1" style="color: var(--ren0vate-text-muted); font-size: 0.75rem;"><i class="bi bi-hammer me-1"></i>Budget engagé</div>
+                  <div class="fw-bold" style="font-size: 1.1rem; color: var(--ren0vate-primary);">
+                    <% if @budget_total > 0 %><%= number_with_delimiter(@budget_total, delimiter: ' ') %> €<% else %>—<% end %>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-6 col-md-3">
+                <div class="rounded-3 p-3 text-center" style="background: rgba(var(--ren0vate-success-rgb), 0.08); border: 1px solid rgba(var(--ren0vate-success-rgb), 0.25);">
+                  <div class="small mb-1" style="color: var(--ren0vate-text-muted); font-size: 0.75rem;"><i class="bi bi-gift me-1"></i>Primes attendues</div>
+                  <div class="fw-bold" style="font-size: 1.1rem; color: var(--ren0vate-success-dark);">
+                    <% if @primes_attendues > 0 %><%= number_with_delimiter(@primes_attendues, delimiter: ' ') %> €<% else %>—<% end %>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-6 col-md-3">
+                <div class="rounded-3 p-3 text-center" style="background: <%= @factures_en_attente_count > 0 ? 'rgba(var(--ren0vate-accent-rgb), 0.07)' : 'var(--ren0vate-light)' %>; border: 1px solid <%= @factures_en_attente_count > 0 ? 'rgba(var(--ren0vate-accent-rgb), 0.3)' : 'var(--ren0vate-border)' %>;">
+                  <div class="small mb-1" style="color: var(--ren0vate-text-muted); font-size: 0.75rem;"><i class="bi bi-receipt me-1"></i>Factures en attente</div>
+                  <div class="fw-bold d-flex align-items-center justify-content-center gap-1" style="font-size: 1.1rem; color: <%= @factures_en_attente_count > 0 ? 'var(--ren0vate-accent)' : 'var(--ren0vate-primary)' %>;">
+                    <%= @factures_en_attente_count %>
+                    <% if @factures_en_attente_count > 0 %><i class="bi bi-exclamation-circle-fill" style="font-size: 0.75rem;"></i><% end %>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-6 col-md-3">
+                <div class="rounded-3 p-3 text-center" style="background: var(--ren0vate-light); border: 1px solid var(--ren0vate-border);">
+                  <div class="small mb-1" style="color: var(--ren0vate-text-muted); font-size: 0.75rem;"><i class="bi bi-buildings me-1"></i>Chantiers actifs</div>
+                  <div class="fw-bold" style="font-size: 1.1rem; color: var(--ren0vate-primary);"><%= project_count %></div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Alertes — masquées si chantier unique (déjà résumées dans le bloc "prochaine action" ci-dessus) -->
+        <% if @alerts.any? && !@single_active_project %>
           <div class="mx-4 mb-3" style="border-top: 1px solid var(--ren0vate-border);"></div>
           <div class="px-4 pb-3 d-flex flex-column gap-2">
             <% @alerts.each do |alert| %>
