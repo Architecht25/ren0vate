@@ -75,7 +75,9 @@
     </div>
 
     <!-- ── KPIs ── -->
-    <% if @project_count > 0 %>
+    <% if @single_active_project %>
+      <%= render 'dashboard/single_project_summary', project: @single_active_project %>
+    <% elsif @project_count > 0 %>
       <div class="row g-3 mb-4 w-100" style="max-width: 820px;">
         <% if multi_role %>
           <%# KPIs Entrepreneur %>

@@ -1,0 +1,29 @@
+<%# Résumé narratif affiché quand un pro n'a qu'un seul chantier actif —
+    remplace les tuiles KPI génériques (compteurs peu utiles à 1 seul chantier).
+    Local requis : project %>
+<%
+  current_phase = Project::PHASES_CHANTIER.find { |p| project.phase_pct(p[:key]) < 100 } || Project::PHASES_CHANTIER.last
+  global_pct = project.avancement_global_pct
+  bar_color = case global_pct
+    when 0..30 then '#dc3545'
+    when 31..60 then '#ffc107'
+    when 61..99 then '#0d6efd'
+    else '#198754'
+  end
+%>
+<div class="mx-auto w-100 mb-4" style="max-width: 780px;">
+  <div class="rounded-3 p-3" style="background: rgba(255,255,255,0.9); box-shadow: var(--ren0vate-shadow-sm);">
+    <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+      <div class="flex-grow-1 min-width-0">
+        <div class="fw-semibold text-truncate" style="color: var(--ren0vate-primary);"><%= project.name %></div>
+        <div class="small text-muted">
+          <i class="bi bi-bar-chart-steps me-1"></i><%= current_phase[:label] %> ·
+          <span style="color:<%= bar_color %>;font-weight:600;"><%= global_pct %>% avancé</span>
+        </div>
+      </div>
+      <%= link_to project_path(project), class: "btn btn-sm btn-outline-primary flex-shrink-0" do %>
+        Voir le chantier <i class="bi bi-arrow-right ms-1"></i>
+      <% end %>
+    </div>
+  </div>
+</div>

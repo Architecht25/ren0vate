@@ -4,7 +4,13 @@ class OnboardingController < ApplicationController
   layout 'onboarding'
 
   # GET /onboarding/profil
+  # Si le profil pro a déjà été choisi à l'inscription (mini-sélecteur du
+  # formulaire d'inscription), on ne redemande pas la même question ici.
   def profile_selection
+    return unless current_user.professional_type.present?
+
+    profile = professional_type_to_user_profile(current_user.professional_type)
+    apply_profile_and_redirect(profile) if profile
   end
 
   # POST /onboarding/profil
@@ -15,15 +21,7 @@ class OnboardingController < ApplicationController
       return render :profile_selection, status: :unprocessable_entity
     end
 
-    current_user.update!(user_profile: profile)
-    session[:onboarding] = { profile: profile }
-
-    case profile
-    when 'proprietaire'  then redirect_to onboarding_proprietaire_bien_path(locale: I18n.locale)
-    when 'architecte'    then redirect_to onboarding_architecte_profil_path(locale: I18n.locale)
-    when 'entrepreneur'  then redirect_to onboarding_entrepreneur_invitation_path(locale: I18n.locale)
-    when 'intermediaire' then redirect_to onboarding_intermediaire_structure_path(locale: I18n.locale)
-    end
+    apply_profile_and_redirect(profile)
   end
 
   # ─── Tunnel Propriétaire ─────────────────────────────────────────────────────
@@ -144,6 +142,26 @@ class OnboardingController < ApplicationController
   end
 
   private
+
+  def apply_profile_and_redirect(profile)
+    current_user.update!(user_profile: profile)
+    session[:onboarding] = { profile: profile }
+
+    case profile
+    when 'proprietaire'  then redirect_to onboarding_proprietaire_bien_path(locale: I18n.locale)
+    when 'architecte'    then redirect_to onboarding_architecte_profil_path(locale: I18n.locale)
+    when 'entrepreneur'  then redirect_to onboarding_entrepreneur_invitation_path(locale: I18n.locale)
+    when 'intermediaire' then redirect_to onboarding_intermediaire_structure_path(locale: I18n.locale)
+    end
+  end
+
+  def professional_type_to_user_profile(professional_type)
+    case professional_type
+    when 'architect'    then 'architecte'
+    when 'entrepreneur' then 'entrepreneur'
+    when 'intermediary' then 'intermediaire'
+    end
+  end
 
   def finish_onboarding!
     current_user.update_column(:onboarding_completed_at, Time.current)
