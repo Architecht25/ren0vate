@@ -1,15 +1,3 @@
-<%
-  phase_label_for = ->(name) {
-    case name
-    when 'Phase Administrative' then 'Docs Administratifs'
-    when 'Phase Technique'      then 'Préparation de chantier'
-    when 'Phase Exécution'      then 'Suivi de chantier'
-    when 'Phase Réception'      then 'Réception de chantier'
-    else name.gsub('Phase ', '')
-    end
-  }
-%>
-
 <% if @property && !@project %>
   <%# ── Contexte bien : barre de filtres (chantier + type + phase) — pas de tabs ── %>
   <div class="mb-4 p-3 rounded-3 d-flex flex-wrap align-items-center gap-2"
@@ -47,7 +35,7 @@
         <div class="d-flex align-items-center gap-1">
           <label class="text-muted mb-0 flex-shrink-0" style="font-size:0.78rem;">Phase</label>
           <%= f.select :filter_phase,
-                [['Toutes les phases', '']] + @all_phases.map { |ph| [phase_label_for.call(ph.name), ph.id] },
+                [['Toutes les phases', '']] + @all_phases.map { |ph| [phase_label_for(ph.name), ph.id] },
                 { selected: params[:filter_phase] },
                 { class: 'form-select form-select-sm', style: 'min-width:175px; max-width:100%;' } %>
         </div>
@@ -79,7 +67,7 @@
           <% if params[:filter_phase].present? && @selected_phase %>
             <span class="badge rounded-pill border"
                   style="font-size:0.7rem; background:rgba(var(--ren0vate-primary-rgb),0.08); color:var(--ren0vate-primary); border-color:rgba(var(--ren0vate-primary-rgb),0.25) !important;">
-              <i class="bi bi-layers me-1"></i><%= phase_label_for.call(@selected_phase.name) %>
+              <i class="bi bi-layers me-1"></i><%= phase_label_for(@selected_phase.name) %>
             </span>
           <% end %>
           <%= link_to property_documents_path(@property),
@@ -92,23 +80,4 @@
     <% end %>
   </div>
 
-<% elsif @phases_data&.any? %>
-  <%# ── Contexte projet ou global : onglets de phase ── %>
-  <ul class="nav nav-pills mb-4 gap-1 p-1 rounded-3 flex-nowrap overflow-x-auto tabs-scroll-x" style="background: rgba(0,0,0,0.04);">
-    <% @phases_data.each do |phase_data| %>
-      <% phase = phase_data[:phase] %>
-      <% is_active = @selected_phase == phase || (@selected_phase.nil? && phase == @phases_data.first[:phase]) %>
-      <li class="nav-item flex-shrink-0 text-nowrap">
-        <%= link_to documents_path(
-                      property_id: @property&.id,
-                      project_id: @project&.id,
-                      filter_phase: phase.id
-                    ),
-                   class: "nav-link w-100 #{'active' if is_active}" do %>
-          <%= phase.icon %> <%= phase_label_for.call(phase.name) %>
-          <span class="badge ms-1 <%= is_active ? 'bg-white text-dark' : 'bg-light text-dark' %>"><%= phase_data[:count] %></span>
-        <% end %>
-      </li>
-    <% end %>
-  </ul>
 <% end %>
