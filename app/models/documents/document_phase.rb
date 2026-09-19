@@ -37,7 +37,7 @@ class DocumentPhase < ApplicationRecord
       color: 'info',
       position: 2,
       required_document_types: ['devis', 'bordereau_chassis', 'certificat_label', 'rapport_audit_energetique'],
-      optional_document_types: []
+      optional_document_types: ['preuve_paiement_audit']
     },
     {
       name: 'Phase Exécution',
