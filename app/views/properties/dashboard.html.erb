@@ -1,4 +1,28 @@
 <div class="container-fluid px-4 py-4">
+  <%
+    details = @property.data_completeness_details
+    quotes = @property.quotes.recent
+
+    core_scores = []
+    core_scores << details[:percentage].to_i
+    core_scores << (@property.projects.any? ? 85 : 30)
+    core_scores << (Document.for_property_and_its_projects(@property).any? ? 75 : 30)
+    core_scores << (@property.simulations.any? ? 80 : 30)
+    core_scores << (quotes.any? ? 90 : 25)
+
+    global_score = (core_scores.sum.to_f / core_scores.size).round
+    global_level = if global_score >= 80
+                     'Excellent'
+                   elsif global_score >= 60
+                     'Bon'
+                   elsif global_score >= 40
+                     'Moyen'
+                   else
+                     'A renforcer'
+                   end
+    global_color = global_score >= 80 ? 'success' : global_score >= 60 ? 'primary' : global_score >= 40 ? 'warning' : 'danger'
+  %>
+
   <!-- Header avec navigation -->
   <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2 mb-4 pb-3 border-bottom">
     <div class="d-flex align-items-center">
@@ -10,6 +34,9 @@
           <h1 class="h3 text-primary-custom mb-0 fw-normal">
             <%= @property.titre || "Bien sans nom" %>
           </h1>
+          <span class="badge bg-<%= global_color %>" title="Score global du bien — lecture rapide basée sur les 5 modules prioritaires">
+            <i class="bi bi-speedometer2 me-1"></i><%= global_score %>/100 · <%= global_level %>
+          </span>
           <% if @property.en_vente? %>
             <%= link_to mise_en_vente_property_path(@property), class: "badge bg-warning text-dark text-decoration-none", title: "Voir le dossier de vente" do %>
               <i class="bi bi-tag-fill me-1"></i>En vente
@@ -78,63 +105,6 @@
       </div>
     </div>
   <% end %>
-
-  <%
-    details = @property.data_completeness_details
-    quotes = @property.quotes.recent
-
-    core_scores = []
-    core_scores << details[:percentage].to_i
-    core_scores << (@property.projects.any? ? 85 : 30)
-    core_scores << (Document.for_property_and_its_projects(@property).any? ? 75 : 30)
-    core_scores << (@property.simulations.any? ? 80 : 30)
-    core_scores << (quotes.any? ? 90 : 25)
-
-    global_score = (core_scores.sum.to_f / core_scores.size).round
-    global_level = if global_score >= 80
-                     'Excellent'
-                   elsif global_score >= 60
-                     'Bon'
-                   elsif global_score >= 40
-                     'Moyen'
-                   else
-                     'A renforcer'
-                   end
-    global_color = global_score >= 80 ? 'success' : global_score >= 60 ? 'primary' : global_score >= 40 ? 'warning' : 'danger'
-  %>
-
-  <div class="card border-0 shadow mb-4">
-    <div class="card-body p-4">
-      <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-        <div>
-          <h5 class="mb-1 fw-normal">
-            <i class="bi bi-speedometer2 text-primary-custom me-2"></i>
-            Score global du bien
-          </h5>
-          <small class="text-muted-custom">Lecture rapide basée sur les 5 modules prioritaires</small>
-        </div>
-        <div class="text-lg-end">
-          <span class="badge bg-<%= global_color %> fs-6 px-3 py-2"><%= global_score %>/100 · <%= global_level %></span>
-        </div>
-      </div>
-
-      <div class="progress mt-3" style="height: 10px;">
-        <div class="progress-bar bg-<%= global_color %>" style="width: <%= global_score %>%"></div>
-      </div>
-      <div class="d-flex flex-wrap gap-2 mt-3">
-        <span class="badge text-bg-light">P1 Données: <%= details[:percentage] %>%</span>
-        <span class="badge text-bg-light">P2 Chantiers: <%= @property.projects.any? ? 'actif' : 'à initier' %></span>
-        <span class="badge text-bg-light">P3 Devis: <%= quotes.any? ? 'actif' : 'à initier' %></span>
-        <span class="badge text-bg-light">P4 Primes: <%= @property.simulations.any? || (@property.requests.any? rescue false) ? 'actif' : 'à initier' %></span>
-        <span class="badge text-bg-light">P5 Prêts: actif</span>
-        <span class="badge text-bg-light">P6 PEB: <%= @property.peb_donnees.any? ? 'actif' : 'à initier' %></span>
-        <span class="badge text-bg-light">P7 Documents: <%= Document.for_property_and_its_projects(@property).any? ? 'actif' : 'à initier' %></span>
-        <% if @property.region == 'flandre' %><span class="badge text-bg-light">P8 Woningpas: actif</span><% end %>
-      </div>
-    </div>
-  </div>
-
-
 
   <!-- Tabs navigation -->
   <div data-controller="dashboard-tabs">
