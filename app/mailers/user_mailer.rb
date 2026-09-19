@@ -1,5 +1,5 @@
 class UserMailer < Devise::Mailer
-  default from: ENV.fetch('DEVISE_MAILER_SENDER', 'no-reply@ren0vate.be')
+  default from: ENV.fetch('DEVISE_MAILER_SENDER', 'noreply@ren0vate.be')
 
   def confirmation_instructions(record, token, opts = {})
     @token = token
