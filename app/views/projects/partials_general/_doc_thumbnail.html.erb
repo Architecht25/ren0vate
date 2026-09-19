@@ -6,7 +6,11 @@
     doc.file_url
   elsif doc.is_pdf?
     begin
-      doc.cloudinary_preview_url
+      # Lecture seule du cache — jamais de génération bloquante dans une liste de
+      # miniatures (cf. Documents::PdfPreviewService). Sans aperçu en cache, le
+      # fallback icône ci-dessous s'affiche ; l'aperçu se génère à la première
+      # ouverture du document via l'action preview.
+      Documents::PdfPreviewService.cached_preview_url(doc)
     rescue
       nil
     end

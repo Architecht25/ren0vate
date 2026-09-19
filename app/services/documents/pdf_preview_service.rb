@@ -1,15 +1,25 @@
 module Documents
   class PdfPreviewService
     class << self
+      # Lecture seule du cache — jamais de génération synchrone. À utiliser dans les
+      # vues listant plusieurs documents, pour ne pas bloquer le rendu de la page sur
+      # un appel réseau Cloudinary par PDF non encore prévisualisé (cf. contrôleur
+      # Stimulus pdf_preview_controller.js + Api::PdfPreviewController#generate pour
+      # la génération asynchrone à la demande).
+      def cached_preview_url(document)
+        return nil unless document&.file&.attached?
+        return nil unless document.is_pdf?
+        return nil unless document.file.service_name.to_s == 'cloudinary'
+
+        Rails.cache.read(cache_key_for(document))
+      end
+
       def generate_preview_for_document(document)
         return nil unless document&.file&.attached?
         return nil unless document.is_pdf?
         return nil unless document.file.service_name.to_s == 'cloudinary'
 
-        # Vérifier si l'aperçu existe déjà en cache
-        cache_key = "pdf_preview_#{document.id}_#{document.file.blob.checksum}"
-
-        Rails.cache.fetch(cache_key, expires_in: 24.hours) do
+        Rails.cache.fetch(cache_key_for(document), expires_in: 24.hours) do
           begin
             # Télécharger temporairement le PDF depuis Active Storage
             temp_file = download_pdf_from_active_storage(document)
@@ -37,6 +47,10 @@ module Documents
       end
 
       private
+
+      def cache_key_for(document)
+        "pdf_preview_#{document.id}_#{document.file.blob.checksum}"
+      end
 
       def download_pdf_from_active_storage(document)
         # Créer un fichier temporaire
