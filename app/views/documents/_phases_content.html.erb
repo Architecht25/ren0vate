@@ -1,5 +1,7 @@
 <!-- Vue par phases - affichée dans tous les contextes sauf quand on filtre directement par type -->
 <% if @phases_data&.any? && !params[:type_document].present? %>
-  <% active_phase = @selected_phase || @phases_data.first&.dig(:phase) %>
-  <%= render 'phase_detail', phase: active_phase %>
+  <% phases_to_display = @selected_phase ? [@selected_phase] : @phases_data.map { |pd| pd[:phase] } %>
+  <% phases_to_display.each do |phase| %>
+    <%= render 'phase_detail', phase: phase %>
+  <% end %>
 <% end %>

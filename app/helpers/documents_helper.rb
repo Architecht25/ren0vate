@@ -1,4 +1,15 @@
 module DocumentsHelper
+  # Libellé lisible d'une phase documentaire (DocumentPhase#name -> libellé UI)
+  def phase_label_for(name)
+    case name
+    when 'Phase Administrative' then 'Docs Administratifs'
+    when 'Phase Technique'      then 'Préparation de chantier'
+    when 'Phase Exécution'      then 'Suivi de chantier'
+    when 'Phase Réception'      then 'Réception de chantier'
+    else name.gsub('Phase ', '')
+    end
+  end
+
   # Service pour la logique conditionnelle
   def document_display_service
     @document_display_service ||= Documents::ConditionalDisplayService.new(
