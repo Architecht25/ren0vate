@@ -20,6 +20,12 @@ class SupportTicket < ApplicationRecord
   validates :priority, inclusion: { in: PRIORITIES }
   validates :category, inclusion: { in: CATEGORIES }
 
+  after_initialize :set_defaults, if: :new_record?
+
+  def set_defaults
+    self.status ||= 'open'
+  end
+
   scope :open_tickets,     -> { where(status: %w[open in_progress]) }
   scope :recent,           -> { order(created_at: :desc) }
   scope :waiting_response, -> { where(status: 'open').where(responded_at: nil) }

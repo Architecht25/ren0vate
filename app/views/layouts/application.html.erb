@@ -107,8 +107,13 @@
       <%= yield %>
     </div>
 
-    <!-- Widget de Support (toujours visible) -->
-    <%= render 'shared/support_widget' %>
+    <!-- Widget de Support flottant : uniquement pour les visiteurs non connectés
+         (contact tél/email/FAQ) — les utilisateurs connectés ont "Aide & support"
+         dans la sidebar (support_tickets_path), qui centralise les demandes
+         dans la même file admin plutôt que de disperser les canaux de contact. -->
+    <% unless user_signed_in? %>
+      <%= render 'shared/support_widget' %>
+    <% end %>
 
     <%# Modale NPS — feedback utilisateur (J+14) %>
     <%= render 'shared/nps_modal' %>

@@ -68,7 +68,11 @@
 
       <div class="mt-3 small text-muted text-center">
         <i class="bi bi-shield-check me-1"></i>
-        Réponse garantie sous 24h · Plan Propriétaire actif
+        <% if current_user.has_active_subscription? %>
+          Réponse garantie sous 24h · Plan <%= current_user.subscription_tier_name %> actif
+        <% else %>
+          Notre équipe vous répond généralement sous 24h (jours ouvrables)
+        <% end %>
       </div>
     </div>
   </div>
