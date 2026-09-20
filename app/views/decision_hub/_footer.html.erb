@@ -1,30 +1,13 @@
-<!-- Section Transitions -->
-<div class="decision-hub-footer">
-  <div class="container">
-    <div class="row">
-      <div class="col-12">
-        <div class="transition-actions">
-          <h4>Prochaines étapes</h4>
-          <div class="d-flex gap-3 flex-wrap">
-            <a href="#" class="btn btn-outline-primary">
-              <i class="bi bi-arrow-left me-1"></i>
-              Retour aux simulations
-            </a>
-            <a href="#" class="btn btn-success">
-              <i class="bi bi-file-earmark-text me-1"></i>
-              Accéder aux formulaires miroir
-            </a>
-            <a href="#" class="btn btn-info">
-              <i class="bi bi-people me-1"></i>
-              Trouver des entrepreneurs
-            </a>
-            <a href="#" class="btn btn-warning">
-              <i class="bi bi-calendar-plus me-1"></i>
-              Planifier les travaux
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
+<!-- Transition vers l'étape 3 : Formulaire de demande -->
+<div class="decision-hub-footer mt-4">
+  <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-stretch align-items-sm-center gap-2 p-3 rounded-3 border" style="background:#eff6ff; border-color:#bfdbfe !important;">
+    <%= link_to primes_hub_path, class: "btn btn-outline-secondary flex-shrink-0" do %>
+      <i class="bi bi-arrow-left me-1"></i>Retour à Mes primes
+    <% end %>
+    <% if simulation.present? %>
+      <%= link_to new_request_path(property_id: simulation.property_id, simulation_id: simulation.id), class: "btn btn-primary flex-shrink-0" do %>
+        Passer au formulaire de demande<i class="bi bi-arrow-right ms-2"></i>
+      <% end %>
+    <% end %>
   </div>
 </div>
