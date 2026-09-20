@@ -239,7 +239,10 @@ class RequestProgress < ApplicationRecord
     expired_complements = complement_requests.overdue
 
     if expired_complements.any?
-      expired_complements.update_all(status: 'expired')
+      # update! individuel (et non update_all, ni mark_expired! qui re-déclenche
+      # cette même méthode en boucle) pour déclencher le callback
+      # handle_status_change qui envoie ComplementRequestMailer.deadline_expired
+      expired_complements.each { |c| c.update!(status: 'expired', expired_at: Time.current) }
 
       # Décider de l'action à prendre
       if critical_complements_expired?

@@ -1,0 +1,29 @@
+<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 24px 20px; border-radius: 8px 8px 0 0;">
+    <h1 style="margin: 0; font-size: 1.2em;">📋 Complément d'information requis</h1>
+  </div>
+
+  <div style="background-color: #f8f9fa; padding: 24px; border-radius: 0 0 8px 8px;">
+    <p>Bonjour <%= @client.first_name.presence || @client.email %>,</p>
+
+    <p>L'administration a demandé un complément d'information pour votre dossier <strong><%= @request.title %></strong>.</p>
+
+    <div style="background: white; border-left: 4px solid #f59e0b; border-radius: 6px; padding: 16px 18px; margin: 16px 0;">
+      <%= simple_format(@complement_request.admin_message) %>
+    </div>
+
+    <% if @deadline.present? %>
+      <p>Merci de répondre avant le <strong><%= l(@deadline, format: :long) %></strong>.</p>
+    <% end %>
+
+    <p style="text-align: center; margin-top: 24px;">
+      <%= link_to "Répondre à la demande",
+                  request_progress_complement_request_url(request_progress_id: @request_progress.id, id: @complement_request.id, locale: I18n.locale),
+                  style: "display: inline-block; padding: 12px 24px; background-color: #f59e0b; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;" %>
+    </p>
+  </div>
+
+  <div style="text-align: center; margin-top: 20px; font-size: 0.82em; color: #6c757d;">
+    Ren0vate — suivi de votre demande de prime
+  </div>
+</div>

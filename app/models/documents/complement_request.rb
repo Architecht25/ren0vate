@@ -113,6 +113,8 @@ class ComplementRequest < ApplicationRecord
   private
 
   def set_default_deadline
+    return if deadline.present?
+
     # Délai par défaut selon le type de complément
     days_to_add = case complement_type
     when 'missing_documents' then 15
