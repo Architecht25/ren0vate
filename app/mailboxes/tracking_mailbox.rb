@@ -44,17 +44,32 @@ class TrackingMailbox < ApplicationMailbox
     # Extraire les informations du sujet et du corps de l'email
     subject_info = extract_info_from_subject(mail.subject)
     body_info = extract_info_from_body(mail.decoded)
+    detected_status = detect_status_from_email
 
-    # Mettre à jour le RequestProgress avec tracking email
-    @request_progress.update!(
+    update_attrs = {
       date_derniere_maj: Date.current,
       commentaires_admin: build_comment_from_email,
       document_recu: true,
       email_processed_at: Time.current,
       document_extraction_status: mail.attachments.any? ? 'pending' : 'completed',
       # Mettre à jour le statut si on peut le détecter
-      status_administratif: detect_status_from_email || @request_progress.status_administratif
-    )
+      status_administratif: detected_status || @request_progress.status_administratif
+    }
+    update_attrs[:montant_accorde] = body_info[:montant_accorde] if body_info[:montant_accorde].present?
+
+    @request_progress.update!(update_attrs)
+
+    create_complement_request_if_needed(detected_status)
+  end
+
+  def create_complement_request_if_needed(detected_status)
+    return unless detected_status == 'incomplet'
+    return if @request_progress.has_pending_complements?
+
+    @request_progress.create_complement_request!(build_comment_from_email, 'missing_documents')
+    Rails.logger.info "📋 ComplementRequest créée pour RequestProgress ##{@request_progress.id}"
+  rescue => e
+    Rails.logger.error "❌ Erreur lors de la création de la demande de complément: #{e.message}"
   end
 
   def process_attachments
