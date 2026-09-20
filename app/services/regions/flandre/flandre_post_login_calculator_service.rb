@@ -13,10 +13,9 @@ module Regions
 
         return { prime_cards: {}, total_general: 0 } unless user_property
 
-        eligible_categories = determine_eligible_categories(category)
         user_property = @property
 
-        organize_primes_into_cards(eligible_categories, category)
+        organize_primes_into_cards(category)
       end
 
       # Méthodes de calcul dynamique des primes (publiques pour l'API)
@@ -261,13 +260,16 @@ module Regions
 
       private
 
-      def organize_primes_into_cards(eligible_categories, user_category)
+      def organize_primes_into_cards(user_category)
         start_time = Time.current
         prime_cards = {}
         total_general = 0
 
-        # Récupérer toutes les primes éligibles
-        all_primes = Prime.where(category_id: eligible_categories, region: 'flandre')
+        # Le filtrage réel par catégorie de revenu se fait via eligible_categories
+        # (voir prime_eligible_for_category?) — category_id n'est pas discriminant
+        # entre catégories (cf. seeds, presque toutes les primes Flandre partagent
+        # le même category_id).
+        all_primes = Prime.where(region: 'flandre')
 
         # Organiser par type de travaux logique
         organized_groups = organize_by_work_type(all_primes)
@@ -292,18 +294,6 @@ module Regions
           calculation_timestamp: Time.current.iso8601,
           calculation_duration: duration.round(3)
         }
-      end
-
-      def determine_eligible_categories(user_category)
-        # Mapping des catégories de revenus vers les catégories de primes éligibles
-        case user_category.to_s
-        when '1', '2'
-          [95, 97] # Isolation générale + isolation murs cat 1-2
-        when '3', '4'
-          [95, 96] # Isolation générale + isolation murs cat 3-4
-        else
-          [95] # Catégorie par défaut
-        end
       end
 
       def organize_by_work_type(all_primes)
