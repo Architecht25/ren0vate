@@ -1,13 +1,14 @@
-<!-- Bouton Enregistrer la simulation - À intégrer dans les vues de simulation -->
-
-<div class="sticky-save-button">
+<!-- Bouton Enregistrer la simulation - fixe en fin de page (plus flottant, pour
+     éviter tout recouvrement avec le contenu ajouté sous cette section, ex.
+     les CTA de transition vers l'étape suivante). -->
+<div class="container-fluid px-4 mb-3 text-center save-simulation-button-wrapper">
   <button
     type="button"
     class="btn btn-success btn-lg shadow"
     id="save-simulation-btn"
     data-simulation-id="<%= @simulation&.id %>"
     onclick="saveSimulationManually()"
-    style="position: fixed; bottom: 90px; right: 20px; z-index: 1000; border-radius: 50px; padding: 15px 25px;"
+    style="border-radius: 50px; padding: 15px 25px;"
   >
     <i class="bi bi-floppy me-2"></i>
     <span class="save-text">Enregistrer ma simulation</span>
@@ -264,30 +265,12 @@ window.addEventListener('beforeunload', function(e) {
 </script>
 
 <style>
-.sticky-save-button button:hover {
+.save-simulation-button-wrapper button:hover {
   transform: scale(1.05);
   transition: transform 0.2s ease;
 }
 
-/* Sur mobile, le widget support flottant occupe bottom:80px/right:15px —
-   décale ce bouton à gauche pour éviter qu'ils se chevauchent. */
-@media (max-width: 768px) {
-  .sticky-save-button button {
-    left: 16px !important;
-    right: auto !important;
-  }
-
-  /* Le bouton est position:fixed donc ne réserve aucun espace dans le flux :
-     sans cela, il se superpose au contenu réel en bas de page (ex. le
-     message d'éligibilité) au lieu de simplement flotter dans une zone
-     vide. On réserve ici la place qu'il occupe à l'écran. */
-  .sticky-save-button {
-    display: block;
-    height: 150px;
-  }
-}
-
-.sticky-save-button .btn-warning {
+.save-simulation-button-wrapper .btn-warning {
   animation: pulse-warning 2s infinite;
 }
 
