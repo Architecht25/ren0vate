@@ -37,6 +37,15 @@ production:
     queue: default
     schedule: every hour
 
+  # Surveillance active des délais de réponse admin (RequestProgress) et des
+  # compléments de dossier expirés — jusqu'ici purement passif (calculé
+  # seulement si l'utilisateur ouvrait sa page de suivi), voir audit du
+  # parcours simulation→soumission→suivi Flandre (20/09/2026).
+  request_progress_deadlines_daily:
+    class: RequestProgressDeadlineJob
+    queue: default
+    schedule: at 8am every day
+
   # Relance invitations pros non répondues — flux referral, indépendant de la pause.
   pending_invitation_reminders:
     class: PendingInvitationReminderJob

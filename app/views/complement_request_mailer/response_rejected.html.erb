@@ -1,0 +1,23 @@
+<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: linear-gradient(135deg, #dc3545, #b02a37); color: white; padding: 24px 20px; border-radius: 8px 8px 0 0;">
+    <h1 style="margin: 0; font-size: 1.2em;">⚠️ Complément insuffisant</h1>
+  </div>
+
+  <div style="background-color: #f8f9fa; padding: 24px; border-radius: 0 0 8px 8px;">
+    <p>Bonjour <%= @client.first_name.presence || @client.email %>,</p>
+
+    <p>Votre réponse au complément d'information sur le dossier <strong><%= @request.title %></strong> n'a pas été jugée suffisante.</p>
+
+    <p>Merci de compléter à nouveau votre réponse dès que possible.</p>
+
+    <p style="text-align: center; margin-top: 24px;">
+      <%= link_to "Compléter ma réponse",
+                  request_progress_complement_request_url(request_progress_id: @request_progress.id, id: @complement_request.id, locale: I18n.locale),
+                  style: "display: inline-block; padding: 12px 24px; background-color: #dc3545; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;" %>
+    </p>
+  </div>
+
+  <div style="text-align: center; margin-top: 20px; font-size: 0.82em; color: #6c757d;">
+    Ren0vate — suivi de votre demande de prime
+  </div>
+</div>
