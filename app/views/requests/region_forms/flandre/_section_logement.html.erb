@@ -44,17 +44,23 @@
         <label class="form-label fw-semibold">Adresse d'exécution</label>
         <div class="row g-2">
           <div class="col-md-5">
-            <%= form.label :rue, "Rue *", class: "form-label" %>
+            <%= form.label :rue, class: "form-label" do %>
+              Rue *
+              <%= badge_prerempli_avec_fallback(@form_data, :rue, @property&.rue) if @form_data.present? %>
+            <% end %>
             <%= form.text_field :rue,
-                value: @form_data&.dig('rue') || @property&.rue,
+                value: preremplir_champ(@form_data, :rue, @property&.rue),
                 class: "form-control",
                 placeholder: "Nom de la rue",
                 required: true %>
           </div>
           <div class="col-md-2">
-            <%= form.label :numero, "Numéro *", class: "form-label" %>
+            <%= form.label :numero, class: "form-label" do %>
+              Numéro *
+              <%= badge_prerempli_avec_fallback(@form_data, :numero, @property&.numero) if @form_data.present? %>
+            <% end %>
             <%= form.text_field :numero,
-                value: @form_data&.dig('numero') || @property&.numero,
+                value: preremplir_champ(@form_data, :numero, @property&.numero),
                 class: "form-control",
                 placeholder: "Ex: 20",
                 required: true %>
