@@ -1,6 +1,5 @@
 class SupportTicketsController < ApplicationController
   before_action :authenticate_user!
-  before_action :require_paid_plan!
   before_action :set_ticket, only: [:show, :reply, :close]
 
   def index
@@ -13,7 +12,6 @@ class SupportTicketsController < ApplicationController
 
   def create
     @ticket = current_user.support_tickets.build(ticket_params)
-    @ticket.priority = 'normal'
 
     if @ticket.save
       # Premier message = corps de la demande
@@ -64,12 +62,5 @@ class SupportTicketsController < ApplicationController
 
   def ticket_params
     params.require(:support_ticket).permit(:subject, :priority, :category)
-  end
-
-  def require_paid_plan!
-    unless current_user.has_active_subscription?
-      redirect_to pricing_select_path,
-                  alert: "Le support prioritaire est disponible à partir du plan Propriétaire (39€/mois)."
-    end
   end
 end
