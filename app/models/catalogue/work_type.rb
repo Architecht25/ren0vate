@@ -155,8 +155,8 @@ class WorkType
       unit: 'm²',
       unit_label: 'm²',
       forfait: false,
-      price_min: 80,
-      price_max: 140,
+      price_min: 100,
+      price_max: 190,
       duration_min: 5,
       duration_max: 10,
       vat_rate: 6
@@ -169,8 +169,8 @@ class WorkType
       unit: 'm²',
       unit_label: 'm²',
       forfait: false,
-      price_min: 40,
-      price_max: 90,
+      price_min: 26,
+      price_max: 52,
       duration_min: 3,
       duration_max: 8,
       vat_rate: 6
@@ -184,7 +184,7 @@ class WorkType
       unit_label: 'm²',
       forfait: false,
       price_min: 15,
-      price_max: 35,
+      price_max: 30,
       duration_min: 1,
       duration_max: 3,
       vat_rate: 6
@@ -1135,9 +1135,9 @@ class WorkType
     { key: 'gouttieres_zinguerie',  category: 'toiture', name: 'Gouttières & zinguerie', icon: 'bi-droplet-fill', unit: 'ml', unit_label: 'ml', forfait: false, price_min: 18, price_max: 45, duration_min: 1, duration_max: 3, vat_rate: 10 },
 
     # ── MURS & FAÇADES ───────────────────────────────────────────────────────
-    { key: 'isolation_murs_ext',      category: 'murs', name: 'Isolation murs extérieurs', icon: 'bi-bricks', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 60, price_max: 120, duration_min: 5, duration_max: 10, vat_rate: 10 },
-    { key: 'isolation_murs_int',      category: 'murs', name: 'Isolation murs intérieurs', icon: 'bi-bricks', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 30, price_max: 65,  duration_min: 3, duration_max: 8,  vat_rate: 10 },
-    { key: 'isolation_murs_coulisse', category: 'murs', name: 'Isolation murs en coulisse (injection)', icon: 'bi-bricks', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 12, price_max: 28,  duration_min: 1, duration_max: 3,  vat_rate: 10 },
+    { key: 'isolation_murs_ext',      category: 'murs', name: 'Isolation murs extérieurs', icon: 'bi-bricks', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 75, price_max: 163, duration_min: 5, duration_max: 10, vat_rate: 10 },
+    { key: 'isolation_murs_int',      category: 'murs', name: 'Isolation murs intérieurs', icon: 'bi-bricks', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 20, price_max: 38,  duration_min: 3, duration_max: 8,  vat_rate: 10 },
+    { key: 'isolation_murs_coulisse', category: 'murs', name: 'Isolation murs en coulisse (injection)', icon: 'bi-bricks', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 12, price_max: 24,  duration_min: 1, duration_max: 3,  vat_rate: 10 },
     { key: 'enduit_murs_ext',         category: 'murs', name: 'Enduit murs extérieurs (crépi/minéral)', icon: 'bi-brush', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 20, price_max: 48,  duration_min: 3, duration_max: 8,  vat_rate: 10 },
     { key: 'enduit_murs_int',         category: 'murs', name: 'Enduit murs intérieurs (plâtre/lissage)', icon: 'bi-brush-fill', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 12, price_max: 20, duration_min: 2, duration_max: 6, vat_rate: 10 },
     { key: 'plafonnage_facade',       category: 'murs', name: 'Plafonnage de façade (ciment/chaux)', icon: 'bi-house-fill', unit: 'm²', unit_label: 'm²', forfait: false, price_min: 30, price_max: 64,   duration_min: 3, duration_max: 8, vat_rate: 10 },
