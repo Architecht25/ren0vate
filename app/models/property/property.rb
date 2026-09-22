@@ -14,13 +14,18 @@ class Property < ApplicationRecord
   has_many :simulations, dependent: :destroy
   has_many :peb_donnees, dependent: :destroy
   has_many :audit_energ_donnees, dependent: :destroy
-  has_many :projects, dependent: :destroy
+  # :requests avant :projects — requests.project_id référence projects sans
+  # on_delete: :nullify en base, donc détruire les projets avant les requests
+  # qui les référencent lève une ActiveRecord::InvalidForeignKey.
   has_many :requests, dependent: :destroy
+  has_many :projects, dependent: :destroy
   has_many :tenants, dependent: :destroy
   has_many :leases, dependent: :destroy
   has_many :documents, dependent: :destroy
   has_many :notifications, dependent: :destroy
   has_many :quotes, dependent: :destroy
+  has_many :document_phase_statuses, dependent: :destroy
+  has_many :prime_submissions, dependent: :destroy
 
   # Active Storage pour les images
   has_one_attached :photo
