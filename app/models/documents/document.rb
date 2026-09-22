@@ -109,7 +109,14 @@ class Document < ApplicationRecord
   # Callbacks pour maintenir les statuts des phases à jour
   before_save :configure_storage_service_for_pdfs
   after_save :refresh_property_phase_statuses
-  after_destroy :refresh_property_phase_statuses
+  # unless: :destroyed_by_association — si ce document est détruit en cascade
+  # (Property/Project/Request/Simulation#destroy via dependent: :destroy), ne
+  # PAS recharger `property` ici : PropertyPhaseTracking#ensure_document_phases_exist
+  # (after_find) recréerait alors les document_phase_statuses qu'on vient de
+  # détruire dans la même cascade, bloquant le DELETE final sur properties
+  # (ActiveRecord::InvalidForeignKey vu en prod le 22/09/2026). Suppression
+  # directe d'un document (hors cascade) continue de rafraîchir normalement.
+  after_destroy :refresh_property_phase_statuses, unless: :destroyed_by_association
 
   # Tiers de traitement automatique à l'upload
   CLAUDE_TYPES = %w[facture devis bordereau_chassis].freeze
