@@ -13,6 +13,11 @@ class Document < ApplicationRecord
   has_one :peb_donnee,                dependent: :destroy
   has_one :devis_donnee,              dependent: :destroy
   has_one :bordereau_chassis_donnee,  dependent: :destroy
+  has_one :audit_energ_donnee,        dependent: :destroy
+
+  # plan_document_id est nullable : une réserve pointant vers ce document comme
+  # plan de référence ne doit pas empêcher la suppression du document lui-même.
+  has_many :reserves, foreign_key: :plan_document_id, dependent: :nullify
 
   has_one_attached :file
 

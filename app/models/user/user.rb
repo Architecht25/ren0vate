@@ -75,12 +75,29 @@ class User < ApplicationRecord
   has_many :rib_donnees, dependent: :destroy
   has_many :peb_donnees, dependent: :destroy
   has_many :support_tickets, dependent: :destroy
+  has_many :support_messages, dependent: :destroy
   has_many :nps_responses, dependent: :destroy
   has_many :page_visits, dependent: :delete_all
+  has_many :quotes, dependent: :destroy
+  has_many :prime_submissions, dependent: :destroy
+  has_many :tenants, dependent: :destroy
+  has_many :audit_energ_donnees, dependent: :destroy
 
   # Collaboration — projets dont l'utilisateur est membre (pro invité)
   has_many :project_members, dependent: :destroy
   has_many :member_projects, through: :project_members, source: :project
+
+  # Formulaires chantier remplis par un pro (architecte/entrepreneur) pour le
+  # compte d'un client — pas d'association réciproque avant le 22/09/2026,
+  # ce qui provoquait une ActiveRecord::InvalidForeignKey (PG::ForeignKeyViolation)
+  # sur User#destroy dès qu'un pro avait rédigé un PV de visite ou un état
+  # d'avancement pour un projet dont il n'est pas propriétaire.
+  has_many :pv_visites, foreign_key: :auteur_id, dependent: :destroy
+  has_many :etats_avancement, class_name: "EtatAvancement", foreign_key: :created_by_id, dependent: :destroy
+
+  # validated_by_id est nullable en base : on efface juste la référence plutôt
+  # que le statut de phase lui-même, qui appartient au client.
+  has_many :validated_document_phase_statuses, class_name: "DocumentPhaseStatus", foreign_key: :validated_by_id, dependent: :nullify
 
   belongs_to :last_active_simulation, class_name: "Simulation", optional: true
 
