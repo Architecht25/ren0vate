@@ -13,6 +13,11 @@ class PretWallonieDossier < ApplicationRecord
   belongs_to :simulation, optional: true
   belongs_to :user
 
+  # pret_wallonie_dossier_id est nullable sur financing_sources — la ligne du
+  # plan de financement appartient au projet, pas au dossier ; on efface juste
+  # le lien d'auto-sync plutôt que la ligne elle-même.
+  has_many :financing_sources, dependent: :nullify
+
   validates :project_id, uniqueness: true
 
   STATUTS = %w[

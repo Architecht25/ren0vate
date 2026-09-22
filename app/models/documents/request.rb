@@ -5,7 +5,7 @@ class Request < ApplicationRecord
   belongs_to :simulation, optional: true
 
   has_many :request_progresses, dependent: :destroy
-  has_many :documents
+  has_many :documents, dependent: :destroy
 
   # Support pour les fichiers Flandre
   has_many_attached :document_devis

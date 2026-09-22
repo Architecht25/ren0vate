@@ -44,6 +44,13 @@ class Project < ApplicationRecord
   # Carnet de bord — notes libres du user sur le chantier
   has_many :project_notes, dependent: :destroy
 
+  # notifications.project_id et requests.project_id (distinct de belongs_to
+  # :request ci-dessus, qui pointe l'autre sens) n'ont pas de on_delete en
+  # base — nettoyage propre au projet pour ne pas dépendre de l'ordre de
+  # destruction des autres has_many de Property/User.
+  has_many :notifications, dependent: :destroy
+  has_many :requests, foreign_key: :project_id, dependent: :destroy
+
   validates :nom, presence: true
   validates :property_id, presence: true
   validates :project_type, presence: true, inclusion: { in: %w[renovation investment],

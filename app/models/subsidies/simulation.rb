@@ -4,6 +4,15 @@ class Simulation < ApplicationRecord
   belongs_to :project, optional: true
   has_many :documents, dependent: :destroy
 
+  # notifications/financing_sources/pret_wallonie_dossiers référencent
+  # simulation_id (nullable) sans on_delete en base — sans ce nettoyage propre
+  # à la simulation, l'ordre de destruction de Property (simulations avant
+  # projects) provoque une ActiveRecord::InvalidForeignKey (vu en prod le
+  # 22/09/2026 sur financing_sources).
+  has_many :notifications, dependent: :destroy
+  has_many :financing_sources, dependent: :nullify
+  has_many :pret_wallonie_dossiers, dependent: :nullify
+
   has_one :request, dependent: :destroy
 
   validates :region, :titre, :property_id, presence: true

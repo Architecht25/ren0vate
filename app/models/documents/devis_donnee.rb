@@ -3,6 +3,11 @@ class DevisDonnee < ApplicationRecord
   belongs_to :project,  optional: true
   belongs_to :property, optional: true
 
+  # devis_donnee_id est nullable sur etats_avancement — juste un lien vers le
+  # devis source du calcul cumulé, pas de raison d'emporter l'état d'avancement
+  # si ce devis est supprimé.
+  has_many :etats_avancement, class_name: "EtatAvancement", foreign_key: :devis_donnee_id, dependent: :nullify
+
   # ── Catégorie de l'émetteur ──────────────────────────────────────────────────
   CATEGORIES_EMETTEUR = %w[architecte entrepreneur autre].freeze
 
