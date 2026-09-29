@@ -69,7 +69,7 @@ class ProjectChecklistContentSmokeTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "cocher un item contrat depuis la carte inline redirige vers la page projet, pas la page plein écran" do
+  test "cocher un item contrat, même depuis la carte inline, mène à la vue plein écran (notes)" do
     get project_path(@project, locale: :fr, tab: :preparation)
     project_checklist = @project.project_checklists.find_by(checklist_template: @contrat_template)
     item = project_checklist.project_checklist_items.first
@@ -78,7 +78,7 @@ class ProjectChecklistContentSmokeTest < ActionDispatch::IntegrationTest
           params: { checked: "true" },
           headers: { "HTTP_REFERER" => project_path(@project, locale: :fr, tab: :preparation) }
 
-    assert_redirected_to project_path(@project, locale: :fr, tab: :preparation)
+    assert_redirected_to project_project_checklist_path(@project, project_checklist, locale: :fr)
   end
 
   test "le lien retour de la page plein écran contrat pointe vers la page projet, pas réception chantier" do
