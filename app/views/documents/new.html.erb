@@ -897,6 +897,7 @@ document.addEventListener('turbo:load', function() {
       'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     ];
+    const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.gif', '.webp', '.doc', '.docx', '.xls', '.xlsx'];
 
     if (file.size > maxSize) {
       const maxSizeHuman = '<%= max_file_size_human_for_type(@document&.type_document) %>';
@@ -904,7 +905,13 @@ document.addEventListener('turbo:load', function() {
       return;
     }
 
-    if (!allowedTypes.includes(file.type)) {
+    // Le MIME type déclaré par le navigateur (file.type) n'est pas fiable pour tous les
+    // OS/navigateurs (souvent vide ou générique pour .xls/.xlsx selon l'association de
+    // fichiers locale) — la validation stricte réelle se fait côté serveur sur le contenu
+    // du fichier. On ne bloque ici que si NI le MIME type NI l'extension ne correspondent,
+    // pour éviter une alerte trompeuse sur un fichier qui sera en réalité accepté.
+    const hasAllowedExtension = allowedExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+    if (!allowedTypes.includes(file.type) && !hasAllowedExtension) {
       alert('Format de fichier non autorisé. Veuillez utiliser: PDF, images, documents Word/Excel');
       return;
     }
