@@ -2,19 +2,25 @@ class ChecklistTemplate < ApplicationRecord
   has_many :checklist_items, -> { order(:position) }, dependent: :destroy
   has_many :project_checklists, dependent: :destroy
 
-  PHASES = %w[gros_oeuvre second_oeuvre finitions reception].freeze
+  PHASES = %w[gros_oeuvre second_oeuvre finitions reception contrat].freeze
 
   validates :name, presence: true
   validates :phase, inclusion: { in: PHASES }
 
   scope :ordered, -> { order(:position, :name) }
+  # Exclut les templates "singleton" (ex: contrat), gérés automatiquement,
+  # du sélecteur "Démarrer une inspection" — celui-ci ne doit lister que les
+  # templates qu'un utilisateur peut légitimement démarrer manuellement,
+  # potentiellement plusieurs fois (gros œuvre, second œuvre, finitions, réception).
+  scope :inspectable, -> { where.not(phase: 'contrat') }
 
   def phase_label
     {
       'gros_oeuvre'   => 'Gros œuvre',
       'second_oeuvre' => 'Second œuvre',
       'finitions'     => 'Finitions',
-      'reception'     => 'Réception'
+      'reception'     => 'Réception',
+      'contrat'       => 'Contrat'
     }[phase] || phase.humanize
   end
 
@@ -23,7 +29,8 @@ class ChecklistTemplate < ApplicationRecord
       'gros_oeuvre'   => 'bi-bricks',
       'second_oeuvre' => 'bi-tools',
       'finitions'     => 'bi-brush',
-      'reception'     => 'bi-clipboard2-check'
+      'reception'     => 'bi-clipboard2-check',
+      'contrat'       => 'bi-file-earmark-text'
     }[phase] || 'bi-list-check'
   end
 
@@ -32,7 +39,8 @@ class ChecklistTemplate < ApplicationRecord
       'gros_oeuvre'   => 'danger',
       'second_oeuvre' => 'warning',
       'finitions'     => 'primary',
-      'reception'     => 'success'
+      'reception'     => 'success',
+      'contrat'       => 'info'
     }[phase] || 'secondary'
   end
 end
