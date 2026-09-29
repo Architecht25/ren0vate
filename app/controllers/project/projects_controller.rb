@@ -57,6 +57,15 @@ class ProjectsController < ApplicationController
 
     # Plan de financement — resynchronise les lignes primes/prêt wallon avant affichage
     @project.sync_financing_sources!
+
+    # Checklist "Vérification du contrat d'entrepreneur" — un seul template pertinent,
+    # créée automatiquement à la première visite de l'onglet Budget, devis et contrats.
+    contrat_template = ChecklistTemplate.find_by(phase: 'contrat')
+    if contrat_template
+      @contrat_checklist = @project.project_checklists
+                                    .includes(project_checklist_items: :checklist_item)
+                                    .find_or_create_by!(checklist_template: contrat_template)
+    end
   end
 
   def new

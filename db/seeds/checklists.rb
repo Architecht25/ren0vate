@@ -76,7 +76,32 @@ TEMPLATES = [
       { description: "Plans « as-built » remis (si prévu au contrat)", required: false, position: 8 },
       { description: "Décompte final signé par les deux parties", required: true,  position: 9 },
       { description: "Chantier nettoyé, matériaux excédentaires enlevés", required: true,  position: 10 },
-      { description: "Compteurs eau / gaz / électricité réindexés", required: false, position: 11 }
+      { description: "Compteurs eau / gaz / électricité réindexés", required: false, position: 11 },
+      { description: "Installations techniques testées pièce par pièce (électricité, plomberie, chauffage, ventilation)", required: true,  position: 12 },
+      { description: "Toutes les réserves notées par écrit sur le PV, avec photos datées à l'appui", required: true,  position: 13 },
+      { description: "Délai de levée des réserves fixé et signé par les deux parties", required: false, position: 14 },
+      { description: "Retenue de garantie sur le solde jusqu'à la levée complète des réserves", required: false, position: 15 },
+      { description: "Présence du maître d'ouvrage et de l'entrepreneur (ou son représentant) lors de la réception", required: true,  position: 16 },
+      { description: "Finitions vérifiées pièce par pièce (peinture, joints, plinthes, portes, rayures sur équipements neufs)", required: true,  position: 17 },
+      { description: "Date de réception actée précisément — elle fait courir le délai de la garantie décennale", required: true,  position: 18 }
+    ]
+  },
+  {
+    name: "Vérification du contrat d'entrepreneur",
+    phase: "contrat",
+    description: "Points à vérifier avant de signer un contrat avec un entrepreneur — à passer en revue avant tout acompte.",
+    position: 0,
+    items: [
+      { description: "Numéro BCE de l'entrepreneur vérifié et actif", required: true,  position: 1 },
+      { description: "Description précise des travaux et matériaux (quantités, références, finitions)", required: true,  position: 2 },
+      { description: "Prix ferme ou clause de révision de prix écrite noir sur blanc", required: true,  position: 3 },
+      { description: "Montant de l'acompte raisonnable, échelonné selon l'avancement des travaux", required: true,  position: 4 },
+      { description: "Délai d'exécution indiqué, avec clause de pénalité en cas de retard", required: false, position: 5 },
+      { description: "Taux de TVA appliqué (6 % ou 21 %) cohérent avec les conditions du bien", required: true,  position: 6 },
+      { description: "Attestation d'assurance RC décennale / RC professionnelle demandée — à vérifier avec l'entrepreneur ou un professionnel", required: false, position: 7 },
+      { description: "Le solde n'est exigible qu'après réception, jamais avant la fin des travaux", required: true,  position: 8 },
+      { description: "Délai légal de rétractation de 14 jours mentionné si signature à domicile ou à distance — à vérifier avec un professionnel", required: false, position: 9 },
+      { description: "Clause de résiliation et de gestion des litiges présente dans le contrat", required: false, position: 10 }
     ]
   }
 ].freeze
