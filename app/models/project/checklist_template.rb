@@ -8,6 +8,11 @@ class ChecklistTemplate < ApplicationRecord
   validates :phase, inclusion: { in: PHASES }
 
   scope :ordered, -> { order(:position, :name) }
+  # Exclut les templates "singleton" (ex: contrat), gérés automatiquement,
+  # du sélecteur "Démarrer une inspection" — celui-ci ne doit lister que les
+  # templates qu'un utilisateur peut légitimement démarrer manuellement,
+  # potentiellement plusieurs fois (gros œuvre, second œuvre, finitions, réception).
+  scope :inspectable, -> { where.not(phase: 'contrat') }
 
   def phase_label
     {

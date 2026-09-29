@@ -5,7 +5,9 @@ class ProjectChecklistsController < ApplicationController
 
   # POST /projects/:project_id/project_checklists
   def create
-    template = ChecklistTemplate.find(params[:checklist_template_id])
+    # .inspectable exclut les templates singleton (ex: contrat), gérés automatiquement
+    # ailleurs — empêche de démarrer une seconde inspection via un POST direct de son id.
+    template = ChecklistTemplate.inspectable.find(params[:checklist_template_id])
     @checklist = @project.project_checklists.build(checklist_template: template)
 
     if @checklist.save

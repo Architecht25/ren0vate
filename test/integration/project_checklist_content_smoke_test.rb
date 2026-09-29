@@ -49,4 +49,32 @@ class ProjectChecklistContentSmokeTest < ActionDispatch::IntegrationTest
 
     assert item.reload.checked?
   end
+
+  test "une seconde visite de l'onglet ne crée pas une seconde checklist contrat" do
+    get project_path(@project, locale: :fr, tab: :preparation)
+    assert_no_difference "ProjectChecklist.count" do
+      get project_path(@project, locale: :fr, tab: :preparation)
+    end
+  end
+
+  test "la checklist contrat n'apparaît pas dans le sélecteur d'inspection de la page réception" do
+    get reception_chantier_project_path(@project, locale: :fr)
+    assert_response :success
+    assert_no_match(/Vérification du contrat d'entrepreneur/, response.body)
+  end
+
+  test "démarrer manuellement une inspection sur le template contrat est refusé" do
+    post project_project_checklists_path(@project, locale: :fr),
+         params: { checklist_template_id: @contrat_template.id }
+    assert_response :not_found
+  end
+
+  test "la carte contrat ne plante pas si la checklist n'a aucun item" do
+    empty_template = ChecklistTemplate.create!(name: "Contrat vide", phase: "contrat", position: 1)
+    @project.project_checklists.create!(checklist_template: empty_template)
+    ChecklistTemplate.where(phase: "contrat").where.not(id: empty_template.id).destroy_all
+
+    get project_path(@project, locale: :fr, tab: :preparation)
+    assert_response :success
+  end
 end

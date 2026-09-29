@@ -60,11 +60,20 @@ class ProjectsController < ApplicationController
 
     # Checklist "Vérification du contrat d'entrepreneur" — un seul template pertinent,
     # créée automatiquement à la première visite de l'onglet Budget, devis et contrats.
+    # Pas d'index unique en base sur (project_id, checklist_template_id) — les autres
+    # templates (inspections) doivent rester démarrables plusieurs fois par un utilisateur.
+    # On verrouille donc le projet le temps de la création pour éviter que deux requêtes
+    # concurrentes (deux onglets ouverts, double-clic) ne créent chacune leur checklist.
     contrat_template = ChecklistTemplate.find_by(phase: 'contrat')
     if contrat_template
-      @contrat_checklist = @project.project_checklists
-                                    .includes(project_checklist_items: :checklist_item)
-                                    .find_or_create_by!(checklist_template: contrat_template)
+      @contrat_checklist = @project.project_checklists.find_by(checklist_template: contrat_template)
+      if @contrat_checklist.nil?
+        @project.with_lock do
+          @contrat_checklist = @project.project_checklists.find_or_create_by!(checklist_template: contrat_template)
+        end
+      end
+      @contrat_checklist = ProjectChecklist.includes(project_checklist_items: :checklist_item)
+                                            .find(@contrat_checklist.id)
     end
   end
 
@@ -412,7 +421,7 @@ class ProjectsController < ApplicationController
     @project_checklists   = @project.project_checklists
                                      .includes(:checklist_template)
                                      .order(created_at: :desc)
-    @checklist_templates  = ChecklistTemplate.ordered
+    @checklist_templates  = ChecklistTemplate.inspectable.ordered
   end
 
   # GET /projects/:id/garanties
