@@ -11,8 +11,11 @@ class ProjectChecklistItemsController < ApplicationController
       @item.uncheck!
     end
 
-    redirect_to project_project_checklist_path(@project, @checklist),
-                notice: "Élément mis à jour."
+    # La checklist "contrat" est cochable depuis une carte inline sur la page
+    # projet ET depuis sa page plein écran — redirect_back ramène l'utilisateur
+    # là où il était plutôt que de le forcer systématiquement sur la page plein écran.
+    redirect_back fallback_location: project_project_checklist_path(@project, @checklist),
+                  notice: "Élément mis à jour."
   end
 
   private

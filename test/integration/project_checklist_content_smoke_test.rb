@@ -69,6 +69,28 @@ class ProjectChecklistContentSmokeTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "cocher un item contrat depuis la carte inline redirige vers la page projet, pas la page plein écran" do
+    get project_path(@project, locale: :fr, tab: :preparation)
+    project_checklist = @project.project_checklists.find_by(checklist_template: @contrat_template)
+    item = project_checklist.project_checklist_items.first
+
+    patch project_checklist_item_path(item, locale: :fr),
+          params: { checked: "true" },
+          headers: { "HTTP_REFERER" => project_path(@project, locale: :fr, tab: :preparation) }
+
+    assert_redirected_to project_path(@project, locale: :fr, tab: :preparation)
+  end
+
+  test "le lien retour de la page plein écran contrat pointe vers la page projet, pas réception chantier" do
+    get project_path(@project, locale: :fr, tab: :preparation)
+    project_checklist = @project.project_checklists.find_by(checklist_template: @contrat_template)
+
+    get project_project_checklist_path(@project, project_checklist, locale: :fr)
+    assert_response :success
+    assert_select "a[href=?]", project_path(@project, locale: :fr, tab: :preparation), minimum: 1
+    assert_select "a[href=?]", reception_chantier_project_path(@project, locale: :fr, anchor: "checklists"), count: 0
+  end
+
   test "la carte contrat ne plante pas si la checklist n'a aucun item" do
     empty_template = ChecklistTemplate.create!(name: "Contrat vide", phase: "contrat", position: 1)
     @project.project_checklists.create!(checklist_template: empty_template)

@@ -28,8 +28,7 @@
                style="width:<%= @checklist.progress_pct %>%"></div>
         </div>
       </div>
-      <%= link_to reception_chantier_project_path(@project, anchor: 'checklists'),
-                  class: "btn btn-outline-secondary btn-sm" do %>
+      <%= link_to @back_path, class: "btn btn-outline-secondary btn-sm" do %>
         <i class="bi bi-arrow-left me-1"></i>Retour
       <% end %>
       <%= button_to project_project_checklist_path(@project, @checklist), method: :delete,
@@ -141,9 +140,8 @@
           </span>
         <% end %>
       </div>
-      <%= link_to reception_chantier_project_path(@project, anchor: 'checklists'),
-                  class: "btn btn-sm btn-outline-primary rounded-3" do %>
-        <i class="bi bi-arrow-left me-1"></i>Retour à la réception
+      <%= link_to @back_path, class: "btn btn-sm btn-outline-primary rounded-3" do %>
+        <i class="bi bi-arrow-left me-1"></i><%= @checklist.checklist_template.phase == 'contrat' ? "Retour au projet" : "Retour à la réception" %>
       <% end %>
     </div>
   </div>
