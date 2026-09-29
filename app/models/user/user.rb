@@ -288,7 +288,7 @@ class User < ApplicationRecord
     when :unlimited_properties
       %w[individual portfolio premium_mixed professional enterprise].include?(tier)
     when :ren0chat
-      %w[individual portfolio premium_mixed professional enterprise].include?(tier)
+      ren0chat_monthly_limit.positive?
     when :ren0bot
       %w[portfolio premium_mixed professional enterprise].include?(tier)
     when :decision_hub
@@ -358,12 +358,7 @@ class User < ApplicationRecord
 
   def ren0chat_monthly_limit
     return Float::INFINITY if professional?
-    case subscription_tier
-    when 'individual' then 50
-    when 'portfolio' then 150
-    when 'premium_mixed', 'professional', 'enterprise' then Float::INFINITY
-    else 5  # freemium — 5 messages/mois pour découvrir la valeur
-    end
+    PricingTierCatalog.chat_limit(subscription_tier)
   end
 
   private

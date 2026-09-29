@@ -13,12 +13,9 @@ module PricingHelper
   end
 
   def current_user_tier
-    # Pour l'instant, tous les utilisateurs sont en freemium
-    # À adapter quand le billing sera implémenté
     return :freemium unless user_signed_in?
 
-    # Future logique basée sur subscription
-    :freemium
+    current_user.subscription_tier.to_sym
   end
 
   def recommended_tier_for_current_user
@@ -44,27 +41,11 @@ module PricingHelper
   end
 
   def pricing_tier_name(tier)
-    tiers = {
-      freemium: "Starter",
-      individual: "Propriétaire",
-      portfolio: "Investisseur",
-      premium_mixed: "Premium",
-      professional: "Pro",
-      enterprise: "Entreprise"
-    }
-    tiers[tier.to_sym] || tier.to_s.humanize
+    PricingTierCatalog.name(tier)
   end
 
   def pricing_tier_price(tier)
-    prices = {
-      freemium: 0,
-      individual: 39,
-      portfolio: 89,
-      premium_mixed: 149,
-      professional: 99,
-      enterprise: 299
-    }
-    prices[tier.to_sym] || 0
+    PricingTierCatalog.price(tier)
   end
 
   def upgrade_badge_text
