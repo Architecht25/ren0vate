@@ -27,6 +27,7 @@
 
     # Planning / Gantt
     get :gantt, on: :member
+    patch :retenir_devis, on: :member
 
     # Clôture de chantier : PEB après travaux & bilan final
     get  :fin_chantier,         on: :member

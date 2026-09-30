@@ -239,4 +239,25 @@ class DevisDonnee < ApplicationRecord
     )
     Rails.logger.error("DevisDonnee##{id}: échec analyse de contenu — #{message}") if message.present?
   end
+
+  # ── Devis contractuel retenu ─────────────────────────────────────────────────
+  # Désigne ce devis comme LE devis retenu pour son project + sa categorie_emetteur
+  # (architecte ou entrepreneur traités indépendamment) — retire le flag des
+  # autres devis du même groupe pour garder l'exclusivité mutuelle.
+  def marquer_retenu!
+    transaction do
+      self.class.where(project_id: project_id, categorie_emetteur: categorie_emetteur)
+                .where.not(id: id)
+                .update_all(retenu: false)
+      update!(retenu: true)
+    end
+  end
+
+  # Le devis marqué retenu pour ce project+categorie, ou — à défaut et s'il n'y
+  # en a qu'un seul dans ce groupe (pas de comparaison en cours) — ce devis
+  # unique traité comme implicitement retenu.
+  def self.retenu_ou_unique(project, categorie)
+    devis = where(project: project, categorie_emetteur: categorie)
+    devis.find_by(retenu: true) || (devis.count == 1 ? devis.first : nil)
+  end
 end

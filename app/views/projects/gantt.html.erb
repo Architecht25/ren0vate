@@ -6,15 +6,49 @@
   timeline_end   = [timeline_end, timeline_start + 7.days].max
   total_days     = (timeline_end - timeline_start).to_i + 1
 
+  # Palette par catégorie — clés alignées sur les catégories réellement
+  # renvoyées par GanttBuilder : familles WorkType en mode :estimation
+  # (toiture, murs, ouvertures, sol, energie, ventilation, pieces, technique,
+  # gros_oeuvre, exterieur, accessibilite, assainissement, domotique), ou
+  # DevisDonnee::TYPES_TRAVAUX_VALIDES en mode :devis.
   category_colors = {
-    "Toiture"    => "#0d6efd",
-    "Murs"       => "#6f42c1",
-    "Châssis"    => "#0dcaf0",
-    "Sol"        => "#fd7e14",
-    "Énergie"    => "#ffc107",
-    "Pièces"     => "#198754",
-    "Technique"  => "#6c757d"
+    "toiture"                     => "#0d6efd",
+    "murs"                        => "#6f42c1",
+    "ouvertures"                  => "#0dcaf0",
+    "chassis_vitrage"             => "#0dcaf0",
+    "sol"                         => "#fd7e14",
+    "carrelage_revetement"        => "#fd7e14",
+    "energie"                     => "#ffc107",
+    "chauffage"                   => "#ffc107",
+    "pompe_chaleur"               => "#ffc107",
+    "chauffe_eau_thermodynamique" => "#ffc107",
+    "photovoltaique"              => "#ffc107",
+    "ventilation"                 => "#20c997",
+    "pieces"                      => "#198754",
+    "plafonnage_peinture"         => "#198754",
+    "technique"                   => "#6c757d",
+    "electricite"                 => "#6c757d",
+    "eclairage"                   => "#6c757d",
+    "sanitaire"                   => "#6c757d",
+    "gaz"                         => "#6c757d",
+    "gros_oeuvre"                 => "#dc3545",
+    "maconnerie"                  => "#dc3545",
+    "isolation_toit"              => "#0d6efd",
+    "isolation_facade"            => "#6f42c1",
+    "isolation_sol"               => "#fd7e14",
+    "isolation_murs"              => "#6f42c1",
+    "exterieur"                   => "#8b5a2b",
+    "accessibilite"               => "#6610f2",
+    "assainissement"              => "#6610f2",
+    "domotique"                   => "#6610f2",
+    "audit_energetique"           => "#adb5bd",
+    "renovation_generale"         => "#adb5bd",
+    "autre"                       => "#adb5bd"
   }
+
+  category_label = lambda do |cat|
+    @gantt_source == :devis ? DevisDonnee.categorie_libelle(cat) : cat.to_s.humanize
+  end
 
   def pct(days, total); [(days.to_f / total * 100).round(2), 0.5].max; end
 
@@ -53,6 +87,21 @@
       <% end %>
     </div>
   </div>
+
+  <%# ── Bandeau source du planning ───────────────────────────── %>
+  <% if @gantt_source == :devis %>
+    <div class="alert alert-success d-flex align-items-center gap-2 py-2 mb-3" role="alert" style="font-size:0.85rem;">
+      <i class="bi bi-file-earmark-check-fill"></i>
+      Planning basé sur le devis entrepreneur retenu<%= ' et le bordereau châssis' if @gantt_bars.any? { |b| b[:source] == 'bordereau_chassis' } %>.
+    </div>
+  <% else %>
+    <div class="alert alert-warning d-flex align-items-center gap-2 py-2 mb-3" role="alert" style="font-size:0.85rem;">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      Planning basé sur une estimation — désignez un devis retenu dans le
+      <%= link_to "Comparateur de devis", project_path(@project, tab: 'preparation'), class: "alert-link" %>
+      (onglet Budget, devis et contrats) pour un planning basé sur le devis réel.
+    </div>
+  <% end %>
 
   <%# ── Alert: no quote ────────────────────────────────────── %>
   <% if @gantt_bars.empty? %>
@@ -233,14 +282,16 @@
           <div class="card-body p-3">
             <div class="text-center">
               <div class="fw-semibold fs-5 text-primary-custom">
-                ~<%= number_to_currency(total_avg, unit: '€', separator: ',', delimiter: ' ', precision: 0, format: "%n %u") %>
+                <%= @gantt_source == :devis ? '' : '~' %><%= number_to_currency(total_avg, unit: '€', separator: ',', delimiter: ' ', precision: 0, format: "%n %u") %>
               </div>
-              <small class="text-muted">
-                <%= number_to_currency(total_min, unit: '€', separator: ',', delimiter: ' ', precision: 0, format: "%n %u") %>
-                <span class="text-muted fw-normal">–</span>
-                <%= number_to_currency(total_max, unit: '€', separator: ',', delimiter: ' ', precision: 0, format: "%n %u") %>
-              </small><br>
-              <small class="text-muted">HTVA estimé (devis en cours)</small>
+              <% if @gantt_source != :devis %>
+                <small class="text-muted">
+                  <%= number_to_currency(total_min, unit: '€', separator: ',', delimiter: ' ', precision: 0, format: "%n %u") %>
+                  <span class="text-muted fw-normal">–</span>
+                  <%= number_to_currency(total_max, unit: '€', separator: ',', delimiter: ' ', precision: 0, format: "%n %u") %>
+                </small><br>
+              <% end %>
+              <small class="text-muted"><%= @gantt_source == :devis ? 'HTVA — devis retenu' : 'HTVA estimé (devis en cours)' %></small>
             </div>
             <hr class="my-2">
             <div class="d-flex justify-content-between small">
@@ -266,7 +317,7 @@
               <div class="d-flex align-items-center mb-1 small">
                 <div class="rounded-1 me-2 flex-shrink-0"
                      style="width: 14px; height: 14px; background: <%= category_colors[cat] || '#6c757d' %>;"></div>
-                <span><%= cat %></span>
+                <span><%= category_label.call(cat) %></span>
               </div>
             <% end %>
             <div class="d-flex align-items-center mb-1 small mt-2">
@@ -301,9 +352,13 @@
         <%= link_to project_path(@project, tab: :suivi), class: "btn btn-outline-secondary btn-sm" do %>
           <i class="bi bi-arrow-left me-1"></i>Retour au chantier
         <% end %>
-        <% if @latest_quote %>
+        <% if @gantt_source == :devis %>
+          <%= link_to project_path(@project, tab: 'preparation'), class: "btn btn-outline-primary-custom btn-sm" do %>
+            <i class="bi bi-file-earmark-text me-1"></i>Voir le devis retenu
+          <% end %>
+        <% elsif @latest_quote %>
           <%= link_to property_quote_path(@project.property, @latest_quote), class: "btn btn-outline-primary-custom btn-sm" do %>
-            <i class="bi bi-file-earmark-text me-1"></i>Voir le devis
+            <i class="bi bi-file-earmark-text me-1"></i>Voir le devis estimatif
           <% end %>
         <% end %>
       </div>

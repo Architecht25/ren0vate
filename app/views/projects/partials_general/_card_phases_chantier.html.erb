@@ -7,6 +7,7 @@
     when 61..99  then '#0d6efd'
     else              '#198754'
   end
+  dernier_bordereau = @project.dernier_etat_avancement_approuve
 %>
 
 <div class="card border-0 shadow-sm rounded-4 h-100">
@@ -24,7 +25,13 @@
     <div class="d-flex align-items-center gap-2 mb-2">
       <i class="bi bi-file-earmark-bar-graph" style="font-size:0.85rem;color:#6c757d;"></i>
       <span class="fw-semibold" style="font-size:0.82rem;color:#555;">Avancement déclaré</span>
-      <span class="badge rounded-pill bg-secondary-subtle text-secondary ms-1" style="font-size:0.6rem;">bordereaux PDF</span>
+      <% if dernier_bordereau %>
+        <span class="badge rounded-pill bg-success-subtle text-success ms-1" style="font-size:0.6rem;">
+          calculé — bordereau n°<%= dernier_bordereau.numero %>
+        </span>
+      <% else %>
+        <span class="badge rounded-pill bg-secondary-subtle text-secondary ms-1" style="font-size:0.6rem;">déclaratif</span>
+      <% end %>
     </div>
     <!-- Barre globale -->
     <div class="mb-3">
@@ -40,13 +47,9 @@
     <!-- Phases individuelles (lecture seule, mise à jour via formulaire) -->
     <div class="d-flex flex-column gap-2 mb-3">
       <% Project::PHASES_CHANTIER.each do |phase| %>
-        <% pct = @project.phase_pct(phase[:key]) %>
         <%
-          icon_color = case pct
-            when 100        then 'text-success'
-            when 1..99      then 'text-warning'
-            else                 'text-muted'
-          end
+          suggestion = @project.phase_pct_suggestion(phase[:key])
+          pct        = suggestion || @project.phase_pct(phase[:key])
           label_icon = case pct
             when 100   then '✅'
             when 1..99 then '🟡'
@@ -55,7 +58,10 @@
         %>
         <div class="d-flex align-items-center gap-2">
           <span style="width:22px; text-align:center; font-size:0.9rem;"><%= label_icon %></span>
-          <span class="text-truncate" style="flex:1 1 auto; min-width:0; font-size:0.83rem; color:#444;"><%= phase[:label] %></span>
+          <span class="text-truncate" style="flex:1 1 auto; min-width:0; font-size:0.83rem; color:#444;">
+            <%= phase[:label] %>
+            <% if suggestion %><span class="text-muted" style="font-size:0.68rem;">(suggéré)</span><% end %>
+          </span>
           <div style="flex:1; height:6px; background:#e9ecef; border-radius:4px; overflow:hidden;">
             <div style="height:100%; width:<%= pct %>%; background:<%= pct == 100 ? '#198754' : (pct > 0 ? '#ffc107' : '#e9ecef') %>; border-radius:4px; transition:width .3s;"></div>
           </div>
@@ -73,26 +79,55 @@
         <%= form_with url: project_path(@project), method: :patch, local: false,
                       data: { turbo_action: "replace" } do |f| %>
           <% Project::PHASES_CHANTIER.each do |phase| %>
+            <%
+              suggestion = @project.phase_pct_suggestion(phase[:key])
+              value      = suggestion || @project.phase_pct(phase[:key])
+              calcule    = dernier_bordereau&.phase_pct(phase[:key])
+            %>
             <div class="mb-2">
               <label class="form-label mb-1 small fw-medium">
                 <%= phase[:label] %>
-                <span class="text-muted" id="lbl-<%= phase[:key] %>">(<%= @project.phase_pct(phase[:key]) %>%)</span>
+                <span class="text-muted" id="lbl-<%= phase[:key] %>">(<%= value %>%)</span>
               </label>
-              <input type="range" class="form-range"
+              <input type="range" class="form-range" id="slider-<%= phase[:key] %>"
                      name="project[phases_avancement][<%= phase[:key] %>]"
                      min="0" max="100" step="5"
-                     value="<%= @project.phase_pct(phase[:key]) %>"
+                     value="<%= value %>"
+                     data-suggested="<%= calcule %>"
                      oninput="document.getElementById('lbl-<%= phase[:key] %>').textContent = '(' + this.value + '%)'">
             </div>
           <% end %>
-          <div class="d-flex justify-content-end mt-2">
-            <button type="submit" class="btn btn-sm btn-primary-custom">
+          <div class="d-flex flex-column gap-2 mt-2">
+            <% if dernier_bordereau %>
+              <button type="button" class="btn btn-sm btn-outline-secondary w-100" onclick="recalculerAvancementPhases<%= @project.id %>()">
+                <i class="bi bi-arrow-repeat me-1"></i>Recalculer depuis le bordereau
+              </button>
+            <% end %>
+            <button type="submit" class="btn btn-sm btn-primary-custom w-100">
               <i class="bi bi-check2 me-1"></i>Enregistrer
             </button>
           </div>
         <% end %>
       </div>
     </details>
+
+    <% if dernier_bordereau %>
+      <script nonce="<%= content_security_policy_nonce %>">
+        function recalculerAvancementPhases<%= @project.id %>() {
+          <% Project::PHASES_CHANTIER.each do |phase| %>
+            (function() {
+              var input = document.getElementById('slider-<%= phase[:key] %>');
+              var label = document.getElementById('lbl-<%= phase[:key] %>');
+              var suggested = input.dataset.suggested;
+              if (suggested) {
+                input.value = suggested;
+                label.textContent = '(' + suggested + '%)';
+              }
+            })();
+          <% end %>
+        }
+      </script>
+    <% end %>
 
   </div>
 </div>

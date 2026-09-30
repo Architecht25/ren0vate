@@ -260,6 +260,20 @@ class Project < ApplicationRecord
     (total.to_f / PHASES_CHANTIER.length).round
   end
 
+  def dernier_etat_avancement_approuve
+    etats_avancement.chronologique.approuves.last
+  end
+
+  # Valeur suggérée pour une phase tant que l'utilisateur ne l'a jamais saisie
+  # manuellement (clé absente de phases_avancement) — calculée depuis le dernier
+  # bordereau d'avancement approuvé. Retourne nil si la phase a déjà une valeur
+  # manuelle, ou si aucun bordereau approuvé ne couvre cette phase.
+  def phase_pct_suggestion(key)
+    return nil if (phases_avancement || {}).key?(key.to_s)
+
+    dernier_etat_avancement_approuve&.phase_pct(key)
+  end
+
   def total_facture
     architecte_factures_total + contractor_factures_total
   end
