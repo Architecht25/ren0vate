@@ -80,6 +80,42 @@ class EtatAvancement < ApplicationRecord
     (cumul / total_marche * 100).round
   end
 
+  # Correspondance entre les 15 thématiques de lot (Devis::DevisAvancementService::THEMATIQUES,
+  # des corps de métier) et les 5 phases chronologiques du chantier (Project::PHASES_CHANTIER).
+  # Heuristique documentée, ajustable : 'preparation' et 'reception' n'ont volontairement
+  # aucune thématique associée — ce sont des étapes administratives/de clôture, pas des lots
+  # de travaux facturés, elles restent purement déclaratives.
+  THEMATIQUE_TO_PHASE = {
+    'demolition'         => 'demolition',
+    'gros_oeuvre'        => 'installation',
+    'toiture'            => 'installation',
+    'facades'            => 'installation',
+    'menuiseries_ext'    => 'installation',
+    'isolation'          => 'installation',
+    'cloisons_pla'       => 'installation',
+    'electricite'        => 'installation',
+    'chauffage_vmc'      => 'installation',
+    'plomberie'          => 'installation',
+    'energies_renouv'    => 'installation',
+    'revetements_sol'    => 'finitions',
+    'peinture_finitions' => 'finitions',
+    'menuiseries_int'    => 'finitions',
+    'abords_divers'      => 'finitions'
+  }.freeze
+
+  # Avancement calculé (moyenne pondérée par montant_marche) pour une phase chronologique
+  # du chantier, restreint aux lignes dont la thématique mappe sur cette phase. Retourne nil
+  # (plutôt que 0) quand aucune ligne ne correspond — distingue "aucune donnée calculée" de
+  # "0% calculé".
+  def phase_pct(phase_key)
+    lignes_phase = lignes.select { |l| THEMATIQUE_TO_PHASE[l.thematique_code] == phase_key.to_s }
+    total_marche = lignes_phase.sum { |l| l.montant_marche.to_f }
+    return nil if total_marche.zero?
+
+    cumul = lignes_phase.sum { |l| l.montant_marche.to_f * l.pct_cumule_actuel.to_i / 100.0 }
+    (cumul / total_marche * 100).round
+  end
+
   # ── Lignes groupées par thématique ───────────────────────────────────────────
   def lignes_par_thematique
     lignes.order(:position).group_by(&:thematique_code)
