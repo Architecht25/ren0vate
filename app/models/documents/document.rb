@@ -52,6 +52,7 @@ class Document < ApplicationRecord
     plan: 'plan',
     metre: 'metre',
     permis_urbanisme: 'permis_urbanisme',
+    plan_urbanisme_signe: 'plan_urbanisme_signe',
     dossier_prime: 'dossier_prime',
     plan_diu: 'plan_diu',
     acte_notarial: 'acte_notarial',
