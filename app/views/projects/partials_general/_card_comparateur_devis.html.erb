@@ -113,6 +113,15 @@
                   <% if d.date_devis.present? %>
                     <div class="text-muted" style="font-size:0.68rem;"><%= d.date_devis.strftime('%d/%m/%Y') %></div>
                   <% end %>
+                  <% if d.retenu? %>
+                    <span class="badge bg-success mt-1" style="font-size:0.62rem;">
+                      <i class="bi bi-check2-circle me-1"></i>Retenu — alimente le planning
+                    </span>
+                  <% else %>
+                    <%= button_to "Retenir ce devis", retenir_devis_project_path(@project, devis_donnee_id: d.id),
+                          method: :patch, class: "btn btn-sm btn-outline-success mt-1 py-0 px-2",
+                          style: "font-size:0.65rem;", form: { data: { turbo: false } } %>
+                  <% end %>
                 </td>
                 <td class="text-end fw-semibold">
                   <% if montant > 0 %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_19_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -288,6 +288,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_19_120000) do
     t.jsonb "postes_json", default: [], null: false
     t.bigint "project_id"
     t.bigint "property_id"
+    t.boolean "retenu", default: false, null: false
     t.decimal "surface_travaux", precision: 8, scale: 2
     t.decimal "taux_tva", precision: 5, scale: 2
     t.text "texte_ocr_brut"
@@ -299,6 +300,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_19_120000) do
     t.index ["categorie_emetteur"], name: "index_devis_donnees_on_categorie_emetteur"
     t.index ["document_id"], name: "index_devis_donnees_on_document_id"
     t.index ["extraction_complete"], name: "index_devis_donnees_on_extraction_complete"
+    t.index ["project_id", "categorie_emetteur", "retenu"], name: "idx_on_project_id_categorie_emetteur_retenu_8e82d62af9"
     t.index ["project_id"], name: "index_devis_donnees_on_project_id"
     t.index ["property_id"], name: "index_devis_donnees_on_property_id"
     t.index ["types_travaux_detectes"], name: "index_devis_donnees_on_types_travaux_detectes", using: :gin

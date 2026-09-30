@@ -109,6 +109,15 @@
                     <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
                       <span class="fw-medium"><%= d.nom_entreprise.presence || 'Entreprise non détectée' %></span>
                       <div class="d-flex align-items-center gap-2">
+                        <% if d.retenu? %>
+                          <span class="badge bg-success" style="font-size:0.62rem;">
+                            <i class="bi bi-check2-circle me-1"></i>Retenu
+                          </span>
+                        <% else %>
+                          <%= button_to "Retenir", retenir_devis_project_path(@project, devis_donnee_id: d.id),
+                                method: :patch, class: "btn btn-sm btn-outline-success py-0 px-2",
+                                style: "font-size:0.65rem;", form: { data: { turbo: false }, style: "display:inline;" } %>
+                        <% end %>
                         <span class="text-muted"><%= d.date_devis_display %></span>
                         <% if d.document&.file&.attached? %>
                           <%= link_to rails_blob_path(d.document.file, only_path: true), target: "_blank", rel: "noopener noreferrer", class: "text-primary p-1", title: "Voir le document" do %>
@@ -253,6 +262,15 @@
                     <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
                       <span class="fw-medium"><%= d.nom_entreprise.presence || 'Entreprise non détectée' %></span>
                       <div class="d-flex align-items-center gap-2">
+                        <% if d.retenu? %>
+                          <span class="badge bg-success" style="font-size:0.62rem;">
+                            <i class="bi bi-check2-circle me-1"></i>Retenu
+                          </span>
+                        <% else %>
+                          <%= button_to "Retenir", retenir_devis_project_path(@project, devis_donnee_id: d.id),
+                                method: :patch, class: "btn btn-sm btn-outline-success py-0 px-2",
+                                style: "font-size:0.65rem;", form: { data: { turbo: false }, style: "display:inline;" } %>
+                        <% end %>
                         <span class="text-muted"><%= d.date_devis_display %></span>
                         <% if d.document&.file&.attached? %>
                           <%= link_to rails_blob_path(d.document.file, only_path: true), target: "_blank", rel: "noopener noreferrer", class: "text-primary p-1", title: "Voir le document" do %>
