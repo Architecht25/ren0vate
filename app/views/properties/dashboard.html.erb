@@ -925,9 +925,14 @@
             </div>
           <% end %>
 
-          <div class="mt-auto pt-3 border-top">
+          <div class="mt-auto pt-3 border-top d-flex flex-column gap-2">
             <%= link_to peb_recommandations_property_path(@property), class: "btn btn-outline-primary-custom btn-sm w-100" do %>
               <i class="bi bi-lightbulb me-2"></i>Voir les recommandations
+            <% end %>
+            <% if peb_avant %>
+              <%= link_to loans_hub_impact_peb_path(property_id: @property.id, project_id: @property.projects.first&.id), class: "btn btn-outline-success btn-sm w-100" do %>
+                <i class="bi bi-percent me-2"></i>Impact sur mon taux de prêt
+              <% end %>
             <% end %>
           </div>
         </div>

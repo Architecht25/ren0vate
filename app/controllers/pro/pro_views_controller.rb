@@ -198,7 +198,7 @@ class ProViewsController < ApplicationController
       property:      @project.property,
       type_document: type_doc,
       status:        'approved',
-      description:   params[:description].presence
+      notes:         params[:description].presence
     )
     document.file.attach(params[:document_file])
 

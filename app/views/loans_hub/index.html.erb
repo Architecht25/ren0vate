@@ -4,7 +4,7 @@
   <div class="mb-4 pb-3 border-bottom d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2">
     <div>
       <h1 class="h3 text-primary-custom mb-1 fw-normal">Simuler mes prêts</h1>
-      <p class="text-muted small mb-0">4 simulateurs pour financer vos travaux de rénovation</p>
+      <p class="text-muted small mb-0">5 outils pour financer vos travaux de rénovation</p>
     </div>
     <% if @property %>
       <%= link_to dashboard_property_path(@property), class: "btn btn-outline-secondary btn-sm flex-shrink-0" do %>
@@ -153,6 +153,33 @@
           <%= link_to loans_hub_ecoreno_path(property_id: @property&.id, project_id: @project&.id), class: "btn w-100 fw-semibold text-white",
                 style: "background:var(--ren0vate-primary-dark);border-color:var(--ren0vate-primary-dark);border-radius:8px;" do %>
             <i class="bi bi-calculator me-2"></i>Simuler le Prêt EcoReno
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Impact PEB sur le taux -->
+    <div class="col-12 col-md-6 col-lg-3">
+      <div class="card border-0 h-100" style="border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-start gap-3 mb-3">
+            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                 style="width:48px;height:48px;background:#198754;">
+              <i class="bi bi-lightbulb text-white fs-5"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-1 fw-semibold">Impact PEB sur mon taux</h5>
+              <p class="text-muted small mb-0">Voyez ce que votre certificat PEB change pour votre prêt</p>
+            </div>
+          </div>
+          <ul class="list-unstyled small text-muted mb-4" style="line-height:1.8;">
+            <li><i class="bi bi-check-circle me-2 text-success"></i>Basé sur votre certificat PEB scanné</li>
+            <li><i class="bi bi-check-circle me-2 text-success"></i>Politiques BNP Fortis, Belfius, CBC</li>
+            <li><i class="bi bi-check-circle me-2 text-success"></i>Avant / après travaux</li>
+          </ul>
+          <%= link_to loans_hub_impact_peb_path(property_id: @property&.id, project_id: @project&.id), class: "btn w-100 fw-semibold text-white",
+                style: "background:#198754;border-color:#198754;border-radius:8px;" do %>
+            <i class="bi bi-lightbulb me-2"></i>Voir l'impact PEB
           <% end %>
         </div>
       </div>
