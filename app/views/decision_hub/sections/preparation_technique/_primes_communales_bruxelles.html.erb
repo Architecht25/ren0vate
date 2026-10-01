@@ -1,0 +1,128 @@
+<%# locals: ()
+    Préparation technique — Primes communales, Bruxelles-Capitale
+    Source : public/data/primes_communales_bruxelles.json (19 communes, données officielles
+    collectées manuellement — non exhaustif, à vérifier auprès de chaque commune) %>
+
+<%
+  _code_postal = @default_simulation&.property&.code_postal.to_s.strip
+  _commune_data = _code_postal.present? ? Regions::PrimesCommunales::PrimesCommunalesBruxellesService.primes_par_code_postal(_code_postal) : nil
+%>
+
+<div class="alert alert-info border-0 rounded-4 mb-4">
+  <div class="d-flex align-items-start gap-2">
+    <i class="bi bi-info-circle-fill text-info flex-shrink-0 mt-1"></i>
+    <div>
+      <p class="fw-semibold mb-1">Primes communales</p>
+      <p class="mb-0 small">
+        En plus des primes régionales, votre commune propose peut-être ses propres primes
+        (isolation, chauffage, énergies renouvelables…), cumulables sous conditions.
+      </p>
+    </div>
+  </div>
+</div>
+
+<% if _commune_data %>
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header rounded-top-4 text-white"
+         style="background: linear-gradient(135deg, #0d6efd 0%, #084298 100%);">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-geo-alt-fill me-1"></i>
+        <h6 class="mb-0 fw-semibold">Primes de la commune de <%= _commune_data[:commune] %></h6>
+        <span class="badge bg-white text-primary ms-auto"><%= _commune_data[:nombre_primes] %> prime(s)</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="row g-3 mb-3">
+        <% if _commune_data[:site_web].present? %>
+          <div class="col-12 col-md-6">
+            <a href="<%= _commune_data[:site_web] %>" target="_blank" rel="noopener"
+               class="btn btn-outline-primary btn-sm w-100 rounded-3">
+              <i class="bi bi-box-arrow-up-right me-1"></i>Site officiel de la commune
+            </a>
+          </div>
+        <% end %>
+        <% if _commune_data[:contact].present? %>
+          <div class="col-12 col-md-6">
+            <div class="p-2 rounded-3 border small" style="background:#f8f9fa;">
+              <% if _commune_data[:contact]['telephone'].present? %>
+                <div><i class="bi bi-telephone me-1 text-primary"></i><%= _commune_data[:contact]['telephone'] %></div>
+              <% end %>
+              <% if _commune_data[:contact]['email'].present? %>
+                <div><i class="bi bi-envelope me-1 text-primary"></i><a href="mailto:<%= _commune_data[:contact]['email'] %>"><%= _commune_data[:contact]['email'] %></a></div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <% if _commune_data[:primes].any? %>
+        <p class="small fw-semibold text-muted mb-2">Primes identifiées pour cette commune :</p>
+        <div class="d-flex flex-column gap-3">
+          <% _commune_data[:primes].each do |prime| %>
+            <div class="p-3 rounded-3 border" style="background:#f8f9fa;">
+              <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+                <p class="fw-semibold mb-0"><%= prime['nom'] %></p>
+                <span class="badge bg-success-subtle text-success-emphasis"><%= prime['description'] %></span>
+              </div>
+
+              <% if prime['conditions'].present? %>
+                <p class="small fw-medium text-muted mb-1">Conditions :</p>
+                <ul class="small text-muted mb-2 ps-3">
+                  <% prime['conditions'].each do |condition| %>
+                    <li><%= condition %></li>
+                  <% end %>
+                </ul>
+              <% end %>
+
+              <% if prime['documents_requis'].present? %>
+                <p class="small fw-medium text-muted mb-1">Documents à réunir :</p>
+                <ul class="small text-muted mb-0 ps-3">
+                  <% prime['documents_requis'].each do |doc| %>
+                    <li><i class="bi bi-paperclip text-primary me-1"></i><%= doc %></li>
+                  <% end %>
+                </ul>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="small text-muted mb-0">Aucune prime communale répertoriée pour cette commune actuellement.</p>
+      <% end %>
+
+      <div class="alert alert-warning border-0 mt-3 mb-0 small">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        Informations collectées manuellement (dernière mise à jour : <%= _commune_data[:derniere_maj] %>),
+        non exhaustives — <strong>vérifiez toujours les conditions et montants actuels sur le site officiel
+        de votre commune</strong> avant de déposer un dossier.
+      </div>
+    </div>
+  </div>
+
+<% else %>
+  <div class="alert alert-secondary border-0 rounded-4 mb-4">
+    <div class="d-flex align-items-start gap-2">
+      <i class="bi bi-search text-secondary flex-shrink-0 mt-1"></i>
+      <div>
+        <p class="fw-semibold mb-1">Commune non référencée</p>
+        <p class="mb-0 small">
+          Nous n'avons pas encore d'information sur les primes de votre commune
+          <% if _code_postal.present? %>(code postal <%= _code_postal %>)<% end %>.
+          Consultez directement le site de votre commune ou son service urbanisme/énergie
+          pour connaître les primes communales disponibles.
+        </p>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<%# Rappel Monuments & Sites — toujours pertinent si le bien s'avère classé après vérification %>
+<div class="alert alert-light border rounded-4 mb-0">
+  <p class="fw-semibold mb-1 small">
+    <i class="bi bi-bank me-1"></i>Bien classé, sauvegardé ou en zone de protection ?
+  </p>
+  <p class="mb-0 small text-muted">
+    Les subventions patrimoniales (Monuments & Sites, Petit Patrimoine) sont distinctes des primes
+    communales. Si votre bien est concerné, activez l'option correspondante dans la fiche du bien
+    pour accéder au guide de préparation dédié.
+  </p>
+</div>
