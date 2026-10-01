@@ -21,6 +21,14 @@ class LoansHubController < ApplicationController
   def ecoreno
   end
 
+  def impact_peb
+    return unless @property
+
+    @peb_avant = @property.peb_donnees.avant_travaux.order(created_at: :desc).first
+    @peb_apres = @property.peb_donnees.apres_travaux.order(created_at: :desc).first
+    @impacts   = Subsidies::PebRateImpactEstimatorService.new(peb_avant: @peb_avant, peb_apres: @peb_apres).call if @peb_avant
+  end
+
   private
 
   def load_property

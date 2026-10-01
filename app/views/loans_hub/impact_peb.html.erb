@@ -1,0 +1,102 @@
+<% content_for :title, "Impact PEB sur mon taux – Ren0vate" %>
+
+<div class="container-fluid px-4 py-4">
+  <div class="mb-4 pb-3 border-bottom d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2">
+    <div>
+      <h1 class="h3 text-primary-custom mb-1 fw-normal">Impact du certificat PEB sur mon taux</h1>
+      <p class="text-muted small mb-0">Ce que les banques proposent selon la performance énergétique du bien</p>
+    </div>
+    <%= link_to loans_hub_path(property_id: @property&.id, project_id: @project&.id), class: "btn btn-outline-secondary btn-sm flex-shrink-0" do %>
+      <i class="bi bi-arrow-left me-1"></i>Retour aux simulateurs
+    <% end %>
+  </div>
+
+  <% if @property.nil? %>
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-house-x fs-1 d-block mb-3"></i>
+      <p>Aucun bien sélectionné.</p>
+    </div>
+
+  <% elsif @peb_avant.nil? %>
+    <div class="row g-3">
+      <div class="col-12">
+        <div class="text-center py-5 border rounded-4 bg-light">
+          <i class="bi bi-file-earmark-plus fs-1 d-block mb-3 text-muted"></i>
+          <p class="mb-3">Aucun certificat PEB scanné pour ce bien — impossible d'estimer l'impact sur votre taux.</p>
+          <%= link_to peb_recommandations_property_path(@property), class: "btn btn-warning" do %>
+            <i class="bi bi-lightbulb me-1"></i>Scanner mon certificat PEB
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+  <% else %>
+    <div class="row g-3 mb-4">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <i class="bi bi-house-gear text-primary"></i>
+              <span class="fw-semibold">Votre situation</span>
+            </div>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <div class="text-muted small mb-1">Avant travaux</div>
+                <span class="badge bg-<%= @peb_avant.couleur_bootstrap %> fs-6 me-2">Classe <%= @peb_avant.label_peb || '?' %></span>
+                <span class="text-muted small"><%= @peb_avant.score_ep_formate || "score non extrait" %></span>
+              </div>
+              <% if @peb_apres.present? %>
+                <div class="col-12 col-md-6">
+                  <div class="text-muted small mb-1">Après travaux</div>
+                  <span class="badge bg-<%= @peb_apres.couleur_bootstrap %> fs-6 me-2">Classe <%= @peb_apres.label_peb || '?' %></span>
+                  <span class="text-muted small"><%= @peb_apres.score_ep_formate || "score non extrait" %></span>
+                </div>
+              <% else %>
+                <div class="col-12 col-md-6">
+                  <div class="text-muted small mb-1">Après travaux</div>
+                  <span class="text-muted small fst-italic">Pas encore de certificat après travaux scanné</span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <% @impacts.each do |impact| %>
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card border-0 h-100" style="border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+            <div class="card-body p-4">
+              <h5 class="card-title mb-2 fw-semibold"><%= impact[:banque] %></h5>
+              <p class="text-muted small mb-3"><%= impact[:condition] %></p>
+              <div class="mb-3">
+                <% if impact[:eligible].nil? %>
+                  <span class="badge bg-secondary">Non déterminé</span>
+                <% elsif impact[:eligible] %>
+                  <span class="badge bg-success">Éligible — <%= impact[:impact] %></span>
+                <% else %>
+                  <span class="badge bg-light text-muted border">Non éligible en l'état</span>
+                <% end %>
+              </div>
+              <p class="text-muted" style="font-size:0.78rem;"><%= impact[:note] %></p>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="row g-3 mt-1">
+      <div class="col-12">
+        <p class="text-muted small mb-3">
+          <i class="bi bi-info-circle me-1"></i>
+          <%= Subsidies::PebRateImpactEstimatorService::SOURCE_NOTE %>
+        </p>
+        <%= link_to loans_hub_credit_classique_path(property_id: @property.id, project_id: @project&.id), class: "btn fw-semibold text-white",
+              style: "background:var(--ren0vate-primary);border-color:var(--ren0vate-primary);border-radius:8px;" do %>
+          <i class="bi bi-calculator me-2"></i>Simuler un crédit avec ce taux
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

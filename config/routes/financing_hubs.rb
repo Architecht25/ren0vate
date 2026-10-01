@@ -6,6 +6,7 @@
   get 'loans_hub/verbouwlening',      to: 'loans_hub#verbouwlening',    as: :loans_hub_verbouwlening
   get 'loans_hub/renopack',           to: 'loans_hub#renopack',         as: :loans_hub_renopack
   get 'loans_hub/ecoreno',            to: 'loans_hub#ecoreno',          as: :loans_hub_ecoreno
+  get 'loans_hub/impact_peb',         to: 'loans_hub#impact_peb',       as: :loans_hub_impact_peb
 
   # Hub Estimer mes primes
   get 'primes_hub', to: 'primes_hub#index', as: :primes_hub
