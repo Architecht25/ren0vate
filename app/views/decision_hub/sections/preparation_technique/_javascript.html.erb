@@ -226,6 +226,162 @@ window.saveTechnicalPreparation = function(btn) {
   });
 };
 
+// ── Sauvegarde générique d'une section de préparation technique Bruxelles ──
+function saveBruxellesTechnicalSection(btn, sectionKey, data, successLabel) {
+  const simulationId = btn.dataset.simulationId;
+  const originalHtml = btn.innerHTML;
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Sauvegarde en cours…';
+
+  fetch('/decision_hub/save_technical_preparation', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+    },
+    body: JSON.stringify({ simulation_id: simulationId, technical_preparation: { [sectionKey]: data } })
+  })
+  .then(r => r.json())
+  .then(res => {
+    btn.disabled = false;
+    if (res.success) {
+      btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>' + successLabel;
+      btn.className = btn.className.replace('btn-outline-primary', 'btn-outline-success');
+    } else {
+      btn.innerHTML = originalHtml;
+      alert('Erreur lors de la sauvegarde : ' + (res.error || 'inconnue'));
+    }
+  })
+  .catch(err => {
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+    console.error('Erreur:', err);
+    alert('Erreur lors de la sauvegarde');
+  });
+}
+
+// ── Sauvegarde — Petit Patrimoine Bruxelles ──
+window.savePetitPatrimoinePreparation = function(btn) {
+  const checkedValue = (sel) => document.querySelector(sel)?.checked ? '1' : '0';
+  const val = (sel) => document.querySelector(sel)?.value;
+
+  const data = {
+    elig: {
+      localisation_bxl:        checkedValue('[name="petit_patrimoine_elig[localisation_bxl]"]'),
+      visible_espace_public:   checkedValue('[name="petit_patrimoine_elig[visible_espace_public]"]'),
+      non_classe:               checkedValue('[name="petit_patrimoine_elig[non_classe]"]'),
+      nature_travaux:           checkedValue('[name="petit_patrimoine_elig[nature_travaux]"]')
+    },
+    identite: {
+      type_personne: val('[name="petit_patrimoine_identite[type_personne]"]'),
+      nature_droit:  val('[name="petit_patrimoine_identite[nature_droit]"]'),
+      nom:           val('[name="petit_patrimoine_identite[nom]"]'),
+      adresse:       val('[name="petit_patrimoine_identite[adresse]"]'),
+      tel:           val('[name="petit_patrimoine_identite[tel]"]'),
+      email:         val('[name="petit_patrimoine_identite[email]"]')
+    },
+    localisation: {
+      adresse:             val('[name="petit_patrimoine_localisation[adresse]"]'),
+      cadastre:            val('[name="petit_patrimoine_localisation[cadastre]"]'),
+      zone_revitalisation: document.querySelector('[name="petit_patrimoine_localisation[zone_revitalisation]"]')?.checked ? 'true' : 'false',
+      liste_sauvegarde:    document.querySelector('[name="petit_patrimoine_localisation[liste_sauvegarde]"]')?.checked ? 'true' : 'false',
+      date_arrete:         val('[name="petit_patrimoine_localisation[date_arrete]"]')
+    },
+    travaux: {
+      elements: Array.from(document.querySelectorAll('[name="petit_patrimoine_travaux[elements][]"]:checked')).map(el => el.value),
+      elements_description: val('[name="petit_patrimoine_travaux[elements_description]"]'),
+      type_intervention:    val('[name="petit_patrimoine_travaux[type_intervention]"]'),
+      description:          val('[name="petit_patrimoine_travaux[description]"]'),
+      montant_htva:         val('[name="petit_patrimoine_travaux[montant_htva]"]')
+    },
+    budget: {
+      type_beneficiaire: val('[name="petit_patrimoine_budget[type_beneficiaire]"]')
+    },
+    delegation: {
+      active:   document.querySelector('[name="petit_patrimoine_delegation[active]"]')?.checked ? 'true' : 'false',
+      nom:      val('[name="petit_patrimoine_delegation[nom]"]'),
+      qualite:  val('[name="petit_patrimoine_delegation[qualite]"]'),
+      adresse:  val('[name="petit_patrimoine_delegation[adresse]"]'),
+      tel:      val('[name="petit_patrimoine_delegation[tel]"]'),
+      email:    val('[name="petit_patrimoine_delegation[email]"]')
+    },
+    liquidation: {
+      iban:      val('[name="petit_patrimoine_liquidation[iban]"]'),
+      bic:       val('[name="petit_patrimoine_liquidation[bic]"]'),
+      titulaire: val('[name="petit_patrimoine_liquidation[titulaire]"]')
+    },
+    docs: Array.from(document.querySelectorAll('.pp-doc-checklist input[type="checkbox"]'))
+      .reduce((acc, el) => {
+        const match = el.name.match(/petit_patrimoine_docs\[(.+)\]/);
+        if (match) acc[match[1]] = el.checked ? '1' : '0';
+        return acc;
+      }, {}),
+    declarations: {
+      autres_aides:      val('[name="petit_patrimoine_declarations[autres_aides]"]'),
+      autres_aides_type: val('[name="petit_patrimoine_declarations[autres_aides_type]"]'),
+      autres_aides_date: val('[name="petit_patrimoine_declarations[autres_aides_date]"]')
+    }
+  };
+
+  saveBruxellesTechnicalSection(btn, 'petit_patrimoine', data, 'Données sauvegardées !');
+};
+
+// ── Sauvegarde — Monuments & Sites Bruxelles ──
+window.saveMonumentsPreparation = function(btn) {
+  const checkedValue = (sel) => document.querySelector(sel)?.checked ? '1' : '0';
+  const val = (sel) => document.querySelector(sel)?.value;
+
+  const data = {
+    eligibilite: {
+      bien_classe:    checkedValue('[name="monuments_elig[bien_classe]"]'),
+      avant_travaux:  checkedValue('[name="monuments_elig[avant_travaux]"]'),
+      conservation:   checkedValue('[name="monuments_elig[conservation]"]'),
+      droit_reel:     checkedValue('[name="monuments_elig[droit_reel]"]')
+    },
+    bien: {
+      denomination:    val('[name="monuments_bien[denomination]"]'),
+      statut:          val('[name="monuments_bien[statut]"]'),
+      numero_dossier:  val('[name="monuments_bien[numero_dossier]"]'),
+      date_classement: val('[name="monuments_bien[date_classement]"]'),
+      numero_cadastre: val('[name="monuments_bien[numero_cadastre]"]')
+    },
+    travaux: {
+      intitule:          val('[name="monuments_travaux[intitule]"]'),
+      etudes:            val('[name="monuments_travaux[etudes]"]'),
+      travaux:           val('[name="monuments_travaux[travaux]"]'),
+      autorisation_type: val('[name="monuments_travaux[autorisation_type]"]'),
+      autorisation_ref:  val('[name="monuments_travaux[autorisation_ref]"]')
+    },
+    budget: {
+      etudes:            val('[name="monuments_budget[etudes]"]'),
+      travaux:           val('[name="monuments_budget[travaux]"]'),
+      honoraires:        val('[name="monuments_budget[honoraires]"]'),
+      beneficiaire_type: val('[name="monuments_budget[beneficiaire_type]"]')
+    },
+    intervenants: {
+      archi_nom:   val('[name="monuments_intervenants[archi_nom]"]'),
+      archi_ordre: val('[name="monuments_intervenants[archi_ordre]"]'),
+      archi_email: val('[name="monuments_intervenants[archi_email]"]'),
+      sps_nom:     val('[name="monuments_intervenants[sps_nom]"]'),
+      sps_email:   val('[name="monuments_intervenants[sps_email]"]')
+    },
+    docs: Array.from(document.querySelectorAll('.mon-doc-check'))
+      .reduce((acc, el) => {
+        const match = el.name.match(/monuments_docs\[(.+)\]/);
+        if (match) acc[match[1]] = el.checked ? '1' : '0';
+        return acc;
+      }, {}),
+    planning: {
+      date_demande: val('[name="monuments_planning[date_demande]"]'),
+      date_travaux: val('[name="monuments_planning[date_travaux]"]'),
+      date_fin:     val('[name="monuments_planning[date_fin]"]')
+    }
+  };
+
+  saveBruxellesTechnicalSection(btn, 'monuments', data, 'Données sauvegardées !');
+};
+
 // Initialiser le statut au chargement
 window.updateTechCompletionStatus();
 </script>

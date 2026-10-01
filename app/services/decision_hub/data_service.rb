@@ -127,7 +127,7 @@ class DecisionHub::DataService
   def generate_resume_data
     {
       simulation_id: @simulation.id,
-      total_amount: @simulation.total_simule || calculate_mock_total,
+      total_amount: @simulation.total_simule.to_f > 0 ? @simulation.total_simule : calculate_mock_total,
       region: @region.capitalize,
       property_type: extract_property_type,
       primes: @selected_primes,
@@ -175,6 +175,83 @@ class DecisionHub::DataService
     # Récupérer les montants calculés sauvegardés (disponibles pour toutes les méthodes)
     calculated_amounts = params_data["calculated_amounts"] || {}
     Rails.logger.info "💰 Montants calculés disponibles: #{calculated_amounts.inspect}"
+
+    # Méthode 0: Bruxelles Monuments & Petit Patrimoine — lit l'étape 2.6 (technical_preparation)
+    # Ne lit que la section correspondant au flag actuel de la property (cohérent avec la priorité
+    # bien_classe? > petit_patrimoine? de _preparation_technique.html.erb) pour éviter de compter
+    # les deux primes si l'utilisateur a rempli les deux formulaires à des moments différents.
+    if @region == "bruxelles"
+      tp = params_data["technical_preparation"] || {}
+      property = @simulation&.property
+
+      if property&.bien_classe? && tp["monuments"].present?
+        budget = tp["monuments"]["budget"] || {}
+        beneficiaire = budget["beneficiaire_type"]
+
+        if beneficiaire.present?
+          etudes_amount = 0
+          etudes_f = budget["etudes"].to_f
+          if etudes_f > 0
+            result = Regions::Bruxelles::MonumentsBruxellesCalculatorService.new(
+              type_beneficiaire: beneficiaire, montant_travaux: etudes_f, type_travaux: "etudes"
+            ).calculate
+            etudes_amount = result[:montant_estime] if result[:eligible]
+          end
+
+          travaux_amount = 0
+          travaux_honoraires_f = budget["travaux"].to_f + budget["honoraires"].to_f
+          if travaux_honoraires_f > 0
+            result = Regions::Bruxelles::MonumentsBruxellesCalculatorService.new(
+              type_beneficiaire: beneficiaire, montant_travaux: travaux_honoraires_f
+            ).calculate
+            travaux_amount = result[:montant_estime] if result[:eligible]
+          end
+
+          montant_total = etudes_amount + travaux_amount
+          if montant_total > 0
+            selected_primes << {
+              name: "Monuments & Sites classés",
+              amount: montant_total.round(0),
+              category: "monuments",
+              slug: "bruxelles_monuments_travaux",
+              status: "eligible",
+              urgency: "high",
+              details: "AGovt 2 mai 2024 — études préalables à 80% (plafond 12 000€) + travaux/honoraires selon le type de bénéficiaire"
+            }
+          end
+        end
+      elsif property&.petit_patrimoine? && tp["petit_patrimoine"].present?
+        budget       = tp["petit_patrimoine"]["budget"] || {}
+        travaux      = tp["petit_patrimoine"]["travaux"] || {}
+        localisation = tp["petit_patrimoine"]["localisation"] || {}
+
+        type_beneficiaire   = budget["type_beneficiaire"]
+        zone_revitalisation = localisation["zone_revitalisation"] == "true"
+        # Majoration : un bénéficiaire privé en zone de revitalisation passe au taux majoré,
+        # comme le calcule déjà le live-calc JS de la vue (recalcBudgetPP).
+        effective_type = (type_beneficiaire == "prive" && zone_revitalisation) ? "prive_revenus_bas" : type_beneficiaire
+
+        if effective_type.present? && travaux["montant_htva"].to_f > 0
+          result = Regions::Bruxelles::PetitPatrimoineBruxellesCalculatorService.new(
+            type_beneficiaire: effective_type,
+            montant_travaux_htva: travaux["montant_htva"]
+          ).calculate
+          if result[:eligible]
+            selected_primes << {
+              name: "Petit Patrimoine",
+              amount: result[:montant_estime].round(0),
+              category: "petit_patrimoine",
+              slug: "bruxelles_petit_patrimoine",
+              status: "eligible",
+              urgency: "high",
+              details: result[:note]
+            }
+          end
+        end
+      end
+
+      return selected_primes if selected_primes.any?
+    end
 
     # Méthode 1: chercher dans prime_cards
     if params_data["prime_cards"].present?

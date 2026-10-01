@@ -20,12 +20,18 @@
     <%= render 'decision_hub/sections/preparation_technique/formulaires_wallonie' %>
   <% end %>
 
-  <%# Monuments & Sites classés — Bruxelles-Capitale %>
+  <%# Monuments & Sites classés — Bruxelles-Capitale (priorité sur Petit Patrimoine : un bien classé
+      relève de Monuments même s'il comporte aussi des éléments de petit patrimoine) %>
   <% if @default_simulation&.region&.downcase == 'bruxelles' &&
         @default_simulation&.property&.bien_classe? %>
     <%= render 'decision_hub/sections/preparation_technique/monuments_bruxelles',
                technical_data: technical_data %>
-  <%# Pour Bruxelles sans bien classé, aucune préparation technique générique n'est nécessaire %>
+  <%# Petit Patrimoine — Bruxelles-Capitale %>
+  <% elsif @default_simulation&.region&.downcase == 'bruxelles' &&
+           @default_simulation&.property&.petit_patrimoine? %>
+    <%= render 'decision_hub/sections/preparation_technique/petit_patrimoine_bruxelles',
+               technical_data: technical_data %>
+  <%# Pour Bruxelles sans bien classé ni petit patrimoine (ex. primes communales), aucune préparation technique générique n'est nécessaire %>
   <% elsif @default_simulation&.region&.downcase == 'bruxelles' %>
     <div class="alert alert-info border-0 rounded-4 mb-4">
       <div class="d-flex align-items-start gap-2">

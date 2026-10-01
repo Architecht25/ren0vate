@@ -162,7 +162,7 @@ class DecisionHubController < ApplicationController
         simulation = current_user.simulations.find_by(id: simulation_id)
         if simulation
           existing = simulation.parameters.present? ? JSON.parse(simulation.parameters) : {}
-          existing['technical_preparation'] = technical_data
+          existing['technical_preparation'] = (existing['technical_preparation'] || {}).merge(technical_data)
           simulation.update!(parameters: existing.to_json)
         end
       end
