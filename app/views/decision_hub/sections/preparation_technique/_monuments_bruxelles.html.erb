@@ -5,7 +5,7 @@
 <%
   _prop     = @default_simulation&.property
   _bien_cls = _prop&.bien_classe?
-  _td       = technical_data || {}
+  _td       = (technical_data || {}).dig(:monuments) || {}
 %>
 
 <!-- ============================================================
@@ -748,6 +748,12 @@
      CTA — Créer la demande
      ============================================================ -->
 <div class="text-center mb-4">
+  <button type="button" class="btn btn-outline-primary btn-lg px-4 rounded-3 me-2"
+          id="mon-save-btn" data-simulation-id="<%= @default_simulation&.id %>"
+          onclick="window.saveMonumentsPreparation(this)">
+    <i class="bi bi-save me-2"></i>Sauvegarder mes données Monuments &amp; Sites
+  </button>
+
   <% if @default_simulation&.property&.projects&.any? %>
     <% _mon_proj = @default_simulation.property.projects.order(created_at: :desc).first %>
     <%= link_to new_request_path(project_id: _mon_proj.id, form_type: :monuments_bruxelles),

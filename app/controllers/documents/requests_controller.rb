@@ -235,6 +235,33 @@ class RequestsController < ApplicationController
     end
   end
 
+  # Primes communales Bruxelles : il n'existe pas de formulaire dédié (le dépôt se fait sur le
+  # site de la commune, cf. app/views/decision_hub/sections/preparation_technique/_primes_communales_bruxelles.html.erb).
+  # Cette action crée uniquement le dossier minimal requis pour activer le suivi (RequestProgress
+  # appartient obligatoirement à un Request) sans passer par l'ancien formulaire non fonctionnel.
+  def create_communal_bruxelles
+    property = current_user.properties.find(params[:property_id])
+    simulation = current_user.simulations.find_by(id: params[:simulation_id]) if params[:simulation_id].present?
+    commune_nom = property.commune.presence || "votre commune"
+
+    @request = current_user.requests.find_or_create_by!(
+      property: property, form_type: "communal_bruxelles", region: "bruxelles"
+    ) do |r|
+      r.simulation = simulation
+      r.project = property.projects.order(created_at: :desc).first
+      r.status = "submitted"
+      r.title = "Primes communales — #{commune_nom}"
+      r.description = "Suivi de la demande de prime communale déposée auprès de la commune de #{commune_nom}."
+    end
+
+    redirect_to new_request_request_progress_path(@request),
+                notice: "Dossier créé — vous pouvez maintenant suivre votre demande de prime communale."
+  rescue ActiveRecord::RecordNotFound
+    redirect_to decision_hub_index_path, alert: "Bien introuvable."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to decision_hub_index_path, alert: "Impossible de créer le suivi : #{e.message}"
+  end
+
   def edit
     @request = current_user.requests.find(params[:id])
 

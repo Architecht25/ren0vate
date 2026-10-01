@@ -51,28 +51,76 @@ class DecisionHub::DocumentRequirementsService
     # Documents spécifiques par région
     region_documents = case @region
     when "bruxelles"
-      [
-        {
-          id: "audit_pae",
-          name: "Audit PAE par conseiller agréé",
-          category: "administrative",
-          status: "missing",
-          urgency: "critical",
-          required_for: primes_with_category("audit"),
-          deadline: "Avant travaux",
-          details: "Audit énergétique PAE obligatoire pour primes de rénovation Bruxelles"
-        },
-        {
-          id: "declaration_urbanisme",
-          name: "Déclaration préalable urbanisme",
-          category: "administrative",
-          status: "missing",
-          urgency: "high",
-          required_for: primes_with_category("isolation"),
-          deadline: "20 jours ouvrables",
-          details: "Déclaration si modification aspect extérieur"
-        }
-      ]
+      if @simulation&.property&.bien_classe?
+        [
+          {
+            id: "permis_unique_ou_plan_gestion",
+            name: "Permis unique ou plan de gestion patrimoniale",
+            category: "administrative",
+            status: "missing",
+            urgency: "critical",
+            required_for: all_primes_names,
+            deadline: "Avant tout début de travaux ou d'études",
+            details: "Autorisation urbanistique obligatoire (sauf actes de minime importance)"
+          },
+          {
+            id: "droit_sur_le_bien",
+            name: "Attestation de propriété ou autre droit réel",
+            category: "administrative",
+            status: "missing",
+            urgency: "high",
+            required_for: all_primes_names,
+            deadline: "Avant dépôt",
+            details: "Usufruit, emphytéose, bail + autorisation du propriétaire, ou décision de copropriété"
+          }
+        ]
+      elsif @simulation&.property&.petit_patrimoine?
+        [
+          {
+            id: "photo_elements_patrimoine",
+            name: "Photo de chaque élément de petit patrimoine concerné",
+            category: "administrative",
+            status: "missing",
+            urgency: "critical",
+            required_for: all_primes_names,
+            deadline: "Avant dépôt",
+            details: "Photo couleur récente de la façade, du jardinet et de chaque élément"
+          },
+          {
+            id: "permis_ou_accuse_reception",
+            name: "Copie du permis ou de l'accusé de réception (si requis)",
+            category: "administrative",
+            status: "missing",
+            urgency: "high",
+            required_for: all_primes_names,
+            deadline: "Avant dépôt",
+            details: "Selon la nature des travaux et le statut du bien (CADRE VII)"
+          }
+        ]
+      else
+        [
+          {
+            id: "audit_pae",
+            name: "Audit PAE par conseiller agréé",
+            category: "administrative",
+            status: "missing",
+            urgency: "critical",
+            required_for: primes_with_category("audit"),
+            deadline: "Avant travaux",
+            details: "Audit énergétique PAE obligatoire pour primes de rénovation Bruxelles"
+          },
+          {
+            id: "declaration_urbanisme",
+            name: "Déclaration préalable urbanisme",
+            category: "administrative",
+            status: "missing",
+            urgency: "high",
+            required_for: primes_with_category("isolation"),
+            deadline: "20 jours ouvrables",
+            details: "Déclaration si modification aspect extérieur"
+          }
+        ]
+      end
     else
       [
         {
@@ -135,7 +183,7 @@ class DecisionHub::DocumentRequirementsService
   end
 
   def get_completed_documents
-    if @region == "flandre"
+    if dynamic_tracking_region?
       key_docs = get_key_documents
       return key_docs.select { |doc| doc[:status] == "completed" }.map { |doc| doc[:name] }
     end
@@ -144,7 +192,7 @@ class DecisionHub::DocumentRequirementsService
   end
 
   def get_missing_documents
-    if @region == "flandre"
+    if dynamic_tracking_region?
       key_docs = get_key_documents
       return key_docs.select { |doc| doc[:status] == "missing" }.map { |doc| doc[:name] }
     end
@@ -153,10 +201,10 @@ class DecisionHub::DocumentRequirementsService
   end
 
   def calculate_completion_rate
-    if @region == "flandre"
+    if dynamic_tracking_region?
       key_docs = get_key_documents
       completed_count = key_docs.count { |doc| doc[:status] == "completed" }
-      total_count = 8 # Total documents Flandre (3 obligatoires + 5 complémentaires)
+      total_count = @region == "flandre" ? 8 : key_docs.count # Total documents Flandre (3 obligatoires + 5 complémentaires)
       return 0 if total_count == 0
 
       return ((completed_count.to_f / total_count) * 100).round
@@ -169,22 +217,14 @@ class DecisionHub::DocumentRequirementsService
 
     ((completed_count.to_f / total_count) * 100).round
   end
+
   def get_urgent_documents
-    if @region == "flandre"
+    if dynamic_tracking_region?
       key_docs = get_key_documents
       return key_docs.select { |doc| doc[:urgent] }.map { |doc| doc[:name] }
     end
 
     get_required_documents.select { |doc| doc[:urgency] == "high" || doc[:urgency] == "critical" }.map { |doc| doc[:name] }
-  end
-
-  def get_completed_documents
-    if @region == "flandre"
-      key_docs = get_key_documents
-      return key_docs.select { |doc| doc[:status] == "completed" }.map { |doc| doc[:name] }
-    end
-
-    get_required_documents.select { |doc| doc[:status] == "completed" }.map { |doc| doc[:name] }
   end
 
   def group_by_category
@@ -217,7 +257,87 @@ class DecisionHub::DocumentRequirementsService
     @selected_primes.any? { |prime| prime[:category] == "chauffage" }
   end
 
+  def dynamic_tracking_region?
+    ["flandre", "bruxelles"].include?(@region)
+  end
+
   def get_key_documents
+    if @region == "bruxelles"
+      property = @simulation&.property
+      documents = property&.documents || []
+      active_statuses = ["approved", "pending"]
+
+      has_devis = documents.any? { |d| d.type_document == "devis" && active_statuses.include?(d.status) }
+      has_photos = documents.any? { |d| ["photo", "photo_avant"].include?(d.type_document) && active_statuses.include?(d.status) }
+
+      base_key_docs = [
+        {
+          name: "Devis entrepreneur agréé",
+          category: "administrative",
+          status: has_devis ? "completed" : "missing",
+          description: "Devis détaillé avec matériaux, main d'œuvre et délais",
+          deadline: "Avant dépôt",
+          urgent: !has_devis
+        },
+        {
+          name: "Photos avant travaux",
+          category: "administrative",
+          status: has_photos ? "completed" : "missing",
+          description: "Photos datées de l'état initial des zones à rénover",
+          deadline: "Avant commencement",
+          urgent: !has_photos
+        }
+      ]
+
+      if property&.bien_classe?
+        has_permis = documents.any? { |d| d.type_document == "permis_urbanisme" && active_statuses.include?(d.status) }
+        return base_key_docs + [
+          {
+            name: "Permis unique ou plan de gestion patrimoniale",
+            category: "administrative",
+            status: has_permis ? "completed" : "missing",
+            description: "Autorisation urbanistique obligatoire avant travaux",
+            deadline: "Avant tout début de travaux ou d'études",
+            urgent: !has_permis
+          }
+        ]
+      elsif property&.petit_patrimoine?
+        has_permis = documents.any? { |d| d.type_document == "permis_urbanisme" && active_statuses.include?(d.status) }
+        return base_key_docs + [
+          {
+            name: "Copie du permis ou accusé de réception",
+            category: "administrative",
+            status: has_permis ? "completed" : "missing",
+            description: "Selon la nature des travaux et le statut du bien (CADRE VII)",
+            deadline: "Avant dépôt",
+            urgent: !has_permis
+          }
+        ]
+      end
+
+      has_audit = documents.any? { |d| ["rapport_audit_energetique", "preuve_paiement_audit"].include?(d.type_document) && active_statuses.include?(d.status) }
+      has_urbanisme = documents.any? { |d| d.type_document == "permis_urbanisme" && active_statuses.include?(d.status) }
+
+      return base_key_docs + [
+        {
+          name: "Audit PAE",
+          category: "administrative",
+          status: has_audit ? "completed" : "missing",
+          description: "Audit énergétique PAE par conseiller agréé",
+          deadline: "Avant travaux",
+          urgent: !has_audit
+        },
+        {
+          name: "Déclaration préalable urbanisme",
+          category: "administrative",
+          status: has_urbanisme ? "completed" : "missing",
+          description: "Déclaration si modification de l'aspect extérieur",
+          deadline: "20 jours ouvrables",
+          urgent: !has_urbanisme
+        }
+      ]
+    end
+
     if @region == "flandre"
       # Pour la région Flandre, utiliser les documents obligatoires avec statut dynamique
       property = @simulation&.property

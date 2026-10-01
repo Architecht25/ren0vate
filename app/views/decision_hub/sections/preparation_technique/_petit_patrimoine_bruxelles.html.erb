@@ -1,0 +1,657 @@
+<%# locals: (technical_data:)
+    Préparation technique — Petit Patrimoine, Bruxelles-Capitale
+    Référence : AGRBC du 24 juin 2010, modifié par les AGRBC du 31 janvier 2013 et du 11 mars 2021 %>
+
+<%
+  _prop = @default_simulation&.property
+  _td   = (technical_data || {}).dig(:petit_patrimoine) || {}
+%>
+
+<!-- ============================================================
+     0. AVERTISSEMENT CLEF
+     ============================================================ -->
+<div class="alert border-0 mb-4 rounded-3"
+     style="background:#fff7ed; border-left:4px solid #f59e0b !important; border-left-width:4px !important;">
+  <div class="d-flex align-items-start gap-2">
+    <i class="bi bi-exclamation-triangle-fill text-warning flex-shrink-0 mt-1"></i>
+    <div>
+      <p class="fw-semibold mb-1">Préparez votre dossier avant de commander un devis exécutoire.</p>
+      <p class="mb-0 small text-muted">
+        La subvention Petit Patrimoine est soumise à l'AGRBC du 24 juin 2010 (modifié le 31/01/2013 et le 11/03/2021).
+        Un dossier complet accélère l'instruction par la Direction du Patrimoine culturel.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     1. ÉLIGIBILITÉ — CHECKLIST DE DÉPART
+     ============================================================ -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+  <div class="card-header rounded-top-4 text-white"
+       style="background: linear-gradient(135deg, #0d6efd 0%, #084298 100%);">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-shield-check me-1"></i>
+      <h6 class="mb-0 fw-semibold">1. Vérifier mon éligibilité</h6>
+      <span class="badge bg-white text-primary ms-auto" id="pp-eligibilite-status">À vérifier</span>
+    </div>
+  </div>
+  <div class="card-body">
+    <p class="small text-muted mb-3">Cochez chaque condition pour confirmer que votre dossier est recevable :</p>
+
+    <div class="d-flex flex-column gap-2">
+      <div class="form-check p-3 rounded-3 border" style="background:#f8f9fa;">
+        <input class="form-check-input" type="checkbox" id="pp_elig_bxl"
+               name="petit_patrimoine_elig[localisation_bxl]"
+               <%= _td.dig(:elig, :localisation_bxl) == '1' ? 'checked' : '' %>>
+        <label class="form-check-label small fw-semibold" for="pp_elig_bxl">
+          <i class="bi bi-geo-alt me-1 text-primary"></i>
+          Le bien est situé en Région de Bruxelles-Capitale
+        </label>
+      </div>
+
+      <div class="form-check p-3 rounded-3 border" style="background:#f8f9fa;">
+        <input class="form-check-input" type="checkbox" id="pp_elig_visible"
+               name="petit_patrimoine_elig[visible_espace_public]"
+               <%= _td.dig(:elig, :visible_espace_public) == '1' ? 'checked' : '' %>>
+        <label class="form-check-label small fw-semibold" for="pp_elig_visible">
+          <i class="bi bi-eye me-1 text-primary"></i>
+          L'élément de petit patrimoine est visible depuis l'espace public
+        </label>
+      </div>
+
+      <div class="form-check p-3 rounded-3 border" style="background:#f8f9fa;">
+        <input class="form-check-input" type="checkbox" id="pp_elig_non_classe"
+               name="petit_patrimoine_elig[non_classe]"
+               <%= _td.dig(:elig, :non_classe) == '1' ? 'checked' : '' %>>
+        <label class="form-check-label small fw-semibold" for="pp_elig_non_classe">
+          <i class="bi bi-bank me-1 text-primary"></i>
+          Le bien n'est pas classé, sauvegardé ou en zone de protection
+          <span class="text-muted fw-normal">(sinon, consultez la section Monuments &amp; Sites)</span>
+        </label>
+      </div>
+
+      <div class="form-check p-3 rounded-3 border" style="background:#f8f9fa;">
+        <input class="form-check-input" type="checkbox" id="pp_elig_nature"
+               name="petit_patrimoine_elig[nature_travaux]"
+               <%= _td.dig(:elig, :nature_travaux) == '1' ? 'checked' : '' %>>
+        <label class="form-check-label small fw-semibold" for="pp_elig_nature">
+          <i class="bi bi-tools me-1 text-primary"></i>
+          Les travaux visent l'entretien, la restauration ou le remplacement à l'identique
+        </label>
+      </div>
+    </div>
+
+    <div id="pp-elig-warning" class="alert alert-warning border-0 mt-3 d-none small">
+      <i class="bi bi-exclamation-triangle me-1"></i>
+      Toutes les conditions doivent être cochées pour que la demande soit recevable.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     2. IDENTITÉ DU BÉNÉFICIAIRE ET TITULAIRE DU DROIT (CADRE I)
+     ============================================================ -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+  <div class="card-header rounded-top-4 text-white"
+       style="background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-person-vcard-fill me-1"></i>
+      <h6 class="mb-0 fw-semibold">2. Identité du bénéficiaire (CADRE I)</h6>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+      <div class="col-12 col-md-4">
+        <label class="form-label small fw-medium">Type de bénéficiaire</label>
+        <select class="form-select" name="petit_patrimoine_identite[type_personne]">
+          <option value="">— Sélectionner —</option>
+          <option value="physique" <%= 'selected' if _td.dig(:identite, :type_personne) == 'physique' %>>Personne physique</option>
+          <option value="morale" <%= 'selected' if _td.dig(:identite, :type_personne) == 'morale' %>>Personne morale</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label small fw-medium">Titre sur le bien</label>
+        <select class="form-select" name="petit_patrimoine_identite[nature_droit]">
+          <option value="">— Sélectionner —</option>
+          <% [["Propriété", "propriete"], ["Usufruit", "usufruit"], ["Emphytéose", "emphyteose"],
+              ["Superficie", "superficie"], ["Concession", "concession"],
+              ["Bail commercial", "bail_commercial"], ["Copropriété", "copropriete"]].each do |lbl, val| %>
+            <option value="<%= val %>" <%= 'selected' if _td.dig(:identite, :nature_droit) == val %>><%= lbl %></option>
+          <% end %>
+        </select>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label small fw-medium">Nom / Raison sociale</label>
+        <input type="text" class="form-control" name="petit_patrimoine_identite[nom]"
+               value="<%= _td.dig(:identite, :nom) %>">
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label small fw-medium">Adresse</label>
+        <input type="text" class="form-control" name="petit_patrimoine_identite[adresse]"
+               value="<%= _td.dig(:identite, :adresse) %>">
+      </div>
+      <div class="col-12 col-md-3">
+        <label class="form-label small fw-medium">Téléphone</label>
+        <input type="tel" class="form-control" name="petit_patrimoine_identite[tel]"
+               value="<%= _td.dig(:identite, :tel) %>">
+      </div>
+      <div class="col-12 col-md-3">
+        <label class="form-label small fw-medium">Email</label>
+        <input type="email" class="form-control" name="petit_patrimoine_identite[email]"
+               value="<%= _td.dig(:identite, :email) %>">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     3. LOCALISATION ET NATURE DU BIEN (CADRE II)
+     ============================================================ -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+  <div class="card-header rounded-top-4 text-white"
+       style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-geo-alt-fill me-1"></i>
+      <h6 class="mb-0 fw-semibold">3. Localisation et nature du bien (CADRE II)</h6>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+      <div class="col-12 col-md-8">
+        <label class="form-label small fw-medium">Adresse du bien</label>
+        <input type="text" class="form-control" name="petit_patrimoine_localisation[adresse]"
+               value="<%= _td.dig(:localisation, :adresse) %>">
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label small fw-medium">Référence cadastrale</label>
+        <input type="text" class="form-control" name="petit_patrimoine_localisation[cadastre]"
+               value="<%= _td.dig(:localisation, :cadastre) %>" placeholder="ex. A 0123/00">
+      </div>
+    </div>
+
+    <div class="mt-3 d-flex flex-column gap-2">
+      <div class="form-check p-3 rounded-3 border" style="background:#faf5ff;">
+        <input class="form-check-input pp-taux-input" type="checkbox" id="pp_zone_revitalisation"
+               name="petit_patrimoine_localisation[zone_revitalisation]"
+               <%= _td.dig(:localisation, :zone_revitalisation) == 'true' ? 'checked' : '' %>>
+        <label class="form-check-label small fw-semibold" for="pp_zone_revitalisation">
+          <i class="bi bi-map me-1 text-purple" style="color:#7c3aed;"></i>
+          Le bien est situé dans un périmètre de revitalisation d'un quartier
+          <span class="text-muted fw-normal">(donne droit au taux majoré, voir section 5)</span>
+        </label>
+      </div>
+
+      <div class="form-check p-3 rounded-3 border" style="background:#faf5ff;">
+        <input class="form-check-input" type="checkbox" id="pp_liste_sauvegarde"
+               name="petit_patrimoine_localisation[liste_sauvegarde]"
+               <%= _td.dig(:localisation, :liste_sauvegarde) == 'true' ? 'checked' : '' %>>
+        <label class="form-check-label small fw-semibold" for="pp_liste_sauvegarde">
+          <i class="bi bi-file-earmark-text me-1 text-purple" style="color:#7c3aed;"></i>
+          Le bien figure sur la liste de sauvegarde ou fait l'objet d'un arrêté d'entame de procédure
+        </label>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label small fw-medium">Date de l'arrêté (si applicable)</label>
+        <input type="date" class="form-control" name="petit_patrimoine_localisation[date_arrete]"
+               value="<%= _td.dig(:localisation, :date_arrete) %>">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     4. ÉLÉMENTS DE PETIT PATRIMOINE ET TRAVAUX (CADRE III)
+     ============================================================ -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+  <div class="card-header rounded-top-4 text-white"
+       style="background: linear-gradient(135deg, #059669 0%, #047857 100%);">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-gem me-1"></i>
+      <h6 class="mb-0 fw-semibold">4. Éléments concernés et nature des travaux (CADRE III)</h6>
+    </div>
+  </div>
+  <div class="card-body">
+    <p class="small text-muted mb-2">
+      Éléments déjà déclarés sur la fiche du bien — cochez/décochez pour ajuster :
+    </p>
+
+    <%
+      _elements_cadre = {
+        "Décor de façade" => [["Sgraffites", "sgraffites"], ["Carreaux de céramique", "ceramique"], ["Panneaux de mosaïques", "mosaiques"], ["Vitraux", "vitraux"], ["Corniches ornementales", "corniches"]],
+        "Ferronneries" => [["Balustrades", "balustrades"], ["Balcons", "balcons"], ["Grilles", "grilles"], ["Portails", "portails"], ["Jardinières métalliques", "jardinieres"]],
+        "Serrurerie & Menuiserie" => [["Boîtes aux lettres", "boites_lettres"], ["Sonnettes", "sonnettes"], ["Portes", "portes"], ["Châssis", "chassis"], ["Bow-windows", "bow_windows"]],
+        "Extérieurs" => [["Clôtures", "clotures"], ["Jardinets en bordure de rue", "jardinets"]]
+      }
+      _saved_elements = _td.dig(:travaux, :elements)
+      _property_elements = _prop&.elements_petit_patrimoine || []
+    %>
+    <div class="row g-2 mb-3">
+      <% _elements_cadre.each do |groupe, elements| %>
+        <div class="col-12">
+          <p class="text-muted small mb-1 fw-medium"><%= groupe %></p>
+          <div class="d-flex flex-wrap gap-2">
+            <% elements.each do |label, val| %>
+              <% _checked = _saved_elements ? _saved_elements.include?(val) : _property_elements.include?(val) %>
+              <div class="form-check form-check-inline">
+                <input type="checkbox" class="form-check-input"
+                       name="petit_patrimoine_travaux[elements][]" value="<%= val %>"
+                       id="pp_elem_<%= val %>" <%= _checked ? 'checked' : '' %>>
+                <label class="form-check-label small" for="pp_elem_<%= val %>"><%= label %></label>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-12">
+        <label class="form-label small fw-medium">Description des éléments (dénomination, matière, état)</label>
+        <textarea class="form-control" name="petit_patrimoine_travaux[elements_description]" rows="2"><%= _td.dig(:travaux, :elements_description) %></textarea>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label small fw-medium">Type d'intervention</label>
+        <select class="form-select" name="petit_patrimoine_travaux[type_intervention]">
+          <option value="">— Sélectionner —</option>
+          <option value="etude" <%= 'selected' if _td.dig(:travaux, :type_intervention) == 'etude' %>>Étude</option>
+          <option value="restauration" <%= 'selected' if _td.dig(:travaux, :type_intervention) == 'restauration' %>>Restauration</option>
+          <option value="arbre_inventorie" <%= 'selected' if _td.dig(:travaux, :type_intervention) == 'arbre_inventorie' %>>Intervention sur arbre inventorié</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-8">
+        <label class="form-label small fw-medium">Description des travaux</label>
+        <textarea class="form-control" name="petit_patrimoine_travaux[description]" rows="2"><%= _td.dig(:travaux, :description) %></textarea>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label small fw-medium">Montant des travaux HTVA (€)</label>
+        <div class="input-group">
+          <input type="number" class="form-control pp-taux-input" id="pp_montant_htva"
+                 name="petit_patrimoine_travaux[montant_htva]"
+                 value="<%= _td.dig(:travaux, :montant_htva) %>" placeholder="0" min="0" step="100">
+          <span class="input-group-text">€</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     5. BUDGET PRÉVISIONNEL ET CALCUL (CADRE IV)
+     ============================================================ -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+  <div class="card-header rounded-top-4 text-white"
+       style="background: linear-gradient(135deg, #d97706 0%, #b45309 100%);">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-cash-stack me-1"></i>
+      <h6 class="mb-0 fw-semibold">5. Calcul de la subvention (CADRE IV)</h6>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+      <div class="col-12 col-md-6">
+        <label class="form-label small fw-medium">Type de bénéficiaire pour le calcul</label>
+        <select class="form-select pp-taux-input" id="pp-benef-type" name="petit_patrimoine_budget[type_beneficiaire]">
+          <option value="">— Sélectionner —</option>
+          <option value="prive" <%= 'selected' if _td.dig(:budget, :type_beneficiaire) == 'prive' %>>Privé</option>
+          <option value="prive_revenus_bas" <%= 'selected' if _td.dig(:budget, :type_beneficiaire) == 'prive_revenus_bas' %>>
+            Privé — revenus &lt; 40 000 € (+2 500 €/pers. à charge)
+          </option>
+          <option value="public" <%= 'selected' if _td.dig(:budget, :type_beneficiaire) == 'public' %>>
+            Public (commune, CPAS, SISP, culte, école subventionnée…)
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="mt-3 p-3 rounded-3 border" id="pp-budget-recap"
+         style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);">
+      <div class="row g-2 align-items-center">
+        <div class="col-12 col-md-4">
+          <div class="small text-muted">Taux applicable</div>
+          <div class="h5 mb-0 fw-bold text-dark" id="pp-taux-display">—</div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="small text-muted">Plafond</div>
+          <div class="h5 mb-0 fw-bold text-dark" id="pp-plafond-display">—</div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="small text-muted">Subvention estimée</div>
+          <div class="h5 mb-0 fw-bold text-success" id="pp-subvention-display">—</div>
+        </div>
+      </div>
+    </div>
+    <p class="small text-muted mt-2 mb-0">
+      Le taux majoré (75% — plafond 15 000 €) s'applique si les revenus sont inférieurs à 40 000 €
+      (+2 500 €/personne à charge) <strong>ou</strong> si le bien est en zone de revitalisation.
+    </p>
+  </div>
+</div>
+
+<!-- ============================================================
+     6. DÉLÉGATION — FACULTATIVE (CADRE V)
+     ============================================================ -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+  <div class="card-header rounded-top-4 text-white"
+       style="background: linear-gradient(135deg, #475569 0%, #334155 100%);">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-person-lines-fill me-1"></i>
+      <h6 class="mb-0 fw-semibold">6. Délégation</h6>
+      <span class="badge bg-light text-dark fw-normal ms-auto">Facultatif — CADRE V</span>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" id="pp_delegation_active"
+             name="petit_patrimoine_delegation[active]"
+             data-bs-toggle="collapse" data-bs-target="#pp-delegation-fields"
+             <%= _td.dig(:delegation, :active) == 'true' ? 'checked' : '' %>>
+      <label class="form-check-label small fw-semibold" for="pp_delegation_active">
+        Je délègue la maîtrise d'ouvrage, les contacts administratifs ou le bénéfice de la subvention
+      </label>
+    </div>
+    <div class="collapse <%= 'show' if _td.dig(:delegation, :active) == 'true' %>" id="pp-delegation-fields">
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <label class="form-label small fw-medium">Nom du délégué</label>
+          <input type="text" class="form-control" name="petit_patrimoine_delegation[nom]"
+                 value="<%= _td.dig(:delegation, :nom) %>">
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label small fw-medium">Qualité</label>
+          <select class="form-select" name="petit_patrimoine_delegation[qualite]">
+            <option value="">— Sélectionner —</option>
+            <option value="locataire" <%= 'selected' if _td.dig(:delegation, :qualite) == 'locataire' %>>Locataire</option>
+            <option value="syndic" <%= 'selected' if _td.dig(:delegation, :qualite) == 'syndic' %>>Syndic</option>
+            <option value="autre" <%= 'selected' if _td.dig(:delegation, :qualite) == 'autre' %>>Autre</option>
+          </select>
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label small fw-medium">Adresse</label>
+          <input type="text" class="form-control" name="petit_patrimoine_delegation[adresse]"
+                 value="<%= _td.dig(:delegation, :adresse) %>">
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label small fw-medium">Téléphone</label>
+          <input type="tel" class="form-control" name="petit_patrimoine_delegation[tel]"
+                 value="<%= _td.dig(:delegation, :tel) %>">
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label small fw-medium">Email</label>
+          <input type="email" class="form-control" name="petit_patrimoine_delegation[email]"
+                 value="<%= _td.dig(:delegation, :email) %>">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     7. LIQUIDATION (CADRE VI)
+     ============================================================ -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+  <div class="card-header rounded-top-4 text-white"
+       style="background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-bank2 me-1"></i>
+      <h6 class="mb-0 fw-semibold">7. Liquidation de la subvention (CADRE VI)</h6>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+      <div class="col-12 col-md-5">
+        <label class="form-label small fw-medium">IBAN</label>
+        <input type="text" class="form-control" name="petit_patrimoine_liquidation[iban]"
+               value="<%= _td.dig(:liquidation, :iban) %>" placeholder="BE68 5390 0754 7034">
+      </div>
+      <div class="col-12 col-md-3">
+        <label class="form-label small fw-medium">BIC</label>
+        <input type="text" class="form-control" name="petit_patrimoine_liquidation[bic]"
+               value="<%= _td.dig(:liquidation, :bic) %>">
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label small fw-medium">Titulaire du compte</label>
+        <input type="text" class="form-control" name="petit_patrimoine_liquidation[titulaire]"
+               value="<%= _td.dig(:liquidation, :titulaire) %>">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     8. DOCUMENTS À RÉUNIR (CADRE VII)
+     ============================================================ -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+  <div class="card-header rounded-top-4 text-white"
+       style="background: linear-gradient(135deg, #be185d 0%, #9d174d 100%);">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-folder-check me-1"></i>
+      <h6 class="mb-0 fw-semibold">8. Documents à réunir (CADRE VII)</h6>
+      <span class="badge bg-white text-dark ms-auto" id="pp-docs-count">0 / 8</span>
+    </div>
+  </div>
+  <div class="card-body pp-doc-checklist">
+    <div class="row g-2">
+      <div class="col-12 col-md-6">
+        <div class="d-flex flex-column gap-2">
+          <% [
+            ["doc_rib",         "RIB ou attestation d'identité bancaire"],
+            ["doc_description", "Description de l'objet (dénomination, matière, état)"],
+            ["doc_permis",      "Copie du permis ou de l'accusé de réception (si requis)"],
+            ["doc_photo_facade","Photo couleur récente de la façade et du jardinet"]
+          ].each do |id, label| %>
+            <div class="form-check p-2 rounded-3 border" style="background:#f8f9fa;">
+              <input class="form-check-input pp-doc-check" type="checkbox" id="<%= id %>"
+                     name="petit_patrimoine_docs[<%= id %>]"
+                     <%= _td.dig(:docs, id.to_sym) == '1' ? 'checked' : '' %>>
+              <label class="form-check-label small" for="<%= id %>">
+                <i class="bi bi-paperclip text-primary me-1"></i><%= label %>
+              </label>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="d-flex flex-column gap-2">
+          <% [
+            ["doc_photo_elements", "Photo de chaque élément de petit patrimoine concerné"],
+            ["doc_graphiques",     "Documents graphiques (plans, croquis)"],
+            ["doc_devis",          "Devis détaillé de l'entreprise ou du bureau d'études"],
+            ["doc_note",           "Note explicative si modification d'aspect"]
+          ].each do |id, label| %>
+            <div class="form-check p-2 rounded-3 border" style="background:#f8f9fa;">
+              <input class="form-check-input pp-doc-check" type="checkbox" id="<%= id %>"
+                     name="petit_patrimoine_docs[<%= id %>]"
+                     <%= _td.dig(:docs, id.to_sym) == '1' ? 'checked' : '' %>>
+              <label class="form-check-label small" for="<%= id %>">
+                <i class="bi bi-paperclip text-primary me-1"></i><%= label %>
+              </label>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <p class="small fw-semibold text-muted mt-3 mb-2">Documents supplémentaires — taux majoré</p>
+    <div class="d-flex flex-column gap-2">
+      <% [
+        ["doc_revenus",        "Avertissements-extraits de rôle"],
+        ["doc_composition",    "Composition de ménage (moins de 3 mois)"],
+        ["doc_matrice",        "Extrait de la matrice cadastrale"]
+      ].each do |id, label| %>
+        <div class="form-check p-2 rounded-3 border" style="background:#fff7ed;">
+          <input class="form-check-input" type="checkbox" id="<%= id %>"
+                 name="petit_patrimoine_docs[<%= id %>]"
+                 <%= _td.dig(:docs, id.to_sym) == '1' ? 'checked' : '' %>>
+          <label class="form-check-label small" for="<%= id %>">
+            <i class="bi bi-paperclip text-warning me-1"></i><%= label %>
+          </label>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="mt-3">
+      <div class="d-flex justify-content-between small text-muted mb-1">
+        <span>Préparation documentaire</span>
+        <span id="pp-docs-pct">0%</span>
+      </div>
+      <div class="progress" style="height:8px;">
+        <div class="progress-bar bg-success" role="progressbar" id="pp-docs-progress" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     9. DÉCLARATIONS COMPLÉMENTAIRES (CADRE VIII)
+     ============================================================ -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+  <div class="card-header rounded-top-4 text-white"
+       style="background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-clipboard2-check me-1"></i>
+      <h6 class="mb-0 fw-semibold">9. Déclarations complémentaires (CADRE VIII)</h6>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+      <div class="col-12 col-md-4">
+        <label class="form-label small fw-medium">Autre(s) aide(s) publique(s) sollicitée(s) ?</label>
+        <select class="form-select" name="petit_patrimoine_declarations[autres_aides]">
+          <option value="">— Sélectionner —</option>
+          <option value="non" <%= 'selected' if _td.dig(:declarations, :autres_aides) == 'non' %>>Non</option>
+          <option value="oui" <%= 'selected' if _td.dig(:declarations, :autres_aides) == 'oui' %>>Oui</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label small fw-medium">Type d'aide</label>
+        <input type="text" class="form-control" name="petit_patrimoine_declarations[autres_aides_type]"
+               value="<%= _td.dig(:declarations, :autres_aides_type) %>">
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label small fw-medium">Date de la demande</label>
+        <input type="date" class="form-control" name="petit_patrimoine_declarations[autres_aides_date]"
+               value="<%= _td.dig(:declarations, :autres_aides_date) %>">
+      </div>
+    </div>
+
+    <div class="mt-3 p-3 rounded-3 border" style="background:#faf5ff;">
+      <p class="small fw-semibold mb-2" style="color:#6d28d9;">
+        <i class="bi bi-info-circle me-1"></i>Contact officiel
+      </p>
+      <p class="small text-muted mb-1">Direction du Patrimoine culturel — urban.brussels</p>
+      <p class="small text-muted mb-0">
+        <a href="mailto:petit.patrimoine@urban.brussels">petit.patrimoine@urban.brussels</a>
+        · <a href="https://patrimoine.brussels/" target="_blank" rel="noopener">www.patrimoine.brussels</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     CTA — Sauvegarder & créer la demande
+     ============================================================ -->
+<div class="text-center mb-4">
+  <button type="button" class="btn btn-outline-primary btn-lg px-4 rounded-3 me-2"
+          id="pp-save-btn" data-simulation-id="<%= @default_simulation&.id %>"
+          onclick="window.savePetitPatrimoinePreparation(this)">
+    <i class="bi bi-save me-2"></i>Sauvegarder mes données Petit Patrimoine
+  </button>
+
+  <% if @default_simulation&.property&.projects&.any? %>
+    <% _pp_proj = @default_simulation.property.projects.order(created_at: :desc).first %>
+    <%= link_to new_request_path(project_id: _pp_proj.id, form_type: :patrimoine_bruxelles),
+          class: "btn btn-primary btn-lg px-5 rounded-3" do %>
+      <i class="bi bi-file-earmark-plus me-2"></i>Créer ma demande officielle
+    <% end %>
+  <% end %>
+</div>
+
+<script nonce="<%= content_security_policy_nonce %>">
+(function() {
+  var TAUX_PP = {
+    prive:             { taux: 0.50, plafond: 10000 },
+    prive_revenus_bas: { taux: 0.75, plafond: 15000 },
+    public:             { taux: 0.75, plafond: 15000 }
+  };
+
+  function fmt(n) {
+    return new Intl.NumberFormat('fr-BE', { style:'currency', currency:'EUR', maximumFractionDigits:0 }).format(n);
+  }
+
+  // ---- Calcul budget live ----
+  function recalcBudgetPP() {
+    var montant   = parseFloat(document.getElementById('pp_montant_htva')?.value) || 0;
+    var typeBenef = document.getElementById('pp-benef-type')?.value;
+    var zoneRevit = document.getElementById('pp_zone_revitalisation')?.checked;
+
+    var effectiveType = typeBenef;
+    if (typeBenef === 'prive' && zoneRevit) effectiveType = 'prive_revenus_bas';
+
+    var tauxEl = document.getElementById('pp-taux-display');
+    var plafEl = document.getElementById('pp-plafond-display');
+    var subvEl = document.getElementById('pp-subvention-display');
+
+    var config = TAUX_PP[effectiveType];
+    if (config) {
+      var subvention = Math.min(montant * config.taux, config.plafond);
+      if (tauxEl) tauxEl.textContent = (config.taux * 100) + '%';
+      if (plafEl) plafEl.textContent = fmt(config.plafond);
+      if (subvEl) subvEl.textContent = montant > 0 ? fmt(subvention) : '—';
+    } else {
+      if (tauxEl) tauxEl.textContent = '—';
+      if (plafEl) plafEl.textContent = '—';
+      if (subvEl) subvEl.textContent = '—';
+    }
+  }
+
+  document.querySelectorAll('.pp-taux-input').forEach(function(el) {
+    el.addEventListener('input', recalcBudgetPP);
+    el.addEventListener('change', recalcBudgetPP);
+  });
+  recalcBudgetPP();
+
+  // ---- Barre de progression documents ----
+  function recalcDocsPP() {
+    var checks = document.querySelectorAll('.pp-doc-check');
+    var total  = checks.length;
+    var done   = Array.from(checks).filter(function(c) { return c.checked; }).length;
+    var pct    = total > 0 ? Math.round(done / total * 100) : 0;
+
+    var bar    = document.getElementById('pp-docs-progress');
+    var pctEl  = document.getElementById('pp-docs-pct');
+    var countEl= document.getElementById('pp-docs-count');
+
+    if (bar)    bar.style.width = pct + '%';
+    if (pctEl)  pctEl.textContent = pct + '%';
+    if (countEl) countEl.textContent = done + ' / ' + total;
+  }
+
+  document.querySelectorAll('.pp-doc-check').forEach(function(el) {
+    el.addEventListener('change', recalcDocsPP);
+  });
+  recalcDocsPP();
+
+  // ---- Alerte éligibilité ----
+  function checkEligibilitePP() {
+    var all = ['pp_elig_bxl', 'pp_elig_visible', 'pp_elig_non_classe', 'pp_elig_nature'];
+    var done = all.every(function(id) {
+      var el = document.getElementById(id);
+      return el && el.checked;
+    });
+    var warn = document.getElementById('pp-elig-warning');
+    var badge= document.getElementById('pp-eligibilite-status');
+    if (warn) warn.classList.toggle('d-none', done);
+    if (badge) {
+      badge.textContent = done ? 'Éligible ✓' : 'À vérifier';
+      badge.className   = done ? 'badge bg-success ms-auto' : 'badge bg-white text-primary ms-auto';
+    }
+  }
+
+  ['pp_elig_bxl', 'pp_elig_visible', 'pp_elig_non_classe', 'pp_elig_nature'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('change', checkEligibilitePP);
+  });
+  checkEligibilitePP();
+})();
+</script>
