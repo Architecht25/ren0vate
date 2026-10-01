@@ -34,27 +34,11 @@ class Subscription < ApplicationRecord
   end
 
   def tier_name
-    case tier
-    when 'freemium' then 'Starter'
-    when 'individual' then 'Propriétaire'
-    when 'portfolio' then 'Investisseur'
-    when 'premium_mixed' then 'Premium'
-    when 'professional' then 'Pro'
-    when 'enterprise' then 'Entreprise'
-    else tier.humanize
-    end
+    PricingTierCatalog.name(tier)
   end
 
   def monthly_price
-    case tier
-    when 'freemium' then 0
-    when 'individual' then 39
-    when 'portfolio' then 89
-    when 'premium_mixed' then 149
-    when 'professional' then 99
-    when 'enterprise' then 299
-    else 0
-    end
+    PricingTierCatalog.price(tier)
   end
 
   # Sync with Stripe

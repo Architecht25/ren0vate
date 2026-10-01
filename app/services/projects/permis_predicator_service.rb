@@ -131,12 +131,11 @@ module Projects
     def detect_declared_work_types
       types = []
 
-      # Depuis le nom et la description du projet
-      nom = [@project.nom, @project.description.to_s].join(' ').downcase
-
-      KEYWORD_MAP.each do |keywords, work_type|
-        types << work_type if keywords.any? { |k| nom.include?(k) }
-      end
+      # Depuis le nom et la description du projet — analyse IA (Claude) en
+      # priorité, avec repli automatique sur le matching par mots-clés si
+      # Claude est indisponible ou ne renvoie rien d'exploitable.
+      texte_libre = [@project.nom, @project.description.to_s].join(' ')
+      types += detect_work_types_via_claude(texte_libre) || detect_work_types_by_keywords_from_text(texte_libre)
 
       # Depuis les corps de métiers renseignés
       corps = (@project.corps_metiers || []).map { |c| c['specialite'].to_s.downcase }
@@ -158,6 +157,21 @@ module Projects
       end
 
       types.uniq
+    end
+
+    def detect_work_types_via_claude(texte_libre)
+      Bots::TravauxDetectionClaudeService.new(texte_libre).detect
+    end
+
+    def detect_work_types_by_keywords_from_text(texte_libre)
+      nom = texte_libre.downcase
+      types = []
+
+      KEYWORD_MAP.each do |keywords, work_type|
+        types << work_type if keywords.any? { |k| nom.include?(k) }
+      end
+
+      types
     end
 
     KEYWORD_MAP = {

@@ -1,6 +1,6 @@
 class ProjectsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :edit_budget, :update_budget, :edit_professionals, :update_professionals, :fin_chantier, :scan_peb_apres, :scan_audit_energ, :audit_energ_statut, :update_fin_chantier, :reception_chantier, :scan_attestation_conformite, :garanties, :check_contrat, :carnet_entretien, :roi_calculator, :analyze_photos, :vision_status, :score_sante, :upload_pv_externe]
+  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :retenir_devis, :edit_budget, :update_budget, :edit_professionals, :update_professionals, :fin_chantier, :scan_peb_apres, :scan_audit_energ, :audit_energ_statut, :update_fin_chantier, :reception_chantier, :scan_attestation_conformite, :garanties, :check_contrat, :carnet_entretien, :roi_calculator, :analyze_photos, :vision_status, :score_sante, :upload_pv_externe]
   # `validate_phase` doit rester accessible aux collaborateurs actifs (architecte, entrepreneur),
   # pas seulement au propriétaire — `set_project` (ci-dessus) scope à `current_user.projects`
   # (propriétaire uniquement) et faisait 404 pour toute validation par un pro (confirmé en test
@@ -50,13 +50,33 @@ class ProjectsController < ApplicationController
     @devis_scanne_autres       = @project.devis_donnees.par_categorie('autre').avec_montant.order(created_at: :desc)
 
     # Planning preview
-    @latest_quote = @project.property&.quotes&.includes(:quote_items)&.order(created_at: :desc)&.first
-    @planning_items_count = @latest_quote ? @latest_quote.quote_items.count : 0
+    gantt_builder = Projects::GanttBuilder.new(@project)
+    @gantt_source = gantt_builder.source
+    @planning_items_count = gantt_builder.bars.count
+    @latest_quote = gantt_builder.latest_quote
     @factures_count = @project.factures.count
     @simulations = @project.simulations.order(created_at: :desc)
 
     # Plan de financement — resynchronise les lignes primes/prêt wallon avant affichage
     @project.sync_financing_sources!
+
+    # Checklist "Vérification du contrat d'entrepreneur" — un seul template pertinent,
+    # créée automatiquement à la première visite de l'onglet Budget, devis et contrats.
+    # Pas d'index unique en base sur (project_id, checklist_template_id) — les autres
+    # templates (inspections) doivent rester démarrables plusieurs fois par un utilisateur.
+    # On verrouille donc le projet le temps de la création pour éviter que deux requêtes
+    # concurrentes (deux onglets ouverts, double-clic) ne créent chacune leur checklist.
+    contrat_template = ChecklistTemplate.find_by(phase: 'contrat')
+    if contrat_template
+      @contrat_checklist = @project.project_checklists.find_by(checklist_template: contrat_template)
+      if @contrat_checklist.nil?
+        @project.with_lock do
+          @contrat_checklist = @project.project_checklists.find_or_create_by!(checklist_template: contrat_template)
+        end
+      end
+      @contrat_checklist = ProjectChecklist.includes(project_checklist_items: :checklist_item)
+                                            .find(@contrat_checklist.id)
+    end
   end
 
   def new
@@ -403,7 +423,7 @@ class ProjectsController < ApplicationController
     @project_checklists   = @project.project_checklists
                                      .includes(:checklist_template)
                                      .order(created_at: :desc)
-    @checklist_templates  = ChecklistTemplate.ordered
+    @checklist_templates  = ChecklistTemplate.inspectable.ordered
   end
 
   # GET /projects/:id/garanties
@@ -731,18 +751,30 @@ class ProjectsController < ApplicationController
   end
 
   def gantt
-    @quotes = @project.property.quotes.includes(:quote_items).order(created_at: :desc)
-    @latest_quote = @quotes.first
-    @factures = @project.factures.order(:date_facture)
+    builder = Projects::GanttBuilder.new(@project)
+    @gantt_source = builder.source
+    @gantt_bars   = builder.bars
+    @milestones   = builder.milestones
+    @start_date   = @project.date_début || Date.today
 
-    # Date de début : date_début du projet ou aujourd'hui
-    @start_date = @project.date_début || Date.today
+    # Repli estimateur — conservé pour le lien "Voir le devis" en sidebar
+    @quotes       = @project.property&.quotes&.includes(:quote_items)&.order(created_at: :desc) || []
+    @latest_quote = builder.latest_quote
+  end
 
-    # Construire les barres Gantt depuis le dernier devis
-    @gantt_bars = build_gantt_bars(@start_date, @latest_quote)
+  def retenir_devis
+    devis = @project.devis_donnees.find(params[:devis_donnee_id])
+    devis.marquer_retenu!
 
-    # Jalons : date début, factures, date fin
-    @milestones = build_milestones
+    respond_to do |format|
+      format.html { redirect_back fallback_location: edit_budget_project_path(@project), notice: "Devis retenu mis à jour." }
+      format.json { render json: { success: true } }
+    end
+  rescue ActiveRecord::RecordNotFound
+    respond_to do |format|
+      format.html { redirect_back fallback_location: edit_budget_project_path(@project), alert: "Devis introuvable." }
+      format.json { render json: { success: false, error: "Devis introuvable" }, status: :not_found }
+    end
   end
 
   def roi_calculator
@@ -950,49 +982,6 @@ class ProjectsController < ApplicationController
                  prochaine: date_fin ? (date_fin + 10.years) : nil, note: 'Selon exposition et qualité des matériaux' }
 
     rappels.sort_by { |r| r[:prochaine] || Date.today + 99.years }
-  end
-
-  def build_gantt_bars(start_date, quote)
-    return [] unless quote
-
-    cursor = start_date
-    bars = []
-
-    quote.quote_items.each do |item|
-      wt = WorkType.find(item.work_type_key, region: quote.property.region)
-      next unless wt
-
-      duration = item.unit_price_min.present? ? (wt.duration_min + wt.duration_max) / 2.0 : wt.duration_min
-      end_date = cursor + duration.ceil.days
-
-      bars << {
-        key:      item.work_type_key,
-        name:     wt.name,
-        icon:     wt.icon,
-        category: wt.category,
-        start:    cursor,
-        end:      end_date,
-        total_min: item.total_min,
-        total_max: item.total_max,
-        total_avg: item.total_avg || ((item.total_min.to_f + item.total_max.to_f) / 2).round(2)
-      }
-
-      # Chevauchement léger : démarrage du suivant à J+2 du début (travaux parallèles possibles)
-      cursor = cursor + 2.days
-    end
-
-    bars
-  end
-
-  def build_milestones
-    milestones = []
-    milestones << { date: @project.date_début, label: 'Début chantier', color: 'success' } if @project.date_début
-    @factures.each do |f|
-      next unless f.date_facture
-      milestones << { date: f.date_facture, label: "Facture #{f.type_facture&.humanize}", color: 'warning' }
-    end
-    milestones << { date: @project.date_fin, label: 'Fin prévue', color: 'danger' } if @project.date_fin
-    milestones.sort_by { |m| m[:date] }
   end
 
   def set_project

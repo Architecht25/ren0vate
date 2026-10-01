@@ -11,6 +11,8 @@ class ProjectChecklistItemsController < ApplicationController
       @item.uncheck!
     end
 
+    # Toujours vers la vue plein écran (notes, badge "Obligatoire", etc.) —
+    # y compris quand on coche depuis la carte inline sur la page projet.
     redirect_to project_project_checklist_path(@project, @checklist),
                 notice: "Élément mis à jour."
   end

@@ -5,7 +5,9 @@ class ProjectChecklistsController < ApplicationController
 
   # POST /projects/:project_id/project_checklists
   def create
-    template = ChecklistTemplate.find(params[:checklist_template_id])
+    # .inspectable exclut les templates singleton (ex: contrat), gérés automatiquement
+    # ailleurs — empêche de démarrer une seconde inspection via un POST direct de son id.
+    template = ChecklistTemplate.inspectable.find(params[:checklist_template_id])
     @checklist = @project.project_checklists.build(checklist_template: template)
 
     if @checklist.save
@@ -25,6 +27,7 @@ class ProjectChecklistsController < ApplicationController
     @items = @checklist.project_checklist_items
                        .joins(:checklist_item)
                        .order('checklist_items.position')
+    @back_path = back_path_for(@checklist)
   end
 
   # DELETE /projects/:project_id/project_checklists/:id
@@ -36,6 +39,14 @@ class ProjectChecklistsController < ApplicationController
   end
 
   private
+
+  # La checklist "contrat" vit dans l'onglet Budget/devis/contrats de la page
+  # projet, pas dans Réception chantier — contrairement aux inspections.
+  def back_path_for(checklist)
+    return project_path(@project, tab: 'preparation') if checklist.checklist_template.phase == 'contrat'
+
+    reception_chantier_project_path(@project, anchor: 'checklists')
+  end
 
   def set_project
     @project = Project.find(params[:project_id])

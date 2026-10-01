@@ -189,19 +189,19 @@ class PricingController < ApplicationController
   def pricing_tiers_data
     {
       freemium: {
-        name: "Starter",
-        price: 0,
+        name: PricingTierCatalog.name(:freemium),
+        price: PricingTierCatalog.price(:freemium),
         period: "gratuit",
         description: "Découvrez Ren0vate — sans engagement",
         features: [
           "1 bien enregistré",
           "1 projet de rénovation",
           "Simulation de primes (1×)",
-          "Estimation budget IA (aperçu)"
+          "Estimation budget IA (aperçu)",
+          "🤖 Expert IA — #{PricingTierCatalog.chat_limit(:freemium)} questions découverte/mois"
         ],
         limitations: [
           "Pas de suivi chantier",
-          "Pas d'Expert IA",
           "Pas de comparateur entrepreneurs",
           "Pas de dossier documentaire",
           "Support communautaire uniquement"
@@ -212,9 +212,9 @@ class PricingController < ApplicationController
       },
 
       individual: {
-        name: "Propriétaire",
-        price: 39,
-        annual_total: 390,
+        name: PricingTierCatalog.name(:individual),
+        price: PricingTierCatalog.price(:individual),
+        annual_total: PricingTierCatalog.annual_total(:individual),
         period: "mois",
         description: "Rénovation, primes, DIU et vente — 1 à 3 biens",
         features: [
@@ -226,6 +226,7 @@ class PricingController < ApplicationController
           "🏛️ Prédicteur permis urbanisme IA (87%)",
           "👷 Comparateur entrepreneurs (3/mois)",
           "📋 Bordereaux d'avancement IA — suivi structuré",
+          "🤖 Expert IA (#{PricingTierCatalog.chat_limit(:individual)} questions/mois)",
           "📁 Dossier documentaire de base",
           "📜 DIU automatique (Dossier d'Intervention Ultérieure)",
           "🏷️ Mise en vente — checklist & valorisation",
@@ -239,9 +240,9 @@ class PricingController < ApplicationController
       },
 
       portfolio: {
-        name: "Investisseur",
-        price: 89,
-        annual_total: 890,
+        name: PricingTierCatalog.name(:portfolio),
+        price: PricingTierCatalog.price(:portfolio),
+        annual_total: PricingTierCatalog.annual_total(:portfolio),
         period: "mois",
         description: "Multi-biens, chantier en temps réel + gestion locative",
         features: [
@@ -257,7 +258,7 @@ class PricingController < ApplicationController
           "📈 Dashboard analytics multi-biens",
           "🔑 Gestion locative — baux, locataires, loyers",
           "📅 Suivi paiements & alertes impayés",
-          "🤖 Expert IA 24/7 (100 questions/mois)",
+          "🤖 Expert IA 24/7 (#{PricingTierCatalog.chat_limit(:portfolio)} questions/mois)",
           "📞 Support expert (12h)",
           "📦 Dossier final ZIP/PDF (à venir)"
         ],
@@ -269,9 +270,9 @@ class PricingController < ApplicationController
       },
 
       premium_mixed: {
-        name: "Premium",
-        price: 149,
-        annual_total: 1490,
+        name: PricingTierCatalog.name(:premium_mixed),
+        price: PricingTierCatalog.price(:premium_mixed),
+        annual_total: PricingTierCatalog.annual_total(:premium_mixed),
         period: "mois",
         description: "Multi-biens + usage professionnel mixte",
         features: [
@@ -292,9 +293,9 @@ class PricingController < ApplicationController
       },
 
       professional: {
-        name: "Pro",
-        price: 99,
-        annual_total: 990,
+        name: PricingTierCatalog.name(:professional),
+        price: PricingTierCatalog.price(:professional),
+        annual_total: PricingTierCatalog.annual_total(:professional),
         period: "mois",
         description: "Architectes, entrepreneurs, bureaux d'études",
         features: [
@@ -317,9 +318,9 @@ class PricingController < ApplicationController
       },
 
       enterprise: {
-        name: "Entreprise",
-        price: 299,
-        annual_total: 2990,
+        name: PricingTierCatalog.name(:enterprise),
+        price: PricingTierCatalog.price(:enterprise),
+        annual_total: PricingTierCatalog.annual_total(:enterprise),
         period: "mois",
         description: "Syndics, promoteurs, grandes équipes — solution sur-mesure",
         features: [
