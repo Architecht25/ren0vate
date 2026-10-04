@@ -22,6 +22,7 @@ class SupportTicketsController < ApplicationController
       )
       SupportMailer.ticket_received(current_user, @ticket).deliver_later
       SupportMailer.admin_new_ticket(@ticket).deliver_later
+      Notification.create_admin_nouveau_ticket(@ticket)
       redirect_to support_ticket_path(@ticket),
                   notice: "Votre demande a été envoyée. Nous vous répondrons sous 24h."
     else

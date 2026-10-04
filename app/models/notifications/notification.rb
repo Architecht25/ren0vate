@@ -11,7 +11,9 @@ class Notification < ApplicationRecord
 
   # Callbacks
   after_initialize :set_defaults, if: :new_record?
-  after_create_commit :send_email_notification
+  # Pas d'email pour les notifications de ticket : SupportMailer.admin_new_ticket
+  # envoie déjà le mail à l'admin.
+  after_create_commit :send_email_notification, unless: :admin_nouveau_ticket?
 
   def set_defaults
     self.priority ||= :normale
@@ -40,7 +42,8 @@ class Notification < ApplicationRecord
     admin_legal: 'admin_legal',
     admin_maintenance: 'admin_maintenance',
     admin_nouvelle_prime: 'admin_nouvelle_prime',
-    admin_urgent: 'admin_urgent'
+    admin_urgent: 'admin_urgent',
+    admin_nouveau_ticket: 'admin_nouveau_ticket'
   }
 
   enum :category, {
@@ -113,6 +116,7 @@ class Notification < ApplicationRecord
     when 'admin_maintenance' then 'bi-tools'
     when 'admin_nouvelle_prime' then 'bi-star'
     when 'admin_urgent' then 'bi-exclamation-triangle'
+    when 'admin_nouveau_ticket' then 'bi-headset'
     else 'bi-bell'
     end
   end
@@ -311,6 +315,24 @@ class Notification < ApplicationRecord
         priority: :normale,
         expires_at: 30.days.from_now
       )
+    end
+
+    # Nouveau ticket de support — notifie chaque admin dans l'app
+    def create_admin_nouveau_ticket(ticket)
+      urgent = ticket.priority == 'urgent'
+
+      User.admin.find_each do |admin|
+        create!(
+          user: admin,
+          type: :admin_nouveau_ticket,
+          category: :aide,
+          title: "Nouveau ticket support ##{ticket.id}#{' (urgent)' if urgent}",
+          message: "#{ticket.user.email} — #{ticket.subject} (#{ticket.category_label})",
+          action_url: "/admin/support_tickets/#{ticket.id}",
+          priority: urgent ? :critique : :haute,
+          expires_at: 14.days.from_now
+        )
+      end
     end
 
     # Méthodes pour notifications admin
