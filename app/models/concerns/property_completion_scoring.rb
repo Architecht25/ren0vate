@@ -68,6 +68,71 @@ module PropertyCompletionScoring
     }
   end
 
+  # Label PEB avant travaux (source unique : PebDonnee), lu par les primes
+  # flamandes et les prêts wallon/bruxellois.
+  def peb_label_avant_travaux
+    peb_donnees.avant_travaux.recents.first&.label_peb
+  end
+
+  # Socle minimal pour qu'une simulation ait un sens, par région :
+  # - commun : adresse, profil demandeur, revenu, PEB avant travaux, chantier
+  # - Wallonie (prêt à taux 0) : type de propriété, AER
+  # - Flandre : type de bien, usage, propriété ≥ 1 %, domiciliation, AER, et côté
+  #   chantier : type de travaux, date de facture de solde, démolition/reconstruction,
+  #   client protégé, autre bien (colonnes du bien)
+  # - Bruxelles : type de bien, AER (primes communales)
+  def informations_de_base_manquantes
+    regional = region&.downcase
+    manquants = %i[rue numero code_postal commune region].filter_map do |field|
+      "Bien : #{field.to_s.humanize}" if self[field].blank?
+    end
+
+    manquants << "Bien : profil demandeur" if profil_demandeur.blank?
+    manquants << "Profil : revenu du demandeur" if user&.revenu_demandeur.blank?
+    manquants << "Bien : label PEB avant travaux" if peb_label_avant_travaux.blank?
+    manquants << "Chantier : aucun chantier rattaché à ce bien" unless projects.exists?
+
+    case regional
+    when 'wallonie'
+      manquants << "Bien : type de propriété (Wallonie)" if type_propriete_wallonie.blank?
+      manquants << "Documents : avertissement extrait de rôle (AER)" unless aer_present?
+    when 'flandre'
+      manquants << "Bien : type de bien (Flandre)" if type_bien_flandre.blank?
+      manquants << "Bien : usage (Flandre)" if usage_flandre.blank?
+      manquants << "Bien : pourcentage de propriété" if pourcentage_propriete.blank?
+      manquants << "Bien : domiciliation (Flandre)" if domicilie_flandre.nil?
+      manquants << "Bien : type de propriété (Flandre)" if type_propriete_flandre.blank?
+      manquants << "Documents : avertissement extrait de rôle (AER)" unless aer_present?
+      manquants.concat(chantier_flandre_manquants)
+      manquants << "Bien : client protégé (Flandre)" if client_protege_flandre.nil?
+      manquants << "Bien : autre bien possédé (Flandre)" if autre_bien.blank?
+    when 'bruxelles'
+      manquants << "Bien : type de bien (Bruxelles)" if type_bien_bruxelles.blank?
+      manquants << "Documents : avertissement extrait de rôle (AER)" unless aer_present?
+    end
+
+    manquants
+  end
+
+  # Questions flamandes portées par le chantier (le plus récent) : type de travaux,
+  # date de facture de solde, démolition/reconstruction.
+  def chantier_flandre_manquants
+    projet = projects.order(created_at: :desc).first
+    return [] unless projet
+
+    manquants = []
+    manquants << "Chantier : type de travaux" if projet.type_travaux.blank?
+    manquants << "Chantier : date de facture de solde" if projet.invoice_date.blank? && projet.work_completion_date.blank?
+    manquants << "Chantier : reconstruction après démolition (oui/non)" if projet.reconstruction_demolition.nil?
+    manquants
+  end
+  private :chantier_flandre_manquants
+
+  def aer_present?
+    documents.where(type_document: 'aer').exists?
+  end
+  private :aer_present?
+
   def completion_percentage
     admin_weight = 0.3
     chantier_weight = 0.3

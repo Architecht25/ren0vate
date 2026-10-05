@@ -50,7 +50,8 @@ class OnboardingSmokeTest < ActionDispatch::IntegrationTest
 
     # Étape 2 : créer le bien
     post onboarding_create_proprietaire_bien_path(locale: :fr), params: {
-      property: { rue: "Rue Test", numero: "1", code_postal: "5000", commune: "Namur", region: "wallonie" }
+      property: { rue: "Rue Test", numero: "1", code_postal: "5000", commune: "Namur", region: "wallonie",
+                  type_propriete_wallonie: "unique_proprietaire", profil_demandeur: "propriétaire_occupant_ou_futur_occupant" }
     }
     assert_redirected_to onboarding_proprietaire_projet_path(locale: :fr)
 

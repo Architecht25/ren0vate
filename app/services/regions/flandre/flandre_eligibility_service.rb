@@ -145,7 +145,7 @@ module Regions
 
         # 13. "protege" => "Êtes-vous un client protégé..."
         Rails.logger.info "=== Vérification 13: Client protégé ==="
-        if est_client_protege?
+        if est_client_protege?(property)
           Rails.logger.info "INFO: Utilisateur est client protégé (catégorie 4 automatique)"
         else
           Rails.logger.info "INFO: Utilisateur n'est pas client protégé (catégorie selon revenus)"
@@ -496,17 +496,15 @@ module Regions
         # Question: "Le certificat PEB avant travaux de rénovation indique-t-il un label E, F?"
         # Cette information affecte les bonus mais n'est pas éliminatoire
 
-        return false unless property.respond_to?(:peb_label_avant)
-
         peb_labels_eligibles = %w[E F]
-        property.peb_label_avant.in?(peb_labels_eligibles)
+        property.peb_label_avant_travaux.in?(peb_labels_eligibles)
       end
 
-      def est_client_protege?
+      def est_client_protege?(property)
         # Question: "Êtes-vous un client protégé..."
         # Affecte directement la catégorie (→ Catégorie 4) mais n'est pas éliminatoire
-
-        @user.respond_to?(:client_protege_flandre) && @user.client_protege_flandre == true
+        # Champ porté par le bien (formulaire Flandre)
+        property&.client_protege_flandre == true
       end
 
       def est_une_maison?(property)

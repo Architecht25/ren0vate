@@ -1,0 +1,17 @@
+<% if biens_incomplets.present? %>
+  <div class="alert alert-warning border-0 rounded-4 mb-4" role="alert">
+    <div class="d-flex gap-3">
+      <i class="bi bi-exclamation-triangle-fill fs-4 flex-shrink-0"></i>
+      <div>
+        <h2 class="h6 fw-bold mb-2">Complétez d'abord les informations de base de votre bien</h2>
+        <p class="small mb-2">Les primes dépendent du profil demandeur, du certificat PEB, de l'avertissement extrait de rôle et du chantier. Sans ces éléments, la simulation risque d'être incomplète.</p>
+        <% biens_incomplets.each do |property, manquants| %>
+          <div class="small mb-2">
+            <strong><%= property.titre.presence || property.rue %></strong> : <%= manquants.join(', ') %>
+            <%= link_to "Compléter ce bien", dashboard_property_path(property), class: "alert-link ms-1" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
