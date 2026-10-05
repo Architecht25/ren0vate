@@ -128,8 +128,10 @@ module PropertyCompletionScoring
   end
   private :chantier_flandre_manquants
 
+  # L'AER est un justificatif fiscal du ménage : il appartient à l'utilisateur, pas
+  # au bien (l'upload OCR le rattache à l'utilisateur seul, sans property_id).
   def aer_present?
-    documents.where(type_document: 'aer').exists?
+    user.present? && user.documents.where(type_document: 'aer').exists?
   end
   private :aer_present?
 
