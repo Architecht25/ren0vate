@@ -8,7 +8,12 @@ class PagesController < ApplicationController
 
   def home
     track_page_visit('home', page_type: 'accueil')
-    @household_count = Project.count
+    @household_count = begin
+      Project.count
+    rescue ActiveRecord::ConnectionNotEstablished
+      # Compteur purement décoratif : la home ne doit pas renvoyer 500 si la base est momentanément injoignable
+      nil
+    end
   end
 
   def flandre
