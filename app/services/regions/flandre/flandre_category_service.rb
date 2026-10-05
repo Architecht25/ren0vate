@@ -80,7 +80,7 @@ module Regions
       # Critères spéciaux Flandre basés sur le questionnaire d'éligibilité
       def check_special_category_criteria(property, project)
         # 1. Client protégé → Catégorie 4 (la plus élevée en Flandre)
-        if client_protege?
+        if client_protege?(property)
           return { category: "4", reason: "Client protégé - Catégorie maximale (4)" }
         end
 
@@ -112,9 +112,9 @@ module Regions
       end
 
       # Méthodes de vérification des critères spéciaux
-      def client_protege?
-        # Vérifier si l'utilisateur est client protégé (champ spécifique ou indicateur)
-        @user.respond_to?(:client_protege_flandre) && @user.client_protege_flandre == true
+      def client_protege?(property)
+        # Champ porté par le bien (formulaire Flandre), pas par l'utilisateur
+        property&.client_protege_flandre == true
       end
 
       def appartement_ou_copropriete?(property)

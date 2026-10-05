@@ -1,4 +1,62 @@
 class OnboardingController < ApplicationController
+  # Options des champs régionaux du tunnel (identiques aux formulaires de bien).
+  ONBOARDING_REGIONAL_OPTIONS = {
+    'wallonie' => {
+      type_field: :type_propriete_wallonie,
+      type_label: "Type de propriété",
+      types: [
+        ["Unique propriétaire", "unique_proprietaire"],
+        ["Copropriétaire avec mon conjoint (couple marié, cohabitants légaux, cohabitants de fait) figurant sur ma composition de ménage", "copropriete_conjoint"],
+        ["Copropriétaire avec d'autres", "copropriete_autres"],
+        ["Usufruitier", "usufruitier"],
+        ["Nu-propriétaire", "nu_proprietaire"],
+        ["Représentant d'une association de copropriétaires", "representant_association"],
+        ["Autre (droit d'habitation, emphytéote...)", "autre"]
+      ],
+      profils: [
+        ["Propriétaire occupant ou futur occupant", "propriétaire_occupant_ou_futur_occupant"],
+        ["Syndic de copropriété", "syndic_copropriété"],
+        ["Bailleur social", "bailleur_social"]
+      ]
+    },
+    'flandre' => {
+      type_field: :type_bien_flandre,
+      type_label: "Type de bien",
+      types: [
+        ["Maison unifamiliale", "maison"],
+        ["Appartement en copropriété", "appartement_copro"],
+        ["Appartement non en copropriété", "appartement"],
+        ["Immeuble à plusieurs unités d'habitation", "immeuble_appartements"],
+        ["Non logement", "non_logement"]
+      ],
+      profils: [
+        ["Propriétaire occupant ou futur occupant", "proprietaire_occupant_ou_futur_occupant"],
+        ["ASBL/Coopérative", "asbl_cooperative"]
+      ]
+    },
+    'bruxelles' => {
+      type_field: :type_bien_bruxelles,
+      type_label: "Type de bien",
+      types: [
+        ["Maison unifamiliale", "maison"],
+        ["Appartement", "appartement"],
+        ["Immeuble avec plusieurs unités", "immeuble de rapport"]
+      ],
+      profils: [
+        ["Propriétaire occupant ou futur occupant", "proprietaire_occupant_ou_futur_occupant"],
+        ["Entreprise", "entreprise"],
+        ["Syndic de copropriété, ACP, Copropriété forcée", "syndic_de_copropriete_acp_copropriete_forcee"],
+        ["Propriétaire en indivision", "proprietaire_en_indivision"],
+        ["Copropriétaire volontaire ou fortuit", "coproprietaire_volontaire_ou_fortuit"],
+        ["Locataire", "locataire"],
+        ["Propriétaire bailleur", "proprietaire_bailleur"],
+        ["Propriétaire bailleur via AIS", "proprietaire_bailleur_via_ais"],
+        ["ASBL/Coopérative", "asbl_cooperative"],
+        ["Amphythéote", "amphyteote"]
+      ]
+    }
+  }.freeze
+
   before_action :authenticate_user!
   before_action :redirect_if_onboarding_done, only: %i[profile_selection set_profile]
   layout 'onboarding'
@@ -36,7 +94,10 @@ class OnboardingController < ApplicationController
     @property = current_user.properties.build(property_params)
     @property.skip_onboarding_validation = true
 
-    if @property.save
+    if regional_fields_missing?(@property)
+      @property.errors.add(:base, "Indiquez le type de bien et le profil du demandeur.")
+      render :proprietaire_bien, status: :unprocessable_entity
+    elsif @property.save
       session[:onboarding_property_id] = @property.id
       redirect_to onboarding_proprietaire_projet_path(locale: I18n.locale)
     else
@@ -174,7 +235,18 @@ class OnboardingController < ApplicationController
   end
 
   def property_params
-    params.require(:property).permit(:rue, :numero, :code_postal, :commune, :region)
+    params.require(:property).permit(:rue, :numero, :code_postal, :commune, :region,
+                                     :type_propriete_wallonie, :type_bien_flandre, :type_bien_bruxelles,
+                                     :profil_demandeur)
+  end
+
+  # Type de bien régional et profil demandeur : demandés dès le tunnel, sur la base
+  # des mêmes valeurs que les formulaires de bien (properties/_form_*).
+  def regional_fields_missing?(property)
+    type_field = ONBOARDING_REGIONAL_OPTIONS.dig(property.region.to_s.downcase, :type_field)
+    return false unless type_field
+
+    property[type_field].blank? || property.profil_demandeur.blank?
   end
 
   def project_params

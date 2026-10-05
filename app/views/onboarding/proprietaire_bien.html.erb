@@ -57,6 +57,33 @@
                 { include_blank: "Sélectionner une région..." },
                 class: "form-select form-select-lg" %>
         </div>
+
+        <%# Champs régionaux : un bloc par région, seul le bloc de la région choisie est actif
+            (les champs masqués sont désactivés, donc non envoyés). %>
+        <% OnboardingController::ONBOARDING_REGIONAL_OPTIONS.each do |region, opts| %>
+          <div class="col-12 regional-fields" data-region="<%= region %>" hidden>
+            <div class="row g-3">
+              <div class="col-12">
+                <%= label_tag "property_#{opts[:type_field]}_#{region}", opts[:type_label], class: "form-label fw-semibold" %>
+                <%= select_tag "property[#{opts[:type_field]}]",
+                      options_for_select(opts[:types], @property[opts[:type_field]]),
+                      id: "property_#{opts[:type_field]}_#{region}",
+                      prompt: "Sélectionnez…",
+                      class: "form-select form-select-lg",
+                      disabled: true %>
+              </div>
+              <div class="col-12">
+                <%= label_tag "property_profil_demandeur_#{region}", "Profil du demandeur", class: "form-label fw-semibold" %>
+                <%= select_tag "property[profil_demandeur]",
+                      options_for_select(opts[:profils], @property.profil_demandeur),
+                      id: "property_profil_demandeur_#{region}",
+                      prompt: "Sélectionnez votre profil…",
+                      class: "form-select form-select-lg",
+                      disabled: true %>
+              </div>
+            </div>
+          </div>
+        <% end %>
       </div>
 
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-4">
@@ -111,5 +138,24 @@
     localStorage.removeItem('wallonie_categorie');
     localStorage.removeItem('eligibiliteWallonieParticulier');
     localStorage.removeItem('categorie');
+  });
+
+  // Affiche le bloc des champs régionaux correspondant à la région choisie.
+  document.addEventListener('DOMContentLoaded', function () {
+    var regionSelect = document.getElementById('property_region');
+    if (!regionSelect) return;
+
+    function afficherChampsRegionaux() {
+      document.querySelectorAll('.regional-fields').forEach(function (bloc) {
+        var actif = bloc.dataset.region === regionSelect.value;
+        bloc.hidden = !actif;
+        bloc.querySelectorAll('select').forEach(function (select) {
+          select.disabled = !actif;
+        });
+      });
+    }
+
+    regionSelect.addEventListener('change', afficherChampsRegionaux);
+    afficherChampsRegionaux();
   });
 </script>

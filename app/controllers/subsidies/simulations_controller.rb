@@ -9,6 +9,7 @@ class SimulationsController < ApplicationController
     # ✅ CORRECTION SÉCURITÉ: Filtrer les simulations par utilisateur connecté
     # Récupérer uniquement les simulations de l'utilisateur connecté
     user_simulations = current_user.simulations.includes(:property, :project)
+    @biens_incomplets = biens_incomplets_pour_simulation
 
     # Si property_id est fourni, filtrer par ce bien spécifique
     if params[:property_id].present?
@@ -109,6 +110,7 @@ class SimulationsController < ApplicationController
   def new
     @simulation = Simulation.new
     @projects = current_user.projects.includes(:property).order(created_at: :desc)
+    @biens_incomplets = biens_incomplets_pour_simulation
 
     # Si un project_id est passé, pré-remplir la simulation avec les données du projet
     if params[:project_id].present?
@@ -664,6 +666,15 @@ class SimulationsController < ApplicationController
   end
 
   private
+
+  # Biens de l'utilisateur dont le socle minimal (profil, PEB, AER, chantier…)
+  # n'est pas complet : { bien => [libellés manquants] }
+  def biens_incomplets_pour_simulation
+    current_user.properties.each_with_object({}) do |property, incomplets|
+      manquants = property.informations_de_base_manquantes
+      incomplets[property] = manquants if manquants.any?
+    end
+  end
 
   # Transforme le résultat du nouveau service en structure updated_cards attendue par le frontend
   def build_updated_cards_from_prime_results(prime_results)
