@@ -59,4 +59,10 @@ class SimulationPrerequisWarningTest < ActionDispatch::IntegrationTest
     assert_equal "E", flandre.peb_label_avant_travaux
     assert service.send(:certificat_peb_e_f?, flandre)
   end
+
+  test "AER uploadé via l'OCR (sans bien rattaché) : compté pour le socle" do
+    @user.documents.create!(type_document: "aer", status: "pending", file_url: "https://example.com/aer.pdf")
+
+    refute_includes @property.informations_de_base_manquantes, "Documents : avertissement extrait de rôle (AER)"
+  end
 end
