@@ -4,7 +4,7 @@ import { Controller } from "@hotwired/stimulus"
 // pas de saisie poste par poste. Voir Regions::Wallonie::PretReduction côté backend.
 export default class extends Controller {
   static targets = ["montantProjet", "reductionSolde", "montantRetenu", "tauxReduction", "ecomateriaux", "tauxInteret"]
-  static values = { simulationId: Number }
+  static values = { simulationId: Number, url: String }
 
   montantChanged() {
     clearTimeout(this.saveTimeout)
@@ -14,8 +14,10 @@ export default class extends Controller {
   save() {
     const montantProjet = this.montantProjetTarget.value || 0
     const ecomateriaux = this.hasEcomateriauxTarget ? this.ecomateriauxTarget.checked : false
+    // Par défaut : régime wallon. La carte bruxelloise fournit sa propre URL (data-...-url-value).
+    const url = this.hasUrlValue ? this.urlValue : `/fr/simulations/${this.simulationIdValue}/update_prime_inputs`
 
-    fetch(`/fr/simulations/${this.simulationIdValue}/update_prime_inputs`, {
+    fetch(url, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
