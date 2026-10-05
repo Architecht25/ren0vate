@@ -1,6 +1,9 @@
 class SimulationsController < ApplicationController
+  # Clés du résultat théorique du prêt bruxellois stockées dans parameters (voir update_pret_reduction_bruxelles)
+  BRUXELLES_PRET_RESULT_KEYS = %w[bruxelles_reduction_solde bruxelles_montant_projet_retenu bruxelles_taux_reduction bruxelles_taux_interet_label bruxelles_calculated_at].freeze
+
   # ✅ SÉCURITÉ: Vérifier que la simulation appartient à l'utilisateur pour les actions individuelles
-  before_action :set_and_verify_simulation, only: [:show, :edit, :update, :destroy, :check_eligibility, :calculate_category, :calculate_primes, :calculate_prime, :update_prime_inputs, :restore_prime_inputs, :save_total]
+  before_action :set_and_verify_simulation, only: [:show, :edit, :update, :destroy, :check_eligibility, :calculate_category, :calculate_primes, :calculate_prime, :update_prime_inputs, :update_pret_reduction_bruxelles, :restore_prime_inputs, :save_total]
 
   def index
     # ✅ CORRECTION SÉCURITÉ: Filtrer les simulations par utilisateur connecté
@@ -56,6 +59,9 @@ class SimulationsController < ApplicationController
 
     # Vérifier l'éligibilité réelle selon les revenus actuels
     @real_eligibility = Regions::SimulationEligibilityChecker.call(@simulation)
+
+    # Simulation théorique du mécanisme de réduction de prêt bruxellois (printemps 2027)
+    @pret_reduction_bruxelles = bruxelles_pret_reduction_data(@simulation) if @simulation.region&.downcase == 'bruxelles'
 
     # S'assurer que total_simule est cohérent avec les paramètres
     if @simulation.total_simule.nil? || @simulation.total_simule == 0
@@ -612,6 +618,51 @@ class SimulationsController < ApplicationController
     end
   end
 
+  # Point d'entrée AJAX Bruxelles — un seul champ (montant du projet), route dédiée (distincte de
+  # update_prime_inputs, qui gère les saisies des primes bruxelloises). Même contrat de réponse
+  # que update_wallonie_pret_reduction_inputs pour réutiliser le contrôleur Stimulus existant.
+  def update_pret_reduction_bruxelles
+    return head :not_found unless @simulation.region&.downcase == 'bruxelles'
+
+    unless current_user
+      return render json: {
+        success: false,
+        error: "Connectez-vous pour simuler ce mécanisme (il dépend de votre revenu déclaré)."
+      }, status: :unauthorized
+    end
+
+    existing_params = safe_parse_simulation_parameters(@simulation)
+    existing_params['bruxelles_montant_projet'] = params[:montant_projet].to_f
+    @simulation.update!(parameters: existing_params.to_json)
+
+    data = bruxelles_pret_reduction_data(@simulation)
+    unless data[:eligible]
+      # Éviter de garder un résultat devenu obsolète (ex. revenus ou PEB modifiés)
+      BRUXELLES_PRET_RESULT_KEYS.each { |key| existing_params.delete(key) }
+      @simulation.update!(parameters: existing_params.to_json)
+      return render json: { success: false, error: data[:message] }
+    end
+
+    result = data[:result]
+    # Résultat calculé persisté (théorique) — total_simule reste intact : ce n'est pas une prime
+    existing_params.merge!(
+      'bruxelles_reduction_solde'         => result[:reduction_solde],
+      'bruxelles_montant_projet_retenu'   => result[:montant_projet_retenu],
+      'bruxelles_taux_reduction'          => result[:taux_reduction],
+      'bruxelles_taux_interet_label'      => result[:taux_interet_label],
+      'bruxelles_calculated_at'           => Time.current.iso8601
+    )
+    @simulation.update!(parameters: existing_params.to_json)
+    render json: {
+      success: true,
+      total_amount: result[:reduction_solde],
+      montant_projet_retenu: result[:montant_projet_retenu],
+      taux_reduction: result[:taux_reduction],
+      taux_interet_label: result[:taux_interet_label],
+      message: "Simulation théorique recalculée"
+    }
+  end
+
   private
 
   # Transforme le résultat du nouveau service en structure updated_cards attendue par le frontend
@@ -1021,6 +1072,23 @@ class SimulationsController < ApplicationController
       total_simule: result[:reduction_solde],
       parameters: merged_params.to_json
     )
+  end
+
+  # Simulation théorique bruxelloise (réduction de prêt à 0%, non officialisée) — renvoie
+  # l'éligibilité et le calcul à afficher dans la carte. Vide si l'utilisateur n'est pas connecté.
+  def bruxelles_pret_reduction_data(simulation)
+    return { eligible: false, message: "Connectez-vous pour simuler ce mécanisme (il dépend de votre revenu déclaré)." } unless current_user
+
+    eligibility = Regions::Bruxelles::PretReduction::EligibilityService.new(
+      { property_id: simulation.property_id, project_id: simulation.project_id },
+      user: current_user
+    ).check_eligibility
+    return { eligible: false, message: eligibility[:message] } unless eligibility[:eligible]
+
+    montant_saisi = safe_parse_simulation_parameters(simulation)['bruxelles_montant_projet'].to_f
+    result = Regions::Bruxelles::PretReduction::CalculatorService.new(current_user, montant_projet: montant_saisi).calculate
+
+    { eligible: true, message: eligibility[:message], montant_saisi: montant_saisi, result: result }
   end
 
   # Point d'entrée AJAX regime "reduction_pret" — un seul champ (montant du projet),

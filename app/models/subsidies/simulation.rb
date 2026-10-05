@@ -172,6 +172,21 @@ class Simulation < ApplicationRecord
     parsed_simulation_parameter('taux_interet')
   end
 
+  # Résultat théorique persisté du prêt à taux 0% bruxellois (voir
+  # SimulationsController#update_pret_reduction_bruxelles). nil tant qu'aucun calcul n'a été sauvegardé
+  # ou si le dernier calcul a été invalidé (inéligibilité). Réutilisable par les parcours préparation / suivi.
+  def bruxelles_pret_reduction_saisi
+    return nil unless parsed_simulation_parameter('bruxelles_reduction_solde')
+
+    {
+      reduction_solde: parsed_simulation_parameter('bruxelles_reduction_solde').to_f,
+      montant_projet_retenu: parsed_simulation_parameter('bruxelles_montant_projet_retenu').to_f,
+      taux_reduction: parsed_simulation_parameter('bruxelles_taux_reduction').to_f,
+      taux_interet_label: parsed_simulation_parameter('bruxelles_taux_interet_label'),
+      calculated_at: parsed_simulation_parameter('bruxelles_calculated_at')
+    }
+  end
+
   # Méthode pour extraire les primes depuis le JSON parameters
   def primes
     @primes_collection ||= PrimesCollection.new(self)

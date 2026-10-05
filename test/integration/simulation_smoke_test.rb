@@ -230,4 +230,36 @@ class SimulationSmokeTest < ActionDispatch::IntegrationTest
       assert_equal 0.50, body["taux_reduction"]
     end
   end
+
+  # ─── Simulation théorique prêt à taux 0% (Bruxelles, printemps 2027) ──────
+
+  test "page simulation Bruxelles affiche la simulation théorique du prêt à taux 0%" do
+    simulation = Simulation.create!(
+      user: @user, property: @property_bruxelles, project: @project_bruxelles,
+      region: "bruxelles", titre: "Sim Bruxelles prêt"
+    )
+
+    get simulation_path(simulation, locale: :fr)
+    assert_response :success
+    assert_match "Simulation théorique", response.body
+  end
+
+  test "update_pret_reduction_bruxelles plafonne à 60.000 € et calcule la réduction" do
+    @user.update!(situation_familiale: "celibataire", nombre_enfants: 0, revenu_demandeur: 28_900)
+    @property_bruxelles.update!(annee_construction: 1950, habitation_percentage: 100, occupation: "residence_principale")
+    PebDonnee.create!(user: @user, property: @property_bruxelles, region: "bruxelles", phase: "avant_travaux", label_peb: "F")
+    simulation = Simulation.create!(
+      user: @user, property: @property_bruxelles, project: @project_bruxelles,
+      region: "bruxelles", titre: "Sim Bruxelles prêt calcul"
+    )
+
+    patch update_pret_reduction_bruxelles_simulation_path(simulation, locale: :fr), params: { montant_projet: 100_000 }
+    assert_response :success
+
+    body = JSON.parse(response.body)
+    assert body["success"], body.inspect
+    assert_equal 30_000.0, body["total_amount"].to_f
+    assert_equal 60_000.0, body["montant_projet_retenu"].to_f
+    assert_equal 0.50, body["taux_reduction"]
+  end
 end

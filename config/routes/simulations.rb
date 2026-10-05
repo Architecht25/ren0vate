@@ -5,6 +5,7 @@
       post :calculate_primes    # Étape 3: Calcul des primes
       post :calculate_prime     # Calcul d'une prime individuelle
       patch :update_prime_inputs # Sauvegarde des saisies utilisateur
+      patch :update_pret_reduction_bruxelles # Simulation théorique prêt à taux 0% (Bruxelles)
       get :restore_prime_inputs # Restauration des saisies utilisateur
       patch :save_total         # Sauvegarde du total global calculé côté client
 
