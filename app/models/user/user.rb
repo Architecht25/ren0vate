@@ -173,6 +173,15 @@ class User < ApplicationRecord
     end
   end
 
+  # Onglet du guide d'utilisation (/aide) correspondant au profil actif de l'utilisateur.
+  def guide_profile_slug
+    return 'architecte' if architect?
+    return 'entrepreneur' if professional_entrepreneur?
+    return 'intermediaire' if intermediary?
+
+    'proprietaire'
+  end
+
   def onboarding_done?
     onboarding_completed_at.present?
   end
