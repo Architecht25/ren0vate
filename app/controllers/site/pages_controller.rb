@@ -172,6 +172,33 @@ class PagesController < ApplicationController
     end
   end
 
+  # Pages légales
+  def legal
+    # Page mentions légales
+  end
+
+  def privacy
+    # Page politique de confidentialité
+  end
+
+  def terms
+    # Conditions générales de vente et d'utilisation
+  end
+
+  def dpa
+    # Accord de traitement des données (Data Processing Agreement) — B2B
+  end
+
+  def faq
+    # FAQ publique — questions fréquentes
+  end
+
+  GUIDE_PROFILS = %w[proprietaire architecte entrepreneur intermediaire].freeze
+
+  def aide
+    @guide_profil = GUIDE_PROFILS.include?(params[:profil]) ? params[:profil] : 'proprietaire'
+  end
+
   private
 
   def handle_eligible_profile
@@ -220,31 +247,4 @@ class PagesController < ApplicationController
       format.html { redirect_to wallonie_path, alert: "Type de profil non reconnu" }
     end
   end
-
-  # Pages légales
-  def legal
-    # Page mentions légales
-  end
-
-  def privacy
-    # Page politique de confidentialité
-  end
-
-  def terms
-    # Conditions générales de vente et d'utilisation
-  end
-
-  def dpa
-    # Accord de traitement des données (Data Processing Agreement) — B2B
-  end
-
-  def faq
-    # FAQ publique — questions fréquentes
-  end
-
-  def aide
-    # Centre d'aide — articles et guides
-  end
-
-  private
 end

@@ -1,173 +1,210 @@
-<% content_for :title, "Centre d'aide | Ren0vate" %>
-<% content_for :meta_description, "Centre d'aide Ren0vate : guides pas à pas, tutoriels et ressources pour gérer votre bien immobilier — rénovation, DIU, vente et gestion locative." %>
+<% content_for :title, "Guide d'utilisation | Ren0vate" %>
+<% content_for :meta_description, "Comment fonctionne Ren0vate selon votre profil : particulier, architecte, entrepreneur ou intermédiaire." %>
+<% guide_profil = @guide_profil || 'proprietaire' %>
 
 <div class="container py-5">
   <div class="row justify-content-center">
     <div class="col-xl-10">
 
       <div class="text-center mb-5">
-        <h1 class="fw-bold">Centre d'aide</h1>
-        <p class="text-muted lead">Guides, tutoriels et ressources pour maîtriser Ren0vate.</p>
+        <h1 class="fw-bold">Guide d'utilisation</h1>
+        <p class="text-muted lead">Comment fonctionne Ren0vate, selon votre profil.</p>
       </div>
 
-      <!-- Recherche rapide (décorative pour l'instant) -->
-      <div class="row justify-content-center mb-5">
-        <div class="col-md-6">
-          <div class="input-group shadow-sm">
-            <span class="input-group-text bg-white border-end-0">
-              <i class="bi bi-search text-muted"></i>
-            </span>
-            <input type="text" class="form-control border-start-0 ps-0"
-                   placeholder="Rechercher un article…"
-                   disabled>
-            <span class="input-group-text bg-white border-start-0 text-muted" style="font-size:12px;">Bientôt disponible</span>
+      <!-- Sélecteur de profil -->
+      <ul class="nav nav-pills justify-content-center gap-2 mb-5 tabs-scroll-x" id="guideProfilTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link<%= ' active' if guide_profil == 'proprietaire' %>" id="tab-proprietaire-btn" data-bs-toggle="pill" data-bs-target="#tab-proprietaire" type="button" role="tab">
+            <i class="bi bi-house me-1"></i>Particulier
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link<%= ' active' if guide_profil == 'architecte' %>" id="tab-architecte-btn" data-bs-toggle="pill" data-bs-target="#tab-architecte" type="button" role="tab">
+            <i class="bi bi-rulers me-1"></i>Architecte
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link<%= ' active' if guide_profil == 'entrepreneur' %>" id="tab-entrepreneur-btn" data-bs-toggle="pill" data-bs-target="#tab-entrepreneur" type="button" role="tab">
+            <i class="bi bi-tools me-1"></i>Entrepreneur
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link<%= ' active' if guide_profil == 'intermediaire' %>" id="tab-intermediaire-btn" data-bs-toggle="pill" data-bs-target="#tab-intermediaire" type="button" role="tab">
+            <i class="bi bi-people me-1"></i>Intermédiaire
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content mb-5">
+
+        <!-- PARTICULIER -->
+        <div class="tab-pane fade<%= ' show active' if guide_profil == 'proprietaire' %>" id="tab-proprietaire" role="tabpanel">
+          <div class="p-4 bg-light rounded-3 mb-4">
+            <p class="fw-semibold mb-0 text-center">
+              <i class="bi bi-person-circle text-primary"></i> Mon profil
+              <i class="bi bi-arrow-right mx-2 text-muted"></i>
+              <i class="bi bi-house text-primary"></i> Mes biens
+              <i class="bi bi-arrow-right mx-2 text-muted"></i>
+              <i class="bi bi-sliders text-primary"></i> Mes chantiers
+            </p>
           </div>
+          <h5 class="fw-bold mb-3"><i class="bi bi-signpost-2 text-success me-2"></i>Votre flux de progression</h5>
+          <ol class="list-group list-group-numbered mb-4">
+            <li class="list-group-item">Inscription et sélection du profil <strong>Propriétaire / Particulier</strong>.</li>
+            <li class="list-group-item">Ajout de votre premier <strong>bien</strong> (adresse, région, type de bien).</li>
+            <li class="list-group-item">Création de votre premier <strong>chantier</strong> : vous atterrissez directement sur son onglet « Préparation ».</li>
+            <li class="list-group-item">Suivi du chantier (préparation → suivi → clôture), en parallèle du chiffrage et du financement (primes, prêts).</li>
+            <li class="list-group-item">Le chat IA et les notifications restent disponibles à tout moment pour vous accompagner.</li>
+          </ol>
         </div>
+
+        <!-- ARCHITECTE -->
+        <div class="tab-pane fade<%= ' show active' if guide_profil == 'architecte' %>" id="tab-architecte" role="tabpanel">
+          <div class="p-4 bg-light rounded-3 mb-4">
+            <p class="fw-semibold mb-0 text-center">
+              <i class="bi bi-person-circle text-primary"></i> Mon profil pro
+              <i class="bi bi-arrow-right mx-2 text-muted"></i>
+              <i class="bi bi-person-plus text-primary"></i> Inviter un client
+              <i class="bi bi-arrow-right mx-2 text-muted"></i>
+              <i class="bi bi-briefcase text-primary"></i> Mes projets
+            </p>
+          </div>
+          <h5 class="fw-bold mb-3"><i class="bi bi-signpost-2 text-success me-2"></i>Votre flux de progression</h5>
+          <ol class="list-group list-group-numbered mb-4">
+            <li class="list-group-item">Inscription et sélection du profil <strong>Architecte</strong> : vous renseignez votre cabinet (nom, n° BCE).</li>
+            <li class="list-group-item">Votre tableau de bord démarre vide, avec un lien personnel pour <strong>inviter vos clients</strong>.</li>
+            <li class="list-group-item">Un client s'inscrit via votre lien et crée son chantier : vous recevez un accès (en attente puis actif après confirmation du client).</li>
+            <li class="list-group-item">Vous suivez votre portefeuille de chantiers clients : consultation, collaboration sur les documents, avancement.</li>
+          </ol>
+        </div>
+
+        <!-- ENTREPRENEUR -->
+        <div class="tab-pane fade<%= ' show active' if guide_profil == 'entrepreneur' %>" id="tab-entrepreneur" role="tabpanel">
+          <div class="p-4 bg-light rounded-3 mb-4">
+            <p class="fw-semibold mb-0 text-center">
+              <i class="bi bi-person-circle text-primary"></i> Mon profil pro
+              <i class="bi bi-arrow-right mx-2 text-muted"></i>
+              <i class="bi bi-link-45deg text-primary"></i> Rejoindre un chantier
+              <i class="bi bi-arrow-right mx-2 text-muted"></i>
+              <i class="bi bi-briefcase text-primary"></i> Mes projets
+            </p>
+          </div>
+          <h5 class="fw-bold mb-3"><i class="bi bi-signpost-2 text-success me-2"></i>Votre flux de progression</h5>
+          <ol class="list-group list-group-numbered mb-4">
+            <li class="list-group-item">Inscription et sélection du profil <strong>Entrepreneur</strong>.</li>
+            <li class="list-group-item">Vous rejoignez un chantier via un lien d'invitation reçu (d'un client ou d'un autre professionnel) — ou vous passez cette étape et utilisez votre propre lien pour inviter vos clients.</li>
+            <li class="list-group-item">Vous accédez aux chantiers sur lesquels vous êtes actif : documents, avancement des travaux.</li>
+            <li class="list-group-item">Vous faites remonter l'avancement de vos travaux au fil du chantier.</li>
+          </ol>
+        </div>
+
+        <!-- INTERMEDIAIRE -->
+        <div class="tab-pane fade<%= ' show active' if guide_profil == 'intermediaire' %>" id="tab-intermediaire" role="tabpanel">
+          <div class="p-4 bg-light rounded-3 mb-4">
+            <p class="fw-semibold mb-0 text-center">
+              <i class="bi bi-person-circle text-primary"></i> Ma structure
+              <i class="bi bi-arrow-right mx-2 text-muted"></i>
+              <i class="bi bi-person-plus text-primary"></i> Inviter un client
+              <i class="bi bi-arrow-right mx-2 text-muted"></i>
+              <i class="bi bi-briefcase text-primary"></i> Mes projets
+            </p>
+          </div>
+          <h5 class="fw-bold mb-3"><i class="bi bi-signpost-2 text-success me-2"></i>Votre flux de progression</h5>
+          <ol class="list-group list-group-numbered mb-4">
+            <li class="list-group-item">Inscription et sélection du profil <strong>Intermédiaire</strong> : vous renseignez votre structure (nom, n° BCE).</li>
+            <li class="list-group-item">Votre tableau de bord démarre vide, avec un lien personnel pour <strong>inviter vos clients</strong>.</li>
+            <li class="list-group-item">Vous suivez votre portefeuille de clients mis en relation et leurs chantiers.</li>
+          </ol>
+        </div>
+
       </div>
 
-      <!-- Catégories -->
+      <!-- Espaces communs -->
+      <h4 class="fw-bold border-bottom pb-3 mb-4">
+        <i class="bi bi-grid-fill text-primary me-2"></i>Les espaces communs à tous les profils
+      </h4>
+
       <div class="row g-4 mb-5">
-        <div class="col-md-4">
-          <div class="card border-0 shadow-sm h-100 text-center p-3">
+        <div class="col-12 col-md-6">
+          <div class="card border-0 shadow-sm h-100 p-3">
             <div class="card-body">
-              <div class="fs-1 mb-3">🚀</div>
-              <h5 class="fw-bold">Démarrage rapide</h5>
-              <p class="text-muted small">Créer votre compte, ajouter un bien et lancer votre premier projet en 5 minutes.</p>
-              <a href="#getting-started" class="btn btn-sm btn-outline-primary mt-2">Voir les guides</a>
+              <div class="fs-1 mb-2">📄</div>
+              <h5 class="fw-bold">Mes documents</h5>
+              <p class="text-muted small mb-0">Consultation des factures, devis et PV liés à vos biens ou chantiers.</p>
             </div>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="card border-0 shadow-sm h-100 text-center p-3">
+        <div class="col-12 col-md-6">
+          <div class="card border-0 shadow-sm h-100 p-3">
             <div class="card-body">
-              <div class="fs-1 mb-3">💶</div>
-              <h5 class="fw-bold">Primes & subventions</h5>
-              <p class="text-muted small">Simuler, comprendre et déposer vos demandes de primes régionales.</p>
-              <a href="#primes" class="btn btn-sm btn-outline-primary mt-2">Voir les guides</a>
+              <div class="fs-1 mb-2">🤖</div>
+              <h5 class="fw-bold">Mon chat IA</h5>
+              <p class="text-muted small mb-0">Un assistant conversationnel contextualisé à votre dossier pour vous orienter dans vos démarches.</p>
             </div>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="card border-0 shadow-sm h-100 text-center p-3">
+        <div class="col-12 col-md-6">
+          <div class="card border-0 shadow-sm h-100 p-3">
             <div class="card-body">
-              <div class="fs-1 mb-3">👷</div>
-              <h5 class="fw-bold">Collaboration pro</h5>
-              <p class="text-muted small">Inviter et gérer vos architectes, entrepreneurs et intermédiaires.</p>
-              <a href="#collaboration" class="btn btn-sm btn-outline-primary mt-2">Voir les guides</a>
+              <div class="fs-1 mb-2">🔔</div>
+              <h5 class="fw-bold">Notifications</h5>
+              <p class="text-muted small mb-0">Les alertes qui vous concernent : échéances, documents à traiter, mises à jour de dossier.</p>
             </div>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="card border-0 shadow-sm h-100 text-center p-3">
+        <div class="col-12 col-md-6">
+          <div class="card border-0 shadow-sm h-100 p-3">
             <div class="card-body">
-              <div class="fs-1 mb-3">📄</div>
-              <h5 class="fw-bold">Documents & OCR</h5>
-              <p class="text-muted small">Uploader et analyser vos factures, devis et PV de réception.</p>
-              <a href="#documents" class="btn btn-sm btn-outline-primary mt-2">Voir les guides</a>
+              <div class="fs-1 mb-2">📰</div>
+              <h5 class="fw-bold">Blog</h5>
+              <p class="text-muted small mb-0">Articles d'actualité sur la rénovation, les primes et la réglementation.</p>
             </div>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="card border-0 shadow-sm h-100 text-center p-3">
+        <div class="col-12 col-md-6">
+          <div class="card border-0 shadow-sm h-100 p-3">
             <div class="card-body">
-              <div class="fs-1 mb-3">💳</div>
-              <h5 class="fw-bold">Abonnement & facturation</h5>
-              <p class="text-muted small">Gérer votre plan, vos paiements et vos factures Ren0vate.</p>
-              <a href="#billing" class="btn btn-sm btn-outline-primary mt-2">Voir les guides</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card border-0 shadow-sm h-100 text-center p-3">
-            <div class="card-body">
-              <div class="fs-1 mb-3">🔒</div>
-              <h5 class="fw-bold">Sécurité & confidentialité</h5>
-              <p class="text-muted small">Chiffrement, RGPD, données personnelles et bonnes pratiques.</p>
-              <a href="#security" class="btn btn-sm btn-outline-primary mt-2">Voir les guides</a>
+              <div class="fs-1 mb-2">🎧</div>
+              <h5 class="fw-bold">Aide & support</h5>
+              <p class="text-muted small mb-0">Un système de tickets pour contacter l'équipe en cas de question ou de blocage.</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Section Démarrage rapide -->
-      <h4 id="getting-started" class="fw-bold border-bottom pb-3 mb-4">
-        <i class="bi bi-rocket-takeoff text-primary me-2"></i>Démarrage rapide
+      <!-- Arc du chantier -->
+      <h4 class="fw-bold border-bottom pb-3 mb-4">
+        <i class="bi bi-flag text-success me-2"></i>Le parcours d'un chantier
       </h4>
 
       <div class="row g-3 mb-5">
-        <% [
-          { icon: '🏠', title: 'Créer votre premier bien immobilier', time: '2 min', desc: 'Ajoutez l\'adresse, le type de bâtiment et la superficie de votre bien.' },
-          { icon: '🔨', title: 'Lancer un projet de travaux', time: '3 min', desc: 'Définissez le type de travaux, les dates et le budget prévisionnel.' },
-          { icon: '📱', title: 'Installer l\'application mobile', time: '1 min', desc: 'Ren0vate fonctionne comme une app mobile (PWA) sur iOS et Android.' },
-          { icon: '📧', title: 'Configurer vos notifications', time: '2 min', desc: 'Choisissez les alertes que vous souhaitez recevoir par email.' },
-        ].each do |article| %>
-          <div class="col-md-6">
-            <div class="card border-0 shadow-sm p-3 h-100">
-              <div class="d-flex gap-3 align-items-start">
-                <span class="fs-4"><%= article[:icon] %></span>
-                <div>
-                  <h6 class="fw-semibold mb-1"><%= article[:title] %></h6>
-                  <p class="text-muted small mb-1"><%= article[:desc] %></p>
-                  <span class="badge bg-light text-muted border"><i class="bi bi-clock me-1"></i><%= article[:time] %></span>
-                </div>
-              </div>
+        <div class="col-12 col-md-4">
+          <div class="card border-0 shadow-sm h-100 p-3 text-center">
+            <div class="card-body">
+              <i class="bi bi-clipboard-check fs-2 text-primary"></i>
+              <h6 class="fw-semibold mt-2 mb-1">Préparation</h6>
+              <p class="text-muted small mb-0">Cadrage du projet, choix de l'entrepreneur, devis.</p>
             </div>
           </div>
-        <% end %>
-      </div>
-
-      <!-- Section Primes -->
-      <h4 id="primes" class="fw-bold border-bottom pb-3 mb-4">
-        <i class="bi bi-cash-coin text-success me-2"></i>Primes & subventions
-      </h4>
-
-      <div class="row g-3 mb-5">
-        <% [
-          { icon: '🟢', title: 'Simuler vos primes en Wallonie', time: '5 min', desc: 'Utiliser le simulateur Wallonie pour estimer vos primes énergie et Renolution.' },
-          { icon: '🟡', title: 'Simuler vos primes en Flandre', time: '5 min', desc: 'Calculer vos primes Mijn VerbouwPremie avec le simulateur Flandre.' },
-          { icon: '📋', title: 'Déposer une demande de prime', time: '10 min', desc: 'Guide pas à pas pour compléter et soumettre un dossier de prime.' },
-          { icon: '📁', title: 'Préparer vos pièces justificatives', time: '3 min', desc: 'Liste des documents requis selon le type de travaux et la région.' },
-        ].each do |article| %>
-          <div class="col-md-6">
-            <div class="card border-0 shadow-sm p-3 h-100">
-              <div class="d-flex gap-3 align-items-start">
-                <span class="fs-4"><%= article[:icon] %></span>
-                <div>
-                  <h6 class="fw-semibold mb-1"><%= article[:title] %></h6>
-                  <p class="text-muted small mb-1"><%= article[:desc] %></p>
-                  <span class="badge bg-light text-muted border"><i class="bi bi-clock me-1"></i><%= article[:time] %></span>
-                </div>
-              </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="card border-0 shadow-sm h-100 p-3 text-center">
+            <div class="card-body">
+              <i class="bi bi-hammer fs-2 text-primary"></i>
+              <h6 class="fw-semibold mt-2 mb-1">Suivi</h6>
+              <p class="text-muted small mb-0">Avancement des travaux (démolition, installation, finitions) et documents liés.</p>
             </div>
           </div>
-        <% end %>
-      </div>
-
-      <!-- Section Collaboration -->
-      <h4 id="collaboration" class="fw-bold border-bottom pb-3 mb-4">
-        <i class="bi bi-people text-info me-2"></i>Collaboration professionnelle
-      </h4>
-
-      <div class="row g-3 mb-5">
-        <% [
-          { icon: '🏛️', title: 'Inviter votre architecte', time: '2 min', desc: 'Envoyer une invitation à votre architecte pour qu\'il accède à votre projet.' },
-          { icon: '🔧', title: 'Ajouter un entrepreneur', time: '2 min', desc: 'Lier un entrepreneur à votre projet et gérer ses accès.' },
-          { icon: '📨', title: 'Gérer les invitations en attente', time: '2 min', desc: 'Suivre et relancer les invitations non acceptées.' },
-          { icon: '👔', title: 'Guide pour les professionnels', time: '3 min', desc: 'Comment accéder aux projets de vos clients en tant que professionnel.' },
-        ].each do |article| %>
-          <div class="col-md-6">
-            <div class="card border-0 shadow-sm p-3 h-100">
-              <div class="d-flex gap-3 align-items-start">
-                <span class="fs-4"><%= article[:icon] %></span>
-                <div>
-                  <h6 class="fw-semibold mb-1"><%= article[:title] %></h6>
-                  <p class="text-muted small mb-1"><%= article[:desc] %></p>
-                  <span class="badge bg-light text-muted border"><i class="bi bi-clock me-1"></i><%= article[:time] %></span>
-                </div>
-              </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="card border-0 shadow-sm h-100 p-3 text-center">
+            <div class="card-body">
+              <i class="bi bi-file-earmark-check fs-2 text-primary"></i>
+              <h6 class="fw-semibold mt-2 mb-1">Clôture</h6>
+              <p class="text-muted small mb-0">Réception des travaux, PV et documents finaux.</p>
             </div>
           </div>
-        <% end %>
+        </div>
       </div>
 
       <!-- CTA Support -->
