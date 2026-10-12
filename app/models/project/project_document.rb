@@ -1,0 +1,46 @@
+# V2 — Lot 1 : base documentaire commune du chantier (cahier des charges §4-6).
+# Distinct du modèle Document V1 (app/models/documents/document.rb), laissé
+# intact — voir le commentaire de
+# db/migrate/20261012100100_create_project_documents_system.rb pour pourquoi.
+class ProjectDocument < ApplicationRecord
+  belongs_to :project
+  belongs_to :lot, optional: true
+  belongs_to :phase, optional: true
+  belongs_to :uploaded_by, class_name: "User"
+  belongs_to :current_version, class_name: "ProjectDocumentVersion", optional: true
+
+  has_many :versions, class_name: "ProjectDocumentVersion", dependent: :destroy
+  has_many :comments, class_name: "ProjectDocumentComment", dependent: :destroy
+  has_many :reviews, class_name: "ProjectDocumentReview", dependent: :destroy
+  has_many :shares, class_name: "ProjectDocumentShare", dependent: :destroy
+  has_many :shared_users, through: :shares, source: :user
+
+  accepts_nested_attributes_for :versions
+
+  # Liste volontairement restreinte pour le MVP du Lot 1 — le catalogue complet
+  # de types (cahier des charges §5.B : devis, plan, facture, permis,
+  # attestation, photo, PV, garantie...) arrive avec l'ingestion IA du Lot 2,
+  # qui a besoin de classer automatiquement bien plus de types que ceux
+  # qu'un formulaire manuel doit proposer aujourd'hui.
+  DOCUMENT_TYPES = %w[devis facture plan permis attestation photo pv garantie autre].freeze
+
+  enum :visibility, { private_doc: "private", lot: "lot", all: "all", custom: "custom" }, default: "all", prefix: :visibility
+  enum :status, { brouillon: "brouillon", soumis: "soumis", valide: "valide", refuse: "refuse", a_corriger: "a_corriger" }, default: "brouillon"
+
+  validates :title, presence: true
+  validates :document_type, inclusion: { in: DOCUMENT_TYPES }
+  validate :lot_belongs_to_project
+  validate :phase_belongs_to_project
+
+  private
+
+  def lot_belongs_to_project
+    return if lot.blank?
+    errors.add(:lot, "n'appartient pas à ce chantier") if lot.project_id != project_id
+  end
+
+  def phase_belongs_to_project
+    return if phase.blank?
+    errors.add(:phase, "n'appartient pas à ce chantier") if phase.project_id != project_id
+  end
+end
