@@ -1,6 +1,13 @@
 <%
-  # Compute timeline boundaries
-  all_dates = @gantt_bars.flat_map { |b| [b[:start], b[:end]] } + @milestones.map { |m| m[:date] }
+  # Compute timeline boundaries — à partir des barres de tâches UNIQUEMENT,
+  # pas des jalons (@milestones). Un jalon "Devis signé" daté très avant le
+  # début réel du chantier (devis.date_devis = date imprimée sur le
+  # document, pas la date d'acceptation) étirait sinon l'échelle sur
+  # plusieurs années, écrasant les barres réelles dans une fraction
+  # invisible du graphique (repéré en test le 12/10/2026). Les jalons
+  # restent affichés sans risque hors de cette plage : leur position est
+  # déjà bornée à [0, 98]% plus bas (ms_left).
+  all_dates = @gantt_bars.flat_map { |b| [b[:start], b[:end]] }
   timeline_start = all_dates.compact.min || @start_date
   timeline_end   = all_dates.compact.max || (@start_date + 90.days)
   timeline_end   = [timeline_end, timeline_start + 7.days].max
