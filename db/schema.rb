@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_12_100200) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_12_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -90,6 +90,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_100200) do
     t.index ["document_id"], name: "index_aer_donnees_on_document_id"
     t.index ["user_id", "annee_revenus"], name: "index_aer_donnees_on_user_id_and_annee_revenus"
     t.index ["user_id"], name: "index_aer_donnees_on_user_id"
+  end
+
+  create_table "ai_runs", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "actor_id"
+    t.string "subject_type"
+    t.bigint "subject_id"
+    t.bigint "validated_by_id"
+    t.string "function", null: false
+    t.string "model", null: false
+    t.string "status", default: "pending", null: false
+    t.jsonb "output", default: {}, null: false
+    t.float "confidence"
+    t.integer "estimated_cost_cents"
+    t.datetime "validated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["actor_id"], name: "index_ai_runs_on_actor_id"
+    t.index ["function"], name: "index_ai_runs_on_function"
+    t.index ["project_id", "created_at"], name: "index_ai_runs_on_project_id_and_created_at"
+    t.index ["project_id"], name: "index_ai_runs_on_project_id"
+    t.index ["subject_type", "subject_id"], name: "index_ai_runs_on_subject"
+    t.index ["validated_by_id"], name: "index_ai_runs_on_validated_by_id"
   end
 
   create_table "articles", force: :cascade do |t|
@@ -208,6 +231,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_100200) do
     t.index ["document_id"], name: "index_bordereau_chassis_donnees_on_document_id"
     t.index ["donnees_extraites"], name: "index_bordereau_chassis_donnees_on_donnees_extraites", using: :gin
     t.index ["project_id"], name: "index_bordereau_chassis_donnees_on_project_id"
+  end
+
+  create_table "budget_lines", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "lot_id"
+    t.string "label", null: false
+    t.decimal "montant_prevu", precision: 10, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lot_id"], name: "index_budget_lines_on_lot_id"
+    t.index ["project_id"], name: "index_budget_lines_on_project_id"
   end
 
   create_table "categories", force: :cascade do |t|
@@ -768,6 +802,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_100200) do
     t.index ["category"], name: "index_products_on_category"
   end
 
+  create_table "project_amendments", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "project_quote_id"
+    t.bigint "requested_by_id", null: false
+    t.bigint "validated_by_id"
+    t.text "motif", null: false
+    t.decimal "delta_montant", precision: 10, scale: 2, null: false
+    t.string "status", default: "propose", null: false
+    t.datetime "validated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_project_amendments_on_project_id"
+    t.index ["project_quote_id"], name: "index_project_amendments_on_project_quote_id"
+    t.index ["requested_by_id"], name: "index_project_amendments_on_requested_by_id"
+    t.index ["validated_by_id"], name: "index_project_amendments_on_validated_by_id"
+  end
+
   create_table "project_checklist_items", force: :cascade do |t|
     t.boolean "checked", default: false
     t.datetime "checked_at"
@@ -896,6 +947,36 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_100200) do
     t.datetime "updated_at", null: false
     t.index ["project_id", "created_at"], name: "index_project_notes_on_project_id_and_created_at"
     t.index ["project_id"], name: "index_project_notes_on_project_id"
+  end
+
+  create_table "project_quote_lines", force: :cascade do |t|
+    t.bigint "project_quote_id", null: false
+    t.string "description", null: false
+    t.decimal "quantite", precision: 10, scale: 2, default: "1.0", null: false
+    t.string "unite"
+    t.decimal "prix_unitaire_ht", precision: 10, scale: 2, null: false
+    t.decimal "montant_ht", precision: 10, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_quote_id"], name: "index_project_quote_lines_on_project_quote_id"
+  end
+
+  create_table "project_quotes", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "lot_id"
+    t.bigint "project_document_id"
+    t.bigint "submitted_by_id"
+    t.string "entreprise_nom"
+    t.string "status", default: "brouillon", null: false
+    t.decimal "montant_ht", precision: 10, scale: 2
+    t.decimal "montant_tva", precision: 10, scale: 2
+    t.decimal "montant_ttc", precision: 10, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lot_id"], name: "index_project_quotes_on_lot_id"
+    t.index ["project_document_id"], name: "index_project_quotes_on_project_document_id"
+    t.index ["project_id"], name: "index_project_quotes_on_project_id"
+    t.index ["submitted_by_id"], name: "index_project_quotes_on_submitted_by_id"
   end
 
   create_table "projects", force: :cascade do |t|
@@ -1588,6 +1669,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_100200) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "aer_donnees", "documents"
   add_foreign_key "aer_donnees", "users"
+  add_foreign_key "ai_runs", "projects"
+  add_foreign_key "ai_runs", "users", column: "actor_id"
+  add_foreign_key "ai_runs", "users", column: "validated_by_id"
   add_foreign_key "audit_energ_donnees", "documents"
   add_foreign_key "audit_energ_donnees", "projects", on_delete: :nullify
   add_foreign_key "audit_energ_donnees", "properties"
@@ -1596,6 +1680,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_100200) do
   add_foreign_key "audit_events", "users", column: "actor_id"
   add_foreign_key "bordereau_chassis_donnees", "documents"
   add_foreign_key "bordereau_chassis_donnees", "projects"
+  add_foreign_key "budget_lines", "lots"
+  add_foreign_key "budget_lines", "projects"
   add_foreign_key "chantier_analyses", "projects"
   add_foreign_key "checklist_items", "checklist_templates"
   add_foreign_key "complement_requests", "request_progresses"
@@ -1642,6 +1728,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_100200) do
   add_foreign_key "prime_submissions", "properties"
   add_foreign_key "prime_submissions", "users"
   add_foreign_key "primes", "categories"
+  add_foreign_key "project_amendments", "project_quotes"
+  add_foreign_key "project_amendments", "projects"
+  add_foreign_key "project_amendments", "users", column: "requested_by_id"
+  add_foreign_key "project_amendments", "users", column: "validated_by_id"
   add_foreign_key "project_checklist_items", "checklist_items"
   add_foreign_key "project_checklist_items", "project_checklists"
   add_foreign_key "project_checklists", "checklist_templates"
@@ -1666,6 +1756,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_100200) do
   add_foreign_key "project_members", "projects"
   add_foreign_key "project_members", "users"
   add_foreign_key "project_notes", "projects"
+  add_foreign_key "project_quote_lines", "project_quotes"
+  add_foreign_key "project_quotes", "lots"
+  add_foreign_key "project_quotes", "project_documents"
+  add_foreign_key "project_quotes", "projects"
+  add_foreign_key "project_quotes", "users", column: "submitted_by_id"
   add_foreign_key "projects", "properties"
   add_foreign_key "projects", "users"
   add_foreign_key "properties", "users"

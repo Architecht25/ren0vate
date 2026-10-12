@@ -61,3 +61,7 @@ Signalé dans l'audit §3.4 — nécessite un examen de code plus poussé qu'un 
 **Q12. Extension `pgvector` sur Heroku.**
 Nécessaire pour le Lot 5 (RAG). Heroku Postgres supporte `pgvector` sur certains plans — à vérifier sur le plan actuellement souscrit avant d'arriver au Lot 5 (pas bloquant avant).
 → **Hypothèse retenue** : à vérifier en ouverture du Lot 5, pas avant — aucun impact sur les Lots 0-4.
+
+**Q13. Tarifs Anthropic utilisés pour le budget IA (`Ai::Client::PRICING_CENTS_PER_MILLION_TOKENS`).**
+Le Lot 2 introduit un plafond de coût IA par projet/mois (cahier des charges §8). Le mécanisme de plafond fonctionne, mais les prix par modèle (cents par million de tokens input/output) codés dans `Ai::Client` sont des valeurs placeholder, pas la grille tarifaire réelle d'Anthropic au moment de l'écriture.
+→ **Hypothèse retenue** : le plafond par défaut (`AI_MONTHLY_BUDGET_CENTS`, 5000 cents = 50€/mois/projet) reste approximatif jusqu'à confirmation. À corriger avec les tarifs réels avant de communiquer ce budget à un client ou de s'appuyer sur lui pour une décision financière.

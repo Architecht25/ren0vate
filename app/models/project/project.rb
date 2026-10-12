@@ -23,6 +23,14 @@ class Project < ApplicationRecord
   # V2 — base documentaire commune versionnée (cahier des charges §4-6)
   has_many :project_documents, dependent: :destroy
 
+  # V2 — journal des appels IA, budget par projet/mois (cahier des charges §8)
+  has_many :ai_runs, dependent: :destroy
+
+  # V2 — devis structurés et avenants (cahier des charges §4-5.C)
+  has_many :project_quotes, dependent: :destroy
+  has_many :project_amendments, dependent: :destroy
+  has_many :budget_lines, dependent: :destroy
+
   # V2 — journal d'audit append-only, dénormalisé sur le projet (cahier des
   # charges §6). nullify et non destroy : le journal doit survivre à la
   # suppression du projet qu'il documente.
