@@ -18,6 +18,11 @@ class ProjectQuote < ApplicationRecord
 
   before_save :recompute_totals
 
+  # V2 — Lot 3 : "mode dossier... recalculé à chaque changement" (cahier des
+  # charges §9). Déclenché ici plutôt que par un job pour rester simple et
+  # synchrone — à revoir si le recalcul devient coûteux (beaucoup de règles).
+  after_commit :sync_subsidy_case!, if: -> { saved_change_to_status? && accepte? }
+
   def recompute_totals
     self.montant_ht = lines.reject(&:marked_for_destruction?).sum { |l| l.montant_ht || 0 }
     self.montant_tva = (montant_ht * TVA_RATE).round(2)
@@ -25,6 +30,15 @@ class ProjectQuote < ApplicationRecord
   end
 
   private
+
+  def sync_subsidy_case!
+    # Défensif : un bien sans région reconnue (incomplet, hors Belgique...)
+    # ne doit jamais faire échouer l'acceptation du devis elle-même — cette
+    # synchronisation est une conséquence, pas une condition, de l'acceptation.
+    return unless SubsidyRule::REGIONS.include?(project.property.region)
+
+    project.subsidy_case_for_dossier.recalculate!
+  end
 
   def lot_belongs_to_project
     return if lot.blank?

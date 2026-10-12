@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_12_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_12_140100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1548,6 +1548,52 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_130000) do
     t.index ["user_id"], name: "index_subscriptions_on_user_id"
   end
 
+  create_table "subsidy_case_results", force: :cascade do |t|
+    t.bigint "subsidy_case_id", null: false
+    t.bigint "subsidy_rule_id", null: false
+    t.boolean "eligible", null: false
+    t.decimal "amount_estimated", precision: 10, scale: 2
+    t.jsonb "reasons", default: [], null: false
+    t.datetime "created_at", null: false
+    t.index ["subsidy_case_id"], name: "index_subsidy_case_results_on_subsidy_case_id"
+    t.index ["subsidy_rule_id"], name: "index_subsidy_case_results_on_subsidy_rule_id"
+  end
+
+  create_table "subsidy_cases", force: :cascade do |t|
+    t.bigint "project_id"
+    t.bigint "user_id"
+    t.string "region", null: false
+    t.string "mode", default: "simulation", null: false
+    t.jsonb "input_data", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id", "region"], name: "index_subsidy_cases_on_project_id_and_region"
+    t.index ["project_id"], name: "index_subsidy_cases_on_project_id"
+    t.index ["user_id"], name: "index_subsidy_cases_on_user_id"
+  end
+
+  create_table "subsidy_document_requirements", force: :cascade do |t|
+    t.bigint "subsidy_rule_id", null: false
+    t.string "document_type", null: false
+    t.boolean "mandatory", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subsidy_rule_id"], name: "index_subsidy_document_requirements_on_subsidy_rule_id"
+  end
+
+  create_table "subsidy_rules", force: :cascade do |t|
+    t.string "region", null: false
+    t.string "key", null: false
+    t.string "label", null: false
+    t.date "valid_from", null: false
+    t.date "valid_to"
+    t.jsonb "conditions", default: [], null: false
+    t.jsonb "amount_formula", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["region", "key", "valid_from"], name: "index_subsidy_rules_on_region_and_key_and_valid_from"
+  end
+
   create_table "support_messages", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -1791,6 +1837,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_130000) do
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "subscriptions", "users"
+  add_foreign_key "subsidy_case_results", "subsidy_cases"
+  add_foreign_key "subsidy_case_results", "subsidy_rules"
+  add_foreign_key "subsidy_cases", "projects"
+  add_foreign_key "subsidy_cases", "users"
+  add_foreign_key "subsidy_document_requirements", "subsidy_rules"
   add_foreign_key "support_messages", "support_tickets"
   add_foreign_key "support_messages", "users"
   add_foreign_key "support_tickets", "users"

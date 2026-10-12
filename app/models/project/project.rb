@@ -30,6 +30,7 @@ class Project < ApplicationRecord
   has_many :project_quotes, dependent: :destroy
   has_many :project_amendments, dependent: :destroy
   has_many :budget_lines, dependent: :destroy
+  has_many :subsidy_cases, dependent: :destroy
 
   # V2 — journal d'audit append-only, dénormalisé sur le projet (cahier des
   # charges §6). nullify et non destroy : le journal doit survivre à la
@@ -348,6 +349,27 @@ class Project < ApplicationRecord
         end
       fs.save
     end
+  end
+
+  # V2 — Lot 3 : mode "dossier" du moteur de primes (cahier des charges §9 :
+  # "rattaché à un chantier, alimenté par devis et factures réels et
+  # recalculé à chaque changement"). Mapping volontairement minimal pour ce
+  # lot — seuls la région et le total des devis acceptés alimentent
+  # input_data pour l'instant ; les autres critères d'éligibilité (âge du
+  # bien, résidence principale...) ne sont pas encore collectés ailleurs
+  # dans le modèle V2 et devront être ajoutés au fil des lots suivants.
+  def subsidy_case_for_dossier
+    case_record = subsidy_cases.find_or_initialize_by(mode: "dossier", region: property.region)
+    case_record.input_data = dossier_subsidy_input_data
+    case_record.save!
+    case_record
+  end
+
+  def dossier_subsidy_input_data
+    {
+      "property" => { "region" => property.region },
+      "travaux" => { "montant_ttc" => project_quotes.accepte.sum(:montant_ttc) }
+    }
   end
 
   private
