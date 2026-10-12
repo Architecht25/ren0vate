@@ -16,6 +16,14 @@ class Project < ApplicationRecord
   has_many :project_members, dependent: :destroy
   has_many :member_users, through: :project_members, source: :user
 
+  # V2 — découpage du chantier en lots (cahier des charges §4)
+  has_many :lots, dependent: :destroy
+
+  # V2 — journal d'audit append-only, dénormalisé sur le projet (cahier des
+  # charges §6). nullify et non destroy : le journal doit survivre à la
+  # suppression du projet qu'il documente.
+  has_many :audit_events, dependent: :nullify
+
   # Relations pour les factures
   has_many :factures, dependent: :destroy
   has_many :factures_devis, -> { where(type_facture: 'devis') }, class_name: 'Facture'
