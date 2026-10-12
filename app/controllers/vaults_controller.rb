@@ -78,12 +78,7 @@ class VaultsController < ApplicationController
         Document.where(project: @project, type_document: VAULT_DOCUMENT_TYPES)
           .with_attached_file
           .map do |d|
-            # Document#file_name renvoie toujours nil tant que file_url est
-            # vide, même si file est bien attaché (bug de précédence sur le
-            # "if" final dans app/models/documents/document.rb — pas corrigé
-            # ici, hors périmètre, on passe directement par l'attachment).
-            title = d.file.attached? ? d.file.filename.to_s : nil
-            VaultDocument.new(ref: "v1-#{d.id}", title: title.presence || d.type_document.humanize, path: document_path(d), attachment: d.file)
+            VaultDocument.new(ref: "v1-#{d.id}", title: d.file_name.presence || d.type_document.humanize, path: document_path(d), attachment: d.file)
           end
       else
         []
