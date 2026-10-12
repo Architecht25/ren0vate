@@ -1,0 +1,26 @@
+<div class="container-fluid px-4 py-4">
+  <%= render layout: "shared/page_header", locals: { title: "Phases du chantier", subtitle: @project.nom } do %>
+    <%= link_to new_project_phase_path(@project), class: "btn btn-primary-custom px-4" do %>
+      <i class="bi bi-plus-lg me-2"></i>Ajouter une phase
+    <% end %>
+  <% end %>
+
+  <% if @phases.any? %>
+    <div class="list-group">
+      <% @phases.each do |phase| %>
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <div class="fw-bold"><%= phase.name %></div>
+            <div class="text-muted small"><%= phase.key %></div>
+          </div>
+          <div class="d-flex gap-2">
+            <%= link_to "Modifier", edit_phase_path(phase), class: "btn btn-sm btn-outline-secondary" %>
+            <%= button_to "Supprimer", phase_path(phase), method: :delete, class: "btn btn-sm btn-outline-danger", data: { turbo_confirm: "Supprimer cette phase ? Les documents qui lui sont liés seront détachés, pas supprimés." } %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center text-muted py-5">Aucune phase pour l'instant.</div>
+  <% end %>
+</div>

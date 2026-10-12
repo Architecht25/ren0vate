@@ -37,6 +37,15 @@ class ProjectDocument < ApplicationRecord
   DOCUMENT_TYPES = %w[devis facture plan permis attestation photo pv garantie autre].freeze
 
   enum :visibility, { private_doc: "private", lot: "lot", all: "all", custom: "custom" }, default: "all", prefix: :visibility
+
+  # Libellés affichés dans les formulaires — les clés d'enum ("private_doc",
+  # "all"...) ne sont pas présentables telles quelles (voir retour UX).
+  VISIBILITY_LABELS = {
+    "private_doc" => "Privé (déposant et propriétaire uniquement)",
+    "lot" => "Visible du lot uniquement",
+    "all" => "Visible de tout le chantier",
+    "custom" => "Partage ciblé"
+  }.freeze
   enum :status, { brouillon: "brouillon", soumis: "soumis", valide: "valide", refuse: "refuse", a_corriger: "a_corriger" }, default: "brouillon"
 
   validates :title, presence: true

@@ -22,6 +22,12 @@
     end
     get "lots/:lot_id/quotes_comparison", to: "project_quotes#comparison", as: :lot_quotes_comparison
 
+    # V2 — gestion des lots et phases (cahier des charges §4 : "modèles
+    # pré-remplis, personnalisables") — jusqu'ici créés seulement par défaut
+    # à la création du chantier, sans moyen de les personnaliser ensuite.
+    resources :lots, except: %i[show], shallow: true
+    resources :phases, except: %i[show], shallow: true
+
     # Routes pour les factures et leur analyse
     resources :factures, except: [:create] do
       member do

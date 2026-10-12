@@ -7,10 +7,10 @@
         <%= f.error_notification %>
 
         <%= f.input :title, label: "Titre" %>
-        <%= f.input :document_type, collection: ProjectDocument::DOCUMENT_TYPES, label: "Type de document", include_blank: false %>
+        <%= f.input :document_type, collection: ProjectDocument::DOCUMENT_TYPES.map { |t| [t.humanize, t] }, label: "Type de document", include_blank: false %>
         <%= f.input :lot_id, collection: @project.lots.ordered, label_method: :name, value_method: :id, label: "Lot", include_blank: "Tous les lots" %>
         <%= f.input :phase_id, collection: @project.phases.ordered, label_method: :name, value_method: :id, label: "Phase", include_blank: "Aucune phase" %>
-        <%= f.input :visibility, collection: ProjectDocument.visibilities.keys, label: "Visibilité", include_blank: false %>
+        <%= f.input :visibility, collection: ProjectDocument::VISIBILITY_LABELS.invert, label: "Visibilité", include_blank: false %>
 
         <%= f.simple_fields_for :versions do |v| %>
           <%= v.input :file, as: :file, label: "Fichier" %>

@@ -1,0 +1,14 @@
+<div class="container-fluid px-4 py-4">
+  <%= render layout: "shared/page_header", locals: { title: "Ajouter une phase", subtitle: @project.nom } do %><% end %>
+
+  <div class="row">
+    <div class="col-12 col-lg-6">
+      <%= simple_form_for [@project, @phase] do |f| %>
+        <%= f.error_notification %>
+        <%= f.input :name, label: "Nom de la phase" %>
+        <%= f.input :key, label: "Clé technique (sans espace, ex: chantier)" %>
+        <%= f.button :submit, "Ajouter", class: "btn btn-primary-custom" %>
+      <% end %>
+    </div>
+  </div>
+</div>
