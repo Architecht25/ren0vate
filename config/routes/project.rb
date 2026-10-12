@@ -2,6 +2,16 @@
     # Documents liés à un chantier
     resources :documents, shallow: true
 
+    # V2 — base documentaire versionnée (Lot 1), distincte de resources :documents
+    # ci-dessus (Document V1, laissé intact — voir docs/PLAN_V2.md Lot 1)
+    resources :project_documents, except: %i[edit update], shallow: true do
+      member do
+        post :add_version
+      end
+      resources :comments, only: [:create], controller: "project_document_comments"
+      resources :reviews, only: [:create], controller: "project_document_reviews"
+    end
+
     # Routes pour les factures et leur analyse
     resources :factures, except: [:create] do
       member do

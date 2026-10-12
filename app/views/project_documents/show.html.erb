@@ -1,0 +1,94 @@
+<div class="container-fluid px-4 py-4">
+  <%= render layout: "shared/page_header", locals: { title: @project_document.title, subtitle: @project.nom } do %>
+    <% if policy(@project_document).destroy? %>
+      <%= link_to "Supprimer", project_document_path(@project_document), data: { turbo_method: :delete, turbo_confirm: "Supprimer ce document et toutes ses versions ?" }, class: "btn btn-outline-danger" %>
+    <% end %>
+  <% end %>
+
+  <div class="row g-4">
+    <div class="col-12 col-lg-8">
+      <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+        <div class="card-body">
+          <h2 class="h5 mb-3">Versions</h2>
+          <% if @project_document.versions.order(version_number: :desc).any? %>
+            <ul class="list-group list-group-flush">
+              <% @project_document.versions.order(version_number: :desc).each do |version| %>
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                  <div>
+                    <strong>v<%= version.version_number %></strong>
+                    <% if version.id == @project_document.current_version_id %><span class="badge bg-primary ms-1">actuelle</span><% end %>
+                    <div class="text-muted small"><%= version.file_name %> — déposée par <%= version.created_by.nom %></div>
+                  </div>
+                  <% if version.file.attached? %>
+                    <%= link_to "Télécharger", rails_blob_path(version.file, disposition: "attachment"), class: "btn btn-sm btn-outline-secondary" %>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+
+          <% if policy(@project_document).add_version? %>
+            <hr>
+            <%= form_with url: add_version_project_document_path(@project_document), method: :post, multipart: true, local: true do %>
+              <div class="input-group">
+                <input type="file" name="project_document_version[file]" class="form-control" required>
+                <button type="submit" class="btn btn-outline-primary">Nouvelle version</button>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+        <div class="card-body">
+          <h2 class="h5 mb-3">Commentaires</h2>
+          <% @comments.each do |comment| %>
+            <div class="mb-3">
+              <div class="small text-muted"><%= comment.author.nom %> — <%= l(comment.created_at, format: :short) %></div>
+              <div><%= comment.body %></div>
+            </div>
+          <% end %>
+
+          <% if policy(@project_document).comment? %>
+            <%= simple_form_for ProjectDocumentComment.new, url: project_document_comments_path(@project_document) do |f| %>
+              <%= f.input :body, label: false, placeholder: "Ajouter un commentaire…", input_html: { rows: 2 } %>
+              <%= f.button :submit, "Commenter", class: "btn btn-sm btn-outline-primary" %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+        <div class="card-body">
+          <h2 class="h6 mb-3">Statut</h2>
+          <span class="badge bg-<%= @project_document.valide? ? 'success' : (@project_document.refuse? ? 'danger' : 'warning') %> mb-3">
+            <%= @project_document.status.humanize %>
+          </span>
+
+          <% if policy(@project_document).review? %>
+            <%= simple_form_for ProjectDocumentReview.new, url: project_document_reviews_path(@project_document) do |f| %>
+              <%= f.input :status, collection: ProjectDocumentReview::STATUSES, label: "Avis", include_blank: false %>
+              <%= f.input :comment, label: "Commentaire (optionnel)" %>
+              <%= f.button :submit, "Enregistrer l'avis", class: "btn btn-sm btn-primary-custom" %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+        <div class="card-body">
+          <h2 class="h6 mb-3">Détails</h2>
+          <dl class="small mb-0">
+            <dt>Type</dt><dd><%= @project_document.document_type.humanize %></dd>
+            <dt>Visibilité</dt><dd><%= @project_document.visibility.humanize %></dd>
+            <% if @project_document.lot %><dt>Lot</dt><dd><%= @project_document.lot.name %></dd><% end %>
+            <% if @project_document.phase %><dt>Phase</dt><dd><%= @project_document.phase.name %></dd><% end %>
+            <dt>Déposé par</dt><dd><%= @project_document.uploaded_by.nom %></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
