@@ -29,12 +29,67 @@ class ProjectDocument < ApplicationRecord
 
   accepts_nested_attributes_for :versions
 
-  # Liste volontairement restreinte pour le MVP du Lot 1 — le catalogue complet
-  # de types (cahier des charges §5.B : devis, plan, facture, permis,
-  # attestation, photo, PV, garantie...) arrive avec l'ingestion IA du Lot 2,
-  # qui a besoin de classer automatiquement bien plus de types que ceux
-  # qu'un formulaire manuel doit proposer aujourd'hui.
-  DOCUMENT_TYPES = %w[devis facture plan permis attestation photo pv garantie autre].freeze
+  # Catalogue complet (cahier des charges §5.B), repris du catalogue V1
+  # (Documents::Document — app/models/documents/document.rb) pour couvrir la
+  # totalité des documents réellement déposés sur un chantier, moins les
+  # 4 types du module locatif (bail_signe, etat_lieux_entrant/sortant,
+  # assurance_locataire) — explicitement hors périmètre du MVP (cahier des
+  # charges §13 : "module locatif... hors MVP").
+  DOCUMENT_TYPES = %w[
+    devis facture etat_avancement attestation_entrepreneur
+    certificat_peb certificat_peb_avant certificat_peb_apres
+    photo photo_avant photo_pendant photo_apres
+    certificat_label attestation_conformite
+    plan metre permis_urbanisme plan_urbanisme_signe dossier_prime plan_diu
+    acte_notarial compromis
+    bordereau_chassis photo_chassis
+    preuve_paiement_audit rapport_audit_energetique copie_carte_identite
+    rib aer
+    fiche_technique notice_equipement fiche_securite_materiaux
+    certificat_garantie instruction_entretien assurance_decennale assurance_rc_pro
+    autre
+  ].freeze
+
+  # Libellés lisibles — .humanize seul produit des résultats peu présentables
+  # pour les sigles (ex. "Peb".humanize => "Peb", "Aer".humanize => "Aer").
+  DOCUMENT_TYPE_LABELS = {
+    "devis" => "Devis",
+    "facture" => "Facture",
+    "etat_avancement" => "État d'avancement",
+    "attestation_entrepreneur" => "Attestation entrepreneur",
+    "certificat_peb" => "Certificat PEB",
+    "certificat_peb_avant" => "Certificat PEB (avant travaux)",
+    "certificat_peb_apres" => "Certificat PEB (après travaux)",
+    "photo" => "Photo",
+    "photo_avant" => "Photo (avant travaux)",
+    "photo_pendant" => "Photo (pendant travaux)",
+    "photo_apres" => "Photo (après travaux)",
+    "certificat_label" => "Certificat label énergétique",
+    "attestation_conformite" => "Attestation de conformité",
+    "plan" => "Plan",
+    "metre" => "Métré",
+    "permis_urbanisme" => "Permis d'urbanisme",
+    "plan_urbanisme_signe" => "Plan d'urbanisme signé",
+    "dossier_prime" => "Dossier de prime",
+    "plan_diu" => "Plan DIU (dossier d'intervention ultérieure)",
+    "acte_notarial" => "Acte notarial",
+    "compromis" => "Compromis de vente",
+    "bordereau_chassis" => "Bordereau de commande châssis",
+    "photo_chassis" => "Photo châssis",
+    "preuve_paiement_audit" => "Preuve de paiement de l'audit",
+    "rapport_audit_energetique" => "Rapport d'audit énergétique",
+    "copie_carte_identite" => "Copie de carte d'identité",
+    "rib" => "RIB (relevé d'identité bancaire)",
+    "aer" => "AER (avertissement extrait de rôle)",
+    "fiche_technique" => "Fiche technique",
+    "notice_equipement" => "Notice d'équipement",
+    "fiche_securite_materiaux" => "Fiche de sécurité matériaux",
+    "certificat_garantie" => "Certificat de garantie",
+    "instruction_entretien" => "Instruction d'entretien",
+    "assurance_decennale" => "Assurance décennale",
+    "assurance_rc_pro" => "Assurance RC professionnelle",
+    "autre" => "Autre"
+  }.freeze
 
   enum :visibility, { private_doc: "private", lot: "lot", all: "all", custom: "custom" }, default: "all", prefix: :visibility
 
@@ -57,6 +112,10 @@ class ProjectDocument < ApplicationRecord
   # "proposition de rattachement, validation en un clic"). Stockée sur la
   # version courante par ProjectDocumentIngestionJob, jamais appliquée
   # automatiquement — voir #apply_ai_suggestion!.
+  def document_type_label
+    DOCUMENT_TYPE_LABELS[document_type] || document_type.humanize
+  end
+
   def ai_suggestion
     current_version&.extracted_metadata&.slice(
       "ai_suggested_document_type", "ai_suggested_lot_key", "ai_suggested_phase_key",

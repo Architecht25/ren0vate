@@ -3,11 +3,20 @@
 # exportable et transmissible à un acheteur ou locataire").
 class VaultsController < ApplicationController
   # Types de documents considérés comme "pièces à transmettre" à la fin du
-  # chantier — liste volontairement restreinte au catalogue existant de
-  # ProjectDocument::DOCUMENT_TYPES (§5.B complet pas encore porté, voir
-  # docs/AUDIT_V1.md) ; "notice"/"DIU" n'ont pas de type dédié aujourd'hui,
-  # classés en "autre" en attendant un catalogue plus riche.
-  VAULT_DOCUMENT_TYPES = %w[plan garantie attestation pv permis].freeze
+  # chantier (cahier des charges §4-5.E : "plans as-built, notices,
+  # garanties, dossier d'intervention ultérieure") — mis à jour le
+  # 12/10/2026 avec le catalogue complet de ProjectDocument::DOCUMENT_TYPES.
+  # Le PV de réception n'est pas dans cette liste : il a son propre modèle
+  # (PvReception, affiché séparément ci-dessous), pas de type ProjectDocument
+  # dédié.
+  VAULT_DOCUMENT_TYPES = %w[
+    plan plan_urbanisme_signe plan_diu
+    certificat_garantie notice_equipement instruction_entretien
+    fiche_technique fiche_securite_materiaux
+    attestation_conformite permis_urbanisme
+    certificat_peb certificat_peb_avant certificat_peb_apres
+    assurance_decennale assurance_rc_pro
+  ].freeze
 
   before_action :set_project
 

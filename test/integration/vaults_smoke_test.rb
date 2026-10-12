@@ -12,7 +12,7 @@ class VaultsSmokeTest < ActionDispatch::IntegrationTest
     @plan = @project.project_documents.create!(title: "Plan as-built", document_type: "plan", visibility: "all", uploaded_by: @owner)
     @plan.versions.create!(created_by: @owner, file: Rack::Test::UploadedFile.new(Rails.root.join("test/fixtures/files/test_devis.pdf"), "application/pdf"))
 
-    @private_garantie = @project.project_documents.create!(title: "Garantie privée", document_type: "garantie", visibility: "private", uploaded_by: @owner)
+    @private_garantie = @project.project_documents.create!(title: "Garantie privée", document_type: "certificat_garantie", visibility: "private", uploaded_by: @owner)
     @private_garantie.versions.create!(created_by: @owner, file: Rack::Test::UploadedFile.new(Rails.root.join("test/fixtures/files/test_devis.pdf"), "application/pdf"))
 
     # Hors liste VAULT_DOCUMENT_TYPES — ne doit jamais apparaître dans le coffre-fort.
