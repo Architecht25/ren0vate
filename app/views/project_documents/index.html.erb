@@ -1,5 +1,11 @@
 <div class="container-fluid px-4 py-4">
   <%= render layout: "shared/page_header", locals: { title: "Documents", subtitle: @project.nom } do %>
+    <%# V2 — Lot 5 : l'assistant lit le contenu de ces documents (RAG), sa
+        place naturelle est donc ici plutôt qu'un onglet séparé — décidé
+        avec Robin le 12/10/2026. %>
+    <%= link_to project_assistant_path(@project), class: "btn btn-outline-secondary px-4" do %>
+      <i class="bi bi-stars me-2"></i>Assistant sur ces documents
+    <% end %>
     <%= link_to new_project_project_document_path(@project), class: "btn btn-primary-custom px-4" do %>
       <i class="bi bi-plus-lg me-2"></i>Ajouter un document
     <% end %>

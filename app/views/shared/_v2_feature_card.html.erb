@@ -1,0 +1,25 @@
+<%# Carte de redirection vers une fonctionnalité V2, même langage visuel que
+    les cartes V1 existantes (header dégradé + icône + titre + sous-titre).
+    Dégradé teal commun à toutes les cartes V2 — signal visuel volontaire
+    "ceci est la nouvelle version" pendant la cohabitation V1/V2.
+    locals : title, icon, subtitle, description, path, button_label %>
+<div class="card border-0 shadow-sm rounded-4 h-100">
+  <div class="card-header border-0 py-3 px-4 d-flex flex-wrap gap-2 align-items-center"
+       style="background:linear-gradient(135deg,#0f766e,#14b8a6); border-radius: 1rem 1rem 0 0 !important;">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi <%= icon %> text-white fs-5"></i>
+      <div>
+        <span class="fw-semibold text-white"><%= title %> <span class="badge bg-white text-teal" style="color:#0f766e;font-size:0.65rem;">V2</span></span>
+        <div class="text-white opacity-75" style="font-size:0.75rem;"><%= subtitle %></div>
+      </div>
+    </div>
+  </div>
+  <div class="card-body p-3 d-flex flex-column">
+    <p class="text-muted small mb-4"><%= description %></p>
+    <div class="mt-auto">
+      <%= link_to path, class: "btn btn-outline-secondary w-100" do %>
+        <i class="bi bi-arrow-right-circle me-2"></i><%= local_assigns[:button_label] || "Accéder" %>
+      <% end %>
+    </div>
+  </div>
+</div>

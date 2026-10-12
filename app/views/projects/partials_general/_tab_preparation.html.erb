@@ -73,6 +73,35 @@
         <%= render 'projects/partials_general/card_contrat_checklist' %>
       </div>
     </div>
+
+    <%# V2 — Lots 1-2 : devis structurés, avenants, gestion des lots.
+        Complémentaires aux cartes ci-dessus (scan OCR), pas des remplacements
+        — voir mémoire "project_v2_navigation_ia_decision" pour la distinction
+        Devis V1 (scan OCR) / Devis V2 (saisie structurée par poste, lot-scopée,
+        alimente le moteur de primes). %>
+    <div class="row g-3 mb-4">
+      <div class="col-lg-4">
+        <%= render "shared/v2_feature_card",
+              title: "Devis", icon: "bi-receipt",
+              subtitle: "Saisie structurée par poste, comparaison par lot",
+              description: "Devis structurés manuellement (postes, quantités, prix), workflow d'acceptation et comparateur par lot — distinct des devis scannés ci-dessus.",
+              path: project_project_quotes_path(@project) %>
+      </div>
+      <div class="col-lg-4">
+        <%= render "shared/v2_feature_card",
+              title: "Avenants", icon: "bi-file-earmark-plus",
+              subtitle: "Travaux supplémentaires, validation tracée",
+              description: "Proposez un avenant à un devis structuré, motif et delta de montant — validation du propriétaire tracée.",
+              path: project_project_amendments_path(@project) %>
+      </div>
+      <div class="col-lg-4">
+        <%= render "shared/v2_feature_card",
+              title: "Lots", icon: "bi-diagram-3",
+              subtitle: "Toiture, menuiseries, isolation…",
+              description: "Gérez les lots du chantier — l'axe utilisé par le comparateur de devis et le périmètre d'accès des entrepreneurs.",
+              path: project_lots_path(@project) %>
+      </div>
+    </div>
   </div>
 
   <!-- ── Sous-onglet 3 : Financement, PEB & Audit énergétique ── -->

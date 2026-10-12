@@ -40,6 +40,20 @@
         <%= render 'projects/partials_general/card_planning_gantt' %>
       </div>
     </div>
+
+    <%# V2 — Lot 4 : planning par lot avec dépendances. Complémentaire au
+        Gantt ci-dessus (calculé automatiquement depuis le devis retenu) —
+        celui-ci est une saisie manuelle de tâches, utile quand le Gantt
+        automatique ne suffit pas (tâches hors devis, dépendances précises). %>
+    <div class="row g-3 mb-4">
+      <div class="col-lg-4">
+        <%= render "shared/v2_feature_card",
+              title: "Planning détaillé", icon: "bi-list-task",
+              subtitle: "Tâches manuelles avec dépendances",
+              description: "Ajoutez des tâches par lot avec dates et dépendances simples — complémentaire au Gantt automatique ci-dessus.",
+              path: project_schedule_items_path(@project) %>
+      </div>
+    </div>
   </div>
 
   <!-- ── Sous-onglet 2 : Validations & Paiements ── -->
@@ -69,8 +83,27 @@
       <div class="col-lg-4">
         <%= render 'projects/partials_general/photos_suivi' %>
       </div>
+      <%# V2 — Lot 4 : Journal de chantier remplace le carnet de bord V1
+          (project_notes) — strict sur-ensemble (auteur identifié, lot,
+          photos multiples, géolocalisation), voir mémoire
+          "project_v2_navigation_ia_decision" pour la comparaison détaillée
+          actée avec Robin le 12/10/2026. %>
       <div class="col-lg-4">
-        <%= render 'projects/partials_general/carnet_de_bord', project: @project, tab: 'suivi' %>
+        <%= render "shared/v2_feature_card",
+              title: "Journal de chantier", icon: "bi-journal-text",
+              subtitle: "Observations datées, photos, lot",
+              description: "Consignez une observation avec photos et géolocalisation, rattachée à un lot — remplace le carnet de bord.",
+              path: project_site_log_entries_path(@project) %>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-lg-4">
+        <%= render "shared/v2_feature_card",
+              title: "Messagerie", icon: "bi-chat-dots",
+              subtitle: "Fils de discussion par lot",
+              description: "Échangez avec les intervenants, par chantier ou par lot — accès filtré selon le périmètre de chacun.",
+              path: project_message_threads_path(@project) %>
       </div>
     </div>
   </div>
