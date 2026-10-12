@@ -1,23 +1,58 @@
-<div class="container-fluid px-4 py-4">
-  <%= render layout: "shared/page_header", locals: { title: "Ajouter un document", subtitle: @project.nom } do %><% end %>
+<% content_for :title, "Ajouter un document" %>
 
-  <div class="row">
-    <div class="col-12 col-lg-8">
-      <%= simple_form_for [@project, @project_document] do |f| %>
-        <%= f.error_notification %>
-
-        <%= f.input :title, label: "Titre" %>
-        <%= f.input :document_type, collection: ProjectDocument::DOCUMENT_TYPES.map { |t| [t.humanize, t] }, label: "Type de document", include_blank: false %>
-        <%= f.input :lot_id, collection: @project.lots.ordered, label_method: :name, value_method: :id, label: "Lot", include_blank: "Tous les lots" %>
-        <%= f.input :phase_id, collection: @project.phases.ordered, label_method: :name, value_method: :id, label: "Phase", include_blank: "Aucune phase" %>
-        <%= f.input :visibility, collection: ProjectDocument::VISIBILITY_LABELS.invert, label: "Visibilité", include_blank: false %>
-
-        <%= f.simple_fields_for :versions do |v| %>
-          <%= v.input :file, as: :file, label: "Fichier" %>
-        <% end %>
-
-        <%= f.button :submit, "Ajouter le document", class: "btn btn-primary-custom" %>
-      <% end %>
+<div class="container py-4" style="max-width: 700px;">
+  <div class="d-flex align-items-center mb-4">
+    <%= link_to project_project_documents_path(@project), class: "btn btn-outline-secondary btn-sm me-3" do %>
+      <i class="bi bi-arrow-left"></i>
+    <% end %>
+    <div style="min-width: 0;">
+      <h3 class="mb-0 text-truncate">Ajouter un document</h3>
+      <p class="text-muted small mb-0 text-truncate"><%= @project.nom %></p>
     </div>
   </div>
+
+  <%= simple_form_for [@project, @project_document] do |f| %>
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-transparent border-bottom py-3">
+        <h6 class="mb-0 fw-semibold"><i class="bi bi-file-earmark-plus me-2"></i>Informations du document</h6>
+      </div>
+      <div class="card-body p-4">
+        <%= f.error_notification %>
+        <div class="row g-3">
+          <div class="col-12">
+            <%= f.input :title, label: "Titre", input_html: { class: "form-control" } %>
+          </div>
+          <div class="col-md-6">
+            <%= f.input :document_type, label: "Type de document", as: :select,
+                collection: ProjectDocument::DOCUMENT_TYPES.map { |t| [t.humanize, t] },
+                include_blank: false, input_html: { class: "form-select" } %>
+          </div>
+          <div class="col-md-6">
+            <%= f.input :visibility, label: "Visibilité", as: :select,
+                collection: ProjectDocument::VISIBILITY_LABELS.invert,
+                include_blank: false, input_html: { class: "form-select" } %>
+          </div>
+          <div class="col-md-6">
+            <%= f.input :lot_id, label: "Lot", as: :select,
+                collection: @project.lots.ordered, label_method: :name, value_method: :id,
+                include_blank: "Tous les lots", input_html: { class: "form-select" } %>
+          </div>
+          <div class="col-md-6">
+            <%= f.input :phase_id, label: "Phase", as: :select,
+                collection: @project.phases.ordered, label_method: :name, value_method: :id,
+                include_blank: "Aucune phase", input_html: { class: "form-select" } %>
+          </div>
+          <div class="col-12">
+            <%= f.simple_fields_for :versions do |v| %>
+              <%= v.input :file, as: :file, label: "Fichier", input_html: { class: "form-control" } %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer bg-transparent d-flex flex-wrap gap-2 justify-content-end">
+        <%= link_to "Annuler", project_project_documents_path(@project), class: "btn btn-outline-secondary" %>
+        <%= f.submit "Ajouter le document", class: "btn btn-primary" %>
+      </div>
+    </div>
+  <% end %>
 </div>
