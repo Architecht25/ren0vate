@@ -42,7 +42,14 @@ jobs:
 
     services:
       postgres:
-        image: postgres:17
+        # pgvector/pgvector:pg17 — image postgres:17 standard + extension
+        # vector préinstallée (requise par db/migrate/20261012190000_enable_pgvector.rb,
+        # Lot 5 V2 : embeddings pour la recherche sémantique des documents).
+        # postgres:17 seul n'a pas le fichier vector.control, CI échouait sur
+        # db:test:prepare depuis le merge de la V2 (12/10/2026) alors que
+        # l'extension est bien disponible en local et sur le plan Heroku réel
+        # (vector 0.8.2, vérifié avant déploiement).
+        image: pgvector/pgvector:pg17
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
