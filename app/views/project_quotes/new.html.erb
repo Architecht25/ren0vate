@@ -1,0 +1,25 @@
+<div class="container-fluid px-4 py-4">
+  <%= render layout: "shared/page_header", locals: { title: "Ajouter un devis", subtitle: @project.nom } do %><% end %>
+
+  <div class="row">
+    <div class="col-12 col-lg-8">
+      <%= simple_form_for [@project, @project_quote] do |f| %>
+        <%= f.error_notification %>
+        <%= f.input :entreprise_nom, label: "Entreprise" %>
+        <%= f.input :lot_id, collection: @project.lots.ordered, label_method: :name, value_method: :id, label: "Lot", include_blank: "Tous les lots" %>
+
+        <h2 class="h6 mt-4 mb-2">Postes</h2>
+        <%= f.simple_fields_for :lines do |l| %>
+          <div class="row g-2 mb-2">
+            <div class="col-5"><%= l.input :description, label: "Description" %></div>
+            <div class="col-2"><%= l.input :quantite, label: "Qté" %></div>
+            <div class="col-2"><%= l.input :unite, label: "Unité" %></div>
+            <div class="col-3"><%= l.input :prix_unitaire_ht, label: "Prix unitaire HT" %></div>
+          </div>
+        <% end %>
+
+        <%= f.button :submit, "Ajouter le devis", class: "btn btn-primary-custom" %>
+      <% end %>
+    </div>
+  </div>
+</div>
