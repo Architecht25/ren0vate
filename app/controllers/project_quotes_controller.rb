@@ -1,6 +1,12 @@
-# V2 — Lot 2 : devis structuré, comparateur par lot. Distinct de
-# Devis::QuotesController (Devis::Quote V1, quasi mort — voir
-# docs/PLAN_V2.md Lot 2 pour la décision).
+# V2 — Lot 2 : devis structuré (saisi manuellement poste par poste, workflow
+# d'acceptation tracé), comparateur par lot. Distinct de QuotesController
+# (classe `Quote`, app/models/devis/quote.rb — PAS "quasi mort" malgré ce
+# qu'indiquait ce commentaire avant le 12/10/2026 : c'est une auto-estimation
+# budgétaire que le particulier produit lui-même via un catalogue de prix
+# régionaux, avant tout contact avec un entrepreneur — point d'entrée sidebar
+# de premier niveau, avec de vraies données en production. Les deux couvrent
+# des besoins différents, voir mémoire "project_v2_trois_systemes_devis_audit"
+# pour le détail. Décision ouverte #6 de docs/PLAN_V2.md toujours non close.
 class ProjectQuotesController < ApplicationController
   before_action :set_project, only: %i[index new create]
   before_action :set_project_quote, only: %i[show decide]
