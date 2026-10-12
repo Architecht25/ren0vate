@@ -121,6 +121,39 @@ class ProjectDocumentIngestionJobTest < ActiveSupport::TestCase
     ENV["VOYAGE_API_KEY"] = previous_voyage_key
   end
 
+  test "un certificat PEB déposé en V2 crée un PebDonnee et synchronise la propriété (bug trouvé lors du test E2E du 12/10/2026)" do
+    property = @project.property
+    # La fixture property ne porte pas d'adresse complète (hors scope de ce
+    # test) — update_columns contourne la validation pour isoler ce qu'on
+    # teste ici : la synchronisation PEB, pas la validité de l'adresse.
+    property.update_columns(rue: "Rue Test", numero: "1", code_postal: "1000", commune: "Bruxelles", region: "wallonie")
+    peb_document = @project.project_documents.create!(title: "Certificat PEB", document_type: "certificat_peb_avant", uploaded_by: @owner)
+    peb_version = peb_document.versions.create!(
+      created_by: @owner,
+      file: Rack::Test::UploadedFile.new(Rails.root.join("test/fixtures/files/test_devis.pdf"), "application/pdf")
+    )
+
+    fake_peb_result = {
+      success: true, region: "wallonie", label_peb: "D", score_ep: 320,
+      date_certificat: Date.current, confiance_ocr: 90, extraction_complete: true
+    }
+    fake_peb_service = Object.new
+    fake_peb_service.define_singleton_method(:extraire_donnees_peb) { fake_peb_result }
+
+    assert_difference "PebDonnee.count", 1 do
+      stub_class_method(Anthropic::Client, :new, FakeAnthropicClient.new(response: fake_response('{"document_type":"certificat_peb_avant"}'))) do
+        stub_class_method(Ocr::PebOcrService, :new, fake_peb_service) do
+          ProjectDocumentIngestionJob.perform_now(peb_version.id)
+        end
+      end
+    end
+
+    peb_donnee = PebDonnee.order(created_at: :desc).first
+    assert_equal property, peb_donnee.property
+    assert_equal "D", peb_donnee.label_peb
+    assert_equal "D", peb_donnee.property.reload.certificat_peb_wallonie
+  end
+
   test "n'indexe rien sans clé Voyage AI, sans faire échouer le job" do
     ENV["VOYAGE_API_KEY"] = nil
 

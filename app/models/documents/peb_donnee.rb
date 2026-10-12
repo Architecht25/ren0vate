@@ -57,6 +57,35 @@ class PebDonnee < ApplicationRecord
     Rails.logger.error("PebDonnee##{id}: échec extraction — #{message}") if message.present?
   end
 
+  # Mise à jour automatique des champs PEB de la propriété — même règle
+  # qu'avant (confiance >= 70). Extrait de PebExtractionJob le 12/10/2026
+  # pour être réutilisable par ProjectDocumentIngestionJob (base documentaire
+  # V2) : un certificat PEB déposé via ProjectDocument n'alimentait jusque-là
+  # jamais cette synchronisation, laissant le simulateur de primes (qui lit
+  # Property#peb_donnees / les champs certificat_peb_xxx) sans visibilité sur
+  # un PEB pourtant bien déposé, juste via l'autre base documentaire.
+  def synchroniser_propriete!(result)
+    return unless property && result[:confiance_ocr].to_i >= 70
+
+    if apres_travaux?
+      property.update_column(:date_peb_apres_travaux, result[:date_certificat]) if result[:date_certificat].present?
+      return
+    end
+
+    return unless result[:label_peb].present?
+
+    champ_peb = case result[:region]
+                when 'wallonie'  then :certificat_peb_wallonie
+                when 'flandre'   then :certificat_peb_flandre
+                when 'bruxelles' then :certificat_peb_bruxelles
+                end
+    return unless champ_peb
+
+    updates = { champ_peb => result[:label_peb] }
+    updates[:date_peb_avant_travaux] = result[:date_certificat] if result[:date_certificat].present?
+    property.update(updates)
+  end
+
   # Label PEB formaté avec couleur Bootstrap
   COULEURS_LABEL = {
     'A++' => 'success', 'A+' => 'success', 'A' => 'success',
