@@ -1,6 +1,10 @@
 class ApplicationController < ActionController::Base
+  include Pundit::Authorization
+
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
+
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   # Protection CSRF
   protect_from_forgery with: :exception
@@ -109,6 +113,13 @@ class ApplicationController < ActionController::Base
   before_action :store_referral_token
 
   private
+
+  def user_not_authorized
+    respond_to do |format|
+      format.html { redirect_to root_path, alert: "Vous n'avez pas accès à cette ressource." }
+      format.json { render json: { error: "forbidden" }, status: :forbidden }
+    end
+  end
 
   def redirect_old_heroku_host
     return unless Rails.env.production?
