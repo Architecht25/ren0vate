@@ -40,6 +40,10 @@ class Project < ApplicationRecord
   # V2 — Lot 5 : assistant sur dossier (cahier des charges §4, §8.7)
   has_many :project_document_chunks, dependent: :destroy
 
+  # V2 — Lot 6 : conformité et garanties (cahier des charges §4-5.E)
+  has_many :compliance_items, dependent: :destroy
+  has_many :warranties, dependent: :destroy
+
   # V2 — journal d'audit append-only, dénormalisé sur le projet (cahier des
   # charges §6). nullify et non destroy : le journal doit survivre à la
   # suppression du projet qu'il documente.

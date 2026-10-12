@@ -44,6 +44,16 @@
     get  :assistant, to: "assistant#show"
     post :assistant, to: "assistant#ask"
 
+    # V2 — Lot 6 : conformité, garanties, coffre-fort
+    resources :compliance_items, except: %i[edit show], shallow: true
+    resources :warranties, only: %i[index new create destroy], shallow: true
+    # vault.zip déclarée AVANT :vault — ce dernier a un segment (.:format)
+    # implicite qui matcherait aussi "vault.zip" (format=zip) s'il passait en
+    # premier, envoyant l'export vers VaultsController#show (sans template
+    # zip) au lieu de #export. Rails prend la première route qui matche.
+    get "vault.zip", to: "vaults#export", as: :vault_export, defaults: { format: :zip }
+    get :vault, to: "vaults#show"
+
     # Routes pour les factures et leur analyse
     resources :factures, except: [:create] do
       member do

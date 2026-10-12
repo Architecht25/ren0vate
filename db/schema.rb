@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_12_190100) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_12_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -317,6 +317,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_190100) do
     t.index ["request_progress_id", "status"], name: "index_complement_requests_on_request_progress_id_and_status"
     t.index ["request_progress_id"], name: "index_complement_requests_on_request_progress_id"
     t.index ["status"], name: "index_complement_requests_on_status"
+  end
+
+  create_table "compliance_items", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.string "label", null: false
+    t.string "region", null: false
+    t.string "category", null: false
+    t.string "status", default: "a_faire", null: false
+    t.date "due_date"
+    t.bigint "project_document_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_document_id"], name: "index_compliance_items_on_project_document_id"
+    t.index ["project_id"], name: "index_compliance_items_on_project_id"
   end
 
   create_table "devis_donnees", force: :cascade do |t|
@@ -1778,6 +1792,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_190100) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "warranties", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "lot_id"
+    t.bigint "project_document_id"
+    t.string "label", null: false
+    t.date "start_date", null: false
+    t.date "end_date", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["end_date"], name: "index_warranties_on_end_date"
+    t.index ["lot_id"], name: "index_warranties_on_lot_id"
+    t.index ["project_document_id"], name: "index_warranties_on_project_document_id"
+    t.index ["project_id"], name: "index_warranties_on_project_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "aer_donnees", "documents"
@@ -1798,6 +1827,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_190100) do
   add_foreign_key "chantier_analyses", "projects"
   add_foreign_key "checklist_items", "checklist_templates"
   add_foreign_key "complement_requests", "request_progresses"
+  add_foreign_key "compliance_items", "project_documents"
+  add_foreign_key "compliance_items", "projects"
   add_foreign_key "devis_donnees", "documents"
   add_foreign_key "devis_donnees", "projects"
   add_foreign_key "devis_donnees", "properties"
@@ -1927,4 +1958,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_190100) do
   add_foreign_key "support_tickets", "users"
   add_foreign_key "tenants", "properties"
   add_foreign_key "tenants", "users"
+  add_foreign_key "warranties", "lots"
+  add_foreign_key "warranties", "project_documents"
+  add_foreign_key "warranties", "projects"
 end
