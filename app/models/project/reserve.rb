@@ -1,6 +1,9 @@
 class Reserve < ApplicationRecord
   belongs_to :project
   belongs_to :plan_document, class_name: 'Document', optional: true
+  # V2 — Lot 4 : périmètre de lot (cahier des charges §4), ajouté sur le
+  # modèle V1 existant plutôt que recréé — voir la migration.
+  belongs_to :lot, optional: true
 
   has_one_attached :photo
 
@@ -8,6 +11,7 @@ class Reserve < ApplicationRecord
 
   validates :description, presence: true
   validates :statut, inclusion: { in: STATUTS }
+  validate :lot_belongs_to_project
 
   scope :ouvertes,  -> { where(statut: 'ouverte') }
   scope :en_cours,  -> { where(statut: 'en_cours') }
@@ -32,5 +36,12 @@ class Reserve < ApplicationRecord
 
   def has_pin?
     pin_x.present? && pin_y.present?
+  end
+
+  private
+
+  def lot_belongs_to_project
+    return if lot.blank?
+    errors.add(:lot, "n'appartient pas à ce chantier") if lot.project_id != project_id
   end
 end

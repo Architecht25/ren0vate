@@ -5,6 +5,10 @@ class Lot < ApplicationRecord
   has_many :project_documents, dependent: :nullify
   has_many :project_quotes, dependent: :nullify
   has_many :budget_lines, dependent: :nullify
+  has_many :reserves, dependent: :nullify
+  has_many :site_log_entries, dependent: :nullify
+  has_many :message_threads, dependent: :nullify
+  has_many :schedule_items, dependent: :nullify
 
   validates :key, presence: true, uniqueness: { scope: :project_id }
   validates :name, presence: true

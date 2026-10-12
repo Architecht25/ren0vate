@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_12_140100) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_12_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -601,6 +601,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_140100) do
     t.index ["organization_id", "user_id"], name: "index_memberships_on_organization_id_and_user_id", unique: true
     t.index ["organization_id"], name: "index_memberships_on_organization_id"
     t.index ["user_id"], name: "index_memberships_on_user_id"
+  end
+
+  create_table "message_threads", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "lot_id"
+    t.string "title", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lot_id"], name: "index_message_threads_on_lot_id"
+    t.index ["project_id"], name: "index_message_threads_on_project_id"
+  end
+
+  create_table "messages", force: :cascade do |t|
+    t.bigint "message_thread_id", null: false
+    t.bigint "author_id", null: false
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_messages_on_author_id"
+    t.index ["message_thread_id"], name: "index_messages_on_message_thread_id"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -1370,6 +1390,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_140100) do
     t.string "responsable"
     t.string "statut", default: "ouverte", null: false
     t.datetime "updated_at", null: false
+    t.bigint "lot_id"
+    t.index ["lot_id"], name: "index_reserves_on_lot_id"
     t.index ["plan_document_id"], name: "index_reserves_on_plan_document_id"
     t.index ["project_id", "statut"], name: "index_reserves_on_project_id_and_statut"
     t.index ["project_id"], name: "index_reserves_on_project_id"
@@ -1393,6 +1415,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_140100) do
     t.index ["user_id"], name: "index_rib_donnees_on_user_id"
   end
 
+  create_table "schedule_items", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "lot_id"
+    t.bigint "depends_on_id"
+    t.string "label", null: false
+    t.date "start_date"
+    t.date "end_date"
+    t.string "status", default: "a_faire", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["depends_on_id"], name: "index_schedule_items_on_depends_on_id"
+    t.index ["lot_id"], name: "index_schedule_items_on_lot_id"
+    t.index ["project_id"], name: "index_schedule_items_on_project_id"
+  end
+
   create_table "simulations", force: :cascade do |t|
     t.string "category"
     t.text "category_description"
@@ -1413,6 +1450,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_140100) do
     t.index ["property_id"], name: "index_simulations_on_property_id"
     t.index ["regime"], name: "index_simulations_on_regime"
     t.index ["user_id"], name: "index_simulations_on_user_id"
+  end
+
+  create_table "site_log_entries", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "lot_id"
+    t.bigint "author_id", null: false
+    t.text "body", null: false
+    t.datetime "observed_at", null: false
+    t.float "latitude"
+    t.float "longitude"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_site_log_entries_on_author_id"
+    t.index ["lot_id"], name: "index_site_log_entries_on_lot_id"
+    t.index ["project_id", "observed_at"], name: "index_site_log_entries_on_project_id_and_observed_at"
+    t.index ["project_id"], name: "index_site_log_entries_on_project_id"
   end
 
   create_table "solid_queue_blocked_executions", force: :cascade do |t|
@@ -1757,6 +1810,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_140100) do
   add_foreign_key "lots", "projects"
   add_foreign_key "memberships", "organizations"
   add_foreign_key "memberships", "users"
+  add_foreign_key "message_threads", "lots"
+  add_foreign_key "message_threads", "projects"
+  add_foreign_key "messages", "message_threads"
+  add_foreign_key "messages", "users", column: "author_id"
   add_foreign_key "notifications", "projects"
   add_foreign_key "notifications", "properties"
   add_foreign_key "notifications", "simulations"
@@ -1824,12 +1881,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_140100) do
   add_foreign_key "requests", "simulations"
   add_foreign_key "requests", "users"
   add_foreign_key "reserves", "documents", column: "plan_document_id"
+  add_foreign_key "reserves", "lots"
   add_foreign_key "reserves", "projects"
   add_foreign_key "rib_donnees", "documents"
   add_foreign_key "rib_donnees", "users"
+  add_foreign_key "schedule_items", "lots"
+  add_foreign_key "schedule_items", "projects"
+  add_foreign_key "schedule_items", "schedule_items", column: "depends_on_id"
   add_foreign_key "simulations", "projects"
   add_foreign_key "simulations", "properties"
   add_foreign_key "simulations", "users"
+  add_foreign_key "site_log_entries", "lots"
+  add_foreign_key "site_log_entries", "projects"
+  add_foreign_key "site_log_entries", "users", column: "author_id"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
