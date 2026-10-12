@@ -9,6 +9,7 @@ class ProjectDocumentVersion < ApplicationRecord
   belongs_to :created_by, class_name: "User"
   has_many :comments, class_name: "ProjectDocumentComment", dependent: :nullify
   has_many :reviews, class_name: "ProjectDocumentReview", dependent: :nullify
+  has_many :chunks, class_name: "ProjectDocumentChunk", dependent: :destroy
 
   has_one_attached :file
 

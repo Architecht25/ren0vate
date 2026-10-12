@@ -59,8 +59,8 @@ Signalé dans l'audit §3.4 — nécessite un examen de code plus poussé qu'un 
 → **Hypothèse retenue** : reporté explicitement à l'ouverture du Lot 2, pas tranché ici — aucun travail de Lot 0/1 n'en dépend directement.
 
 **Q12. Extension `pgvector` sur Heroku.**
-Nécessaire pour le Lot 5 (RAG). Heroku Postgres supporte `pgvector` sur certains plans — à vérifier sur le plan actuellement souscrit avant d'arriver au Lot 5 (pas bloquant avant).
-→ **Hypothèse retenue** : à vérifier en ouverture du Lot 5, pas avant — aucun impact sur les Lots 0-4.
+Nécessaire pour le Lot 5 (RAG). Heroku Postgres supporte `pgvector` sur certains plans — à vérifier sur le plan actuellement souscrit avant d'arriver au Lot 5.
+→ **Statut au 12/10/2026** : vérifié disponible et activé sur Postgres **local** (extension `vector` 0.6.0). **Toujours à vérifier sur le plan Heroku réel** avant tout déploiement de la branche `v2` — pas testé en dehors de cet environnement local.
 
 **Q13. Tarifs Anthropic utilisés pour le budget IA (`Ai::Client::PRICING_CENTS_PER_MILLION_TOKENS`).**
 Le Lot 2 introduit un plafond de coût IA par projet/mois (cahier des charges §8). Le mécanisme de plafond fonctionne, mais les prix par modèle (cents par million de tokens input/output) codés dans `Ai::Client` sont des valeurs placeholder, pas la grille tarifaire réelle d'Anthropic au moment de l'écriture.
@@ -69,3 +69,7 @@ Le Lot 2 introduit un plafond de coût IA par projet/mois (cahier des charges §
 **Q14. Montants du moteur de primes V2 (`amount_formula` des `SubsidyRule` seedées au Lot 3).**
 Le Lot 3 porte fidèlement les CONDITIONS d'éligibilité Wallonie/Flandre depuis les services V1 lus pendant l'audit (`Regions::Wallonie::WallonieEligibilityService`, `Regions::Flandre::FlandreEligibilityService`), mais seulement UNE règle par région (démonstration du mécanisme, pas le catalogue complet), et les MONTANTS (taux, plafonds) sont des placeholders non vérifiés avec le barème officiel — le fichier source lu pendant l'audit s'arrêtait avant la partie calcul du montant.
 → **Hypothèse retenue** : ne jamais citer ces montants à un client ou les utiliser comme base d'une simulation réelle avant vérification complète du barème. Le mécanisme (règles versionnées, recalcul sans déploiement) est fonctionnel et testé ; son contenu chiffré ne l'est pas encore. Porter le reste du catalogue de primes (toutes les primes existantes de `Regions::*`, pas seulement une par région) est un travail distinct, non commencé.
+
+**Q15. Fournisseur d'embeddings pour le RAG (`Ai::EmbeddingClient`) — RÉSOLU le 12/10/2026.**
+Anthropic ne fournit pas d'API d'embeddings. Décidé avec Robin : Voyage AI (partenaire officiellement recommandé par Anthropic), modèle `voyage-3`.
+→ **Statut** : clé `VOYAGE_API_KEY` fournie par Robin le 12/10/2026, testée avec un appel réel — modèle et dimension du vecteur (1024) confirmés en conditions réelles, pipeline complet (ingestion → chunking → embedding → recherche filtrée par droits → synthèse Claude avec citation) vérifié de bout en bout. Plus une hypothèse — à considérer comme acquis, sous réserve d'ajouter `VOYAGE_API_KEY` aux variables d'environnement Heroku avant tout déploiement (actuellement seulement dans le `.env` local).

@@ -35,6 +35,7 @@ gem "rubyzip"
 gem "http_accept_language"  # Pour la détection automatique de langue
 gem "stripe"  # Pour les paiements et abonnements SaaS
 gem "pundit"  # V2 — autorisation par policy (matrice rôle x action x visibilité, cahier des charges §3)
+gem "neighbor"  # V2 — recherche de plus proches voisins sur pgvector (Lot 5 — assistant RAG)
 gem "geocoder"  # Pour le géocodage d'adresses
 gem "lograge"   # Structured single-line logs (compatible Papertrail/Datadog)
 gem "rack-attack"  # Rate limiting et protection brute-force
