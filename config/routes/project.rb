@@ -8,6 +8,7 @@
       member do
         post :add_version
         patch :accept_suggestion
+        get :translate
       end
       resources :comments, only: [:create], controller: "project_document_comments"
       resources :reviews, only: [:create], controller: "project_document_reviews"
@@ -38,6 +39,10 @@
 
     # V2 — Lot 4 : planning par lot
     resources :schedule_items, except: %i[edit show], shallow: true
+
+    # V2 — Lot 5 : assistant conversationnel sur dossier
+    get  :assistant, to: "assistant#show"
+    post :assistant, to: "assistant#ask"
 
     # Routes pour les factures et leur analyse
     resources :factures, except: [:create] do

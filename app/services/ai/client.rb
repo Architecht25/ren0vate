@@ -16,7 +16,9 @@ module Ai
     # rester cohérent avec ce qui tourne déjà en production sur ce compte Anthropic.
     FUNCTIONS = {
       document_classification: { model: "claude-haiku-4-5-20251001", max_tokens: 1000 },
-      quote_comparison: { model: "claude-sonnet-4-6", max_tokens: 1500 }
+      quote_comparison: { model: "claude-sonnet-4-6", max_tokens: 1500 },
+      rag_answer: { model: "claude-sonnet-4-6", max_tokens: 1200 }, # V2 — Lot 5 : synthèse sur extraits cités, bénéficie du modèle le plus capable
+      translation: { model: "claude-haiku-4-5-20251001", max_tokens: 2000 } # V2 — Lot 5
     }.freeze
 
     # Tarifs approximatifs (cents par million de tokens) — PLACEHOLDER, à

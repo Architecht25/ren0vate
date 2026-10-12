@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_12_180000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_12_190100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "vector"
 
   create_table "action_mailbox_inbound_emails", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -858,6 +859,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_180000) do
     t.datetime "updated_at", null: false
     t.index ["checklist_template_id"], name: "index_project_checklists_on_checklist_template_id"
     t.index ["project_id"], name: "index_project_checklists_on_project_id"
+  end
+
+  create_table "project_document_chunks", force: :cascade do |t|
+    t.bigint "project_document_version_id", null: false
+    t.bigint "project_id", null: false
+    t.text "content", null: false
+    t.integer "chunk_index", null: false
+    t.vector "embedding", limit: 1024
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_document_version_id", "chunk_index"], name: "index_chunks_on_version_and_index", unique: true
+    t.index ["project_document_version_id"], name: "index_project_document_chunks_on_project_document_version_id"
+    t.index ["project_id"], name: "index_project_document_chunks_on_project_id"
   end
 
   create_table "project_document_comments", force: :cascade do |t|
@@ -1839,6 +1853,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_180000) do
   add_foreign_key "project_checklist_items", "project_checklists"
   add_foreign_key "project_checklists", "checklist_templates"
   add_foreign_key "project_checklists", "projects"
+  add_foreign_key "project_document_chunks", "project_document_versions"
+  add_foreign_key "project_document_chunks", "projects"
   add_foreign_key "project_document_comments", "project_document_versions"
   add_foreign_key "project_document_comments", "project_documents"
   add_foreign_key "project_document_comments", "users", column: "author_id"
