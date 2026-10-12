@@ -17,15 +17,27 @@ class VaultsSmokeTest < ActionDispatch::IntegrationTest
 
     # Hors liste VAULT_DOCUMENT_TYPES — ne doit jamais apparaître dans le coffre-fort.
     @devis = @project.project_documents.create!(title: "Devis", document_type: "devis", visibility: "all", uploaded_by: @owner)
+
+    # Document V1 (base documentaire historique, distincte de ProjectDocument)
+    # — le coffre-fort doit aussi l'agréger, voir #vault_documents.
+    @legacy_attestation = Document.new(
+      project: @project, user: @owner, type_document: "attestation_conformite", status: "approved"
+    )
+    @legacy_attestation.file.attach(
+      io: File.open(Rails.root.join("test/fixtures/files/test_devis.pdf")),
+      filename: "attestation-electrique.pdf", content_type: "application/pdf"
+    )
+    @legacy_attestation.save!
   end
 
-  test "la page s'affiche avec les documents éligibles du propriétaire" do
+  test "la page s'affiche avec les documents éligibles du propriétaire, V1 et V2 confondus" do
     sign_in @owner
     get project_vault_path(@project, locale: :fr)
     assert_response :success
     assert_select "a", text: "Plan as-built"
     assert_select "a", text: "Garantie privée"
     assert_select "a", text: "Devis", count: 0
+    assert_select "a", text: "attestation-electrique.pdf"
   end
 
   test "l'export ZIP ne contient que les documents que l'entrepreneur a le droit de voir" do
@@ -40,5 +52,19 @@ class VaultsSmokeTest < ActionDispatch::IntegrationTest
     zip_entries = Zip::File.open_buffer(response.body).map(&:name)
     assert zip_entries.any? { |name| name.include?("plan-as-built") }
     assert zip_entries.none? { |name| name.include?("garantie-privee") }
+    # Document V1 : aucune notion de membre/pro dans ce modèle historique,
+    # seul le propriétaire du chantier y a accès (voir #vault_documents).
+    assert zip_entries.none? { |name| name.include?("attestation-electrique") }
+  end
+
+  test "un document V1 n'apparaît dans le coffre-fort que pour le propriétaire, pas pour un pro" do
+    roofer = User.create!(email: "roofer_vault_v1@example.com", password: "password123", nom: "Couvreur")
+    roofer.update_column(:onboarding_completed_at, 1.day.ago)
+    @project.project_members.create!(user: roofer, role: "entrepreneur", status: "active")
+    sign_in roofer
+
+    get project_vault_path(@project, locale: :fr)
+    assert_response :success
+    assert_select "a", text: "attestation-electrique.pdf", count: 0
   end
 end
