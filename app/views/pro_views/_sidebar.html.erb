@@ -119,6 +119,40 @@
           </div>
         </div>
 
+        <%# V2 — accès provisoire aux fonctionnalités V2 depuis la vue pro
+            (jusqu'ici réservées à la vue propriétaire, projects/show.html.erb —
+            les pros n'avaient aucun moyen de les atteindre). Placement
+            définitif différé (voir mémoire "project_v2_navigation_ia_decision"),
+            ce bloc n'est qu'un accès minimal pour ne pas bloquer les tests
+            de collaboration pro en attendant. ── %>
+        <div class="card border-0 shadow-sm rounded-3 mb-3">
+          <div class="card-header bg-white border-bottom pt-3 pb-2 px-4">
+            <h5 class="mb-0 fw-semibold" style="font-size:0.85rem;">
+              <i class="bi bi-stars me-2 text-warning"></i>Nouveautés (V2)
+            </h5>
+          </div>
+          <div class="card-body px-3 py-2 d-flex flex-column gap-1">
+            <%= link_to project_project_documents_path(@project), class: "text-decoration-none d-flex align-items-center gap-2 py-1", style: "font-size:0.8rem;" do %>
+              <i class="bi bi-layers text-muted"></i>Documents
+            <% end %>
+            <%= link_to project_project_quotes_path(@project), class: "text-decoration-none d-flex align-items-center gap-2 py-1", style: "font-size:0.8rem;" do %>
+              <i class="bi bi-receipt text-muted"></i>Devis
+            <% end %>
+            <%= link_to project_project_amendments_path(@project), class: "text-decoration-none d-flex align-items-center gap-2 py-1", style: "font-size:0.8rem;" do %>
+              <i class="bi bi-file-earmark-plus text-muted"></i>Avenants
+            <% end %>
+            <%= link_to project_site_log_entries_path(@project), class: "text-decoration-none d-flex align-items-center gap-2 py-1", style: "font-size:0.8rem;" do %>
+              <i class="bi bi-journal-text text-muted"></i>Journal de chantier
+            <% end %>
+            <%= link_to project_message_threads_path(@project), class: "text-decoration-none d-flex align-items-center gap-2 py-1", style: "font-size:0.8rem;" do %>
+              <i class="bi bi-chat-dots text-muted"></i>Messagerie
+            <% end %>
+            <%= link_to project_schedule_items_path(@project), class: "text-decoration-none d-flex align-items-center gap-2 py-1", style: "font-size:0.8rem;" do %>
+              <i class="bi bi-list-task text-muted"></i>Planning
+            <% end %>
+          </div>
+        </div>
+
         <%# RETOUR ──────────────────────────────────────────── %>
         <% if @project.user_id == current_user.id %>
           <%= link_to project_path(@project), class: "btn btn-outline-secondary btn-sm w-100 mb-2",
