@@ -11,7 +11,11 @@ class ProjectDocument < ApplicationRecord
 
   has_many :versions, class_name: "ProjectDocumentVersion", dependent: :destroy
   has_many :comments, class_name: "ProjectDocumentComment", dependent: :destroy
-  has_many :reviews, class_name: "ProjectDocumentReview", dependent: :destroy
+  # delete_all, pas destroy : ProjectDocumentReview est append-only (voir son
+  # before_destroy) — dependent: :destroy appellerait #destroy sur chaque
+  # ligne et lèverait ActiveRecord::ReadOnlyRecord. delete_all fait un DELETE
+  # SQL direct, sans passer par les callbacks du modèle.
+  has_many :reviews, class_name: "ProjectDocumentReview", dependent: :delete_all
   has_many :shares, class_name: "ProjectDocumentShare", dependent: :destroy
   has_many :shared_users, through: :shares, source: :user
 
