@@ -11,7 +11,8 @@ class Lot < ApplicationRecord
   has_many :schedule_items, dependent: :nullify
   has_many :warranties, dependent: :nullify
 
-  validates :key, presence: true, uniqueness: { scope: :project_id }
+  validates :key, presence: true
+  validate :key_unique_for_project
   validates :name, presence: true
 
   scope :ordered, -> { order(:position, :id) }
@@ -42,5 +43,19 @@ class Lot < ApplicationRecord
       prevu: budget_lines.sum(:montant_prevu),
       devise: project_quotes.accepte.sum(:montant_ttc)
     }
+  end
+
+  private
+
+  # Message orienté utilisateur plutôt que l'erreur de validation brute
+  # "Key a déjà été prise" (aucune traduction i18n d'attribut n'existe dans
+  # cette app, voir config/locales/fr.yml) — ajoutée à :base pour éviter le
+  # préfixe d'attribut par défaut. L'unicité reste garantie en base par
+  # l'index index_lots_on_project_id_and_key (voir db/schema.rb).
+  def key_unique_for_project
+    return if key.blank? || project_id.blank?
+    scope = self.class.where(project_id: project_id, key: key)
+    scope = scope.where.not(id: id) if persisted?
+    errors.add(:base, "Ce lot existe déjà sur ce chantier") if scope.exists?
   end
 end
