@@ -7,6 +7,20 @@
 
   <div class="row g-4">
     <div class="col-12 col-lg-8">
+      <% if @project_document.ai_suggestion.present? && policy(@project_document).update? %>
+        <div class="card border-0 shadow-sm mb-4 bg-primary-light-ren0vate" style="border-radius: 12px;">
+          <div class="card-body">
+            <h2 class="h6 mb-2"><i class="bi bi-stars me-1"></i>Suggestion IA</h2>
+            <p class="small text-muted mb-2">
+              Type : <%= @project_document.ai_suggestion["ai_suggested_document_type"] %> —
+              Lot : <%= @project_document.ai_suggestion["ai_suggested_lot_key"] || "non déterminé" %> —
+              Confiance : <%= @project_document.ai_suggestion["ai_confidence"] %>
+            </p>
+            <%= button_to "Accepter la suggestion", accept_suggestion_project_document_path(@project_document), method: :patch, class: "btn btn-sm btn-primary-custom" %>
+          </div>
+        </div>
+      <% end %>
+
       <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
         <div class="card-body">
           <h2 class="h5 mb-3">Versions</h2>

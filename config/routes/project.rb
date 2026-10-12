@@ -7,10 +7,20 @@
     resources :project_documents, except: %i[edit update], shallow: true do
       member do
         post :add_version
+        patch :accept_suggestion
       end
       resources :comments, only: [:create], controller: "project_document_comments"
       resources :reviews, only: [:create], controller: "project_document_reviews"
     end
+
+    # V2 — Lot 2 : devis structurés et avenants
+    resources :project_quotes, except: %i[edit update destroy], shallow: true do
+      patch :decide, on: :member
+    end
+    resources :project_amendments, except: %i[edit update destroy show], shallow: true do
+      patch :decide, on: :member
+    end
+    get "lots/:lot_id/quotes_comparison", to: "project_quotes#comparison", as: :lot_quotes_comparison
 
     # Routes pour les factures et leur analyse
     resources :factures, except: [:create] do

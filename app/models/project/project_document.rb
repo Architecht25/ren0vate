@@ -32,6 +32,31 @@ class ProjectDocument < ApplicationRecord
   validate :lot_belongs_to_project
   validate :phase_belongs_to_project
 
+  # V2 — Lot 2 : proposition de classification IA (cahier des charges §8 :
+  # "proposition de rattachement, validation en un clic"). Stockée sur la
+  # version courante par ProjectDocumentIngestionJob, jamais appliquée
+  # automatiquement — voir #apply_ai_suggestion!.
+  def ai_suggestion
+    current_version&.extracted_metadata&.slice(
+      "ai_suggested_document_type", "ai_suggested_lot_key", "ai_suggested_phase_key",
+      "ai_suggested_montant_ttc", "ai_confidence"
+    )&.presence
+  end
+
+  # Confirmation humaine explicite — appelé uniquement depuis un clic
+  # contrôleur (ProjectDocumentsController#accept_suggestion), jamais par
+  # l'ingestion elle-même.
+  def apply_ai_suggestion!
+    suggestion = ai_suggestion
+    return false if suggestion.blank?
+
+    update!(
+      document_type: suggestion["ai_suggested_document_type"].presence || document_type,
+      lot: suggestion["ai_suggested_lot_key"].present? ? project.lots.find_by(key: suggestion["ai_suggested_lot_key"]) : lot,
+      phase: suggestion["ai_suggested_phase_key"].present? ? project.phases.find_by(key: suggestion["ai_suggested_phase_key"]) : phase
+    )
+  end
+
   private
 
   def lot_belongs_to_project

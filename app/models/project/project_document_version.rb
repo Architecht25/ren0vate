@@ -18,6 +18,7 @@ class ProjectDocumentVersion < ApplicationRecord
 
   after_commit :finalize_file_metadata!, on: :create
   after_commit :promote_to_current_version!, on: :create
+  after_commit :enqueue_ingestion!, on: :create
 
   def finalize_file_metadata!
     return unless file.attached?
@@ -32,6 +33,10 @@ class ProjectDocumentVersion < ApplicationRecord
 
   def promote_to_current_version!
     project_document.update_column(:current_version_id, id)
+  end
+
+  def enqueue_ingestion!
+    ProjectDocumentIngestionJob.perform_later(id)
   end
 
   private

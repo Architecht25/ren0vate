@@ -2,7 +2,7 @@
 # (Document V1) — voir docs/PLAN_V2.md Lot 1 pour pourquoi les deux coexistent.
 class ProjectDocumentsController < ApplicationController
   before_action :set_project, only: %i[index new create]
-  before_action :set_project_document, only: %i[show destroy add_version]
+  before_action :set_project_document, only: %i[show destroy add_version accept_suggestion]
 
   def index
     authorize_project_scope!
@@ -45,6 +45,20 @@ class ProjectDocumentsController < ApplicationController
       redirect_to project_document_path(@project_document), notice: "Nouvelle version ajoutée."
     else
       redirect_to project_document_path(@project_document), alert: version.errors.full_messages.to_sentence
+    end
+  end
+
+  # V2 — Lot 2 : confirmation humaine explicite d'une proposition de
+  # classification IA (cahier des charges §8 : "l'IA ne décide jamais").
+  def accept_suggestion
+    authorize @project_document, :update?
+
+    if @project_document.apply_ai_suggestion!
+      AiRun.where(subject: @project_document.current_version).order(created_at: :desc).first&.mark_validated!(by: current_user)
+      AuditEvent.record!(action: "project_document.suggestion_accepted", auditable: @project_document, actor: current_user, ip_address: request.remote_ip)
+      redirect_to project_document_path(@project_document), notice: "Suggestion appliquée."
+    else
+      redirect_to project_document_path(@project_document), alert: "Aucune suggestion disponible."
     end
   end
 

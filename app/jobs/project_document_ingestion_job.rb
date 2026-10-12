@@ -1,0 +1,84 @@
+# V2 — Lot 2 : ingestion intelligente (cahier des charges §8.1). Toujours en
+# job asynchrone, jamais en requête HTTP — pattern déjà établi en V1 pour
+# l'OCR/extraction Claude (PebExtractionJob, AudioEnergExtractionJob) après
+# deux incidents H12 Heroku en traitement synchrone (voir docs/AUDIT_V1.md
+# §2.3). OCR via Ocr::OcrService (réutilisé tel quel — accepte directement
+# un attachment Active Storage). Classification via Ai::Client : l'IA ne
+# fait que PROPOSER type/lot/phase/montant, jamais appliqué automatiquement
+# — voir ProjectDocumentsController#accept_suggestion pour la confirmation
+# humaine explicite.
+class ProjectDocumentIngestionJob < ApplicationJob
+  queue_as :default
+
+  def perform(project_document_version_id)
+    version = ProjectDocumentVersion.find_by(id: project_document_version_id)
+    return unless version&.file&.attached?
+
+    ocr_result = version.file.blob.open do |tempfile|
+      adapter = Documents::ActiveStorageFileAdapter.new(tempfile, version.file.content_type)
+      Ocr::OcrService.new(adapter).call
+    end
+    ocr_text = ocr_result[:text].presence
+
+    suggestion = classify(version, ocr_text)
+    version.update_columns(ocr_text: ocr_text, extracted_metadata: version.extracted_metadata.merge(suggestion || {}))
+
+    AuditEvent.record!(
+      action: "project_document.ingested",
+      auditable: version.project_document,
+      event_data: { ocr_confidence: ocr_result[:confidence], ocr_method: ocr_result[:method] }
+    )
+  rescue Ai::BudgetExceededError => e
+    Rails.logger.warn "[ProjectDocumentIngestionJob] #{e.message}"
+  end
+
+  private
+
+  def classify(version, ocr_text)
+    return nil if ocr_text.blank?
+
+    document = version.project_document
+    client = Ai::Client.new(project: document.project)
+    response = client.run(
+      :document_classification,
+      system: system_prompt(document.project),
+      messages: [{ role: "user", content: ocr_text.truncate(6000) }],
+      subject: version
+    )
+    parse_response(response)
+  end
+
+  def system_prompt(project)
+    lot_keys = project.lots.ordered.pluck(:key)
+    phase_keys = project.phases.ordered.pluck(:key)
+
+    <<~PROMPT
+      Tu classes un document déposé sur un chantier de rénovation belge.
+      Réponds UNIQUEMENT avec un objet JSON valide, sans aucun texte autour, avec exactement ces clés :
+      {
+        "document_type": un type parmi #{ProjectDocument::DOCUMENT_TYPES.join(', ')},
+        "lot_key": un lot parmi #{lot_keys.join(', ')}, ou null si incertain,
+        "phase_key": une phase parmi #{phase_keys.join(', ')}, ou null si incertaine,
+        "montant_ttc": le montant total TTC en euros si présent dans le texte, sinon null,
+        "confidence": ta confiance entre 0 et 1
+      }
+      Le texte du document (extrait par OCR, peut contenir des erreurs de reconnaissance) suit.
+    PROMPT
+  end
+
+  def parse_response(response)
+    return nil if response.blank?
+
+    json = JSON.parse(response)
+    {
+      "ai_suggested_document_type" => json["document_type"],
+      "ai_suggested_lot_key" => json["lot_key"],
+      "ai_suggested_phase_key" => json["phase_key"],
+      "ai_suggested_montant_ttc" => json["montant_ttc"],
+      "ai_confidence" => json["confidence"]
+    }.compact
+  rescue JSON::ParserError => e
+    Rails.logger.warn "[ProjectDocumentIngestionJob] réponse IA non-JSON : #{e.message}"
+    nil
+  end
+end
