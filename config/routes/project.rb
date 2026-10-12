@@ -28,6 +28,17 @@
     resources :lots, except: %i[show], shallow: true
     resources :phases, except: %i[show], shallow: true
 
+    # V2 — Lot 4 : journal de chantier
+    resources :site_log_entries, only: %i[index new create destroy], shallow: true
+
+    # V2 — Lot 4 : messagerie par lot
+    resources :message_threads, only: %i[index new create show], shallow: true do
+      resources :messages, only: [:create]
+    end
+
+    # V2 — Lot 4 : planning par lot
+    resources :schedule_items, except: %i[edit show], shallow: true
+
     # Routes pour les factures et leur analyse
     resources :factures, except: [:create] do
       member do

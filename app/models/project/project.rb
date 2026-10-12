@@ -32,6 +32,11 @@ class Project < ApplicationRecord
   has_many :budget_lines, dependent: :destroy
   has_many :subsidy_cases, dependent: :destroy
 
+  # V2 — Lot 4 : exécution (cahier des charges §4-5.D)
+  has_many :site_log_entries, dependent: :destroy
+  has_many :message_threads, dependent: :destroy
+  has_many :schedule_items, dependent: :destroy
+
   # V2 — journal d'audit append-only, dénormalisé sur le projet (cahier des
   # charges §6). nullify et non destroy : le journal doit survivre à la
   # suppression du projet qu'il documente.

@@ -1,0 +1,41 @@
+<% content_for :title, "Ajouter une observation" %>
+
+<div class="container py-4" style="max-width: 700px;">
+  <div class="d-flex align-items-center mb-4">
+    <%= link_to project_site_log_entries_path(@project), class: "btn btn-outline-secondary btn-sm me-3" do %>
+      <i class="bi bi-arrow-left"></i>
+    <% end %>
+    <div style="min-width: 0;">
+      <h3 class="mb-0 text-truncate">Ajouter une observation</h3>
+      <p class="text-muted small mb-0 text-truncate"><%= @project.nom %></p>
+    </div>
+  </div>
+
+  <%= simple_form_for [@project, @entry] do |f| %>
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-transparent border-bottom py-3">
+        <h6 class="mb-0 fw-semibold"><i class="bi bi-journal-text me-2"></i>Observation</h6>
+      </div>
+      <div class="card-body p-4">
+        <%= f.error_notification %>
+        <div class="row g-3">
+          <div class="col-12">
+            <%= f.input :body, label: "Description", input_html: { class: "form-control", rows: 3 } %>
+          </div>
+          <div class="col-md-6">
+            <%= f.input :lot_id, label: "Lot", as: :select,
+                collection: @project.lots.ordered, label_method: :name, value_method: :id,
+                include_blank: "Tous les lots", input_html: { class: "form-select" } %>
+          </div>
+          <div class="col-12">
+            <%= f.input :photos, as: :file, label: "Photos", input_html: { class: "form-control", multiple: true, accept: "image/*", capture: "environment" } %>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer bg-transparent d-flex flex-wrap gap-2 justify-content-end">
+        <%= link_to "Annuler", project_site_log_entries_path(@project), class: "btn btn-outline-secondary" %>
+        <%= f.submit "Ajouter", class: "btn btn-primary" %>
+      </div>
+    </div>
+  <% end %>
+</div>
