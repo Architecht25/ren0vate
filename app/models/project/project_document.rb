@@ -9,6 +9,14 @@ class ProjectDocument < ApplicationRecord
   belongs_to :uploaded_by, class_name: "User"
   belongs_to :current_version, class_name: "ProjectDocumentVersion", optional: true
 
+  # Doit être déclaré AVANT `has_many :versions, dependent: :destroy` : les
+  # callbacks before_destroy s'exécutent dans l'ordre de déclaration, et
+  # current_version_id (FK vers project_document_versions) doit être mis à
+  # nil avant que Rails ne tente de détruire les versions, sinon
+  # PG::ForeignKeyViolation (le document référence encore la version qu'on
+  # essaie de supprimer).
+  before_destroy :detach_current_version
+
   has_many :versions, class_name: "ProjectDocumentVersion", dependent: :destroy
   has_many :comments, class_name: "ProjectDocumentComment", dependent: :destroy
   # delete_all, pas destroy : ProjectDocumentReview est append-only (voir son
@@ -62,6 +70,10 @@ class ProjectDocument < ApplicationRecord
   end
 
   private
+
+  def detach_current_version
+    update_column(:current_version_id, nil) if current_version_id.present?
+  end
 
   def lot_belongs_to_project
     return if lot.blank?

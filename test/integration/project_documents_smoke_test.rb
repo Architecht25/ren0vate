@@ -49,6 +49,20 @@ class ProjectDocumentsSmokeTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "supprimer un document ayant une version ne lève pas de violation de clé étrangère" do
+    document = @project.project_documents.create!(
+      title: "À supprimer", document_type: "plan", uploaded_by: @owner,
+      versions_attributes: [{ created_by: @owner, file: fixture_file_upload("test_devis.pdf", "application/pdf") }]
+    )
+    assert document.current_version.present?
+
+    delete project_document_path(document, locale: :fr)
+
+    assert_redirected_to project_project_documents_path(@project, locale: :fr)
+    assert_nil ProjectDocument.find_by(id: document.id)
+    assert_nil ProjectDocumentVersion.find_by(id: document.current_version_id)
+  end
+
   test "un utilisateur hors chantier ne peut pas voir un document privé" do
     document = @project.project_documents.create!(title: "Confidentiel", document_type: "autre", visibility: "private", uploaded_by: @owner)
     outsider = User.create!(email: "outsider_smoke@example.com", password: "password123", nom: "Outsider")
