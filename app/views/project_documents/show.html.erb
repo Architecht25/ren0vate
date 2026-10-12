@@ -31,7 +31,7 @@
                   <div>
                     <strong>v<%= version.version_number %></strong>
                     <% if version.id == @project_document.current_version_id %><span class="badge bg-primary ms-1">actuelle</span><% end %>
-                    <div class="text-muted small"><%= version.file_name %> — déposée par <%= version.created_by.nom %></div>
+                    <div class="text-muted small"><%= version.file_name %> — déposée par <%= version.created_by.full_name.presence || version.created_by.email %></div>
                   </div>
                   <% if version.file.attached? %>
                     <%= link_to "Télécharger", rails_blob_path(version.file, disposition: "attachment"), class: "btn btn-sm btn-outline-secondary" %>
@@ -58,7 +58,7 @@
           <h2 class="h5 mb-3">Commentaires</h2>
           <% @comments.each do |comment| %>
             <div class="mb-3">
-              <div class="small text-muted"><%= comment.author.nom %> — <%= l(comment.created_at, format: :short) %></div>
+              <div class="small text-muted"><%= comment.author.full_name.presence || comment.author.email %> — <%= l(comment.created_at, format: :short) %></div>
               <div><%= comment.body %></div>
             </div>
           <% end %>
@@ -99,7 +99,7 @@
             <dt>Visibilité</dt><dd><%= @project_document.visibility.humanize %></dd>
             <% if @project_document.lot %><dt>Lot</dt><dd><%= @project_document.lot.name %></dd><% end %>
             <% if @project_document.phase %><dt>Phase</dt><dd><%= @project_document.phase.name %></dd><% end %>
-            <dt>Déposé par</dt><dd><%= @project_document.uploaded_by.nom %></dd>
+            <dt>Déposé par</dt><dd><%= @project_document.uploaded_by.full_name.presence || @project_document.uploaded_by.email %></dd>
           </dl>
         </div>
       </div>
