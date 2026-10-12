@@ -60,6 +60,23 @@
         <%= render 'projects/partials_general/card_suivi_budgetaire' %>
       </div>
     </div>
+    <%# V2 — Lot 1 : gestion des lots, positionnée juste après "Synthèse des
+        devis" et avant "IA Économies Chantier" (qui parle justement de
+        "regroupements de lots") — enchaînement logique confirmé avec Robin
+        le 12/10/2026 : voir les devis → organiser par lot → optimiser par
+        lot. Devis structurés et avenants (V2), eux, sont dans edit_budget
+        (voir la carte "Synthèse des devis" ci-dessus), pas ici — voir
+        mémoire "project_v2_navigation_ia_decision". %>
+    <div class="row g-3 mb-4">
+      <div class="col-lg-4">
+        <%= render "shared/v2_feature_card",
+              title: "Lots", icon: "bi-diagram-3",
+              subtitle: "Toiture, menuiseries, isolation…",
+              description: "Gérez les lots du chantier — l'axe utilisé par le comparateur de devis et le périmètre d'accès des entrepreneurs.",
+              path: project_lots_path(@project) %>
+      </div>
+    </div>
+
     <div class="row g-3 mb-4">
       <div class="col-lg-6">
         <%= render 'projects/partials_general/card_budget_optimiseur' %>
@@ -71,20 +88,6 @@
     <div class="row g-3 mb-4">
       <div class="col-12">
         <%= render 'projects/partials_general/card_contrat_checklist' %>
-      </div>
-    </div>
-
-    <%# V2 — Lot 1 : gestion des lots. Devis structurés et avenants (V2)
-        intégrés directement dans edit_budget (voir la carte "Synthèse des
-        devis" ci-dessus) plutôt qu'ici — décidé avec Robin le 12/10/2026,
-        voir mémoire "project_v2_navigation_ia_decision". %>
-    <div class="row g-3 mb-4">
-      <div class="col-lg-4">
-        <%= render "shared/v2_feature_card",
-              title: "Lots", icon: "bi-diagram-3",
-              subtitle: "Toiture, menuiseries, isolation…",
-              description: "Gérez les lots du chantier — l'axe utilisé par le comparateur de devis et le périmètre d'accès des entrepreneurs.",
-              path: project_lots_path(@project) %>
       </div>
     </div>
   </div>
