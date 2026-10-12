@@ -37,6 +37,12 @@
             <%= f.text_field :responsable, class: "form-control form-control-sm rounded-3",
                 placeholder: "Responsable (entrepreneur ou corps de métier)" %>
           </div>
+          <%# V2 — Lot 4 : périmètre de lot, voir docs/PLAN_V2.md %>
+          <div class="col-sm-6">
+            <%= f.select :lot_id,
+                options_for_select([['— Tous les lots —', '']] + @project.lots.ordered.map { |l| [l.name, l.id] }),
+                {}, { class: "form-select form-select-sm rounded-3" } %>
+          </div>
           <div class="col-sm-3">
             <%= f.date_field :date_constat, class: "form-control form-control-sm rounded-3",
                 value: Date.current %>

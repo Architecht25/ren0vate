@@ -333,6 +333,48 @@
         </div>
       </div>
 
+      <%# V2 — Lots 2/4 : devis structurés et avenants. Complémentaire à la
+          zone de scan ci-dessus (extraction OCR d'un devis déposé) : ici,
+          saisie manuelle par poste avec workflow accepter/refuser et
+          comparateur par lot — décidé avec Robin le 12/10/2026 de les placer
+          directement dans edit_budget, pas ailleurs dans l'onglet
+          Préparation (voir mémoire "project_v2_navigation_ia_decision"). %>
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary-custom mb-1">
+            <i class="bi bi-receipt me-2"></i>Devis structurés & avenants <span class="badge bg-secondary">V2</span>
+          </h5>
+          <p class="text-muted small mb-3">Saisie manuelle par poste (pas un scan), workflow d'acceptation et comparaison par lot — distincte des devis scannés ci-dessus.</p>
+
+          <% quotes = @project.project_quotes.order(created_at: :desc) %>
+          <% if quotes.any? %>
+            <div class="mb-3">
+              <% quotes.each do |q| %>
+                <%= link_to project_quote_path(q), class: "d-flex align-items-center justify-content-between gap-2 p-2 border rounded-2 mb-2 bg-white text-decoration-none text-reset" do %>
+                  <div class="small">
+                    <span class="fw-medium"><%= q.entreprise_nom.presence || "Entreprise non renseignée" %></span>
+                    <% if q.lot %><span class="badge bg-light text-dark border ms-1"><%= q.lot.name %></span><% end %>
+                  </div>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="fw-bold small"><%= number_to_currency(q.montant_ttc, unit: "€", separator: ",", delimiter: " ") %></span>
+                    <span class="badge bg-<%= q.accepte? ? 'success' : (q.refuse? ? 'danger' : 'secondary') %>"><%= q.status.humanize %></span>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+
+          <div class="d-flex flex-wrap gap-2">
+            <%= link_to new_project_project_quote_path(@project), class: "btn btn-outline-primary btn-sm" do %>
+              <i class="bi bi-plus-lg me-1"></i>Ajouter un devis structuré
+            <% end %>
+            <%= link_to new_project_project_amendment_path(@project), class: "btn btn-outline-secondary btn-sm" do %>
+              <i class="bi bi-file-earmark-plus me-1"></i>Proposer un avenant
+            <% end %>
+          </div>
+        </div>
+      </div>
+
       <!-- Zone scan bordereau châssis -->
       <div class="card border-0 shadow-sm mb-4" id="scan-zone-chassis">
         <div class="card-body p-4">
@@ -1312,7 +1354,9 @@ document.querySelectorAll('.devis-contenu-pending').forEach(pendingEl => {
             <i class="bi bi-pie-chart me-1"></i>Voir la répartition par poste
           </button>
           <div class="devis-contenu-detail-block mt-2 p-2 border rounded-2 bg-light" data-devis-donnee-id="${id}">
-            <canvas class="devis-contenu-chart" data-devis-donnee-id="${id}" height="160"></canvas>
+            <div style="position: relative; height: 220px;">
+              <canvas class="devis-contenu-chart" data-devis-donnee-id="${id}"></canvas>
+            </div>
             <div class="devis-contenu-postes mt-2" data-devis-donnee-id="${id}" style="font-size:0.72rem;"></div>
           </div>
         `;

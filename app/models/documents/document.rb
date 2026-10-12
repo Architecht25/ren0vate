@@ -152,7 +152,8 @@ class Document < ApplicationRecord
   end
 
   def file_name
-    file.attached? ? file.filename.to_s : File.basename(file_url.to_s) if file_url.present?
+    return file.filename.to_s if file.attached?
+    File.basename(file_url.to_s) if file_url.present?
   end
 
   def file_size_human

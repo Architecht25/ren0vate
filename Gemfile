@@ -34,6 +34,8 @@ gem "httparty", ">= 0.24.0"  # CVE-2025-68696 SSRF → fuite API keys (< 0.24.0)
 gem "rubyzip"
 gem "http_accept_language"  # Pour la détection automatique de langue
 gem "stripe"  # Pour les paiements et abonnements SaaS
+gem "pundit"  # V2 — autorisation par policy (matrice rôle x action x visibilité, cahier des charges §3)
+gem "neighbor"  # V2 — recherche de plus proches voisins sur pgvector (Lot 5 — assistant RAG)
 gem "geocoder"  # Pour le géocodage d'adresses
 gem "lograge"   # Structured single-line logs (compatible Papertrail/Datadog)
 gem "rack-attack"  # Rate limiting et protection brute-force
@@ -66,6 +68,10 @@ gem "thruster", require: false
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 gem "image_processing", "~> 1.2"
+
+# V2 — stockage objet UE S3-compatible (Scaleway), pas encore actif dans aucun
+# environnement (config/storage.yml:scaleway) — voir docs/PLAN_V2.md Lot 0/1
+gem "aws-sdk-s3", require: false
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

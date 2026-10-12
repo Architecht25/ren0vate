@@ -1,0 +1,32 @@
+<div class="container-fluid px-4 py-4">
+  <%= render layout: "shared/page_header", locals: { title: @project_quote.entreprise_nom.presence || "Devis", subtitle: @project.nom } do %>
+    <% if policy(@project_quote).decide? && @project_quote.envoye? %>
+      <%= button_to "Accepter", decide_project_quote_path(@project_quote, status: "accepte"), method: :patch, class: "btn btn-success" %>
+      <%= button_to "Refuser", decide_project_quote_path(@project_quote, status: "refuse"), method: :patch, class: "btn btn-outline-danger" %>
+    <% end %>
+  <% end %>
+
+  <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+    <div class="card-body">
+      <table class="table">
+        <thead><tr><th>Poste</th><th>Qté</th><th>Unité</th><th>Prix unitaire HT</th><th>Montant HT</th></tr></thead>
+        <tbody>
+          <% @project_quote.lines.each do |line| %>
+            <tr>
+              <td><%= line.description %></td>
+              <td><%= line.quantite %></td>
+              <td><%= line.unite %></td>
+              <td><%= number_to_currency(line.prix_unitaire_ht, unit: "€", format: "%n %u") %></td>
+              <td><%= number_to_currency(line.montant_ht, unit: "€", format: "%n %u") %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <div class="text-end">
+        <div>Total HT : <%= number_to_currency(@project_quote.montant_ht, unit: "€", format: "%n %u") %></div>
+        <div>TVA (21%) : <%= number_to_currency(@project_quote.montant_tva, unit: "€", format: "%n %u") %></div>
+        <div class="fw-bold">Total TTC : <%= number_to_currency(@project_quote.montant_ttc, unit: "€", format: "%n %u") %></div>
+      </div>
+    </div>
+  </div>
+</div>

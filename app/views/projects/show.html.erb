@@ -101,6 +101,22 @@
           <i class="bi bi-folder2-open me-1 me-md-2"></i><span class="tab-label">Documents de ce chantier</span>
         <% end %>
       </li>
+      <li class="nav-item">
+        <%# V2 — Lot 1 : base documentaire versionnée, coexiste avec l'onglet Document V1 ci-dessus %>
+        <%= link_to project_project_documents_path(@project),
+              class: "nav-link #{'active' if controller_name == 'project_documents'}" do %>
+          <i class="bi bi-layers me-1 me-md-2"></i><span class="tab-label">Documents (V2)</span>
+        <% end %>
+      </li>
+      <li class="nav-item">
+        <%# V2 — transversale (structure du chantier, pas une étape) — les 10
+            autres fonctionnalités V2 sont désormais intégrées dans
+            Préparation/Suivi/Réception/Documents, voir mémoire
+            "project_v2_navigation_ia_decision" (placement du 12/10/2026). %>
+        <%= link_to project_phases_path(@project), class: "nav-link #{'active' if controller_name == 'phases'}" do %>
+          <i class="bi bi-flag me-1 me-md-2"></i><span class="tab-label">Phases (V2)</span>
+        <% end %>
+      </li>
     </ul>
   </div>
 
@@ -146,9 +162,13 @@
   scrollbar-width: none; /* Firefox */
 }
 .project-tabs-wrapper::-webkit-scrollbar { display: none; }
+/* flex-wrap: wrap (pas nowrap) — trop d'onglets pour tenir sur une seule
+   ligne scrollable depuis l'ajout des onglets V2 ; passe à la ligne plutôt
+   que déborder hors écran. Provisoire : voir docs/QUESTIONS_OUVERTES.md /
+   mémoire "project_v2_navigation_ia_decision" — replacement définitif prévu
+   une fois le reste de la V2 implémenté. */
 .project-tabs {
-  flex-wrap: nowrap;
-  white-space: nowrap;
+  flex-wrap: wrap;
 }
 /* Taille réduite des tabs sur mobile */
 @media (max-width: 575.98px) {

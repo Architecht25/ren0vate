@@ -16,6 +16,39 @@ class Project < ApplicationRecord
   has_many :project_members, dependent: :destroy
   has_many :member_users, through: :project_members, source: :user
 
+  # V2 — découpage du chantier en lots et en phases (cahier des charges §4)
+  has_many :lots, dependent: :destroy
+  has_many :phases, dependent: :destroy
+
+  # V2 — base documentaire commune versionnée (cahier des charges §4-6)
+  has_many :project_documents, dependent: :destroy
+
+  # V2 — journal des appels IA, budget par projet/mois (cahier des charges §8)
+  has_many :ai_runs, dependent: :destroy
+
+  # V2 — devis structurés et avenants (cahier des charges §4-5.C)
+  has_many :project_quotes, dependent: :destroy
+  has_many :project_amendments, dependent: :destroy
+  has_many :budget_lines, dependent: :destroy
+  has_many :subsidy_cases, dependent: :destroy
+
+  # V2 — Lot 4 : exécution (cahier des charges §4-5.D)
+  has_many :site_log_entries, dependent: :destroy
+  has_many :message_threads, dependent: :destroy
+  has_many :schedule_items, dependent: :destroy
+
+  # V2 — Lot 5 : assistant sur dossier (cahier des charges §4, §8.7)
+  has_many :project_document_chunks, dependent: :destroy
+
+  # V2 — Lot 6 : conformité et garanties (cahier des charges §4-5.E)
+  has_many :compliance_items, dependent: :destroy
+  has_many :warranties, dependent: :destroy
+
+  # V2 — journal d'audit append-only, dénormalisé sur le projet (cahier des
+  # charges §6). nullify et non destroy : le journal doit survivre à la
+  # suppression du projet qu'il documente.
+  has_many :audit_events, dependent: :nullify
+
   # Relations pour les factures
   has_many :factures, dependent: :destroy
   has_many :factures_devis, -> { where(type_facture: 'devis') }, class_name: 'Facture'
@@ -63,6 +96,10 @@ class Project < ApplicationRecord
   # Définir un statut et type par défaut
   before_validation :set_default_status
   before_validation :set_default_project_type
+
+  # V2 — cahier des charges §4 : "modèles pré-remplis, personnalisables" de
+  # lots et phases à la création d'un chantier.
+  after_create :seed_default_lots_and_phases
 
   # Rappel légal (30 jours, art. 473 CIR92) — chantier marqué "terminé" manuellement
   # via le formulaire d'édition (voir _basic_fields.html.erb / project_params).
@@ -326,6 +363,27 @@ class Project < ApplicationRecord
     end
   end
 
+  # V2 — Lot 3 : mode "dossier" du moteur de primes (cahier des charges §9 :
+  # "rattaché à un chantier, alimenté par devis et factures réels et
+  # recalculé à chaque changement"). Mapping volontairement minimal pour ce
+  # lot — seuls la région et le total des devis acceptés alimentent
+  # input_data pour l'instant ; les autres critères d'éligibilité (âge du
+  # bien, résidence principale...) ne sont pas encore collectés ailleurs
+  # dans le modèle V2 et devront être ajoutés au fil des lots suivants.
+  def subsidy_case_for_dossier
+    case_record = subsidy_cases.find_or_initialize_by(mode: "dossier", region: property.region)
+    case_record.input_data = dossier_subsidy_input_data
+    case_record.save!
+    case_record
+  end
+
+  def dossier_subsidy_input_data
+    {
+      "property" => { "region" => property.region },
+      "travaux" => { "montant_ttc" => project_quotes.accepte.sum(:montant_ttc) }
+    }
+  end
+
   private
 
   def set_default_status
@@ -343,6 +401,11 @@ class Project < ApplicationRecord
     # supplémentaire quand property_id n'a pas changé)
     owner_id = property&.user_id
     errors.add(:property_id, "n'appartient pas à cet utilisateur") if owner_id.present? && owner_id != user_id
+  end
+
+  def seed_default_lots_and_phases
+    Lot.build_default_set_for(self).each(&:save!)
+    Phase.build_default_set_for(self).each(&:save!)
   end
 
   def notify_declaration_cadastrale

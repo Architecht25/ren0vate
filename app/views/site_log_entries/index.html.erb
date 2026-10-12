@@ -1,0 +1,44 @@
+<div class="container-fluid px-4 py-4">
+  <%= render layout: "shared/page_header", locals: { title: "Journal de chantier", subtitle: @project.nom } do %>
+    <%= link_to new_project_site_log_entry_path(@project), class: "btn btn-primary-custom px-4" do %>
+      <i class="bi bi-plus-lg me-2"></i>Ajouter une observation
+    <% end %>
+  <% end %>
+
+  <% if @site_log_entries.any? %>
+    <div class="row g-3">
+      <% @site_log_entries.each do |entry| %>
+        <div class="col-12 col-md-6">
+          <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px;">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="text-muted small"><%= l(entry.observed_at, format: :short) %></span>
+                <% if entry.lot %><span class="badge bg-secondary"><%= entry.lot.name %></span><% end %>
+              </div>
+              <p class="mb-2"><%= entry.body %></p>
+              <% if entry.photos.attached? %>
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <% entry.photos.each do |photo| %>
+                    <%= image_tag photo, class: "rounded", style: "width: 80px; height: 80px; object-fit: cover;" %>
+                  <% end %>
+                </div>
+              <% end %>
+              <div class="text-muted small">
+                <%= entry.author.full_name.presence || entry.author.email %>
+                <% if entry.geolocated? %><i class="bi bi-geo-alt ms-1"></i><% end %>
+              </div>
+              <% if policy(entry).destroy? %>
+                <%= button_to "Supprimer", site_log_entry_path(entry), method: :delete, class: "btn btn-sm btn-outline-danger mt-2", data: { turbo_confirm: "Supprimer cette observation ?" } %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center text-muted py-5">
+      <i class="bi bi-journal-text fs-1 d-block mb-3"></i>
+      Aucune observation pour l'instant.
+    </div>
+  <% end %>
+</div>

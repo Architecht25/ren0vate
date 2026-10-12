@@ -1,0 +1,49 @@
+<% content_for :title, "Ajouter une tâche" %>
+
+<div class="container py-4" style="max-width: 700px;">
+  <div class="d-flex align-items-center mb-4">
+    <%= link_to project_schedule_items_path(@project), class: "btn btn-outline-secondary btn-sm me-3" do %>
+      <i class="bi bi-arrow-left"></i>
+    <% end %>
+    <div style="min-width: 0;">
+      <h3 class="mb-0 text-truncate">Ajouter une tâche</h3>
+      <p class="text-muted small mb-0 text-truncate"><%= @project.nom %></p>
+    </div>
+  </div>
+
+  <%= simple_form_for [@project, @item] do |f| %>
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-transparent border-bottom py-3">
+        <h6 class="mb-0 fw-semibold"><i class="bi bi-list-task me-2"></i>Détails de la tâche</h6>
+      </div>
+      <div class="card-body p-4">
+        <%= f.error_notification %>
+        <div class="row g-3">
+          <div class="col-12">
+            <%= f.input :label, label: "Nom de la tâche", input_html: { class: "form-control" } %>
+          </div>
+          <div class="col-md-6">
+            <%= f.input :lot_id, label: "Lot", as: :select,
+                collection: @project.lots.ordered, label_method: :name, value_method: :id,
+                include_blank: "Tous les lots", input_html: { class: "form-select" } %>
+          </div>
+          <div class="col-md-6">
+            <%= f.input :depends_on_id, label: "Dépend de", as: :select,
+                collection: @project.schedule_items, label_method: :label, value_method: :id,
+                include_blank: "Aucune dépendance", input_html: { class: "form-select" } %>
+          </div>
+          <div class="col-md-6">
+            <%= f.input :start_date, label: "Début", input_html: { class: "form-control" } %>
+          </div>
+          <div class="col-md-6">
+            <%= f.input :end_date, label: "Fin", input_html: { class: "form-control" } %>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer bg-transparent d-flex flex-wrap gap-2 justify-content-end">
+        <%= link_to "Annuler", project_schedule_items_path(@project), class: "btn btn-outline-secondary" %>
+        <%= f.submit "Ajouter", class: "btn btn-primary" %>
+      </div>
+    </div>
+  <% end %>
+</div>

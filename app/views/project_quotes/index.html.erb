@@ -1,0 +1,35 @@
+<div class="container-fluid px-4 py-4">
+  <%= render layout: "shared/page_header", locals: { title: "Devis", subtitle: @project.nom } do %>
+    <%= link_to new_project_project_quote_path(@project), class: "btn btn-primary-custom px-4" do %>
+      <i class="bi bi-plus-lg me-2"></i>Ajouter un devis
+    <% end %>
+  <% end %>
+
+  <% if @project_quotes.any? %>
+    <div class="row g-3">
+      <% @project_quotes.each do |quote| %>
+        <div class="col-12 col-md-6 col-lg-4">
+          <%= link_to project_quote_path(quote), class: "text-decoration-none text-reset" do %>
+            <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px;">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <span class="badge bg-secondary"><%= quote.lot&.name || "Tous lots" %></span>
+                  <span class="badge bg-<%= quote.accepte? ? 'success' : (quote.refuse? ? 'danger' : 'secondary') %>">
+                    <%= quote.status.humanize %>
+                  </span>
+                </div>
+                <h3 class="h6 mb-1"><%= quote.entreprise_nom.presence || "Entreprise non renseignée" %></h3>
+                <div class="fw-bold"><%= number_to_currency(quote.montant_ttc, unit: "€", format: "%n %u") %></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center text-muted py-5">
+      <i class="bi bi-receipt fs-1 d-block mb-3"></i>
+      Aucun devis pour l'instant.
+    </div>
+  <% end %>
+</div>

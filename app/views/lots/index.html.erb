@@ -1,0 +1,26 @@
+<div class="container-fluid px-4 py-4">
+  <%= render layout: "shared/page_header", locals: { title: "Lots du chantier", subtitle: @project.nom } do %>
+    <%= link_to new_project_lot_path(@project), class: "btn btn-primary-custom px-4" do %>
+      <i class="bi bi-plus-lg me-2"></i>Ajouter un lot
+    <% end %>
+  <% end %>
+
+  <% if @lots.any? %>
+    <div class="list-group">
+      <% @lots.each do |lot| %>
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <div class="fw-bold"><%= lot.name %></div>
+            <div class="text-muted small"><%= lot.key %></div>
+          </div>
+          <div class="d-flex gap-2">
+            <%= link_to "Modifier", edit_lot_path(lot), class: "btn btn-sm btn-outline-secondary" %>
+            <%= button_to "Supprimer", lot_path(lot), method: :delete, class: "btn btn-sm btn-outline-danger", data: { turbo_confirm: "Supprimer ce lot ? Les documents/devis qui lui sont liés seront détachés, pas supprimés." } %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center text-muted py-5">Aucun lot pour l'instant.</div>
+  <% end %>
+</div>

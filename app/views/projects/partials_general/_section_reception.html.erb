@@ -1,9 +1,16 @@
-<%# Section 3 — Réception de chantier (4 cartes) %>
-
+<%# Section 3 — Réception de chantier (7 cartes).
+    Regroupement thématique (ajusté avec Robin le 12/10/2026) : Conformité
+    (V2) intégrée à côté de Réception de chantier (les deux couvrent les
+    obligations de fin de chantier), Garanties (V2) à côté de Garanties (V1)
+    — complémentaires, voir mémoire "project_v2_navigation_ia_decision" pour
+    la distinction (V1 dérive l'info des documents déposés, V2 apporte le
+    suivi de date d'échéance structuré). Coffre-fort (V2, export ZIP) reste
+    un 5e élément à part, regroupé avec Carnet d'entretien et Retour sur
+    investissement plutôt que seul sur une rangée à 2/3 vide. %>
 <div class="row g-3 mb-5">
 
   <!-- Réception de chantier -->
-  <div class="col-6 col-md-6 col-lg-3">
+  <div class="col-12 col-md-6 col-lg-3">
     <div class="card border-0 shadow-sm rounded-4 h-100">
       <div class="card-header border-0 py-3 px-4 d-flex flex-wrap gap-2 align-items-center"
            style="background:linear-gradient(135deg,#0f172a,#1e3a5f); border-radius: 1rem 1rem 0 0 !important;">
@@ -28,8 +35,17 @@
     </div>
   </div>
 
+  <!-- Conformité (V2) -->
+  <div class="col-12 col-md-6 col-lg-3">
+    <%= render "shared/v2_feature_card",
+          title: "Conformité", icon: "bi-shield-check",
+          subtitle: "Obligations par région",
+          description: "Suivez les obligations légales/administratives par région (permis, PEB, attestations, assurances) avec échéances.",
+          path: project_compliance_items_path(@project) %>
+  </div>
+
   <!-- Garanties -->
-  <div class="col-6 col-md-6 col-lg-3">
+  <div class="col-12 col-md-6 col-lg-3">
     <div class="card border-0 shadow-sm rounded-4 h-100">
       <div class="card-header border-0 py-3 px-4 d-flex flex-wrap gap-2 align-items-center"
            style="background:linear-gradient(135deg,#064e3b,#065f46); border-radius: 1rem 1rem 0 0 !important;">
@@ -54,8 +70,21 @@
     </div>
   </div>
 
+  <!-- Garanties (V2) -->
+  <div class="col-12 col-md-6 col-lg-3">
+    <%= render "shared/v2_feature_card",
+          title: "Garanties", icon: "bi-patch-check",
+          subtitle: "Suivi structuré des échéances",
+          description: "Enregistrez chaque garantie avec dates précises — alerte visuelle sur les garanties bientôt expirées ou expirées. Complémentaire à la carte Garanties ci-contre (basée sur les documents déposés).",
+          path: project_warranties_path(@project) %>
+  </div>
+
+</div>
+
+<div class="row g-3 mb-5">
+
   <!-- Carnet d'entretien -->
-  <div class="col-6 col-md-6 col-lg-3">
+  <div class="col-12 col-md-6 col-lg-4">
     <div class="card border-0 shadow-sm rounded-4 h-100">
       <div class="card-header border-0 py-3 px-4 d-flex flex-wrap gap-2 align-items-center"
            style="background:linear-gradient(135deg,#78350f,#92400e); border-radius: 1rem 1rem 0 0 !important;">
@@ -81,7 +110,7 @@
   </div>
 
   <!-- Retour sur investissement -->
-  <div class="col-6 col-md-6 col-lg-3">
+  <div class="col-12 col-md-6 col-lg-4">
     <div class="card border-0 shadow-sm rounded-4 h-100">
       <div class="card-header border-0 py-3 px-4 d-flex flex-wrap gap-2 align-items-center"
            style="background:linear-gradient(135deg,#1e1b4b,#312e81); border-radius: 1rem 1rem 0 0 !important;">
@@ -106,6 +135,15 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Coffre-fort (V2) -->
+  <div class="col-12 col-md-6 col-lg-4">
+    <%= render "shared/v2_feature_card",
+          title: "Coffre-fort", icon: "bi-archive",
+          subtitle: "Export ZIP transmissible",
+          description: "Plans, garanties, attestations, PV et permis en un seul export ZIP — transmissible à un acheteur ou locataire. Complémentaire au Carnet d'entretien ci-contre (DIU, rappels de maintenance).",
+          path: project_vault_path(@project) %>
   </div>
 
 </div>

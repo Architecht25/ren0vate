@@ -51,3 +51,9 @@ Rails.autoloaders.main.collapse("#{Rails.root}/app/controllers/user")
 Rails.autoloaders.main.collapse("#{Rails.root}/app/controllers/pro")
 Rails.autoloaders.main.collapse("#{Rails.root}/app/controllers/dashboard")
 Rails.autoloaders.main.collapse("#{Rails.root}/app/controllers/site")
+
+# V2 — app/policies/ (Pundit) n'est pas un chemin Rails standard comme
+# app/models/concerns ou app/controllers/concerns : sans ce collapse,
+# Zeitwerk attendrait Concerns::ProjectScopedPolicy pour
+# app/policies/concerns/project_scoped_policy.rb.
+Rails.autoloaders.main.collapse("#{Rails.root}/app/policies/concerns")

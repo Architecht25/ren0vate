@@ -1,0 +1,41 @@
+<% content_for :title, "Proposer un avenant" %>
+
+<div class="container py-4" style="max-width: 700px;">
+  <div class="d-flex align-items-center mb-4">
+    <%= link_to project_project_amendments_path(@project), class: "btn btn-outline-secondary btn-sm me-3" do %>
+      <i class="bi bi-arrow-left"></i>
+    <% end %>
+    <div style="min-width: 0;">
+      <h3 class="mb-0 text-truncate">Proposer un avenant</h3>
+      <p class="text-muted small mb-0 text-truncate"><%= @project.nom %></p>
+    </div>
+  </div>
+
+  <%= simple_form_for [@project, @project_amendment] do |f| %>
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-transparent border-bottom py-3">
+        <h6 class="mb-0 fw-semibold"><i class="bi bi-file-earmark-plus me-2"></i>Détails de l'avenant</h6>
+      </div>
+      <div class="card-body p-4">
+        <%= f.error_notification %>
+        <div class="row g-3">
+          <div class="col-12">
+            <%= f.input :project_quote_id, label: "Devis concerné", as: :select,
+                collection: @project.project_quotes, label_method: ->(q) { "#{q.entreprise_nom} — #{q.montant_ttc} €" }, value_method: :id,
+                include_blank: "Aucun devis spécifique", input_html: { class: "form-select" } %>
+          </div>
+          <div class="col-12">
+            <%= f.input :motif, label: "Motif", input_html: { class: "form-control", rows: 3 } %>
+          </div>
+          <div class="col-12">
+            <%= f.input :delta_montant, label: "Delta de montant (€, positif ou négatif)", input_html: { class: "form-control" } %>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer bg-transparent d-flex flex-wrap gap-2 justify-content-end">
+        <%= link_to "Annuler", project_project_amendments_path(@project), class: "btn btn-outline-secondary" %>
+        <%= f.submit "Proposer", class: "btn btn-primary" %>
+      </div>
+    </div>
+  <% end %>
+</div>

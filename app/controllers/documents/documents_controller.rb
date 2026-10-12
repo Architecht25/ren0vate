@@ -171,6 +171,8 @@ class DocumentsController < ApplicationController
 
       # Dispatch automatique selon le tier du type de document
       facture_ocr_result = nil
+      devis_ocr_result = nil
+      bordereau_ocr_result = nil
       type = @document.type_document.to_s
       begin
         ocr_result = nil
@@ -182,10 +184,12 @@ class DocumentsController < ApplicationController
             ocr_result = facture_ocr_result
           when 'devis'
             service = Bots::DevisClaudeService.new(file)
-            ocr_result = service.extraire_donnees_devis
+            devis_ocr_result = service.extraire_donnees_devis
+            ocr_result = devis_ocr_result
           when 'bordereau_chassis'
             service = Bots::BordereauChassisClaudeService.new(file)
-            ocr_result = service.extraire_donnees_bordereau
+            bordereau_ocr_result = service.extraire_donnees_bordereau
+            ocr_result = bordereau_ocr_result
           end
         elsif Document::OCR_TYPES.include?(type) || upload_mode == 'ocr'
           ocr_service = Ocr::OcrService.new(file)
@@ -224,10 +228,18 @@ class DocumentsController < ApplicationController
           if @document.file.attached? && @document.file_url.blank?
             @document.update(file_url: rails_blob_url(@document.file))
           end
-          # Créer l'enregistrement Facture si OCR facture réussi et projet disponible
-          project_for_facture = @project || Project.find_by(id: @document.project_id)
-          if facture_ocr_result&.dig(:success) && facture_ocr_result&.dig(:donnees_facture) && project_for_facture
-            creer_facture_depuis_ocr_doc(@document, facture_ocr_result, project_for_facture)
+          # Créer l'enregistrement Facture/DevisDonnee/BordereauChassisDonnee si
+          # l'extraction Claude a réussi et qu'un projet est disponible — sans ça,
+          # l'appel Claude (payant) réussit mais son résultat est perdu (bug trouvé
+          # lors du test E2E du 12/10/2026 : le devis n'apparaissait alors ni dans
+          # le budget, ni dans le Gantt, ni dans le comparateur, ni dans Garanties).
+          project_for_extraction = @project || Project.find_by(id: @document.project_id)
+          if facture_ocr_result&.dig(:success) && facture_ocr_result&.dig(:donnees_facture) && project_for_extraction
+            creer_facture_depuis_ocr_doc(@document, facture_ocr_result, project_for_extraction)
+          elsif devis_ocr_result&.dig(:success) && devis_ocr_result&.dig(:donnees_devis) && project_for_extraction
+            creer_devis_depuis_ocr_doc(@document, devis_ocr_result, project_for_extraction)
+          elsif bordereau_ocr_result&.dig(:success) && bordereau_ocr_result&.dig(:donnees_bordereau) && project_for_extraction
+            creer_bordereau_chassis_depuis_ocr_doc(@document, bordereau_ocr_result, project_for_extraction)
           end
           created_documents << @document
         else
@@ -916,6 +928,48 @@ class DocumentsController < ApplicationController
     end
   rescue => e
     Rails.logger.error "Exception création Facture depuis OCR document ##{document.id}: #{e.message}\n#{e.backtrace.first(3).join('\n')}"
+    nil
+  end
+
+  # Crée un enregistrement DevisDonnee à partir des données OCR extraites lors
+  # d'un upload via DocumentsController (hors workflow dédié OcrController#scan_devis).
+  def creer_devis_depuis_ocr_doc(document, ocr_result, project)
+    devis_donnee = Devis::CreateFromOcrService.call(document: document, ocr_result: ocr_result, project: project)
+
+    if devis_donnee.save
+      Rails.logger.info "DevisDonnee ##{devis_donnee.id} créé depuis OCR document ##{document.id} (projet ##{project.id})"
+      # Ventilation par poste (graphique de répartition budgétaire), comme pour
+      # le workflow dédié OcrController#scan_devis.
+      DevisContenuExtractionJob.perform_later(devis_donnee.id, document.id)
+      devis_donnee
+    else
+      msg = devis_donnee.errors.full_messages.join(', ')
+      Rails.logger.error "Échec création DevisDonnee depuis OCR document ##{document.id}: #{msg}"
+      flash[:alert] = "Document uploadé, mais l'extraction du devis a échoué : #{msg}" if request.present?
+      nil
+    end
+  rescue => e
+    Rails.logger.error "Exception création DevisDonnee depuis OCR document ##{document.id}: #{e.message}\n#{e.backtrace.first(3).join('\n')}"
+    nil
+  end
+
+  # Crée un enregistrement BordereauChassisDonnee à partir des données OCR
+  # extraites lors d'un upload via DocumentsController (hors workflow dédié
+  # OcrController#scan_bordereau_chassis).
+  def creer_bordereau_chassis_depuis_ocr_doc(document, ocr_result, project)
+    bordereau = BordereauChassis::CreateFromOcrService.call(document: document, ocr_result: ocr_result, project: project)
+
+    if bordereau.save
+      Rails.logger.info "BordereauChassisDonnee ##{bordereau.id} créé depuis OCR document ##{document.id} (projet ##{project.id})"
+      bordereau
+    else
+      msg = bordereau.errors.full_messages.join(', ')
+      Rails.logger.error "Échec création BordereauChassisDonnee depuis OCR document ##{document.id}: #{msg}"
+      flash[:alert] = "Document uploadé, mais l'extraction du bordereau a échoué : #{msg}" if request.present?
+      nil
+    end
+  rescue => e
+    Rails.logger.error "Exception création BordereauChassisDonnee depuis OCR document ##{document.id}: #{e.message}\n#{e.backtrace.first(3).join('\n')}"
     nil
   end
 end

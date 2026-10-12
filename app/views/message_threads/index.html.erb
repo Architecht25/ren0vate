@@ -1,0 +1,23 @@
+<div class="container-fluid px-4 py-4">
+  <%= render layout: "shared/page_header", locals: { title: "Messagerie", subtitle: @project.nom } do %>
+    <%= link_to new_project_message_thread_path(@project), class: "btn btn-primary-custom px-4" do %>
+      <i class="bi bi-plus-lg me-2"></i>Nouveau fil
+    <% end %>
+  <% end %>
+
+  <% if @message_threads.any? %>
+    <div class="list-group">
+      <% @message_threads.each do |thread| %>
+        <%= link_to message_thread_path(thread), class: "list-group-item list-group-item-action d-flex justify-content-between align-items-center" do %>
+          <div>
+            <div class="fw-bold"><%= thread.title %></div>
+            <% if thread.lot %><span class="badge bg-secondary"><%= thread.lot.name %></span><% end %>
+          </div>
+          <span class="text-muted small"><%= thread.messages.count %> message<%= "s" if thread.messages.count != 1 %></span>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center text-muted py-5">Aucun fil de discussion pour l'instant.</div>
+  <% end %>
+</div>

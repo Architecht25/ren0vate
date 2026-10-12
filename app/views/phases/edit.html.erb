@@ -1,0 +1,36 @@
+<% content_for :title, "Modifier la phase" %>
+
+<div class="container py-4" style="max-width: 600px;">
+  <div class="d-flex align-items-center mb-4">
+    <%= link_to project_phases_path(@phase.project), class: "btn btn-outline-secondary btn-sm me-3" do %>
+      <i class="bi bi-arrow-left"></i>
+    <% end %>
+    <div style="min-width: 0;">
+      <h3 class="mb-0 text-truncate">Modifier la phase</h3>
+      <p class="text-muted small mb-0 text-truncate"><%= @phase.project.nom %></p>
+    </div>
+  </div>
+
+  <%= simple_form_for @phase do |f| %>
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-transparent border-bottom py-3">
+        <h6 class="mb-0 fw-semibold"><i class="bi bi-flag me-2"></i>Informations de la phase</h6>
+      </div>
+      <div class="card-body p-4">
+        <%= f.error_notification %>
+        <div class="row g-3">
+          <div class="col-12">
+            <%= f.input :name, label: "Nom de la phase", input_html: { class: "form-control" } %>
+          </div>
+          <div class="col-12">
+            <%= f.input :key, label: "Clé technique", hint: "Sans espace, ex: chantier.", input_html: { class: "form-control" } %>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer bg-transparent d-flex flex-wrap gap-2 justify-content-end">
+        <%= link_to "Annuler", project_phases_path(@phase.project), class: "btn btn-outline-secondary" %>
+        <%= f.submit "Enregistrer", class: "btn btn-primary" %>
+      </div>
+    </div>
+  <% end %>
+</div>

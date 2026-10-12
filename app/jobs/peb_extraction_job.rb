@@ -27,7 +27,7 @@ class PebExtractionJob < ApplicationJob
       if result[:success]
         peb_donnee.appliquer_resultat_extraction!(result)
         document.update_column(:notes, "Certificat PEB scanné le #{Date.today.strftime('%d/%m/%Y')} — #{result[:region]&.capitalize} — confiance #{result[:confiance_ocr].to_i} %")
-        synchroniser_propriete(peb_donnee, result)
+        peb_donnee.synchroniser_propriete!(result)
       else
         peb_donnee.marquer_echec_extraction!(result[:error])
       end
@@ -35,34 +35,5 @@ class PebExtractionJob < ApplicationJob
   rescue StandardError => e
     Rails.logger.error "PebExtractionJob error (peb_donnee_id=#{peb_donnee_id}): #{e.message}\n#{e.backtrace.first(5).join("\n")}"
     peb_donnee&.marquer_echec_extraction!(e.message)
-  end
-
-  private
-
-  # Mise à jour automatique des champs PEB de la propriété — même règle que
-  # l'ancien flux synchrone (confiance >= 70), qui diffère selon la phase :
-  # - avant_travaux : certificat_peb_* (région) + date_peb_avant_travaux, si label détecté
-  # - apres_travaux : date_peb_apres_travaux uniquement, si date détectée
-  def synchroniser_propriete(peb_donnee, result)
-    property = peb_donnee.property
-    return unless property && result[:confiance_ocr].to_i >= 70
-
-    if peb_donnee.apres_travaux?
-      property.update_column(:date_peb_apres_travaux, result[:date_certificat]) if result[:date_certificat].present?
-      return
-    end
-
-    return unless result[:label_peb].present?
-
-    champ_peb = case result[:region]
-                when 'wallonie'  then :certificat_peb_wallonie
-                when 'flandre'   then :certificat_peb_flandre
-                when 'bruxelles' then :certificat_peb_bruxelles
-                end
-    return unless champ_peb
-
-    updates = { champ_peb => result[:label_peb] }
-    updates[:date_peb_avant_travaux] = result[:date_certificat] if result[:date_certificat].present?
-    property.update(updates)
   end
 end

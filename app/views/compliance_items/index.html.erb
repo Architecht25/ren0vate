@@ -1,0 +1,45 @@
+<div class="container-fluid px-4 py-4">
+  <%= render layout: "shared/page_header", locals: { title: "Conformité", subtitle: @project.nom } do %>
+    <%= link_to new_project_compliance_item_path(@project), class: "btn btn-primary-custom px-4" do %>
+      <i class="bi bi-plus-lg me-2"></i>Ajouter une obligation
+    <% end %>
+  <% end %>
+
+  <% if @compliance_items.any? %>
+    <div class="list-group">
+      <% @compliance_items.each do |item| %>
+        <div class="list-group-item">
+          <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+            <div>
+              <div class="fw-bold">
+                <%= item.label %>
+                <span class="badge bg-secondary ms-1"><%= item.region.capitalize %></span>
+                <span class="badge bg-light text-dark border ms-1"><%= item.category.humanize %></span>
+                <% if item.overdue? %><span class="badge bg-danger ms-1">En retard</span><% end %>
+              </div>
+              <% if item.due_date %><div class="text-muted small">Échéance : <%= item.due_date.strftime("%d/%m/%Y") %></div><% end %>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <% if policy(item).update? %>
+                <%= form_with url: compliance_item_path(item), method: :patch, local: true, html: { class: "d-inline" } do %>
+                  <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <% ComplianceItem.statuses.keys.each do |status| %>
+                      <option value="<%= status %>" <%= "selected" if item.status == status %>><%= status.humanize %></option>
+                    <% end %>
+                  </select>
+                <% end %>
+              <% else %>
+                <span class="badge bg-<%= item.obtenu? ? 'success' : 'secondary' %>"><%= item.status.humanize %></span>
+              <% end %>
+              <% if policy(item).destroy? %>
+                <%= button_to "Supprimer", compliance_item_path(item), method: :delete, class: "btn btn-sm btn-outline-danger", data: { turbo_confirm: "Supprimer cette obligation ?" } %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center text-muted py-5">Aucune obligation enregistrée pour l'instant.</div>
+  <% end %>
+</div>

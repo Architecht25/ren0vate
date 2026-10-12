@@ -4,7 +4,16 @@ class ProjectMember < ApplicationRecord
   belongs_to :project
   belongs_to :user
 
-  ROLES   = %w[owner entrepreneur architect intermediary].freeze
+  has_many :project_member_lots, dependent: :destroy
+  has_many :lots, through: :project_member_lots
+
+  # "observer" — V2 : rôle lecture seule (banque, comptable, auditeur,
+  # conseiller — cahier des charges V2 §3), absent de la V1. Les rôles
+  # existants (owner/entrepreneur/architect/intermediary) sont conservés tels
+  # quels : "intermediary" couvre un usage V1 différent (parrainage pro) non
+  # tranché avec le rôle "Observateur" du cahier des charges — voir
+  # docs/QUESTIONS_OUVERTES.md.
+  ROLES   = %w[owner entrepreneur architect intermediary observer].freeze
   STATUSES = %w[pending active].freeze
 
   validates :role,   inclusion: { in: ROLES }
@@ -29,6 +38,17 @@ class ProjectMember < ApplicationRecord
 
   def expired?
     invite_expires_at.present? && invite_expires_at < Time.current
+  end
+
+  # Absence de ligne project_member_lots == accès à tous les lots du projet
+  # (cahier des charges V2 §3 : le périmètre de lots est une restriction
+  # optionnelle, pas une liste à toujours remplir).
+  def scoped_to_all_lots?
+    lots.none?
+  end
+
+  def can_access_lot?(lot)
+    scoped_to_all_lots? || lots.include?(lot)
   end
 
   def accept!

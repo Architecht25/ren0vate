@@ -29,15 +29,34 @@
 
   <!-- ── Sous-onglet 1 : Avancement & Planning ── -->
   <div class="tab-pane fade show active" id="suivi-avancement" role="tabpanel" aria-labelledby="suivi-avancement-tab">
+    <%# Regroupement par thème (ajusté avec Robin le 12/10/2026) : suivi
+        global (score + avancement déclaré) sur une rangée, planification
+        (Gantt automatique + planning détaillé manuel V2) sur l'autre —
+        plutôt que Planning détaillé seul sur une rangée à 2/3 vide. %>
     <div class="row g-3 mb-4">
-      <div class="col-lg-4">
+      <div class="col-12 col-lg-6">
         <%= render 'projects/partials_general/card_score_sante' %>
       </div>
-      <div class="col-lg-4">
+      <div class="col-12 col-lg-6">
         <%= render 'projects/partials_general/card_phases_chantier' %>
       </div>
-      <div class="col-lg-4">
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-lg-6">
         <%= render 'projects/partials_general/card_planning_gantt' %>
+      </div>
+      <div class="col-12 col-lg-6">
+        <%# V2 — Lot 4 : planning par lot avec dépendances. Complémentaire au
+            Gantt ci-contre (calculé automatiquement depuis le devis retenu)
+            — celui-ci est une saisie manuelle de tâches, utile quand le
+            Gantt automatique ne suffit pas (tâches hors devis, dépendances
+            précises). %>
+        <%= render "shared/v2_feature_card",
+              title: "Planning détaillé", icon: "bi-list-task",
+              subtitle: "Tâches manuelles avec dépendances",
+              description: "Ajoutez des tâches par lot avec dates et dépendances simples — complémentaire au Gantt automatique ci-contre.",
+              path: project_schedule_items_path(@project) %>
       </div>
     </div>
   </div>
@@ -62,15 +81,38 @@
 
   <!-- ── Sous-onglet 3 : Suivi terrain ── -->
   <div class="tab-pane fade" id="suivi-terrain" role="tabpanel" aria-labelledby="suivi-terrain-tab">
+    <%# Regroupement par thème (ajusté avec Robin le 12/10/2026, même logique
+        que l'onglet Avancement & Planning) : documentation visuelle terrain
+        sur une rangée, observations + communication (V2) sur l'autre —
+        plutôt que Messagerie V2 seule sur une rangée à 2/3 vide. %>
     <div class="row g-3 mb-4">
-      <div class="col-lg-4">
+      <div class="col-12 col-lg-6">
         <%= render 'projects/partials_general/card_pv_visites' %>
       </div>
-      <div class="col-lg-4">
+      <div class="col-12 col-lg-6">
         <%= render 'projects/partials_general/photos_suivi' %>
       </div>
-      <div class="col-lg-4">
-        <%= render 'projects/partials_general/carnet_de_bord', project: @project, tab: 'suivi' %>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <%# V2 — Lot 4 : Journal de chantier remplace le carnet de bord V1
+          (project_notes) — strict sur-ensemble (auteur identifié, lot,
+          photos multiples, géolocalisation), voir mémoire
+          "project_v2_navigation_ia_decision" pour la comparaison détaillée
+          actée avec Robin le 12/10/2026. %>
+      <div class="col-12 col-lg-6">
+        <%= render "shared/v2_feature_card",
+              title: "Journal de chantier", icon: "bi-journal-text",
+              subtitle: "Observations datées, photos, lot",
+              description: "Consignez une observation avec photos et géolocalisation, rattachée à un lot — remplace le carnet de bord.",
+              path: project_site_log_entries_path(@project) %>
+      </div>
+      <div class="col-12 col-lg-6">
+        <%= render "shared/v2_feature_card",
+              title: "Messagerie", icon: "bi-chat-dots",
+              subtitle: "Fils de discussion par lot",
+              description: "Échangez avec les intervenants, par chantier ou par lot — accès filtré selon le périmètre de chacun.",
+              path: project_message_threads_path(@project) %>
       </div>
     </div>
   </div>

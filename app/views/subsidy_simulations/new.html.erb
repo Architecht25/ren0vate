@@ -1,0 +1,57 @@
+<div class="container-fluid px-4 py-4">
+  <%= render layout: "shared/page_header", locals: { title: "Simulation de primes" } do %><% end %>
+
+  <div class="row">
+    <div class="col-12 col-lg-8">
+      <%= form_with url: subsidy_simulations_path, method: :post, local: true do %>
+        <div class="mb-3">
+          <label class="form-label">Région</label>
+          <select name="region" class="form-select" required>
+            <option value="wallonie">Wallonie</option>
+            <option value="flandre">Flandre</option>
+            <option value="bruxelles">Bruxelles</option>
+          </select>
+        </div>
+
+        <div class="row g-2">
+          <div class="col-6">
+            <label class="form-label">Pourcentage habité (%)</label>
+            <input type="number" name="input_data[property][habitation_percentage]" class="form-control" value="100">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Âge du bien (années)</label>
+            <input type="number" name="input_data[property][age_years]" class="form-control">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Année de construction</label>
+            <input type="number" name="input_data[property][year_built]" class="form-control">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Résidence principale ?</label>
+            <select name="input_data[property][is_main_residence]" class="form-select">
+              <option value="true">Oui</option>
+              <option value="false">Non</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Propriétaire ?</label>
+            <select name="input_data[household][is_owner]" class="form-select">
+              <option value="true">Oui</option>
+              <option value="false">Non</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="form-label">% de propriété (Flandre)</label>
+            <input type="number" name="input_data[household][ownership_percentage]" class="form-control" value="100">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Montant des travaux TTC (€)</label>
+            <input type="number" name="input_data[travaux][montant_ttc]" class="form-control">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary-custom mt-3">Simuler</button>
+      <% end %>
+    </div>
+  </div>
+</div>

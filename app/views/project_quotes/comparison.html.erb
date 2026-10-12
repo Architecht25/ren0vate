@@ -1,0 +1,27 @@
+<div class="container-fluid px-4 py-4">
+  <%= render layout: "shared/page_header", locals: { title: "Comparatif devis — #{@lot.name}", subtitle: @project.nom } do %><% end %>
+
+  <% if @comparison[:quotes].empty? %>
+    <div class="text-center text-muted py-5">Aucun devis déposé pour ce lot.</div>
+  <% else %>
+    <div class="row g-3">
+      <% @comparison[:quotes].each do |quote| %>
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 border-0 shadow-sm <%= 'border border-success' if quote == @comparison[:cheapest] %>" style="border-radius: 12px;">
+            <div class="card-body">
+              <% if quote == @comparison[:cheapest] %><span class="badge bg-success mb-2">Le moins cher</span><% end %>
+              <h3 class="h6"><%= quote.entreprise_nom.presence || "Entreprise non renseignée" %></h3>
+              <div class="fw-bold fs-5"><%= number_to_currency(quote.montant_ttc, unit: "€", format: "%n %u") %></div>
+              <% missing = @comparison[:missing_lines_by_quote][quote] %>
+              <% if missing.present? %>
+                <div class="text-danger small mt-2">
+                  <i class="bi bi-exclamation-triangle me-1"></i>Postes absents : <%= missing.join(", ") %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,55 @@
+<div class="container-fluid px-4 py-4">
+  <%= render layout: "shared/page_header", locals: { title: "Coffre-fort du chantier", subtitle: @project.nom } do %>
+    <%= link_to project_vault_export_path(@project), class: "btn btn-primary-custom px-4" do %>
+      <i class="bi bi-download me-2"></i>Télécharger (.zip)
+    <% end %>
+  <% end %>
+
+  <p class="text-muted small mb-4">
+    Plans, attestations, garanties, PV et permis déposés sur ce chantier — exportable et transmissible à un acheteur ou locataire.
+  </p>
+
+  <div class="row g-4">
+    <div class="col-12 col-lg-8">
+      <h2 class="h6 mb-3">Documents</h2>
+      <% if @documents.any? %>
+        <div class="list-group mb-4">
+          <% @documents.each do |document| %>
+            <%= link_to document.title, document.path, class: "list-group-item list-group-item-action d-flex justify-content-between align-items-center" %>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="text-muted small mb-4">Aucun document éligible pour l'instant (types pris en compte : plan, garantie, attestation, PV, permis).</div>
+      <% end %>
+
+      <% if @pv_reception %>
+        <h2 class="h6 mb-3">Réception</h2>
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+          <div class="card-body">
+            <span class="badge bg-<%= @pv_reception.statut_color %>"><%= @pv_reception.statut_label %></span>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <h2 class="h6 mb-3">Garanties</h2>
+      <% if @warranties.any? %>
+        <div class="list-group">
+          <% @warranties.each do |warranty| %>
+            <div class="list-group-item">
+              <div class="fw-bold small"><%= warranty.label %></div>
+              <div class="text-muted small">
+                Jusqu'au <%= warranty.end_date.strftime("%d/%m/%Y") %>
+                <% if warranty.expired? %><span class="badge bg-danger ms-1">Expirée</span>
+                <% elsif warranty.expiring_soon? %><span class="badge bg-warning text-dark ms-1">Bientôt</span><% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="text-muted small">Aucune garantie enregistrée.</div>
+      <% end %>
+    </div>
+  </div>
+</div>

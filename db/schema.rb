@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_12_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "vector"
 
   create_table "action_mailbox_inbound_emails", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -92,6 +93,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.index ["user_id"], name: "index_aer_donnees_on_user_id"
   end
 
+  create_table "ai_runs", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "actor_id"
+    t.string "subject_type"
+    t.bigint "subject_id"
+    t.bigint "validated_by_id"
+    t.string "function", null: false
+    t.string "model", null: false
+    t.string "status", default: "pending", null: false
+    t.jsonb "output", default: {}, null: false
+    t.float "confidence"
+    t.integer "estimated_cost_cents"
+    t.datetime "validated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["actor_id"], name: "index_ai_runs_on_actor_id"
+    t.index ["function"], name: "index_ai_runs_on_function"
+    t.index ["project_id", "created_at"], name: "index_ai_runs_on_project_id_and_created_at"
+    t.index ["project_id"], name: "index_ai_runs_on_project_id"
+    t.index ["subject_type", "subject_id"], name: "index_ai_runs_on_subject"
+    t.index ["validated_by_id"], name: "index_ai_runs_on_validated_by_id"
+  end
+
   create_table "articles", force: :cascade do |t|
     t.string "author", default: "L'équipe Ren0vate"
     t.string "category", default: "conseils", null: false
@@ -156,6 +180,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.index ["user_id"], name: "index_audit_energ_donnees_on_user_id"
   end
 
+  create_table "audit_events", force: :cascade do |t|
+    t.bigint "actor_id"
+    t.string "auditable_type", null: false
+    t.bigint "auditable_id", null: false
+    t.bigint "project_id"
+    t.string "action", null: false
+    t.jsonb "event_data", default: {}, null: false
+    t.string "ip_address"
+    t.datetime "created_at", null: false
+    t.index ["action"], name: "index_audit_events_on_action"
+    t.index ["actor_id"], name: "index_audit_events_on_actor_id"
+    t.index ["auditable_type", "auditable_id"], name: "index_audit_events_on_auditable"
+    t.index ["auditable_type", "auditable_id"], name: "index_audit_events_on_auditable_type_and_auditable_id"
+    t.index ["project_id", "created_at"], name: "index_audit_events_on_project_id_and_created_at"
+    t.index ["project_id"], name: "index_audit_events_on_project_id"
+  end
+
   create_table "bordereau_chassis_donnees", force: :cascade do |t|
     t.decimal "confiance_ocr", precision: 5, scale: 2, default: "0.0"
     t.datetime "created_at", null: false
@@ -191,6 +232,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.index ["document_id"], name: "index_bordereau_chassis_donnees_on_document_id"
     t.index ["donnees_extraites"], name: "index_bordereau_chassis_donnees_on_donnees_extraites", using: :gin
     t.index ["project_id"], name: "index_bordereau_chassis_donnees_on_project_id"
+  end
+
+  create_table "budget_lines", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "lot_id"
+    t.string "label", null: false
+    t.decimal "montant_prevu", precision: 10, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lot_id"], name: "index_budget_lines_on_lot_id"
+    t.index ["project_id"], name: "index_budget_lines_on_project_id"
   end
 
   create_table "categories", force: :cascade do |t|
@@ -265,6 +317,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.index ["request_progress_id", "status"], name: "index_complement_requests_on_request_progress_id_and_status"
     t.index ["request_progress_id"], name: "index_complement_requests_on_request_progress_id"
     t.index ["status"], name: "index_complement_requests_on_status"
+  end
+
+  create_table "compliance_items", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.string "label", null: false
+    t.string "region", null: false
+    t.string "category", null: false
+    t.string "status", default: "a_faire", null: false
+    t.date "due_date"
+    t.bigint "project_document_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_document_id"], name: "index_compliance_items_on_project_document_id"
+    t.index ["project_id"], name: "index_compliance_items_on_project_id"
   end
 
   create_table "devis_donnees", force: :cascade do |t|
@@ -513,6 +579,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.index ["tenant_id"], name: "index_leases_on_tenant_id"
   end
 
+  create_table "lots", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.string "key", null: false
+    t.string "name", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id", "key"], name: "index_lots_on_project_id_and_key", unique: true
+    t.index ["project_id"], name: "index_lots_on_project_id"
+  end
+
   create_table "marketing_weeks", force: :cascade do |t|
     t.integer "article_id"
     t.datetime "created_at", null: false
@@ -528,6 +605,37 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.index ["article_id"], name: "index_marketing_weeks_on_article_id"
     t.index ["status"], name: "index_marketing_weeks_on_status"
     t.index ["week_of"], name: "index_marketing_weeks_on_week_of", unique: true
+  end
+
+  create_table "memberships", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.bigint "user_id", null: false
+    t.string "role", default: "member", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id", "user_id"], name: "index_memberships_on_organization_id_and_user_id", unique: true
+    t.index ["organization_id"], name: "index_memberships_on_organization_id"
+    t.index ["user_id"], name: "index_memberships_on_user_id"
+  end
+
+  create_table "message_threads", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "lot_id"
+    t.string "title", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lot_id"], name: "index_message_threads_on_lot_id"
+    t.index ["project_id"], name: "index_message_threads_on_project_id"
+  end
+
+  create_table "messages", force: :cascade do |t|
+    t.bigint "message_thread_id", null: false
+    t.bigint "author_id", null: false
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_messages_on_author_id"
+    t.index ["message_thread_id"], name: "index_messages_on_message_thread_id"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -560,6 +668,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_nps_responses_on_user_id"
+  end
+
+  create_table "organizations", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "kind", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "page_visits", force: :cascade do |t|
@@ -609,6 +724,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.index ["project_id"], name: "index_peb_donnees_on_project_id"
     t.index ["property_id"], name: "index_peb_donnees_on_property_id"
     t.index ["user_id"], name: "index_peb_donnees_on_user_id"
+  end
+
+  create_table "phases", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.string "key", null: false
+    t.string "name", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id", "key"], name: "index_phases_on_project_id_and_key", unique: true
+    t.index ["project_id"], name: "index_phases_on_project_id"
   end
 
   create_table "pret_wallonie_dossiers", force: :cascade do |t|
@@ -711,6 +837,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.index ["category"], name: "index_products_on_category"
   end
 
+  create_table "project_amendments", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "project_quote_id"
+    t.bigint "requested_by_id", null: false
+    t.bigint "validated_by_id"
+    t.text "motif", null: false
+    t.decimal "delta_montant", precision: 10, scale: 2, null: false
+    t.string "status", default: "propose", null: false
+    t.datetime "validated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_project_amendments_on_project_id"
+    t.index ["project_quote_id"], name: "index_project_amendments_on_project_quote_id"
+    t.index ["requested_by_id"], name: "index_project_amendments_on_requested_by_id"
+    t.index ["validated_by_id"], name: "index_project_amendments_on_validated_by_id"
+  end
+
   create_table "project_checklist_items", force: :cascade do |t|
     t.boolean "checked", default: false
     t.datetime "checked_at"
@@ -730,6 +873,100 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.datetime "updated_at", null: false
     t.index ["checklist_template_id"], name: "index_project_checklists_on_checklist_template_id"
     t.index ["project_id"], name: "index_project_checklists_on_project_id"
+  end
+
+  create_table "project_document_chunks", force: :cascade do |t|
+    t.bigint "project_document_version_id", null: false
+    t.bigint "project_id", null: false
+    t.text "content", null: false
+    t.integer "chunk_index", null: false
+    t.vector "embedding", limit: 1024
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_document_version_id", "chunk_index"], name: "index_chunks_on_version_and_index", unique: true
+    t.index ["project_document_version_id"], name: "index_project_document_chunks_on_project_document_version_id"
+    t.index ["project_id"], name: "index_project_document_chunks_on_project_id"
+  end
+
+  create_table "project_document_comments", force: :cascade do |t|
+    t.bigint "project_document_id", null: false
+    t.bigint "project_document_version_id"
+    t.bigint "author_id", null: false
+    t.text "body", null: false
+    t.jsonb "anchor", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_project_document_comments_on_author_id"
+    t.index ["project_document_id"], name: "index_project_document_comments_on_project_document_id"
+    t.index ["project_document_version_id"], name: "index_project_document_comments_on_project_document_version_id"
+  end
+
+  create_table "project_document_reviews", force: :cascade do |t|
+    t.bigint "project_document_id", null: false
+    t.bigint "project_document_version_id"
+    t.bigint "reviewer_id", null: false
+    t.string "status", null: false
+    t.text "comment"
+    t.datetime "created_at", null: false
+    t.index ["project_document_id"], name: "index_project_document_reviews_on_project_document_id"
+    t.index ["project_document_version_id"], name: "index_project_document_reviews_on_project_document_version_id"
+    t.index ["reviewer_id"], name: "index_project_document_reviews_on_reviewer_id"
+  end
+
+  create_table "project_document_shares", force: :cascade do |t|
+    t.bigint "project_document_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_document_id", "user_id"], name: "index_pd_shares_on_document_and_user", unique: true
+    t.index ["project_document_id"], name: "index_project_document_shares_on_project_document_id"
+    t.index ["user_id"], name: "index_project_document_shares_on_user_id"
+  end
+
+  create_table "project_document_versions", force: :cascade do |t|
+    t.bigint "project_document_id", null: false
+    t.bigint "created_by_id", null: false
+    t.integer "version_number", null: false
+    t.string "sha256"
+    t.string "file_name"
+    t.string "content_type"
+    t.bigint "byte_size"
+    t.text "ocr_text"
+    t.jsonb "extracted_metadata", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_project_document_versions_on_created_by_id"
+    t.index ["project_document_id", "version_number"], name: "idx_on_project_document_id_version_number_954ddd3ef6", unique: true
+    t.index ["project_document_id"], name: "index_project_document_versions_on_project_document_id"
+  end
+
+  create_table "project_documents", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "lot_id"
+    t.bigint "phase_id"
+    t.bigint "uploaded_by_id", null: false
+    t.string "title", null: false
+    t.string "document_type", null: false
+    t.string "visibility", default: "all", null: false
+    t.string "status", default: "brouillon", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "current_version_id"
+    t.index ["current_version_id"], name: "index_project_documents_on_current_version_id"
+    t.index ["lot_id"], name: "index_project_documents_on_lot_id"
+    t.index ["phase_id"], name: "index_project_documents_on_phase_id"
+    t.index ["project_id"], name: "index_project_documents_on_project_id"
+    t.index ["uploaded_by_id"], name: "index_project_documents_on_uploaded_by_id"
+  end
+
+  create_table "project_member_lots", force: :cascade do |t|
+    t.bigint "project_member_id", null: false
+    t.bigint "lot_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lot_id"], name: "index_project_member_lots_on_lot_id"
+    t.index ["project_member_id", "lot_id"], name: "index_pml_on_member_and_lot", unique: true
+    t.index ["project_member_id"], name: "index_project_member_lots_on_project_member_id"
   end
 
   create_table "project_members", force: :cascade do |t|
@@ -758,6 +995,36 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.datetime "updated_at", null: false
     t.index ["project_id", "created_at"], name: "index_project_notes_on_project_id_and_created_at"
     t.index ["project_id"], name: "index_project_notes_on_project_id"
+  end
+
+  create_table "project_quote_lines", force: :cascade do |t|
+    t.bigint "project_quote_id", null: false
+    t.string "description", null: false
+    t.decimal "quantite", precision: 10, scale: 2, default: "1.0", null: false
+    t.string "unite"
+    t.decimal "prix_unitaire_ht", precision: 10, scale: 2, null: false
+    t.decimal "montant_ht", precision: 10, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_quote_id"], name: "index_project_quote_lines_on_project_quote_id"
+  end
+
+  create_table "project_quotes", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "lot_id"
+    t.bigint "project_document_id"
+    t.bigint "submitted_by_id"
+    t.string "entreprise_nom"
+    t.string "status", default: "brouillon", null: false
+    t.decimal "montant_ht", precision: 10, scale: 2
+    t.decimal "montant_tva", precision: 10, scale: 2
+    t.decimal "montant_ttc", precision: 10, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lot_id"], name: "index_project_quotes_on_lot_id"
+    t.index ["project_document_id"], name: "index_project_quotes_on_project_document_id"
+    t.index ["project_id"], name: "index_project_quotes_on_project_id"
+    t.index ["submitted_by_id"], name: "index_project_quotes_on_submitted_by_id"
   end
 
   create_table "projects", force: :cascade do |t|
@@ -1151,6 +1418,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.string "responsable"
     t.string "statut", default: "ouverte", null: false
     t.datetime "updated_at", null: false
+    t.bigint "lot_id"
+    t.index ["lot_id"], name: "index_reserves_on_lot_id"
     t.index ["plan_document_id"], name: "index_reserves_on_plan_document_id"
     t.index ["project_id", "statut"], name: "index_reserves_on_project_id_and_statut"
     t.index ["project_id"], name: "index_reserves_on_project_id"
@@ -1174,6 +1443,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.index ["user_id"], name: "index_rib_donnees_on_user_id"
   end
 
+  create_table "schedule_items", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "lot_id"
+    t.bigint "depends_on_id"
+    t.string "label", null: false
+    t.date "start_date"
+    t.date "end_date"
+    t.string "status", default: "a_faire", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["depends_on_id"], name: "index_schedule_items_on_depends_on_id"
+    t.index ["lot_id"], name: "index_schedule_items_on_lot_id"
+    t.index ["project_id"], name: "index_schedule_items_on_project_id"
+  end
+
   create_table "simulations", force: :cascade do |t|
     t.string "category"
     t.text "category_description"
@@ -1194,6 +1478,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.index ["property_id"], name: "index_simulations_on_property_id"
     t.index ["regime"], name: "index_simulations_on_regime"
     t.index ["user_id"], name: "index_simulations_on_user_id"
+  end
+
+  create_table "site_log_entries", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "lot_id"
+    t.bigint "author_id", null: false
+    t.text "body", null: false
+    t.datetime "observed_at", null: false
+    t.float "latitude"
+    t.float "longitude"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_site_log_entries_on_author_id"
+    t.index ["lot_id"], name: "index_site_log_entries_on_lot_id"
+    t.index ["project_id", "observed_at"], name: "index_site_log_entries_on_project_id_and_observed_at"
+    t.index ["project_id"], name: "index_site_log_entries_on_project_id"
   end
 
   create_table "solid_queue_blocked_executions", force: :cascade do |t|
@@ -1329,6 +1629,52 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.index ["user_id"], name: "index_subscriptions_on_user_id"
   end
 
+  create_table "subsidy_case_results", force: :cascade do |t|
+    t.bigint "subsidy_case_id", null: false
+    t.bigint "subsidy_rule_id", null: false
+    t.boolean "eligible", null: false
+    t.decimal "amount_estimated", precision: 10, scale: 2
+    t.jsonb "reasons", default: [], null: false
+    t.datetime "created_at", null: false
+    t.index ["subsidy_case_id"], name: "index_subsidy_case_results_on_subsidy_case_id"
+    t.index ["subsidy_rule_id"], name: "index_subsidy_case_results_on_subsidy_rule_id"
+  end
+
+  create_table "subsidy_cases", force: :cascade do |t|
+    t.bigint "project_id"
+    t.bigint "user_id"
+    t.string "region", null: false
+    t.string "mode", default: "simulation", null: false
+    t.jsonb "input_data", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id", "region"], name: "index_subsidy_cases_on_project_id_and_region"
+    t.index ["project_id"], name: "index_subsidy_cases_on_project_id"
+    t.index ["user_id"], name: "index_subsidy_cases_on_user_id"
+  end
+
+  create_table "subsidy_document_requirements", force: :cascade do |t|
+    t.bigint "subsidy_rule_id", null: false
+    t.string "document_type", null: false
+    t.boolean "mandatory", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subsidy_rule_id"], name: "index_subsidy_document_requirements_on_subsidy_rule_id"
+  end
+
+  create_table "subsidy_rules", force: :cascade do |t|
+    t.string "region", null: false
+    t.string "key", null: false
+    t.string "label", null: false
+    t.date "valid_from", null: false
+    t.date "valid_to"
+    t.jsonb "conditions", default: [], null: false
+    t.jsonb "amount_formula", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["region", "key", "valid_from"], name: "index_subsidy_rules_on_region_and_key_and_valid_from"
+  end
+
   create_table "support_messages", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -1446,19 +1792,43 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "warranties", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "lot_id"
+    t.bigint "project_document_id"
+    t.string "label", null: false
+    t.date "start_date", null: false
+    t.date "end_date", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["end_date"], name: "index_warranties_on_end_date"
+    t.index ["lot_id"], name: "index_warranties_on_lot_id"
+    t.index ["project_document_id"], name: "index_warranties_on_project_document_id"
+    t.index ["project_id"], name: "index_warranties_on_project_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "aer_donnees", "documents"
   add_foreign_key "aer_donnees", "users"
+  add_foreign_key "ai_runs", "projects"
+  add_foreign_key "ai_runs", "users", column: "actor_id"
+  add_foreign_key "ai_runs", "users", column: "validated_by_id"
   add_foreign_key "audit_energ_donnees", "documents"
   add_foreign_key "audit_energ_donnees", "projects", on_delete: :nullify
   add_foreign_key "audit_energ_donnees", "properties"
   add_foreign_key "audit_energ_donnees", "users"
+  add_foreign_key "audit_events", "projects"
+  add_foreign_key "audit_events", "users", column: "actor_id"
   add_foreign_key "bordereau_chassis_donnees", "documents"
   add_foreign_key "bordereau_chassis_donnees", "projects"
+  add_foreign_key "budget_lines", "lots"
+  add_foreign_key "budget_lines", "projects"
   add_foreign_key "chantier_analyses", "projects"
   add_foreign_key "checklist_items", "checklist_templates"
   add_foreign_key "complement_requests", "request_progresses"
+  add_foreign_key "compliance_items", "project_documents"
+  add_foreign_key "compliance_items", "projects"
   add_foreign_key "devis_donnees", "documents"
   add_foreign_key "devis_donnees", "projects"
   add_foreign_key "devis_donnees", "properties"
@@ -1482,6 +1852,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
   add_foreign_key "financing_sources", "simulations"
   add_foreign_key "leases", "properties"
   add_foreign_key "leases", "tenants"
+  add_foreign_key "lots", "projects"
+  add_foreign_key "memberships", "organizations"
+  add_foreign_key "memberships", "users"
+  add_foreign_key "message_threads", "lots"
+  add_foreign_key "message_threads", "projects"
+  add_foreign_key "messages", "message_threads"
+  add_foreign_key "messages", "users", column: "author_id"
   add_foreign_key "notifications", "projects"
   add_foreign_key "notifications", "properties"
   add_foreign_key "notifications", "simulations"
@@ -1492,19 +1869,48 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
   add_foreign_key "peb_donnees", "projects", on_delete: :nullify
   add_foreign_key "peb_donnees", "properties"
   add_foreign_key "peb_donnees", "users"
+  add_foreign_key "phases", "projects"
   add_foreign_key "pret_wallonie_dossiers", "projects"
   add_foreign_key "pret_wallonie_dossiers", "simulations"
   add_foreign_key "pret_wallonie_dossiers", "users"
   add_foreign_key "prime_submissions", "properties"
   add_foreign_key "prime_submissions", "users"
   add_foreign_key "primes", "categories"
+  add_foreign_key "project_amendments", "project_quotes"
+  add_foreign_key "project_amendments", "projects"
+  add_foreign_key "project_amendments", "users", column: "requested_by_id"
+  add_foreign_key "project_amendments", "users", column: "validated_by_id"
   add_foreign_key "project_checklist_items", "checklist_items"
   add_foreign_key "project_checklist_items", "project_checklists"
   add_foreign_key "project_checklists", "checklist_templates"
   add_foreign_key "project_checklists", "projects"
+  add_foreign_key "project_document_chunks", "project_document_versions"
+  add_foreign_key "project_document_chunks", "projects"
+  add_foreign_key "project_document_comments", "project_document_versions"
+  add_foreign_key "project_document_comments", "project_documents"
+  add_foreign_key "project_document_comments", "users", column: "author_id"
+  add_foreign_key "project_document_reviews", "project_document_versions"
+  add_foreign_key "project_document_reviews", "project_documents"
+  add_foreign_key "project_document_reviews", "users", column: "reviewer_id"
+  add_foreign_key "project_document_shares", "project_documents"
+  add_foreign_key "project_document_shares", "users"
+  add_foreign_key "project_document_versions", "project_documents"
+  add_foreign_key "project_document_versions", "users", column: "created_by_id"
+  add_foreign_key "project_documents", "lots"
+  add_foreign_key "project_documents", "phases"
+  add_foreign_key "project_documents", "project_document_versions", column: "current_version_id"
+  add_foreign_key "project_documents", "projects"
+  add_foreign_key "project_documents", "users", column: "uploaded_by_id"
+  add_foreign_key "project_member_lots", "lots"
+  add_foreign_key "project_member_lots", "project_members"
   add_foreign_key "project_members", "projects"
   add_foreign_key "project_members", "users"
   add_foreign_key "project_notes", "projects"
+  add_foreign_key "project_quote_lines", "project_quotes"
+  add_foreign_key "project_quotes", "lots"
+  add_foreign_key "project_quotes", "project_documents"
+  add_foreign_key "project_quotes", "projects"
+  add_foreign_key "project_quotes", "users", column: "submitted_by_id"
   add_foreign_key "projects", "properties"
   add_foreign_key "projects", "users"
   add_foreign_key "properties", "users"
@@ -1522,12 +1928,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
   add_foreign_key "requests", "simulations"
   add_foreign_key "requests", "users"
   add_foreign_key "reserves", "documents", column: "plan_document_id"
+  add_foreign_key "reserves", "lots"
   add_foreign_key "reserves", "projects"
   add_foreign_key "rib_donnees", "documents"
   add_foreign_key "rib_donnees", "users"
+  add_foreign_key "schedule_items", "lots"
+  add_foreign_key "schedule_items", "projects"
+  add_foreign_key "schedule_items", "schedule_items", column: "depends_on_id"
   add_foreign_key "simulations", "projects"
   add_foreign_key "simulations", "properties"
   add_foreign_key "simulations", "users"
+  add_foreign_key "site_log_entries", "lots"
+  add_foreign_key "site_log_entries", "projects"
+  add_foreign_key "site_log_entries", "users", column: "author_id"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
@@ -1535,9 +1948,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "subscriptions", "users"
+  add_foreign_key "subsidy_case_results", "subsidy_cases"
+  add_foreign_key "subsidy_case_results", "subsidy_rules"
+  add_foreign_key "subsidy_cases", "projects"
+  add_foreign_key "subsidy_cases", "users"
+  add_foreign_key "subsidy_document_requirements", "subsidy_rules"
   add_foreign_key "support_messages", "support_tickets"
   add_foreign_key "support_messages", "users"
   add_foreign_key "support_tickets", "users"
   add_foreign_key "tenants", "properties"
   add_foreign_key "tenants", "users"
+  add_foreign_key "warranties", "lots"
+  add_foreign_key "warranties", "project_documents"
+  add_foreign_key "warranties", "projects"
 end

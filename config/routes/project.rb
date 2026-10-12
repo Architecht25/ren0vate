@@ -2,6 +2,58 @@
     # Documents liés à un chantier
     resources :documents, shallow: true
 
+    # V2 — base documentaire versionnée (Lot 1), distincte de resources :documents
+    # ci-dessus (Document V1, laissé intact — voir docs/PLAN_V2.md Lot 1)
+    resources :project_documents, except: %i[edit update], shallow: true do
+      member do
+        post :add_version
+        patch :accept_suggestion
+        get :translate
+      end
+      resources :comments, only: [:create], controller: "project_document_comments"
+      resources :reviews, only: [:create], controller: "project_document_reviews"
+    end
+
+    # V2 — Lot 2 : devis structurés et avenants
+    resources :project_quotes, except: %i[edit update destroy], shallow: true do
+      patch :decide, on: :member
+    end
+    resources :project_amendments, except: %i[edit update destroy show], shallow: true do
+      patch :decide, on: :member
+    end
+    get "lots/:lot_id/quotes_comparison", to: "project_quotes#comparison", as: :lot_quotes_comparison
+
+    # V2 — gestion des lots et phases (cahier des charges §4 : "modèles
+    # pré-remplis, personnalisables") — jusqu'ici créés seulement par défaut
+    # à la création du chantier, sans moyen de les personnaliser ensuite.
+    resources :lots, except: %i[show], shallow: true
+    resources :phases, except: %i[show], shallow: true
+
+    # V2 — Lot 4 : journal de chantier
+    resources :site_log_entries, only: %i[index new create destroy], shallow: true
+
+    # V2 — Lot 4 : messagerie par lot
+    resources :message_threads, only: %i[index new create show], shallow: true do
+      resources :messages, only: [:create]
+    end
+
+    # V2 — Lot 4 : planning par lot
+    resources :schedule_items, except: %i[edit show], shallow: true
+
+    # V2 — Lot 5 : assistant conversationnel sur dossier
+    get  :assistant, to: "assistant#show"
+    post :assistant, to: "assistant#ask"
+
+    # V2 — Lot 6 : conformité, garanties, coffre-fort
+    resources :compliance_items, except: %i[edit show], shallow: true
+    resources :warranties, only: %i[index new create destroy], shallow: true
+    # vault.zip déclarée AVANT :vault — ce dernier a un segment (.:format)
+    # implicite qui matcherait aussi "vault.zip" (format=zip) s'il passait en
+    # premier, envoyant l'export vers VaultsController#show (sans template
+    # zip) au lieu de #export. Rails prend la première route qui matche.
+    get "vault.zip", to: "vaults#export", as: :vault_export, defaults: { format: :zip }
+    get :vault, to: "vaults#show"
+
     # Routes pour les factures et leur analyse
     resources :factures, except: [:create] do
       member do

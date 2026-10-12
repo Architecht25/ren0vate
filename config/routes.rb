@@ -138,6 +138,9 @@ Rails.application.routes.draw do
 
   draw :simulations
 
+  # V2 — Lot 3 : simulation publique de primes (moteur de règles versionnées)
+  draw :subsidy_simulations
+
   # Routes raccourcies pour le Decision Hub
   draw :decision_hub
 
