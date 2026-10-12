@@ -22,6 +22,26 @@
   <% end %>
 </div>
 
+<% unless form.object.investment? %>
+  <div class="mb-3">
+    <div class="form-label">Types de travaux</div>
+    <div class="form-text mb-2">
+      <i class="bi bi-info-circle me-1"></i>Détermine les rappels d'entretien proposés après réception (onglet Réception → Carnet d'entretien).
+    </div>
+    <div class="row row-cols-2 row-cols-md-3 g-2">
+      <% [['isolation', '🧱 Isolation'], ['chauffage', '🔥 Chauffage'], ['ventilation', '💨 Ventilation'],
+          ['fenetres', '🪟 Fenêtres'], ['toiture', '🏠 Toiture'], ['autre', '🔧 Autre']].each do |key, label| %>
+        <div class="col">
+          <div class="form-check">
+            <%= form.check_box "type_travaux_#{key}", class: "form-check-input" %>
+            <%= form.label "type_travaux_#{key}", label, class: "form-check-label" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
 <div class="row">
   <div class="col-md-4">
     <div class="mb-3">

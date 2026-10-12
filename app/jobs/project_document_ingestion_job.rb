@@ -94,7 +94,15 @@ class ProjectDocumentIngestionJob < ApplicationJob
   def parse_response(response)
     return nil if response.blank?
 
-    json = JSON.parse(response)
+    # Claude encadre parfois sa réponse en ```json ... ``` malgré la consigne
+    # de ne renvoyer que du JSON brut — même contournement que
+    # Bots::DevisClaudeService#parse_claude_response (bug trouvé lors du test
+    # E2E du 12/10/2026 : JSON.parse direct échouait systématiquement,
+    # désactivant complètement la proposition de classification IA).
+    json_str = response[/\{.*\}/m]
+    return nil unless json_str
+
+    json = JSON.parse(json_str)
     {
       "ai_suggested_document_type" => json["document_type"],
       "ai_suggested_lot_key" => json["lot_key"],

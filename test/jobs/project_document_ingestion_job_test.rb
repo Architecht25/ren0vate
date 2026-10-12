@@ -64,6 +64,19 @@ class ProjectDocumentIngestionJobTest < ActiveSupport::TestCase
     assert_equal({ "ai_suggested_document_type" => "devis", "ai_suggested_lot_key" => "toiture", "ai_suggested_phase_key" => "chantier", "ai_suggested_montant_ttc" => 1500.0, "ai_confidence" => 0.92 }, @document.ai_suggestion)
   end
 
+  test "parse une réponse encadrée en ```json ... ``` (comportement réel de Claude malgré la consigne)" do
+    suggestion_json = { document_type: "devis", lot_key: "toiture", phase_key: "chantier", confidence: 0.9 }.to_json
+    fenced = "```json\n#{suggestion_json}\n```"
+
+    stub_class_method(Anthropic::Client, :new, FakeAnthropicClient.new(response: fake_response(fenced))) do
+      ProjectDocumentIngestionJob.perform_now(@version.id)
+    end
+
+    @document.reload
+    assert_equal "devis", @document.ai_suggestion["ai_suggested_document_type"]
+    assert_equal "toiture", @document.ai_suggestion["ai_suggested_lot_key"]
+  end
+
   test "une réponse non-JSON n'écrase pas les métadonnées et ne plante pas le job" do
     stub_class_method(Anthropic::Client, :new, FakeAnthropicClient.new(response: fake_response("ceci n'est pas du JSON"))) do
       ProjectDocumentIngestionJob.perform_now(@version.id)

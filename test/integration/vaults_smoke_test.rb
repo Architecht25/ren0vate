@@ -67,4 +67,31 @@ class VaultsSmokeTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "a", text: "attestation-electrique.pdf", count: 0
   end
+
+  test "l'export ZIP inclut le PV de réception généré dans l'app (bug trouvé lors du test E2E du 12/10/2026)" do
+    @project.create_pv_reception!(date_reception: Date.current, presents: "Tout le monde", nom_owner: @owner.full_name, reserves_snapshot: "[]")
+    sign_in @owner
+
+    get project_vault_export_path(@project, locale: :fr)
+    assert_response :success
+
+    zip_entries = Zip::File.open_buffer(response.body).map(&:name)
+    assert zip_entries.include?("pv-reception.pdf")
+  end
+
+  test "l'export ZIP inclut le PV de réception externe scanné" do
+    pv = PvReception.new(project: @project, source: "externe", date_reception: Date.current)
+    pv.pv_externe_file.attach(
+      io: File.open(Rails.root.join("test/fixtures/files/test_devis.pdf")),
+      filename: "pv-signe.pdf", content_type: "application/pdf"
+    )
+    pv.save!
+    sign_in @owner
+
+    get project_vault_export_path(@project, locale: :fr)
+    assert_response :success
+
+    zip_entries = Zip::File.open_buffer(response.body).map(&:name)
+    assert zip_entries.include?("pv-reception.pdf")
+  end
 end

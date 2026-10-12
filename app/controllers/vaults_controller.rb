@@ -38,6 +38,8 @@ class VaultsController < ApplicationController
         zip.put_next_entry(safe_entry_name(document))
         zip.write(document.attachment.download)
       end
+
+      add_pv_reception_to_zip(zip)
     end
 
     AuditEvent.record!(action: "vault.exported", auditable: @project, actor: current_user, ip_address: request.remote_ip)
@@ -91,5 +93,24 @@ class VaultsController < ApplicationController
     base = document.title.presence || "document"
     extension = document.attachment.filename.present? ? File.extname(document.attachment.filename.to_s) : ""
     "#{document.ref}-#{base.parameterize}#{extension}"
+  end
+
+  # Le PV de réception est le document le plus central du cas d'usage "coffre-fort
+  # transmissible à un acheteur" mais était totalement absent de l'export jusqu'ici
+  # (bug trouvé lors du test E2E du 12/10/2026) — il n'a pas de type ProjectDocument
+  # dédié (voir commentaire de VAULT_DOCUMENT_TYPES) donc #vault_documents ne le
+  # voyait jamais. Deux cas : PV externe scanné (fichier déjà attaché, on le joint
+  # tel quel) ou PV généré dans l'app (on le rend en PDF via PvReceptions::PdfService).
+  def add_pv_reception_to_zip(zip)
+    pv = @project.pv_reception
+    return unless pv
+
+    if pv.externe? && pv.pv_externe_file.attached?
+      zip.put_next_entry("pv-reception#{File.extname(pv.pv_externe_file.filename.to_s)}")
+      zip.write(pv.pv_externe_file.download)
+    elsif !pv.externe?
+      zip.put_next_entry("pv-reception.pdf")
+      zip.write(PvReceptions::PdfService.new(pv).generate.render)
+    end
   end
 end
