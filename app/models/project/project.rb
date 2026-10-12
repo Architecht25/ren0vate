@@ -16,8 +16,12 @@ class Project < ApplicationRecord
   has_many :project_members, dependent: :destroy
   has_many :member_users, through: :project_members, source: :user
 
-  # V2 — découpage du chantier en lots (cahier des charges §4)
+  # V2 — découpage du chantier en lots et en phases (cahier des charges §4)
   has_many :lots, dependent: :destroy
+  has_many :phases, dependent: :destroy
+
+  # V2 — base documentaire commune versionnée (cahier des charges §4-6)
+  has_many :project_documents, dependent: :destroy
 
   # V2 — journal d'audit append-only, dénormalisé sur le projet (cahier des
   # charges §6). nullify et non destroy : le journal doit survivre à la
@@ -71,6 +75,10 @@ class Project < ApplicationRecord
   # Définir un statut et type par défaut
   before_validation :set_default_status
   before_validation :set_default_project_type
+
+  # V2 — cahier des charges §4 : "modèles pré-remplis, personnalisables" de
+  # lots et phases à la création d'un chantier.
+  after_create :seed_default_lots_and_phases
 
   # Rappel légal (30 jours, art. 473 CIR92) — chantier marqué "terminé" manuellement
   # via le formulaire d'édition (voir _basic_fields.html.erb / project_params).
@@ -351,6 +359,11 @@ class Project < ApplicationRecord
     # supplémentaire quand property_id n'a pas changé)
     owner_id = property&.user_id
     errors.add(:property_id, "n'appartient pas à cet utilisateur") if owner_id.present? && owner_id != user_id
+  end
+
+  def seed_default_lots_and_phases
+    Lot.build_default_set_for(self).each(&:save!)
+    Phase.build_default_set_for(self).each(&:save!)
   end
 
   def notify_declaration_cadastrale

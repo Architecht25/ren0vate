@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_12_090300) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_12_100200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -657,6 +657,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_090300) do
     t.index ["user_id"], name: "index_peb_donnees_on_user_id"
   end
 
+  create_table "phases", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.string "key", null: false
+    t.string "name", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id", "key"], name: "index_phases_on_project_id_and_key", unique: true
+    t.index ["project_id"], name: "index_phases_on_project_id"
+  end
+
   create_table "pret_wallonie_dossiers", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.date "date_cloture"
@@ -776,6 +787,77 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_090300) do
     t.datetime "updated_at", null: false
     t.index ["checklist_template_id"], name: "index_project_checklists_on_checklist_template_id"
     t.index ["project_id"], name: "index_project_checklists_on_project_id"
+  end
+
+  create_table "project_document_comments", force: :cascade do |t|
+    t.bigint "project_document_id", null: false
+    t.bigint "project_document_version_id"
+    t.bigint "author_id", null: false
+    t.text "body", null: false
+    t.jsonb "anchor", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_project_document_comments_on_author_id"
+    t.index ["project_document_id"], name: "index_project_document_comments_on_project_document_id"
+    t.index ["project_document_version_id"], name: "index_project_document_comments_on_project_document_version_id"
+  end
+
+  create_table "project_document_reviews", force: :cascade do |t|
+    t.bigint "project_document_id", null: false
+    t.bigint "project_document_version_id"
+    t.bigint "reviewer_id", null: false
+    t.string "status", null: false
+    t.text "comment"
+    t.datetime "created_at", null: false
+    t.index ["project_document_id"], name: "index_project_document_reviews_on_project_document_id"
+    t.index ["project_document_version_id"], name: "index_project_document_reviews_on_project_document_version_id"
+    t.index ["reviewer_id"], name: "index_project_document_reviews_on_reviewer_id"
+  end
+
+  create_table "project_document_shares", force: :cascade do |t|
+    t.bigint "project_document_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_document_id", "user_id"], name: "index_pd_shares_on_document_and_user", unique: true
+    t.index ["project_document_id"], name: "index_project_document_shares_on_project_document_id"
+    t.index ["user_id"], name: "index_project_document_shares_on_user_id"
+  end
+
+  create_table "project_document_versions", force: :cascade do |t|
+    t.bigint "project_document_id", null: false
+    t.bigint "created_by_id", null: false
+    t.integer "version_number", null: false
+    t.string "sha256"
+    t.string "file_name"
+    t.string "content_type"
+    t.bigint "byte_size"
+    t.text "ocr_text"
+    t.jsonb "extracted_metadata", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_project_document_versions_on_created_by_id"
+    t.index ["project_document_id", "version_number"], name: "idx_on_project_document_id_version_number_954ddd3ef6", unique: true
+    t.index ["project_document_id"], name: "index_project_document_versions_on_project_document_id"
+  end
+
+  create_table "project_documents", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "lot_id"
+    t.bigint "phase_id"
+    t.bigint "uploaded_by_id", null: false
+    t.string "title", null: false
+    t.string "document_type", null: false
+    t.string "visibility", default: "all", null: false
+    t.string "status", default: "brouillon", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "current_version_id"
+    t.index ["current_version_id"], name: "index_project_documents_on_current_version_id"
+    t.index ["lot_id"], name: "index_project_documents_on_lot_id"
+    t.index ["phase_id"], name: "index_project_documents_on_phase_id"
+    t.index ["project_id"], name: "index_project_documents_on_project_id"
+    t.index ["uploaded_by_id"], name: "index_project_documents_on_uploaded_by_id"
   end
 
   create_table "project_member_lots", force: :cascade do |t|
@@ -1553,6 +1635,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_090300) do
   add_foreign_key "peb_donnees", "projects", on_delete: :nullify
   add_foreign_key "peb_donnees", "properties"
   add_foreign_key "peb_donnees", "users"
+  add_foreign_key "phases", "projects"
   add_foreign_key "pret_wallonie_dossiers", "projects"
   add_foreign_key "pret_wallonie_dossiers", "simulations"
   add_foreign_key "pret_wallonie_dossiers", "users"
@@ -1563,6 +1646,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_090300) do
   add_foreign_key "project_checklist_items", "project_checklists"
   add_foreign_key "project_checklists", "checklist_templates"
   add_foreign_key "project_checklists", "projects"
+  add_foreign_key "project_document_comments", "project_document_versions"
+  add_foreign_key "project_document_comments", "project_documents"
+  add_foreign_key "project_document_comments", "users", column: "author_id"
+  add_foreign_key "project_document_reviews", "project_document_versions"
+  add_foreign_key "project_document_reviews", "project_documents"
+  add_foreign_key "project_document_reviews", "users", column: "reviewer_id"
+  add_foreign_key "project_document_shares", "project_documents"
+  add_foreign_key "project_document_shares", "users"
+  add_foreign_key "project_document_versions", "project_documents"
+  add_foreign_key "project_document_versions", "users", column: "created_by_id"
+  add_foreign_key "project_documents", "lots"
+  add_foreign_key "project_documents", "phases"
+  add_foreign_key "project_documents", "project_document_versions", column: "current_version_id"
+  add_foreign_key "project_documents", "projects"
+  add_foreign_key "project_documents", "users", column: "uploaded_by_id"
   add_foreign_key "project_member_lots", "lots"
   add_foreign_key "project_member_lots", "project_members"
   add_foreign_key "project_members", "projects"
