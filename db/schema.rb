@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_12_090300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -154,6 +154,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.index ["property_id"], name: "index_audit_energ_donnees_on_property_id"
     t.index ["recommandations_json"], name: "index_audit_energ_donnees_on_recommandations_json", using: :gin
     t.index ["user_id"], name: "index_audit_energ_donnees_on_user_id"
+  end
+
+  create_table "audit_events", force: :cascade do |t|
+    t.bigint "actor_id"
+    t.string "auditable_type", null: false
+    t.bigint "auditable_id", null: false
+    t.bigint "project_id"
+    t.string "action", null: false
+    t.jsonb "event_data", default: {}, null: false
+    t.string "ip_address"
+    t.datetime "created_at", null: false
+    t.index ["action"], name: "index_audit_events_on_action"
+    t.index ["actor_id"], name: "index_audit_events_on_actor_id"
+    t.index ["auditable_type", "auditable_id"], name: "index_audit_events_on_auditable"
+    t.index ["auditable_type", "auditable_id"], name: "index_audit_events_on_auditable_type_and_auditable_id"
+    t.index ["project_id", "created_at"], name: "index_audit_events_on_project_id_and_created_at"
+    t.index ["project_id"], name: "index_audit_events_on_project_id"
   end
 
   create_table "bordereau_chassis_donnees", force: :cascade do |t|
@@ -513,6 +530,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.index ["tenant_id"], name: "index_leases_on_tenant_id"
   end
 
+  create_table "lots", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.string "key", null: false
+    t.string "name", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id", "key"], name: "index_lots_on_project_id_and_key", unique: true
+    t.index ["project_id"], name: "index_lots_on_project_id"
+  end
+
   create_table "marketing_weeks", force: :cascade do |t|
     t.integer "article_id"
     t.datetime "created_at", null: false
@@ -528,6 +556,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.index ["article_id"], name: "index_marketing_weeks_on_article_id"
     t.index ["status"], name: "index_marketing_weeks_on_status"
     t.index ["week_of"], name: "index_marketing_weeks_on_week_of", unique: true
+  end
+
+  create_table "memberships", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.bigint "user_id", null: false
+    t.string "role", default: "member", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id", "user_id"], name: "index_memberships_on_organization_id_and_user_id", unique: true
+    t.index ["organization_id"], name: "index_memberships_on_organization_id"
+    t.index ["user_id"], name: "index_memberships_on_user_id"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -560,6 +599,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_nps_responses_on_user_id"
+  end
+
+  create_table "organizations", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "kind", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "page_visits", force: :cascade do |t|
@@ -730,6 +776,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
     t.datetime "updated_at", null: false
     t.index ["checklist_template_id"], name: "index_project_checklists_on_checklist_template_id"
     t.index ["project_id"], name: "index_project_checklists_on_project_id"
+  end
+
+  create_table "project_member_lots", force: :cascade do |t|
+    t.bigint "project_member_id", null: false
+    t.bigint "lot_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lot_id"], name: "index_project_member_lots_on_lot_id"
+    t.index ["project_member_id", "lot_id"], name: "index_pml_on_member_and_lot", unique: true
+    t.index ["project_member_id"], name: "index_project_member_lots_on_project_member_id"
   end
 
   create_table "project_members", force: :cascade do |t|
@@ -1454,6 +1510,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
   add_foreign_key "audit_energ_donnees", "projects", on_delete: :nullify
   add_foreign_key "audit_energ_donnees", "properties"
   add_foreign_key "audit_energ_donnees", "users"
+  add_foreign_key "audit_events", "projects"
+  add_foreign_key "audit_events", "users", column: "actor_id"
   add_foreign_key "bordereau_chassis_donnees", "documents"
   add_foreign_key "bordereau_chassis_donnees", "projects"
   add_foreign_key "chantier_analyses", "projects"
@@ -1482,6 +1540,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
   add_foreign_key "financing_sources", "simulations"
   add_foreign_key "leases", "properties"
   add_foreign_key "leases", "tenants"
+  add_foreign_key "lots", "projects"
+  add_foreign_key "memberships", "organizations"
+  add_foreign_key "memberships", "users"
   add_foreign_key "notifications", "projects"
   add_foreign_key "notifications", "properties"
   add_foreign_key "notifications", "simulations"
@@ -1502,6 +1563,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_180847) do
   add_foreign_key "project_checklist_items", "project_checklists"
   add_foreign_key "project_checklists", "checklist_templates"
   add_foreign_key "project_checklists", "projects"
+  add_foreign_key "project_member_lots", "lots"
+  add_foreign_key "project_member_lots", "project_members"
   add_foreign_key "project_members", "projects"
   add_foreign_key "project_members", "users"
   add_foreign_key "project_notes", "projects"
