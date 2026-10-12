@@ -1,0 +1,15 @@
+<div class="container-fluid px-4 py-4">
+  <%= render layout: "shared/page_header", locals: { title: "Proposer un avenant", subtitle: @project.nom } do %><% end %>
+
+  <div class="row">
+    <div class="col-12 col-lg-8">
+      <%= simple_form_for [@project, @project_amendment] do |f| %>
+        <%= f.error_notification %>
+        <%= f.input :project_quote_id, collection: @project.project_quotes, label_method: ->(q) { "#{q.entreprise_nom} — #{q.montant_ttc} €" }, value_method: :id, label: "Devis concerné", include_blank: "Aucun devis spécifique" %>
+        <%= f.input :motif, label: "Motif" %>
+        <%= f.input :delta_montant, label: "Delta de montant (€, positif ou négatif)" %>
+        <%= f.button :submit, "Proposer", class: "btn btn-primary-custom" %>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -2,6 +2,9 @@ class Lot < ApplicationRecord
   belongs_to :project
   has_many :project_member_lots, dependent: :destroy
   has_many :project_members, through: :project_member_lots
+  has_many :project_documents, dependent: :nullify
+  has_many :project_quotes, dependent: :nullify
+  has_many :budget_lines, dependent: :nullify
 
   validates :key, presence: true, uniqueness: { scope: :project_id }
   validates :name, presence: true
@@ -25,5 +28,14 @@ class Lot < ApplicationRecord
     DEFAULT_TEMPLATE.map.with_index do |attrs, index|
       project.lots.build(attrs.merge(position: index))
     end
+  end
+
+  # V2 — Lot 2 : prévisionnel vs devisé (cahier des charges §5.C). "Facturé"
+  # et "payé" attendent Invoice/Payment (hors scope de ce lot).
+  def budget_summary
+    {
+      prevu: budget_lines.sum(:montant_prevu),
+      devise: project_quotes.accepte.sum(:montant_ttc)
+    }
   end
 end
