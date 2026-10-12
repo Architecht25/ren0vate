@@ -23,6 +23,8 @@ class ProjectDocumentIngestionJob < ApplicationJob
     suggestion = classify(version, ocr_text)
     version.update_columns(ocr_text: ocr_text, extracted_metadata: version.extracted_metadata.merge(suggestion || {}))
 
+    index_for_search(version, ocr_text)
+
     AuditEvent.record!(
       action: "project_document.ingested",
       auditable: version.project_document,
@@ -33,6 +35,29 @@ class ProjectDocumentIngestionJob < ApplicationJob
   end
 
   private
+
+  # V2 — Lot 5 : indexation pour l'assistant sur dossier (cahier des charges
+  # §8.7). Pas d'exception propagée si Voyage AI est indisponible/sans clé —
+  # l'ingestion (OCR + classification) reste utile même sans RAG.
+  def index_for_search(version, ocr_text)
+    return if ocr_text.blank?
+
+    chunks = ProjectDocuments::ChunkingService.call(ocr_text)
+    return if chunks.empty?
+
+    embeddings = Ai::EmbeddingClient.new.embed(chunks)
+    return if embeddings.nil?
+
+    version.chunks.delete_all
+    chunks.each_with_index do |content, index|
+      version.chunks.create!(
+        project: version.project_document.project,
+        content: content,
+        chunk_index: index,
+        embedding: embeddings[index]
+      )
+    end
+  end
 
   def classify(version, ocr_text)
     return nil if ocr_text.blank?

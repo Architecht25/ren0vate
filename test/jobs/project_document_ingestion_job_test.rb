@@ -87,4 +87,35 @@ class ProjectDocumentIngestionJobTest < ActiveSupport::TestCase
     assert_equal toiture, @document.lot
     assert_equal "chantier", @document.phase.key
   end
+
+  test "indexe le texte OCR en chunks avec embeddings quand Voyage AI est disponible (Lot 5)" do
+    previous_voyage_key = ENV["VOYAGE_API_KEY"]
+    ENV["VOYAGE_API_KEY"] = "test-key"
+
+    fake_voyage_response = Struct.new(:success?, :parsed_response).new(
+      true, { "data" => [{ "index" => 0, "embedding" => Array.new(1024, 0.1) }] }
+    )
+
+    stub_class_method(Anthropic::Client, :new, FakeAnthropicClient.new(response: fake_response('{"document_type":"devis"}'))) do
+      stub_class_method(HTTParty, :post, ->(*) { fake_voyage_response }) do
+        ProjectDocumentIngestionJob.perform_now(@version.id)
+      end
+    end
+
+    assert @version.chunks.any?
+    assert_equal 1024, @version.chunks.first.embedding.to_a.length
+  ensure
+    ENV["VOYAGE_API_KEY"] = previous_voyage_key
+  end
+
+  test "n'indexe rien sans clé Voyage AI, sans faire échouer le job" do
+    ENV["VOYAGE_API_KEY"] = nil
+
+    stub_class_method(Anthropic::Client, :new, FakeAnthropicClient.new(response: fake_response('{"document_type":"devis"}'))) do
+      ProjectDocumentIngestionJob.perform_now(@version.id)
+    end
+
+    assert @version.chunks.none?
+    assert @version.reload.ocr_text.present?
+  end
 end
