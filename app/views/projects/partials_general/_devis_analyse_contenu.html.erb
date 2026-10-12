@@ -17,7 +17,14 @@
       <i class="bi bi-pie-chart me-1"></i>Voir la répartition par poste
     </button>
     <div class="devis-contenu-detail-block d-none mt-2 p-2 border rounded-2 bg-light" data-devis-donnee-id="<%= d.id %>">
-      <canvas class="devis-contenu-chart" data-devis-donnee-id="<%= d.id %>" height="160"></canvas>
+      <%# Chart.js (responsive + maintainAspectRatio: false) a besoin d'un
+          parent à hauteur CSS fixe — sans ça le canvas grandit sans limite
+          (le canvas remplit le parent, le parent grandit avec son contenu,
+          boucle infinie). L'attribut HTML height="160" sur <canvas> seul ne
+          suffit pas, Chart.js le redimensionne en JS au premier rendu. %>
+      <div style="position: relative; height: 220px;">
+        <canvas class="devis-contenu-chart" data-devis-donnee-id="<%= d.id %>"></canvas>
+      </div>
       <div class="devis-contenu-postes mt-2" data-devis-donnee-id="<%= d.id %>" style="font-size:0.72rem;"></div>
     </div>
   </div>
