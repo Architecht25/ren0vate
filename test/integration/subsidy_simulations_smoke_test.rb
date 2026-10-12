@@ -37,12 +37,19 @@ class SubsidySimulationsSmokeTest < ActionDispatch::IntegrationTest
     )
   end
 
+  # Routes désactivées avant déploiement prod du 12/10/2026 (voir
+  # config/routes/subsidy_simulations.rb) — montants SubsidyRule non
+  # vérifiés avec le barème officiel. Les 2 tests qui passaient par les
+  # routes publiques sont donc skip ; le moteur lui-même (recalculate!,
+  # éligibilité par région) reste couvert ci-dessous, sans passer par HTTP.
   test "new s'affiche sans authentification" do
+    skip "route désactivée avant déploiement prod — voir config/routes/subsidy_simulations.rb"
     get new_subsidy_simulation_path(locale: :fr)
     assert_response :success
   end
 
   test "Wallonie — un ménage propriétaire, résidence principale, bien de 20 ans est éligible" do
+    skip "route désactivée avant déploiement prod — voir config/routes/subsidy_simulations.rb"
     post subsidy_simulations_path(locale: :fr), params: {
       region: "wallonie",
       input_data: {
