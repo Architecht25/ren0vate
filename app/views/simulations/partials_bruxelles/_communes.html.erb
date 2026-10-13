@@ -103,152 +103,21 @@
 
 <script nonce="<%= content_security_policy_nonce %>">
 (function() {
-  // ─── Base de données communes bruxelloises ───────────────────────────────
-  const CP_TO_COMMUNE = {
-    '1000': 'bruxelles', '1020': 'bruxelles', '1120': 'bruxelles', '1130': 'bruxelles',
-    '1030': 'schaerbeek',
-    '1040': 'etterbeek',
-    '1050': 'ixelles',
-    '1060': 'saint-gilles',
-    '1070': 'anderlecht',
-    '1080': 'molenbeek',
-    '1081': 'koekelberg',
-    '1082': 'berchem',
-    '1083': 'ganshoren',
-    '1090': 'jette',
-    '1140': 'evere',
-    '1150': 'woluwe-pierre',
-    '1160': 'auderghem',
-    '1170': 'watermael',
-    '1180': 'uccle',
-    '1190': 'forest',
-    '1200': 'woluwe-lambert',
-    '1210': 'saint-josse'
-  };
-
-  const COMMUNES_DATA = {
-    'bruxelles': {
-      nom: 'Bruxelles-Ville',
-      primes: [
-        { id: 'brx_facade_b',    nom: 'Prime embellissement façade avant', montant: 6000, desc: '40% des travaux, max 6 000 € (50%/10 000 € si façade >10 m — 60%/14 000 € si >20 m) — bâtiment >10 ans' },
-        { id: 'brx_facade_com',  nom: 'Prime façade commerciale',                  montant: 5000, desc: '50% des travaux, max 5 000 € — propriétaire ou locataire commercial' },
-        { id: 'brx_acces_sep',   nom: 'Prime accès séparé',                        montant: 3000, desc: 'Création d’une entrée indépendante vers les étages au-dessus d’un commerce' }
-      ]
-    },
-    'auderghem': {
-      nom: 'Auderghem',
-      primes: [
-        { id: 'aud_compost', nom: 'Prime compostière', montant: 75, desc: '75% du prix d’achat, max 75 € — une fois par ménage, dans les 4 mois suivant l’achat' }
-      ]
-    },
-    'schaerbeek': {
-      nom: 'Schaerbeek',
-      primes: [
-        { id: 'sch_plantation',  nom: 'Soutien plantation de façade', montant: 150, desc: 'Jardinière + câbles tuteurs installés par la commune' },
-        { id: 'sch_compostiere', nom: 'Prime compostière',            montant: 75,  desc: "Jusqu'à 75% du prix d'achat, max 75 €" },
-        { id: 'sch_velo_elec',   nom: 'Prime vélo électrique',        montant: 250, desc: '250 € (400 € si revenus nets < 25 000 €/an)' }
-      ]
-    },
-    'saint-gilles': {
-      nom: 'Saint-Gilles',
-      primes: [
-        { id: 'stg_secu_hab',  nom: 'Prime sécurisation habitation', montant: 250, desc: '50% des dépenses anti-intrusion, max 250 € — sur avis conseiller en prévention vol' },
-        { id: 'stg_secu_com',  nom: 'Prime sécurisation commerce',  montant: 400, desc: '50% des frais (alarmes, volets, serrures…), max 400 €' },
-        { id: 'stg_behome',    nom: 'Prime Be Home',                montant: 100, desc: '100 € sur précompte immobilier — propriétaires domiciliés à Saint-Gilles' },
-        { id: 'stg_facade',    nom: 'Prime rénovation façade/toit', montant: 0,   desc: 'Montant variable — travaux façade avant ou toit, occupation domaine public requise' }
-      ]
-    },
-    'etterbeek': {
-      nom: 'Etterbeek',
-      primes: [
-        { id: 'ett_compostiere',  nom: 'Prime compostière',                montant: 50,   desc: '50% du prix d’achat, max 50 € — une fois par ménage' },
-        { id: 'ett_transition',   nom: 'Subside transition écologique', montant: 1000, desc: 'Projets durables : ASBL, groupes d’habitants (≥3 pers.), écoles' }
-      ]
-    },
-    'uccle': {
-      nom: 'Uccle',
-      primes: [
-        { id: 'ucc_mare',      nom: 'Prime mare naturelle',              montant: 150, desc: '50% du prix total, max 150 € (+50 € si entreprise d’économie sociale)' },
-        { id: 'ucc_ces',       nom: 'Prime chauffe-eau solaire',          montant: 500, desc: '500 € (entrepreneur) ou 250 € (travaux soi-même) — cumulable avec primes régionales' },
-        { id: 'ucc_citerne',   nom: 'Prime citerne eau de pluie',        montant: 500, desc: '500 € (entrepreneur) ou 250 € (travaux soi-même) — installation, rénovation ou remise en service' },
-        { id: 'ucc_toiture_v', nom: 'Prime toiture végétale',             montant: 500, desc: '200 € pour 10 m² + 15 €/m² (intensive) ou 10 €/m² (extensive), max 500 € — cumulable avec prime régionale' },
-        { id: 'ucc_infiltr',   nom: 'Prime infiltration eaux de pluie',  montant: 500, desc: '200 € pour 25 m² raccordés + 4 €/m² suppl., max 500 €' }
-      ]
-    },
-
-    'woluwe-lambert': {
-      nom: 'Woluwe-Saint-Lambert',
-      primes: [
-        { id: 'wsl_compost',    nom: 'Fût à compost',                           montant: 50,  desc: '50% du prix d’achat, max 50 € — une fois par ménage' },
-        { id: 'wsl_toiture_v',  nom: 'Toiture verte',                          montant: 250, desc: '250 € pour 10 m² + 10-15 €/m² suppl., max 550 €' },
-        { id: 'wsl_energie',    nom: 'Amélioration énergétique du logement', montant: 500, desc: '20% de la taxe d’occupation du domaine public, max 500 €' },
-        { id: 'wsl_citerne',    nom: 'Citerne d’eau de pluie',               montant: 500, desc: '20% du coût des travaux, max 500 € — cap. min. 2 000 L' },
-        { id: 'wsl_solaire',    nom: 'Chauffe-eau solaire',                    montant: 500, desc: '10% des frais d’installation, max 500 € (5 000 € si collectif)' },
-        { id: 'wsl_mare',       nom: 'Mare naturelle',                         montant: 150, desc: '50% du coût total, max 150 € (+50 € si matériaux durables)' }
-      ]
-    },
-    'jette': {
-      nom: 'Jette',
-      primes: [
-        { id: 'jet_behome2',    nom: 'Prime Be Home 2',   montant: 100, desc: '100 € complément communal — propriétaires occupants à faibles revenus (≤10 659 € isolé / ≤16 269 € ménage)' },
-        { id: 'jet_compost',    nom: 'Prime compostage',  montant: 100, desc: '75% du prix d’achat d’un composteur individuel, max 100 €' }
-      ]
-    },
-    'evere': {
-      nom: 'Evere',
-      primes: [
-        { id: 'eve_behome',  nom: 'Prime Be Home communale', montant: 150, desc: '150 € complément automatique à la prime régionale (total 303 € déduits du précompte immobilier) — aucune démarche requise' }
-      ]
-    },
-    'watermael': {
-      nom: 'Watermael-Boitsfort',
-      primes: [
-        { id: 'wtm_eau',      nom: 'Prime communale Eau',       montant: 0,  desc: 'Gestion rationnelle de l’eau (citerne, récupération…) — montant selon règlement 2021' },
-        { id: 'wtm_compost',  nom: 'Prime compostage individuel', montant: 0,  desc: 'Achat d’un composteur individuel — montant selon règlement 2023' }
-      ]
-    },
-    'saint-josse': {
-      nom: 'Saint-Josse-ten-Noode',
-      primes: [
-        { id: 'stj_behome', nom: 'Prime Be Home communale', montant: 150, desc: '150 € annuels — propriétaires tennoodois occupants (complément à la prime régionale de 160 €)' }
-      ]
-    },
-  };
-
-  const GENERIC_COMMUNES = {};
-
-  const NO_PRIMES_COMMUNES = {
-    'woluwe-pierre': { nom: 'Woluwe-Saint-Pierre', contact: 'https://www.woluwe1150.be/contact/' },
-    'ixelles':       { nom: 'Ixelles', contact: 'https://www.ixelles.be/site/803-Primes-energie-regionales-et-communales' },
-    'anderlecht':    { nom: 'Anderlecht', contact: 'https://www.anderlecht.be' },
-    'molenbeek':     { nom: 'Molenbeek-Saint-Jean', contact: 'https://www.molenbeek.be' },
-    'koekelberg':    { nom: 'Koekelberg', contact: 'https://www.koekelberg.be' },
-    'berchem':       { nom: 'Berchem-Sainte-Agathe', contact: 'https://www.berchem-sainte-agathe.be' },
-    'ganshoren':     { nom: 'Ganshoren', contact: 'https://www.ganshoren.be' },
-    'forest':        { nom: 'Forest', contact: 'https://www.forest.be' }
-  };
-
-  const COMMUNE_SITES = {
-    'bruxelles':      'https://www.bruxelles.be/prime-facades',
-    'schaerbeek':     'https://www.1030.be',
-    'etterbeek':      'https://etterbeek.brussels/fr/demarches/primes-et-subsides',
-    'ixelles':        'https://www.ixelles.be/site/803-Primes-energie-regionales-et-communales',
-    'saint-gilles':   'https://stgilles.brussels/services/primes/consulter-lensemble-des-primes-disponibles/',
-    'anderlecht':     'https://www.anderlecht.be',
-    'molenbeek':      'https://www.molenbeek.be',
-    'koekelberg':     'https://www.koekelberg.be',
-    'berchem':        'https://www.berchem-sainte-agathe.be',
-    'ganshoren':      'https://www.ganshoren.be',
-    'jette':          'https://jette.brussels/fr/ma-commune/primes-communales',
-    'evere':          'https://evere.brussels/fr/demarches/urbanisme-et-environnement/prime-citoyen-be-home',
-    'woluwe-pierre':  'https://www.woluwe1150.be',
-    'auderghem':      'https://www.auderghem.be/labels/premie',
-    'watermael':      'https://www.watermael-boitsfort.be/fr/vivre-a-watermael-boitsfort/taxes-et-reglements/primes',
-    'uccle':          'https://www.uccle.be/fr/vie-pratique/environnement/primes-environnementales-communales',
-    'forest':         'https://www.forest.be',
-    'woluwe-lambert': 'https://www.woluwe1200.be/demarches/connaitre-les-primes-octroyees-par-la-commune/',
-    'saint-josse':    'https://sjtn.brussels/fr/actualites/prime-communale-be-home-2026'
-  };
+  // ─── Source de données ─────────────────────────────────────────────────────
+  // Avant le 13/10/2026 : dictionnaire JS codé en dur ici, dupliqué (et
+  // désynchronisé) avec le fichier JSON utilisé par le Decision Hub
+  // (public/data/primes_communales_bruxelles.json via
+  // Regions::PrimesCommunales::PrimesCommunalesBruxellesService). Unifié :
+  // cette carte interroge désormais la même API
+  // (/api/primes_communales_bruxelles) que le Decision Hub, une seule source.
+  function montantAffiche(prime) {
+    // Le JSON stocke un type_calcul (pourcentage/forfait/par_unite) + une
+    // valeur + un plafond ; l'affichage ici veut un montant unique (le
+    // plafond quand il existe pour une prime en pourcentage, sinon la valeur
+    // telle quelle).
+    if (prime.type_calcul === 'pourcentage' && prime.plafond != null) return prime.plafond;
+    return prime.valeur || 0;
+  }
 
   // ─── Éléments DOM ──────────────────────────────────────────────────────────
   const cpInput       = document.getElementById('cp_communales_brx');
@@ -281,44 +150,48 @@
   }
 
   function detectFromCP(cp) {
-    const key = CP_TO_COMMUNE[cp];
-    if (!key) return;
-
-    detectedDiv.style.display = 'block';
+    detectedDiv.style.display = 'none';
     listDiv.style.display     = 'none';
     genericDiv.style.display  = 'none';
     itemsDiv.innerHTML        = '';
 
-    if (COMMUNES_DATA[key]) {
-      const data = COMMUNES_DATA[key];
-      communeName.textContent = data.nom;
-      preloadSavedSelections(data.primes);
-      renderPrimes(data.primes);
-      listDiv.style.display = 'block';
-      // Mettre à jour le total si des sélections ont été restaurées
-      if (Object.keys(selected).length > 0) updateTotal();
-    } else if (NO_PRIMES_COMMUNES[key]) {
-      const data = NO_PRIMES_COMMUNES[key];
-      communeName.textContent = data.nom;
-      genericDiv.innerHTML = `
-        <div class="alert alert-secondary mb-2 p-2">
-          <small><i class="bi bi-slash-circle me-1"></i><strong>Aucune prime communale disponible</strong> en matière d'environnement et de rénovation à l'heure actuelle.</small>
-        </div>
-        <a href="${data.contact}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm w-100">
-          <i class="bi bi-envelope me-1"></i>Contacter la commune
-        </a>`;
-      genericDiv.style.display = 'block';
-    } else if (GENERIC_COMMUNES[key]) {
-      communeName.textContent = GENERIC_COMMUNES[key];
-      genericDiv.innerHTML = '<div class="alert alert-info alert-sm mb-0 p-2"><small><i class="bi bi-info-circle me-1"></i>Contactez directement votre administration communale pour connaître les primes disponibles.</small></div>';
-      genericDiv.style.display = 'block';
-    }
-    // Mettre à jour le lien vers le site officiel de la commune
-    const siteUrl = COMMUNE_SITES[key];
-    if (linkSite && siteUrl) {
-      linkSite.href = siteUrl;
-      linkSite.style.display = '';
-    }
+    fetch('<%= api_primes_communales_bruxelles_path %>?code_postal=' + encodeURIComponent(cp))
+      .then(function(r) { return r.json(); })
+      .then(function(json) {
+        if (!json.success) {
+          // Code postal hors Bruxelles-Capitale ou inconnu de l'API — rien à afficher.
+          return;
+        }
+
+        const data = json.data;
+        detectedDiv.style.display = 'block';
+        communeName.textContent   = data.commune;
+
+        if (data.primes && data.primes.length > 0) {
+          const primes = data.primes.map(function(p) {
+            return { id: p.id, nom: p.nom, desc: p.description, montant: montantAffiche(p) };
+          });
+          preloadSavedSelections(primes);
+          renderPrimes(primes);
+          listDiv.style.display = 'block';
+          if (Object.keys(selected).length > 0) updateTotal();
+        } else {
+          genericDiv.innerHTML = `
+            <div class="alert alert-secondary mb-2 p-2">
+              <small><i class="bi bi-slash-circle me-1"></i><strong>Aucune prime communale disponible</strong> en matière d'environnement et de rénovation à l'heure actuelle.</small>
+            </div>`;
+          genericDiv.style.display = 'block';
+        }
+
+        if (linkSite && data.site_web) {
+          linkSite.href = data.site_web;
+          linkSite.style.display = '';
+        }
+      })
+      .catch(function() {
+        // Erreur réseau/API — ne pas bloquer le reste du formulaire.
+        detectedDiv.style.display = 'none';
+      });
   }
 
   function renderPrimes(primes) {
