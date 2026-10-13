@@ -1,11 +1,11 @@
 {
   "metadata": {
     "region": "Bruxelles-Capitale",
-    "version": "1.0.0",
-    "derniere_maj": "2025-09-20",
-    "nombre_communes": 19,
+    "version": "2.0.0",
+    "derniere_maj": "2026-10-13",
+    "nombre_communes": 22,
     "description": "Primes communales de la Région de Bruxelles-Capitale",
-    "source": "Sites web officiels des communes bruxelloises",
+    "source": "Sites web officiels des communes bruxelloises (migration depuis le dictionnaire JS de simulations/partials_bruxelles/_communes.html.erb + recherche complémentaire du 13/10/2026)",
     "avertissement": "Les montants et conditions peuvent varier. Consultez toujours le site officiel de votre commune."
   },
   "categories": [
@@ -18,6 +18,11 @@
       "id": "chauffage",
       "nom": "Chauffage",
       "description": "Primes pour les systèmes de chauffage performants"
+    },
+    {
+      "id": "energie",
+      "nom": "Énergie",
+      "description": "Primes générales liées à l'amélioration énergétique du logement"
     },
     {
       "id": "energie_renouvelable",
@@ -33,6 +38,31 @@
       "id": "ventilation",
       "nom": "Ventilation",
       "description": "Primes pour les systèmes de ventilation"
+    },
+    {
+      "id": "environnement",
+      "nom": "Environnement",
+      "description": "Primes compost, citerne d'eau de pluie, toiture/mare végétalisée, biodiversité"
+    },
+    {
+      "id": "facade",
+      "nom": "Façade",
+      "description": "Primes d'embellissement ou de rénovation de façade"
+    },
+    {
+      "id": "securite",
+      "nom": "Sécurité",
+      "description": "Primes de sécurisation du logement ou du commerce"
+    },
+    {
+      "id": "mobilite",
+      "nom": "Mobilité",
+      "description": "Primes vélo et mobilité douce"
+    },
+    {
+      "id": "logement",
+      "nom": "Logement",
+      "description": "Primes communales liées au précompte immobilier ou à l'accession à la propriété (type Be Home)"
     }
   ],
   "types_calcul": [
@@ -49,138 +79,282 @@
     {
       "id": "par_unite",
       "nom": "Par unité",
-      "description": "Prime calculée par unité (m², pièce, etc.)"
+      "description": "Prime calculée par unité (m², élément…)"
     }
   ],
   "communes": {
     "1000": {
       "nom": "Bruxelles-Ville",
       "province": "Bruxelles-Capitale",
-      "site_web": "https://www.bruxelles.be",
-      "contact_primes": {
-        "telephone": "02/279.59.59",
-        "email": "info@bruxelles.be",
-        "adresse": "Boulevard Anspach 6, 1000 Bruxelles"
-      },
-      "derniere_maj": "2025-09-20",
+      "site_web": "https://www.bruxelles.be/prime-facades",
+      "contact_primes": {},
+      "derniere_maj": "2026-10-13",
       "primes": [
         {
-          "id": "isolation_toiture_bruxelles_ville",
-          "nom": "Isolation de toiture",
-          "categorie": "isolation",
+          "id": "brx_facade_b",
+          "nom": "Prime embellissement façade avant",
+          "categorie": "facade",
           "type_calcul": "pourcentage",
-          "valeur": 50,
-          "plafond": 2500,
-          "minimum": 100,
-          "description": "50% des coûts, maximum 2.500€",
+          "valeur": 40,
+          "plafond": 6000,
+          "minimum": null,
+          "unite": null,
+          "description": "40% des travaux, max 6 000 € (50% / 10 000 € si façade > 10 m — 60% / 14 000 € si > 20 m)",
           "conditions": [
-            "Résidence principale",
-            "Propriétaire ou locataire avec accord du propriétaire",
-            "Revenus selon barème communal"
+            "Bâtiment de plus de 10 ans"
           ],
-          "documents_requis": [
-            "Facture détaillée",
-            "Preuve de domiciliation",
-            "Attestation de revenus"
-          ],
+          "documents_requis": [],
           "active": true
         },
         {
-          "id": "audit_energetique_bruxelles_ville",
-          "nom": "Audit énergétique",
-          "categorie": "audit",
-          "type_calcul": "forfait",
-          "valeur": 500,
-          "description": "Forfait de 500€ pour audit énergétique",
+          "id": "brx_facade_com",
+          "nom": "Prime façade commerciale",
+          "categorie": "facade",
+          "type_calcul": "pourcentage",
+          "valeur": 50,
+          "plafond": 5000,
+          "minimum": null,
+          "unite": null,
+          "description": "50% des travaux, max 5 000 €",
           "conditions": [
-            "Logement de plus de 10 ans",
-            "Résidence principale"
+            "Propriétaire ou locataire commercial"
           ],
-          "documents_requis": [
-            "Rapport d'audit certifié",
-            "Preuve de domiciliation"
-          ],
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "brx_acces_sep",
+          "nom": "Prime accès séparé",
+          "categorie": "facade",
+          "type_calcul": "forfait",
+          "valeur": 3000,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "Création d'une entrée indépendante vers les étages au-dessus d'un commerce",
+          "conditions": [],
+          "documents_requis": [],
           "active": true
         }
       ]
     },
     "1020": {
-      "nom": "Laeken",
+      "nom": "Bruxelles-Ville (Laeken)",
       "province": "Bruxelles-Capitale",
-      "site_web": "https://www.bruxelles.be",
-      "contact_primes": {
-        "telephone": "02/279.59.59",
-        "email": "info@bruxelles.be",
-        "adresse": "Place Eugène Flagey 18, 1020 Bruxelles"
-      },
-      "derniere_maj": "2025-09-20",
+      "site_web": "https://www.bruxelles.be/prime-facades",
+      "contact_primes": {},
+      "derniere_maj": "2026-10-13",
       "primes": [
         {
-          "id": "isolation_murs_laeken",
-          "nom": "Isolation des murs",
-          "categorie": "isolation",
+          "id": "brx_facade_b",
+          "nom": "Prime embellissement façade avant",
+          "categorie": "facade",
           "type_calcul": "pourcentage",
           "valeur": 40,
-          "plafond": 2000,
-          "minimum": 200,
-          "description": "40% des coûts, maximum 2.000€",
+          "plafond": 6000,
+          "minimum": null,
+          "unite": null,
+          "description": "40% des travaux, max 6 000 € (50% / 10 000 € si façade > 10 m — 60% / 14 000 € si > 20 m)",
           "conditions": [
-            "Résidence principale",
-            "Propriétaire ou locataire"
+            "Bâtiment de plus de 10 ans"
           ],
-          "documents_requis": [
-            "Facture détaillée",
-            "Preuve de domiciliation"
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "brx_facade_com",
+          "nom": "Prime façade commerciale",
+          "categorie": "facade",
+          "type_calcul": "pourcentage",
+          "valeur": 50,
+          "plafond": 5000,
+          "minimum": null,
+          "unite": null,
+          "description": "50% des travaux, max 5 000 €",
+          "conditions": [
+            "Propriétaire ou locataire commercial"
           ],
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "brx_acces_sep",
+          "nom": "Prime accès séparé",
+          "categorie": "facade",
+          "type_calcul": "forfait",
+          "valeur": 3000,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "Création d'une entrée indépendante vers les étages au-dessus d'un commerce",
+          "conditions": [],
+          "documents_requis": [],
           "active": true
         }
-      ]
+      ],
+      "note": "Laeken fait administrativement partie de la Ville de Bruxelles — mêmes primes que 1000."
+    },
+    "1120": {
+      "nom": "Bruxelles-Ville (Neder-Over-Heembeek)",
+      "province": "Bruxelles-Capitale",
+      "site_web": "https://www.bruxelles.be/prime-facades",
+      "contact_primes": {},
+      "derniere_maj": "2026-10-13",
+      "primes": [
+        {
+          "id": "brx_facade_b",
+          "nom": "Prime embellissement façade avant",
+          "categorie": "facade",
+          "type_calcul": "pourcentage",
+          "valeur": 40,
+          "plafond": 6000,
+          "minimum": null,
+          "unite": null,
+          "description": "40% des travaux, max 6 000 € (50% / 10 000 € si façade > 10 m — 60% / 14 000 € si > 20 m)",
+          "conditions": [
+            "Bâtiment de plus de 10 ans"
+          ],
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "brx_facade_com",
+          "nom": "Prime façade commerciale",
+          "categorie": "facade",
+          "type_calcul": "pourcentage",
+          "valeur": 50,
+          "plafond": 5000,
+          "minimum": null,
+          "unite": null,
+          "description": "50% des travaux, max 5 000 €",
+          "conditions": [
+            "Propriétaire ou locataire commercial"
+          ],
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "brx_acces_sep",
+          "nom": "Prime accès séparé",
+          "categorie": "facade",
+          "type_calcul": "forfait",
+          "valeur": 3000,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "Création d'une entrée indépendante vers les étages au-dessus d'un commerce",
+          "conditions": [],
+          "documents_requis": [],
+          "active": true
+        }
+      ],
+      "note": "Neder-Over-Heembeek fait administrativement partie de la Ville de Bruxelles — mêmes primes que 1000."
+    },
+    "1130": {
+      "nom": "Bruxelles-Ville (Haren)",
+      "province": "Bruxelles-Capitale",
+      "site_web": "https://www.bruxelles.be/prime-facades",
+      "contact_primes": {},
+      "derniere_maj": "2026-10-13",
+      "primes": [
+        {
+          "id": "brx_facade_b",
+          "nom": "Prime embellissement façade avant",
+          "categorie": "facade",
+          "type_calcul": "pourcentage",
+          "valeur": 40,
+          "plafond": 6000,
+          "minimum": null,
+          "unite": null,
+          "description": "40% des travaux, max 6 000 € (50% / 10 000 € si façade > 10 m — 60% / 14 000 € si > 20 m)",
+          "conditions": [
+            "Bâtiment de plus de 10 ans"
+          ],
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "brx_facade_com",
+          "nom": "Prime façade commerciale",
+          "categorie": "facade",
+          "type_calcul": "pourcentage",
+          "valeur": 50,
+          "plafond": 5000,
+          "minimum": null,
+          "unite": null,
+          "description": "50% des travaux, max 5 000 €",
+          "conditions": [
+            "Propriétaire ou locataire commercial"
+          ],
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "brx_acces_sep",
+          "nom": "Prime accès séparé",
+          "categorie": "facade",
+          "type_calcul": "forfait",
+          "valeur": 3000,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "Création d'une entrée indépendante vers les étages au-dessus d'un commerce",
+          "conditions": [],
+          "documents_requis": [],
+          "active": true
+        }
+      ],
+      "note": "Haren fait administrativement partie de la Ville de Bruxelles — mêmes primes que 1000."
     },
     "1030": {
       "nom": "Schaerbeek",
       "province": "Bruxelles-Capitale",
       "site_web": "https://www.1030.be",
-      "contact_primes": {
-        "telephone": "02/244.75.11",
-        "email": "info@schaerbeek.be",
-        "adresse": "Place Colignon, 1030 Schaerbeek"
-      },
-      "derniere_maj": "2025-09-20",
+      "contact_primes": {},
+      "derniere_maj": "2026-10-13",
       "primes": [
         {
-          "id": "panneaux_solaires_schaerbeek",
-          "nom": "Panneaux photovoltaïques",
-          "categorie": "energie_renouvelable",
-          "type_calcul": "par_unite",
-          "valeur": 300,
-          "unite": "kWc",
-          "plafond": 1500,
-          "description": "300€ par kWc installé, maximum 1.500€",
-          "conditions": [
-            "Résidence principale",
-            "Installation certifiée"
-          ],
-          "documents_requis": [
-            "Certificat d'installation",
-            "Facture détaillée"
-          ],
+          "id": "sch_plantation",
+          "nom": "Soutien plantation de façade",
+          "categorie": "environnement",
+          "type_calcul": "forfait",
+          "valeur": 150,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "Jardinière + câbles tuteurs installés par la commune",
+          "conditions": [],
+          "documents_requis": [],
           "active": true
         },
         {
-          "id": "chaudiere_condensation_schaerbeek",
-          "nom": "Chaudière à condensation",
-          "categorie": "chauffage",
+          "id": "sch_compostiere",
+          "nom": "Prime compostière",
+          "categorie": "environnement",
+          "type_calcul": "pourcentage",
+          "valeur": 75,
+          "plafond": 75,
+          "minimum": null,
+          "unite": null,
+          "description": "Jusqu'à 75% du prix d'achat, max 75 €",
+          "conditions": [],
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "sch_velo_elec",
+          "nom": "Prime vélo électrique",
+          "categorie": "mobilite",
           "type_calcul": "forfait",
-          "valeur": 1000,
-          "description": "Forfait de 1.000€",
+          "valeur": 250,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "250 € (400 € si revenus nets < 25 000 €/an)",
           "conditions": [
-            "Remplacement d'ancienne chaudière",
-            "Résidence principale"
+            "400 € si revenus nets < 25 000 €/an"
           ],
-          "documents_requis": [
-            "Facture d'installation",
-            "Preuve de démontage ancienne chaudière"
-          ],
+          "documents_requis": [],
           "active": true
         }
       ]
@@ -189,30 +363,37 @@
       "nom": "Etterbeek",
       "province": "Bruxelles-Capitale",
       "site_web": "https://etterbeek.brussels/fr/demarches/primes-et-subsides",
-      "contact_primes": {
-        "telephone": "02/627.21.11",
-        "email": "info@etterbeek.be",
-        "adresse": "Avenue d'Auderghem 113-115, 1040 Etterbeek"
-      },
-      "derniere_maj": "2025-09-20",
+      "contact_primes": {},
+      "derniere_maj": "2026-10-13",
       "primes": [
         {
-          "id": "isolation_toiture_etterbeek",
-          "nom": "Isolation de toiture",
-          "categorie": "isolation",
+          "id": "ett_compostiere",
+          "nom": "Prime compostière",
+          "categorie": "environnement",
           "type_calcul": "pourcentage",
-          "valeur": 60,
-          "plafond": 3000,
-          "minimum": 150,
-          "description": "60% des coûts, maximum 3.000€",
+          "valeur": 50,
+          "plafond": 50,
+          "minimum": null,
+          "unite": null,
+          "description": "50% du prix d'achat, max 50 € — une fois par ménage",
+          "conditions": [],
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "ett_transition",
+          "nom": "Subside transition écologique",
+          "categorie": "environnement",
+          "type_calcul": "forfait",
+          "valeur": 1000,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "Projets durables : ASBL, groupes d'habitants (≥3 pers.), écoles",
           "conditions": [
-            "Résidence principale",
-            "Revenus modestes"
+            "ASBL, groupes d'habitants (≥3 pers.) ou écoles"
           ],
-          "documents_requis": [
-            "Facture détaillée",
-            "Attestation de revenus"
-          ],
+          "documents_requis": [],
           "active": true
         }
       ]
@@ -220,47 +401,28 @@
     "1050": {
       "nom": "Ixelles",
       "province": "Bruxelles-Capitale",
-      "site_web": "https://www.ixelles.be",
+      "site_web": "https://www.ixelles.be/site/803-Primes-energie-regionales-et-communales",
       "contact_primes": {
-        "telephone": "02/515.60.00",
-        "email": "info@ixelles.be",
-        "adresse": "Chaussée d'Ixelles 168, 1050 Ixelles"
+        "service": "Service Permis d'environnement",
+        "adresse": "Chaussée d'Ixelles 168"
       },
-      "derniere_maj": "2025-09-20",
+      "derniere_maj": "2026-10-13",
       "primes": [
         {
-          "id": "audit_energetique_ixelles",
-          "nom": "Audit énergétique",
-          "categorie": "audit",
+          "id": "ixl_energie_compl",
+          "nom": "Prime communale complémentaire Énergie",
+          "categorie": "energie",
           "type_calcul": "pourcentage",
-          "valeur": 80,
-          "plafond": 600,
-          "description": "80% du coût, maximum 600€",
+          "valeur": 10,
+          "plafond": 300,
+          "minimum": null,
+          "unite": null,
+          "description": "10% du montant des primes régionales \"Energie\" perçues pour le logement, plafond 300 €/logement",
           "conditions": [
-            "Logement de plus de 15 ans",
-            "Résidence principale"
+            "Cumulable avec d'autres aides publiques dans la limite du coût des travaux",
+            "Demande avant le 1er décembre de l'année d'obtention de la prime régionale"
           ],
-          "documents_requis": [
-            "Rapport d'audit",
-            "Facture"
-          ],
-          "active": true
-        },
-        {
-          "id": "ventilation_ixelles",
-          "nom": "Système de ventilation",
-          "categorie": "ventilation",
-          "type_calcul": "forfait",
-          "valeur": 800,
-          "description": "Forfait de 800€ pour système VMC",
-          "conditions": [
-            "Installation neuve",
-            "Résidence principale"
-          ],
-          "documents_requis": [
-            "Facture d'installation",
-            "Certificat de conformité"
-          ],
+          "documents_requis": [],
           "active": true
         }
       ]
@@ -268,30 +430,71 @@
     "1060": {
       "nom": "Saint-Gilles",
       "province": "Bruxelles-Capitale",
-      "site_web": "https://www.stgilles.be",
-      "contact_primes": {
-        "telephone": "02/536.02.11",
-        "email": "info@stgilles.be",
-        "adresse": "Place Maurice Van Meenen 39, 1060 Saint-Gilles"
-      },
-      "derniere_maj": "2025-09-20",
+      "site_web": "https://stgilles.brussels/services/primes/consulter-lensemble-des-primes-disponibles/",
+      "contact_primes": {},
+      "derniere_maj": "2026-10-13",
       "primes": [
         {
-          "id": "isolation_toiture_saint_gilles",
-          "nom": "Isolation de toiture",
-          "categorie": "isolation",
+          "id": "stg_secu_hab",
+          "nom": "Prime sécurisation habitation",
+          "categorie": "securite",
           "type_calcul": "pourcentage",
-          "valeur": 45,
-          "plafond": 2200,
-          "description": "45% des coûts, maximum 2.200€",
+          "valeur": 50,
+          "plafond": 250,
+          "minimum": null,
+          "unite": null,
+          "description": "50% des dépenses anti-intrusion, max 250 €",
           "conditions": [
-            "Résidence principale",
-            "Propriétaire"
+            "Sur avis du conseiller en prévention vol"
           ],
-          "documents_requis": [
-            "Facture détaillée",
-            "Preuve de propriété"
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "stg_secu_com",
+          "nom": "Prime sécurisation commerce",
+          "categorie": "securite",
+          "type_calcul": "pourcentage",
+          "valeur": 50,
+          "plafond": 400,
+          "minimum": null,
+          "unite": null,
+          "description": "50% des frais (alarmes, volets, serrures…), max 400 €",
+          "conditions": [],
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "stg_behome",
+          "nom": "Prime Be Home",
+          "categorie": "logement",
+          "type_calcul": "forfait",
+          "valeur": 100,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "100 € sur précompte immobilier",
+          "conditions": [
+            "Propriétaires domiciliés à Saint-Gilles"
           ],
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "stg_facade",
+          "nom": "Prime rénovation façade/toit",
+          "categorie": "facade",
+          "type_calcul": "forfait",
+          "valeur": 0,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "Montant variable — travaux façade avant ou toit",
+          "conditions": [
+            "Occupation du domaine public requise",
+            "Montant variable, à confirmer avec la commune"
+          ],
+          "documents_requis": [],
           "active": true
         }
       ]
@@ -300,245 +503,159 @@
       "nom": "Anderlecht",
       "province": "Bruxelles-Capitale",
       "site_web": "https://www.anderlecht.be",
-      "contact_primes": {
-        "telephone": "02/558.08.00",
-        "email": "info@anderlecht.be",
-        "adresse": "Place du Conseil 1, 1070 Anderlecht"
-      },
-      "derniere_maj": "2025-09-20",
+      "contact_primes": {},
+      "derniere_maj": "2026-10-13",
       "primes": [
         {
-          "id": "chauffe_eau_solaire_anderlecht",
-          "nom": "Chauffe-eau solaire",
-          "categorie": "energie_renouvelable",
+          "id": "and_behome",
+          "nom": "Prime anderlechtoise \"Be Home\"",
+          "categorie": "logement",
           "type_calcul": "forfait",
-          "valeur": 1200,
-          "description": "Forfait de 1.200€",
+          "valeur": 150,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "150 € forfaitaires, une fois par ménage — compense la hausse des centimes additionnels au précompte immobilier",
           "conditions": [
-            "Installation certifiée",
-            "Résidence principale"
+            "Titulaire d'un droit réel",
+            "Domicilié à Anderlecht",
+            "Redevable du précompte immobilier",
+            "Un seul bénéficiaire par ménage",
+            "Gérée par Bruxelles Fiscalité"
           ],
-          "documents_requis": [
-            "Certificat d'installation",
-            "Facture"
-          ],
-          "active": true
-        },
-        {
-          "id": "isolation_murs_anderlecht",
-          "nom": "Isolation des murs",
-          "categorie": "isolation",
-          "type_calcul": "pourcentage",
-          "valeur": 50,
-          "plafond": 2500,
-          "description": "50% des coûts, maximum 2.500€",
-          "conditions": [
-            "Résidence principale"
-          ],
-          "documents_requis": [
-            "Facture détaillée"
-          ],
+          "documents_requis": [],
           "active": true
         }
-      ]
+      ],
+      "note": "Règlement CC du 18.12.2025, exercice 2026. Aucune prime compost/citerne/toiture verte propre à Anderlecht trouvée — à vérifier directement avec le service Environnement si besoin d'exhaustivité."
     },
     "1080": {
       "nom": "Molenbeek-Saint-Jean",
       "province": "Bruxelles-Capitale",
-      "site_web": "https://www.molenbeek.be",
+      "site_web": "https://www.molenbeek.brussels",
       "contact_primes": {
-        "telephone": "02/412.37.11",
-        "email": "info@molenbeek.be",
-        "adresse": "Rue du Comte de Flandre 20, 1080 Molenbeek-Saint-Jean"
+        "service": "Service des Taxes communales",
+        "telephone": "02/412.37.26"
       },
-      "derniere_maj": "2025-09-20",
+      "derniere_maj": "2026-10-13",
       "primes": [
         {
-          "id": "audit_energetique_molenbeek",
-          "nom": "Audit énergétique",
-          "categorie": "audit",
+          "id": "mol_logement",
+          "nom": "Prime Logement 2026",
+          "categorie": "logement",
           "type_calcul": "forfait",
-          "valeur": 400,
-          "description": "Forfait de 400€",
+          "valeur": 300,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "Jusqu'à 300 € max pour 2026 (simulateur en ligne pour le montant exact)",
           "conditions": [
-            "Résidence principale",
-            "Revenus modestes"
+            "Mono-propriétaire occupant à titre exclusif (non loué) ou projet d'habitat intergénérationnel agréé",
+            "Demande dans les 6 mois de l'avertissement-extrait de rôle du précompte"
           ],
-          "documents_requis": [
-            "Rapport d'audit",
-            "Attestation de revenus"
-          ],
+          "documents_requis": [],
           "active": true
         }
-      ]
+      ],
+      "note": "Une prime citerne d'eau de pluie (50%, max 500€) a été trouvée mais sa source (ancien domaine molenbeek.irisnet.be) redirige désormais vers la page d'accueil — à reconfirmer avant intégration."
     },
     "1081": {
       "nom": "Koekelberg",
       "province": "Bruxelles-Capitale",
       "site_web": "https://www.koekelberg.be",
-      "contact_primes": {
-        "telephone": "02/412.14.11",
-        "email": "info@koekelberg.be",
-        "adresse": "Avenue Henri Liberti 27, 1081 Koekelberg"
-      },
-      "derniere_maj": "2025-09-20",
+      "contact_primes": {},
+      "derniere_maj": "2026-10-13",
       "primes": [
         {
-          "id": "isolation_toiture_koekelberg",
-          "nom": "Isolation de toiture",
-          "categorie": "isolation",
-          "type_calcul": "pourcentage",
-          "valeur": 55,
-          "plafond": 2800,
-          "description": "55% des coûts, maximum 2.800€",
+          "id": "koe_precompte",
+          "nom": "Prime communale précompte immobilier",
+          "categorie": "logement",
+          "type_calcul": "forfait",
+          "valeur": 163,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "163 € pour l'exercice 2026, octroyée automatiquement (sans démarche) par le collège échevinal",
           "conditions": [
-            "Résidence principale"
+            "Une fois par ménage, déduite directement du précompte",
+            "Déclarée au 1er janvier de l'année concernée"
           ],
-          "documents_requis": [
-            "Facture détaillée"
-          ],
+          "documents_requis": [],
           "active": true
         }
-      ]
+      ],
+      "note": "Page \"Primes énergie et environnement\" (cont=2757) et page \"Végétalisation des façades\" (cont=3794) existent mais leur contenu n'a pas pu être extrait — à revisiter manuellement, possibles primes compost/citerne/toiture verte non capturées ici."
     },
     "1082": {
       "nom": "Berchem-Sainte-Agathe",
       "province": "Bruxelles-Capitale",
-      "site_web": "https://www.berchem-sainte-agathe.be",
-      "contact_primes": {
-        "telephone": "02/464.04.11",
-        "email": "info@berchem-sainte-agathe.be",
-        "adresse": "Avenue du Roi Albert 33, 1082 Berchem-Sainte-Agathe"
-      },
-      "derniere_maj": "2025-09-20",
+      "site_web": "https://berchem.brussels/fr/vous-citoyen/habiter-et-vivre/environnement/primes/",
+      "contact_primes": {},
+      "derniere_maj": "2026-10-13",
       "primes": [
         {
-          "id": "panneaux_solaires_berchem",
-          "nom": "Panneaux photovoltaïques",
-          "categorie": "energie_renouvelable",
-          "type_calcul": "forfait",
-          "valeur": 1500,
-          "description": "Forfait de 1.500€",
+          "id": "bsa_compost",
+          "nom": "Prime fût à compost",
+          "categorie": "environnement",
+          "type_calcul": "pourcentage",
+          "valeur": 50,
+          "plafond": 50,
+          "minimum": null,
+          "unite": null,
+          "description": "50% du prix d'achat (bâton mélangeur inclus), max 50 € par ménage et par an — versée en chèques-commerces locaux",
           "conditions": [
-            "Installation certifiée",
-            "Résidence principale"
+            "Versée en chèques-commerces locaux (chequescommerces1082.be), pas en espèces"
           ],
-          "documents_requis": [
-            "Certificat d'installation"
-          ],
+          "documents_requis": [],
           "active": true
         }
-      ]
+      ],
+      "note": "Une prime citerne d'eau de pluie (25%, max 250€) circule sur des sources tierces mais n'apparaît plus sur la page officielle actuelle — possiblement retirée du dispositif, à confirmer au 02/464.04.41 avant intégration."
     },
     "1083": {
       "nom": "Ganshoren",
       "province": "Bruxelles-Capitale",
       "site_web": "https://www.ganshoren.be",
-      "contact_primes": {
-        "telephone": "02/427.11.40",
-        "email": "info@ganshoren.be",
-        "adresse": "Avenue Charles-Quint 140, 1083 Ganshoren"
-      },
-      "derniere_maj": "2025-09-20",
-      "primes": [
-        {
-          "id": "chaudiere_condensation_ganshoren",
-          "nom": "Chaudière à condensation",
-          "categorie": "chauffage",
-          "type_calcul": "forfait",
-          "valeur": 800,
-          "description": "Forfait de 800€",
-          "conditions": [
-            "Remplacement d'ancienne chaudière"
-          ],
-          "documents_requis": [
-            "Facture d'installation"
-          ],
-          "active": true
-        }
-      ]
+      "contact_primes": {},
+      "derniere_maj": "2026-10-13",
+      "primes": [],
+      "note": "Aucune prime communale rénovation/environnement identifiée au 13/10/2026 (recherche approfondie sur ganshoren.be) — seule la prime régionale Bruxell'Air (radiation de plaque) existe. Recherche non garantie exhaustive à 100% ; à confirmer au 02/465.12.77 si besoin."
     },
     "1090": {
       "nom": "Jette",
       "province": "Bruxelles-Capitale",
-      "site_web": "https://www.jette.be",
-      "contact_primes": {
-        "telephone": "02/423.12.11",
-        "email": "info@jette.be",
-        "adresse": "Chaussée de Wemmel 100, 1090 Jette"
-      },
-      "derniere_maj": "2025-09-20",
+      "site_web": "https://jette.brussels/fr/ma-commune/primes-communales",
+      "contact_primes": {},
+      "derniere_maj": "2026-10-13",
       "primes": [
         {
-          "id": "isolation_sol_jette",
-          "nom": "Isolation du sol",
-          "categorie": "isolation",
+          "id": "jet_behome2",
+          "nom": "Prime Be Home 2",
+          "categorie": "logement",
+          "type_calcul": "forfait",
+          "valeur": 100,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "100 € complément communal",
+          "conditions": [
+            "Propriétaires occupants à faibles revenus (≤ 10 659 € isolé / ≤ 16 269 € ménage)"
+          ],
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "jet_compost",
+          "nom": "Prime compostage",
+          "categorie": "environnement",
           "type_calcul": "pourcentage",
-          "valeur": 40,
-          "plafond": 1800,
-          "description": "40% des coûts, maximum 1.800€",
-          "conditions": [
-            "Résidence principale"
-          ],
-          "documents_requis": [
-            "Facture détaillée"
-          ],
-          "active": true
-        }
-      ]
-    },
-    "1120": {
-      "nom": "Neder-Over-Heembeek",
-      "province": "Bruxelles-Capitale",
-      "site_web": "https://www.bruxelles.be",
-      "contact_primes": {
-        "telephone": "02/279.59.59",
-        "email": "info@bruxelles.be",
-        "adresse": "Place Eugène Flagey 18, 1120 Bruxelles"
-      },
-      "derniere_maj": "2025-09-20",
-      "primes": [
-        {
-          "id": "audit_energetique_noh",
-          "nom": "Audit énergétique",
-          "categorie": "audit",
-          "type_calcul": "forfait",
-          "valeur": 350,
-          "description": "Forfait de 350€",
-          "conditions": [
-            "Résidence principale"
-          ],
-          "documents_requis": [
-            "Rapport d'audit"
-          ],
-          "active": true
-        }
-      ]
-    },
-    "1130": {
-      "nom": "Haren",
-      "province": "Bruxelles-Capitale",
-      "site_web": "https://www.bruxelles.be",
-      "contact_primes": {
-        "telephone": "02/279.59.59",
-        "email": "info@bruxelles.be",
-        "adresse": "Place Eugène Flagey 18, 1130 Bruxelles"
-      },
-      "derniere_maj": "2025-09-20",
-      "primes": [
-        {
-          "id": "ventilation_haren",
-          "nom": "Système de ventilation",
-          "categorie": "ventilation",
-          "type_calcul": "forfait",
-          "valeur": 600,
-          "description": "Forfait de 600€",
-          "conditions": [
-            "Installation certifiée"
-          ],
-          "documents_requis": [
-            "Certificat d'installation"
-          ],
+          "valeur": 75,
+          "plafond": 100,
+          "minimum": null,
+          "unite": null,
+          "description": "75% du prix d'achat d'un composteur individuel, max 100 €",
+          "conditions": [],
+          "documents_requis": [],
           "active": true
         }
       ]
@@ -546,28 +663,24 @@
     "1140": {
       "nom": "Evere",
       "province": "Bruxelles-Capitale",
-      "site_web": "https://www.evere.be",
-      "contact_primes": {
-        "telephone": "02/247.62.11",
-        "email": "info@evere.be",
-        "adresse": "Square Hoedemaekers 13, 1140 Evere"
-      },
-      "derniere_maj": "2025-09-20",
+      "site_web": "https://evere.brussels/fr/demarches/urbanisme-et-environnement/prime-citoyen-be-home",
+      "contact_primes": {},
+      "derniere_maj": "2026-10-13",
       "primes": [
         {
-          "id": "isolation_toiture_evere",
-          "nom": "Isolation de toiture",
-          "categorie": "isolation",
-          "type_calcul": "pourcentage",
-          "valeur": 50,
-          "plafond": 2400,
-          "description": "50% des coûts, maximum 2.400€",
+          "id": "eve_behome",
+          "nom": "Prime Be Home communale",
+          "categorie": "logement",
+          "type_calcul": "forfait",
+          "valeur": 150,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "150 € complément automatique à la prime régionale (total 303 € déduits du précompte immobilier)",
           "conditions": [
-            "Résidence principale"
+            "Aucune démarche requise"
           ],
-          "documents_requis": [
-            "Facture détaillée"
-          ],
+          "documents_requis": [],
           "active": true
         }
       ]
@@ -575,57 +688,33 @@
     "1150": {
       "nom": "Woluwe-Saint-Pierre",
       "province": "Bruxelles-Capitale",
-      "site_web": "https://www.woluwe-saint-pierre.be",
-      "contact_primes": {
-        "telephone": "02/773.05.11",
-        "email": "info@woluwe-saint-pierre.be",
-        "adresse": "Avenue Charles Thielemans 93, 1150 Woluwe-Saint-Pierre"
-      },
-      "derniere_maj": "2025-09-20",
-      "primes": [
-        {
-          "id": "panneaux_solaires_wsp",
-          "nom": "Panneaux photovoltaïques",
-          "categorie": "energie_renouvelable",
-          "type_calcul": "par_unite",
-          "valeur": 250,
-          "unite": "kWc",
-          "plafond": 1250,
-          "description": "250€ par kWc, maximum 1.250€",
-          "conditions": [
-            "Installation certifiée"
-          ],
-          "documents_requis": [
-            "Certificat d'installation"
-          ],
-          "active": true
-        }
-      ]
+      "site_web": "https://www.woluwe1150.be",
+      "contact_primes": {},
+      "derniere_maj": "2026-10-13",
+      "primes": [],
+      "note": "Un règlement \"Prime à la rénovation écologique\" existe (adopté le 28.06.2022) mais le document source est introuvable (404) — contenu inconnu, aucun montant fiable disponible. Contacter le service Développement durable (02/773.06.18, durable@woluwe1150.be) avant d'ajouter des données."
     },
     "1160": {
       "nom": "Auderghem",
       "province": "Bruxelles-Capitale",
-      "site_web": "https://www.auderghem.be",
-      "contact_primes": {
-        "telephone": "02/676.72.11",
-        "email": "info@auderghem.be",
-        "adresse": "Rue des Communes 24, 1160 Auderghem"
-      },
-      "derniere_maj": "2025-09-20",
+      "site_web": "https://www.auderghem.be/labels/premie",
+      "contact_primes": {},
+      "derniere_maj": "2026-10-13",
       "primes": [
         {
-          "id": "chauffe_eau_solaire_auderghem",
-          "nom": "Chauffe-eau solaire",
-          "categorie": "energie_renouvelable",
-          "type_calcul": "forfait",
-          "valeur": 1000,
-          "description": "Forfait de 1.000€",
+          "id": "aud_compost",
+          "nom": "Prime compostière",
+          "categorie": "environnement",
+          "type_calcul": "pourcentage",
+          "valeur": 75,
+          "plafond": 75,
+          "minimum": null,
+          "unite": null,
+          "description": "75% du prix d'achat, max 75 €",
           "conditions": [
-            "Installation certifiée"
+            "Une fois par ménage, dans les 4 mois suivant l'achat"
           ],
-          "documents_requis": [
-            "Certificat d'installation"
-          ],
+          "documents_requis": [],
           "active": true
         }
       ]
@@ -633,28 +722,40 @@
     "1170": {
       "nom": "Watermael-Boitsfort",
       "province": "Bruxelles-Capitale",
-      "site_web": "https://www.watermael-boitsfort.be",
-      "contact_primes": {
-        "telephone": "02/674.74.11",
-        "email": "info@watermael-boitsfort.be",
-        "adresse": "Rue Jean-Baptiste Depaire 81, 1170 Watermael-Boitsfort"
-      },
-      "derniere_maj": "2025-09-20",
+      "site_web": "https://www.watermael-boitsfort.be/fr/vivre-a-watermael-boitsfort/taxes-et-reglements/primes",
+      "contact_primes": {},
+      "derniere_maj": "2026-10-13",
       "primes": [
         {
-          "id": "isolation_murs_watermael",
-          "nom": "Isolation des murs",
-          "categorie": "isolation",
-          "type_calcul": "pourcentage",
-          "valeur": 60,
-          "plafond": 3000,
-          "description": "60% des coûts, maximum 3.000€",
+          "id": "wtm_eau",
+          "nom": "Prime communale Eau",
+          "categorie": "environnement",
+          "type_calcul": "forfait",
+          "valeur": 0,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "Gestion rationnelle de l'eau (citerne, récupération…) — montant selon règlement 2021",
           "conditions": [
-            "Résidence principale"
+            "Montant variable, à confirmer avec la commune"
           ],
-          "documents_requis": [
-            "Facture détaillée"
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "wtm_compost",
+          "nom": "Prime compostage individuel",
+          "categorie": "environnement",
+          "type_calcul": "forfait",
+          "valeur": 0,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "Achat d'un composteur individuel — montant selon règlement 2023",
+          "conditions": [
+            "Montant variable, à confirmer avec la commune"
           ],
+          "documents_requis": [],
           "active": true
         }
       ]
@@ -662,44 +763,82 @@
     "1180": {
       "nom": "Uccle",
       "province": "Bruxelles-Capitale",
-      "site_web": "https://www.uccle.be",
-      "contact_primes": {
-        "telephone": "02/348.64.11",
-        "email": "info@uccle.be",
-        "adresse": "Rue de Stalle 77, 1180 Uccle"
-      },
-      "derniere_maj": "2025-09-20",
+      "site_web": "https://www.uccle.be/fr/vie-pratique/environnement/primes-environnementales-communales",
+      "contact_primes": {},
+      "derniere_maj": "2026-10-13",
       "primes": [
         {
-          "id": "audit_energetique_uccle",
-          "nom": "Audit énergétique",
-          "categorie": "audit",
+          "id": "ucc_mare",
+          "nom": "Prime mare naturelle",
+          "categorie": "environnement",
           "type_calcul": "pourcentage",
-          "valeur": 75,
-          "plafond": 750,
-          "description": "75% du coût, maximum 750€",
-          "conditions": [
-            "Logement de plus de 10 ans"
-          ],
-          "documents_requis": [
-            "Rapport d'audit"
-          ],
+          "valeur": 50,
+          "plafond": 150,
+          "minimum": null,
+          "unite": null,
+          "description": "50% du prix total, max 150 € (+50 € si entreprise d'économie sociale)",
+          "conditions": [],
+          "documents_requis": [],
           "active": true
         },
         {
-          "id": "isolation_toiture_uccle",
-          "nom": "Isolation de toiture",
-          "categorie": "isolation",
-          "type_calcul": "pourcentage",
-          "valeur": 50,
-          "plafond": 2500,
-          "description": "50% des coûts, maximum 2.500€",
+          "id": "ucc_ces",
+          "nom": "Prime chauffe-eau solaire",
+          "categorie": "energie_renouvelable",
+          "type_calcul": "forfait",
+          "valeur": 500,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "500 € (entrepreneur) ou 250 € (travaux soi-même)",
           "conditions": [
-            "Résidence principale"
+            "Cumulable avec les primes régionales"
           ],
-          "documents_requis": [
-            "Facture détaillée"
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "ucc_citerne",
+          "nom": "Prime citerne eau de pluie",
+          "categorie": "environnement",
+          "type_calcul": "forfait",
+          "valeur": 500,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "500 € (entrepreneur) ou 250 € (travaux soi-même) — installation, rénovation ou remise en service",
+          "conditions": [],
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "ucc_toiture_v",
+          "nom": "Prime toiture végétale",
+          "categorie": "environnement",
+          "type_calcul": "forfait",
+          "valeur": 500,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "200 € pour 10 m² + 15 €/m² (intensive) ou 10 €/m² (extensive), max 500 €",
+          "conditions": [
+            "Cumulable avec la prime régionale"
           ],
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "ucc_infiltr",
+          "nom": "Prime infiltration eaux de pluie",
+          "categorie": "environnement",
+          "type_calcul": "forfait",
+          "valeur": 500,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "200 € pour 25 m² raccordés + 4 €/m² supplémentaire, max 500 €",
+          "conditions": [],
+          "documents_requis": [],
           "active": true
         }
       ]
@@ -707,72 +846,124 @@
     "1190": {
       "nom": "Forest",
       "province": "Bruxelles-Capitale",
-      "site_web": "https://www.forest.be",
+      "site_web": "https://forest.brussels/fr/themes/commerce-mobilite-logement/logement/prime-aux-nouveaux-proprietaires",
       "contact_primes": {
-        "telephone": "02/370.22.11",
-        "email": "info@forest.be",
-        "adresse": "Rue du Curé 2, 1190 Forest"
+        "email": "primeauxjeunesproprietaires@forest.brussels"
       },
-      "derniere_maj": "2025-09-20",
+      "derniere_maj": "2026-10-13",
       "primes": [
         {
-          "id": "chaudiere_condensation_forest",
-          "nom": "Chaudière à condensation",
-          "categorie": "chauffage",
+          "id": "for_proprietaire",
+          "nom": "Prime aux nouveaux propriétaires",
+          "categorie": "logement",
           "type_calcul": "forfait",
-          "valeur": 900,
-          "description": "Forfait de 900€",
+          "valeur": 822,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "Part communale du précompte immobilier remboursée, plafond 822 €, versée une fois",
           "conditions": [
-            "Remplacement d'ancienne chaudière"
+            "Revenus < 60 071 € (isolé) ou < 86 769 € (couple), + 4 005 €/enfant à charge",
+            "Domiciliation 5 ans obligatoire",
+            "Demande dans les 6 mois du 1er avertissement-extrait de rôle"
           ],
-          "documents_requis": [
-            "Facture d'installation"
-          ],
+          "documents_requis": [],
           "active": true
         }
-      ]
+      ],
+      "note": "Dispositif existant depuis le 01/01/2014. Aucune prime compost confirmée malgré recherches multiples."
     },
     "1200": {
       "nom": "Woluwe-Saint-Lambert",
       "province": "Bruxelles-Capitale",
       "site_web": "https://www.woluwe1200.be/demarches/connaitre-les-primes-octroyees-par-la-commune/",
-      "contact_primes": {
-        "telephone": "02/761.28.11",
-        "email": "info@woluwe1200.be",
-        "adresse": "Avenue Paul Hymans 2, 1200 Woluwe-Saint-Lambert"
-      },
-      "derniere_maj": "2025-09-20",
+      "contact_primes": {},
+      "derniere_maj": "2026-10-13",
       "primes": [
         {
-          "id": "ventilation_wsl",
-          "nom": "Système de ventilation",
-          "categorie": "ventilation",
-          "type_calcul": "forfait",
-          "valeur": 750,
-          "description": "Forfait de 750€ pour VMC",
-          "conditions": [
-            "Installation certifiée"
-          ],
-          "documents_requis": [
-            "Certificat d'installation"
-          ],
+          "id": "wsl_compost",
+          "nom": "Fût à compost",
+          "categorie": "environnement",
+          "type_calcul": "pourcentage",
+          "valeur": 50,
+          "plafond": 50,
+          "minimum": null,
+          "unite": null,
+          "description": "50% du prix d'achat, max 50 € — une fois par ménage",
+          "conditions": [],
+          "documents_requis": [],
           "active": true
         },
         {
-          "id": "panneaux_solaires_wsl",
-          "nom": "Panneaux photovoltaïques",
-          "categorie": "energie_renouvelable",
-          "type_calcul": "par_unite",
-          "valeur": 200,
-          "unite": "kWc",
-          "plafond": 1000,
-          "description": "200€ par kWc, maximum 1.000€",
+          "id": "wsl_toiture_v",
+          "nom": "Toiture verte",
+          "categorie": "environnement",
+          "type_calcul": "forfait",
+          "valeur": 550,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "250 € pour 10 m² + 10-15 €/m² supplémentaire, max 550 €",
+          "conditions": [],
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "wsl_energie",
+          "nom": "Amélioration énergétique du logement",
+          "categorie": "energie",
+          "type_calcul": "pourcentage",
+          "valeur": 20,
+          "plafond": 500,
+          "minimum": null,
+          "unite": null,
+          "description": "20% de la taxe d'occupation du domaine public, max 500 €",
+          "conditions": [],
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "wsl_citerne",
+          "nom": "Citerne d'eau de pluie",
+          "categorie": "environnement",
+          "type_calcul": "pourcentage",
+          "valeur": 20,
+          "plafond": 500,
+          "minimum": null,
+          "unite": null,
+          "description": "20% du coût des travaux, max 500 €",
           "conditions": [
-            "Installation certifiée"
+            "Capacité minimale 2 000 L"
           ],
-          "documents_requis": [
-            "Certificat d'installation"
-          ],
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "wsl_solaire",
+          "nom": "Chauffe-eau solaire",
+          "categorie": "energie_renouvelable",
+          "type_calcul": "pourcentage",
+          "valeur": 10,
+          "plafond": 500,
+          "minimum": null,
+          "unite": null,
+          "description": "10% des frais d'installation, max 500 € (5 000 € si collectif)",
+          "conditions": [],
+          "documents_requis": [],
+          "active": true
+        },
+        {
+          "id": "wsl_mare",
+          "nom": "Mare naturelle",
+          "categorie": "environnement",
+          "type_calcul": "pourcentage",
+          "valeur": 50,
+          "plafond": 150,
+          "minimum": null,
+          "unite": null,
+          "description": "50% du coût total, max 150 € (+50 € si matériaux durables)",
+          "conditions": [],
+          "documents_requis": [],
           "active": true
         }
       ]
@@ -780,30 +971,24 @@
     "1210": {
       "nom": "Saint-Josse-ten-Noode",
       "province": "Bruxelles-Capitale",
-      "site_web": "https://www.saint-josse.be",
-      "contact_primes": {
-        "telephone": "02/220.26.11",
-        "email": "info@saint-josse.be",
-        "adresse": "Avenue de l'Astronomie 13, 1210 Saint-Josse-ten-Noode"
-      },
-      "derniere_maj": "2025-09-20",
+      "site_web": "https://sjtn.brussels/fr/actualites/prime-communale-be-home-2026",
+      "contact_primes": {},
+      "derniere_maj": "2026-10-13",
       "primes": [
         {
-          "id": "isolation_toiture_saint_josse",
-          "nom": "Isolation de toiture",
-          "categorie": "isolation",
-          "type_calcul": "pourcentage",
-          "valeur": 70,
-          "plafond": 3500,
-          "description": "70% des coûts, maximum 3.500€",
+          "id": "stj_behome",
+          "nom": "Prime Be Home communale",
+          "categorie": "logement",
+          "type_calcul": "forfait",
+          "valeur": 150,
+          "plafond": null,
+          "minimum": null,
+          "unite": null,
+          "description": "150 € annuels — complément à la prime régionale de 160 €",
           "conditions": [
-            "Résidence principale",
-            "Revenus modestes"
+            "Propriétaires tennoodois occupants"
           ],
-          "documents_requis": [
-            "Facture détaillée",
-            "Attestation de revenus"
-          ],
+          "documents_requis": [],
           "active": true
         }
       ]

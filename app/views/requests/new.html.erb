@@ -84,17 +84,12 @@
             </div>
           <% end %>
 
-          <% if @request.form_type == 'communal_bruxelles' %>
-            <div class="card">
-              <div class="card-header bg-warning text-dark">
-                <h4><i class="bi bi-building me-2"></i>Primes Communales</h4>
-                <p class="mb-0">Aides des communes bruxelloises</p>
-              </div>
-              <div class="card-body">
-                <%= render 'requests/formulaires/communales_bruxelles' %>
-              </div>
-            </div>
-          <% end %>
+          <%# Primes communales Bruxelles : pas de formulaire ici, ce flux passe par
+              RequestsController#create_communal_bruxelles qui crée directement le
+              dossier de suivi minimal — voir le commentaire sur cette action.
+              L'ancien formulaire statique (requests/formulaires/communales_bruxelles)
+              a été retiré le 13/10/2026 (jamais fonctionnel, montants codés en dur
+              non synchronisés avec la vraie source : public/data/primes_communales_bruxelles.json). %>
 
           <!-- Formulaires patrimoniaux Flandre -->
           <% if @request.form_type == 'monuments_flandre' %>
