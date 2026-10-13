@@ -105,4 +105,28 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 1, @project.financing_sources.where(source_type: "prime").count
     assert_equal 1, @project.financing_sources.where(source_type: "pret_taux_zero").count
   end
+
+  test "contractor_devis_montant_effectif additionne les ProjectQuote acceptés (bug trouvé le 13/10/2026)" do
+    # Project#create! seed déjà des lots par défaut (voir Lot.build_default_set_for),
+    # "toiture" en fait partie.
+    lot = @project.lots.find_by!(key: "toiture")
+
+    accepte = @project.project_quotes.create!(
+      lot: lot, entreprise_nom: "Toitures Dupont", status: "accepte",
+      lines_attributes: [{ description: "Réfection toiture", quantite: 1, unite: "forfait", prix_unitaire_ht: 15_000 }]
+    )
+    @project.project_quotes.create!(
+      lot: lot, entreprise_nom: "Concurrent SRL", status: "brouillon",
+      lines_attributes: [{ description: "Devis non retenu", quantite: 1, unite: "forfait", prix_unitaire_ht: 50_000 }]
+    )
+
+    # Aucun DevisDonnee OCR ici : le total prend uniquement le ProjectQuote
+    # accepté (15 000), pas le montant manuel (100 000, voir #setup) qui ne
+    # sert que de repli quand il n'y a ni OCR ni devis V2 accepté — et jamais
+    # le brouillon à 50 000.
+    assert_equal 15_000, @project.reload.contractor_devis_montant_effectif
+
+    accepte.update!(status: "refuse")
+    assert_equal 100_000, @project.reload.contractor_devis_montant_effectif
+  end
 end
