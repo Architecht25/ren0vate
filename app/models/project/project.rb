@@ -227,9 +227,15 @@ class Project < ApplicationRecord
     ocr > 0 ? ocr : architecte_devis_montant&.to_f
   end
 
+  # OCR (DevisDonnee) + devis structurés V2 acceptés (ProjectQuote, toujours
+  # côté entrepreneur — jamais architecte, voir entreprise_nom sur ce modèle)
+  # > manuel. Avant le 13/10/2026, un ProjectQuote accepté n'alimentait jamais
+  # ce total : le budget/les factures/le dashboard pouvaient diverger
+  # silencieusement de ce que l'utilisateur venait d'accepter en V2 (risque
+  # identifié dans l'audit des 3 systèmes de devis, project_v2_trois_systemes_devis_audit).
   def contractor_devis_montant_effectif
-    ocr = total_devis_ocr('entrepreneur')
-    ocr > 0 ? ocr : contractor_devis_montant&.to_f
+    total = total_devis_ocr('entrepreneur') + project_quotes.accepte.sum(:montant_ht)
+    total > 0 ? total : contractor_devis_montant&.to_f
   end
 
   def architecte_factures_total
