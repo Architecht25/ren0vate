@@ -591,7 +591,6 @@ function updateSortIndicators(activeColumn) {
 // Application des filtres
 function applyFilters() {
   const searchFilter    = (document.getElementById('searchFilter')?.value || '').toLowerCase().trim();
-  const emailFilter     = (document.getElementById('emailFilter')?.value || '').toLowerCase();
   const userTypeFilter  = (document.getElementById('userTypeFilter')?.value || '').toLowerCase();
   const regionFilter    = (document.getElementById('regionFilter')?.value || '').toLowerCase();
   const engagementFilter = (document.getElementById('engagementFilter')?.value || '').toLowerCase();
@@ -611,29 +610,24 @@ function applyFilters() {
       shouldShow = shouldShow && searchData.includes(searchFilter);
     }
 
-    // Filtre email (sélection exacte via data-attribute)
-    if (emailFilter) {
-      shouldShow = shouldShow && (row.dataset.userEmail || '') === emailFilter;
-    }
-
     // Filtre type utilisateur via data-attribute
     if (userTypeFilter) {
       shouldShow = shouldShow && (row.dataset.userType || '') === userTypeFilter;
     }
 
-    // Filtre région (colonne 1)
+    // Filtre région (colonne 2 : 0=checkbox, 1=utilisateur, 2=région)
     if (regionFilter) {
-      const regionCell = row.cells[1]?.textContent.toLowerCase() || '';
+      const regionCell = row.cells[2]?.textContent.toLowerCase() || '';
       shouldShow = shouldShow && regionCell.includes(regionFilter);
     }
 
-    // Filtre engagement (colonne 7)
+    // Filtre engagement (colonne 8)
     if (engagementFilter) {
-      const engagementCell = row.cells[7]?.textContent.toLowerCase() || '';
+      const engagementCell = row.cells[8]?.textContent.toLowerCase() || '';
       shouldShow = shouldShow && engagementCell.includes(engagementFilter);
     }
 
-    // Filtre abonnement (colonne 6)
+    // Filtre abonnement (tier exact via data-attribute)
     if (tierFilter) {
       shouldShow = shouldShow && (row.dataset.userTier || '') === tierFilter;
     }
@@ -643,11 +637,12 @@ function applyFilters() {
   });
 
   updateFilterCount(visibleCount, rows.length);
+  updateSelectedUsersCount();
 }
 
 // Effacer tous les filtres
 function clearFilters() {
-  ['searchFilter', 'emailFilter', 'userTypeFilter', 'regionFilter', 'engagementFilter', 'tierFilter'].forEach(id => {
+  ['searchFilter', 'userTypeFilter', 'regionFilter', 'engagementFilter', 'tierFilter'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -656,6 +651,7 @@ function clearFilters() {
   const rows = Array.from(tbody.querySelectorAll('tr'));
   rows.forEach(row => { row.style.display = ''; });
   updateFilterCount(rows.length, rows.length);
+  updateSelectedUsersCount();
 }
 
 // Mise à jour du compteur de filtres
@@ -680,11 +676,87 @@ document.addEventListener('DOMContentLoaded', function() {
   );
 });
 
+// ===== SÉLECTION MULTIPLE D'UTILISATEURS (checkboxes) =====
+
+// Coche/décoche toutes les lignes actuellement visibles (respecte les filtres actifs)
+function toggleSelectAllUsers(checkbox) {
+  const rows = document.querySelectorAll('#usersTable tbody tr');
+  rows.forEach(row => {
+    if (row.style.display === 'none') return;
+    const box = row.querySelector('.user-select-checkbox');
+    if (box) box.checked = checkbox.checked;
+  });
+  updateSelectedUsersCount();
+}
+
+// Récupère les emails des utilisateurs cochés
+function getSelectedEmails() {
+  return Array.from(document.querySelectorAll('.user-select-checkbox:checked'))
+    .map(box => box.dataset.email);
+}
+
+// Met à jour le compteur et l'état du bouton de copie
+function updateSelectedUsersCount() {
+  const emails = getSelectedEmails();
+  const counter = document.getElementById('selectedUsersCount');
+  const copyBtn = document.getElementById('copySelectedEmailsBtn');
+
+  if (counter) {
+    counter.textContent = emails.length === 0
+      ? '0 utilisateur sélectionné'
+      : `${emails.length} utilisateur${emails.length > 1 ? 's' : ''} sélectionné${emails.length > 1 ? 's' : ''}`;
+  }
+  if (copyBtn) copyBtn.disabled = emails.length === 0;
+
+  // Synchronise la checkbox "Tout sélectionner" (visibles uniquement)
+  const selectAll = document.getElementById('selectAllUsers');
+  if (selectAll) {
+    const visibleRows = Array.from(document.querySelectorAll('#usersTable tbody tr')).filter(r => r.style.display !== 'none');
+    const visibleChecked = visibleRows.filter(r => r.querySelector('.user-select-checkbox')?.checked);
+    selectAll.checked = visibleRows.length > 0 && visibleChecked.length === visibleRows.length;
+    selectAll.indeterminate = visibleChecked.length > 0 && visibleChecked.length < visibleRows.length;
+  }
+}
+
+// Copie les emails sélectionnés dans le presse-papier (séparés par virgule)
+function copySelectedEmails() {
+  const emails = getSelectedEmails();
+  if (emails.length === 0) return;
+
+  const text = emails.join(', ');
+
+  const onCopied = () => {
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        title: '✅ Emails copiés',
+        text: `${emails.length} adresse${emails.length > 1 ? 's' : ''} copiée${emails.length > 1 ? 's' : ''} dans le presse-papier.`,
+        icon: 'success',
+        timer: 1800,
+        showConfirmButton: false
+      });
+    }
+  };
+  const onFailed = () => {
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({ title: 'Erreur', text: 'Impossible de copier automatiquement. Emails : ' + text, icon: 'error' });
+    }
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(onCopied).catch(onFailed);
+  } else {
+    onFailed();
+  }
+}
+
 // Exposition en global : les attributs onclick/oninput du HTML (tableau utilisateurs)
 // cherchent ces fonctions sur window, hors de la portée de cette IIFE.
 window.sortTable = sortTable;
 window.applyFilters = applyFilters;
 window.clearFilters = clearFilters;
+window.toggleSelectAllUsers = toggleSelectAllUsers;
+window.updateSelectedUsersCount = updateSelectedUsersCount;
+window.copySelectedEmails = copySelectedEmails;
 
 })(); // fin IIFE
 </script>
