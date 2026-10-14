@@ -12,10 +12,19 @@
               <!-- Filtres -->
               <div class="mb-3 p-3 bg-light rounded">
                 <div class="row g-2 align-items-end">
-                  <div class="col-md-3">
+                  <div class="col-12 col-md-3">
                     <label class="form-label small mb-1">Recherche</label>
                     <input type="text" class="form-control form-control-sm" id="searchFilter"
                            placeholder="Nom, prénom ou email…" oninput="applyFilters()">
+                  </div>
+                  <div class="col-12 col-md-2">
+                    <label class="form-label small mb-1">Email</label>
+                    <select class="form-select form-select-sm" id="emailFilter" onchange="applyFilters()">
+                      <option value="">Tous</option>
+                      <% @users.order(:email).pluck(:email).each do |email| %>
+                        <option value="<%= email.downcase %>"><%= email %></option>
+                      <% end %>
+                    </select>
                   </div>
                   <div class="col-md-2">
                     <label class="form-label small mb-1">Type</label>
@@ -53,6 +62,7 @@
                       <option value="freemium">Découverte</option>
                       <option value="individual">Propriétaire</option>
                       <option value="portfolio">Investisseur</option>
+                      <option value="premium_mixed">Premium</option>
                       <option value="professional">Expert</option>
                       <option value="enterprise">Platform</option>
                     </select>
@@ -118,7 +128,7 @@
                         ].compact.max
                         sub = user.subscriptions.find { |s| s.status == 'active' }
                       %>
-                      <tr data-user-type="<%= user_type %>" data-user-search="<%= [user.email, user.first_name, user.last_name].compact.join(' ').downcase %>">
+                      <tr data-user-type="<%= user_type %>" data-user-email="<%= user.email.downcase %>" data-user-tier="<%= sub&.tier || 'freemium' %>" data-user-search="<%= [user.email, user.first_name, user.last_name].compact.join(' ').downcase %>">
                         <%# Utilisateur %>
                         <td>
                           <strong class="small">
