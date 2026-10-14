@@ -17,15 +17,6 @@
                     <input type="text" class="form-control form-control-sm" id="searchFilter"
                            placeholder="Nom, prénom ou email…" oninput="applyFilters()">
                   </div>
-                  <div class="col-12 col-md-2">
-                    <label class="form-label small mb-1">Email</label>
-                    <select class="form-select form-select-sm" id="emailFilter" onchange="applyFilters()">
-                      <option value="">Tous</option>
-                      <% @users.order(:email).pluck(:email).each do |email| %>
-                        <option value="<%= email.downcase %>"><%= email %></option>
-                      <% end %>
-                    </select>
-                  </div>
                   <div class="col-md-2">
                     <label class="form-label small mb-1">Type</label>
                     <select class="form-select form-select-sm" id="userTypeFilter" onchange="applyFilters()">
@@ -75,18 +66,29 @@
                 </div>
               </div>
 
+              <!-- Sélection multiple d'emails -->
+              <div class="mb-3 p-2 px-3 bg-light rounded d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-2">
+                <span class="small text-muted" id="selectedUsersCount">0 utilisateur sélectionné</span>
+                <button type="button" class="btn btn-outline-primary btn-sm" id="copySelectedEmailsBtn" disabled onclick="copySelectedEmails()">
+                  <i class="bi bi-clipboard me-1"></i>Copier les emails sélectionnés
+                </button>
+              </div>
+
               <div class="table-responsive">
                 <table class="table table-hover align-middle" id="usersTable">
                   <thead class="table-light">
                     <tr>
-                      <th style="cursor:pointer;" onclick="sortTable(0)">Utilisateur <i class="bi bi-arrow-down-up small"></i></th>
-                      <th style="cursor:pointer;" onclick="sortTable(1)">Région <i class="bi bi-arrow-down-up small"></i></th>
-                      <th style="cursor:pointer;" onclick="sortTable(2)">Inscription <i class="bi bi-arrow-down-up small"></i></th>
-                      <th style="cursor:pointer;" onclick="sortTable(3)">Dernière activité <i class="bi bi-arrow-down-up small"></i></th>
-                      <th style="cursor:pointer;" onclick="sortTable(4)">Simulations <i class="bi bi-arrow-down-up small"></i></th>
-                      <th style="cursor:pointer;" onclick="sortTable(5)">Conversion <i class="bi bi-arrow-down-up small"></i></th>
-                      <th style="cursor:pointer;" onclick="sortTable(6)">Abonnement <i class="bi bi-arrow-down-up small"></i></th>
-                      <th style="cursor:pointer;" onclick="sortTable(7)">Engagement <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="width: 36px;">
+                        <input type="checkbox" class="form-check-input" id="selectAllUsers" onchange="toggleSelectAllUsers(this)" title="Tout sélectionner">
+                      </th>
+                      <th style="cursor:pointer;" onclick="sortTable(1)">Utilisateur <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor:pointer;" onclick="sortTable(2)">Région <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor:pointer;" onclick="sortTable(3)">Inscription <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor:pointer;" onclick="sortTable(4)">Dernière activité <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor:pointer;" onclick="sortTable(5)">Simulations <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor:pointer;" onclick="sortTable(6)">Conversion <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor:pointer;" onclick="sortTable(7)">Abonnement <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor:pointer;" onclick="sortTable(8)">Engagement <i class="bi bi-arrow-down-up small"></i></th>
                       <th>Activité</th>
                       <th>Segment</th>
                       <th>Suivi</th>
@@ -129,6 +131,11 @@
                         sub = user.subscriptions.find { |s| s.status == 'active' }
                       %>
                       <tr data-user-type="<%= user_type %>" data-user-email="<%= user.email.downcase %>" data-user-tier="<%= sub&.tier || 'freemium' %>" data-user-search="<%= [user.email, user.first_name, user.last_name].compact.join(' ').downcase %>">
+                        <%# Sélection %>
+                        <td>
+                          <input type="checkbox" class="form-check-input user-select-checkbox" data-email="<%= user.email %>" onchange="updateSelectedUsersCount()">
+                        </td>
+
                         <%# Utilisateur %>
                         <td>
                           <strong class="small">

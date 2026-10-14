@@ -1,8 +1,9 @@
 require "test_helper"
 
 # Smoke test de /admin/dashboard — onglet Utilisateurs.
-# Vérifie le sélecteur d'email ajouté et le filtre Abonnement (bug : un
-# utilisateur payant "individual" n'était pas remonté par le filtre).
+# Vérifie la sélection multiple par checkboxes (pour copier des emails) et le
+# filtre Abonnement (bug : un utilisateur payant "individual" n'était pas
+# remonté par le filtre).
 class AdminDashboardSmokeTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
   fixtures :users, :subscriptions
@@ -35,9 +36,11 @@ class AdminDashboardSmokeTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "le sélecteur d'email liste les utilisateurs" do
+  test "chaque utilisateur a une checkbox de sélection avec son email" do
     get admin_dashboard_path(locale: "fr")
-    assert_select "select#emailFilter option[value=?]", "individual@example.com"
+    assert_select "input.user-select-checkbox[data-email=?]", "individual@example.com"
+    assert_select "input#selectAllUsers"
+    assert_select "button#copySelectedEmailsBtn[disabled]"
   end
 
   test "le filtre abonnement expose le tier exact de l'utilisateur payant" do
