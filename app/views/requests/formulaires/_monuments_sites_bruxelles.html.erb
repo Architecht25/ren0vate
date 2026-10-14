@@ -47,6 +47,8 @@
             </div>
           </div>
 
+          <% _mon_fd = @request&.form_data || {} %>
+          <% fv = ->(key) { _mon_fd[key.to_s] } %>
           <%= form_with(model: @request, local: true, html: { class: "needs-validation", novalidate: true }) do |form| %>
 
             <!-- SECTION 1: Données d'identification du bénéficiaire -->
@@ -63,7 +65,7 @@
               <div class="row">
                 <div class="col-12 col-md-6">
                   <div class="form-check">
-                    <%= radio_button_tag 'beneficiaire_type', 'personne_physique', true,
+                    <%= radio_button_tag 'request[beneficiaire_type]', 'personne_physique', fv.call('beneficiaire_type') != 'personne_morale',
                         class: 'form-check-input',
                         onchange: 'toggleBeneficiaireType(this.value)' %>
                     <label class="form-check-label">
@@ -73,7 +75,7 @@
                 </div>
                 <div class="col-12 col-md-6">
                   <div class="form-check">
-                    <%= radio_button_tag 'beneficiaire_type', 'personne_morale', false,
+                    <%= radio_button_tag 'request[beneficiaire_type]', 'personne_morale', fv.call('beneficiaire_type') == 'personne_morale',
                         class: 'form-check-input',
                         onchange: 'toggleBeneficiaireType(this.value)' %>
                     <label class="form-check-label">
@@ -97,11 +99,11 @@
                 <div class="row mb-3">
                   <div class="col-12 col-sm-6 col-md-4">
                     <label class="form-label">Civilité *</label>
-                    <select class="form-select" name="civilite" required>
+                    <select class="form-select" name="request[civilite]" required>
                       <option value="">Sélectionner...</option>
-                      <option value="madame">Madame</option>
-                      <option value="monsieur">Monsieur</option>
-                      <option value="autre">Autre</option>
+                      <option value="madame" <%= 'selected' if fv.call('civilite') == 'madame' %>>Madame</option>
+                      <option value="monsieur" <%= 'selected' if fv.call('civilite') == 'monsieur' %>>Monsieur</option>
+                      <option value="autre" <%= 'selected' if fv.call('civilite') == 'autre' %>>Autre</option>
                     </select>
                   </div>
                   <div class="col-12 col-sm-6 col-md-4">
@@ -159,7 +161,7 @@
                   </div>
                   <div class="col-6 col-sm-4 col-md-2">
                     <label class="form-label">Boîte</label>
-                    <%= form.text_field :beneficiaire_boite, class: "form-control" %>
+                    <%= form.text_field :beneficiaire_boite, value: fv.call('beneficiaire_boite'), class: "form-control" %>
                   </div>
                 </div>
 
@@ -207,7 +209,7 @@
                 </div>
 
                 <div class="form-check">
-                  <%= check_box_tag 'majoration_revenus', '1', false, class: 'form-check-input' %>
+                  <%= check_box_tag 'request[majoration_revenus]', '1', fv.call('majoration_revenus') == '1', class: 'form-check-input' %>
                   <label class="form-check-label">
                     <i class="bi bi-plus-circle-fill text-success"></i>
                     Répond aux conditions pour bénéficier d'une majoration (+25%) en tant que personne physique dont les revenus du ménage sont inférieurs à 40.000 euros (majorés de 2.500 euros par personne à charge).
@@ -224,11 +226,11 @@
                 <div class="row mb-3">
                   <div class="col-12 col-md-8">
                     <label class="form-label">Nom et raison sociale *</label>
-                    <%= form.text_field :personne_morale_nom, class: "form-control" %>
+                    <%= form.text_field :personne_morale_nom, value: fv.call('personne_morale_nom'), class: "form-control" %>
                   </div>
                   <div class="col-12 col-sm-6 col-md-4">
                     <label class="form-label">N° d'entreprise *</label>
-                    <%= form.text_field :numero_entreprise, class: "form-control" %>
+                    <%= form.text_field :numero_entreprise, value: fv.call('numero_entreprise'), class: "form-control" %>
                   </div>
                 </div>
 
@@ -236,58 +238,58 @@
                 <div class="row mb-3">
                   <div class="col-6 col-md-3">
                     <label class="form-label">Civilité *</label>
-                    <select class="form-select" name="mandataire_civilite">
+                    <select class="form-select" name="request[mandataire_civilite]">
                       <option value="">Sélectionner...</option>
-                      <option value="madame">Madame</option>
-                      <option value="monsieur">Monsieur</option>
-                      <option value="autre">Autre</option>
+                      <option value="madame" <%= 'selected' if fv.call('mandataire_civilite') == 'madame' %>>Madame</option>
+                      <option value="monsieur" <%= 'selected' if fv.call('mandataire_civilite') == 'monsieur' %>>Monsieur</option>
+                      <option value="autre" <%= 'selected' if fv.call('mandataire_civilite') == 'autre' %>>Autre</option>
                     </select>
                   </div>
                   <div class="col-6 col-md-3">
                     <label class="form-label">Nom *</label>
-                    <%= form.text_field :mandataire_nom, class: "form-control" %>
+                    <%= form.text_field :mandataire_nom, value: fv.call('mandataire_nom'), class: "form-control" %>
                   </div>
                   <div class="col-6 col-md-3">
                     <label class="form-label">Prénom *</label>
-                    <%= form.text_field :mandataire_prenom, class: "form-control" %>
+                    <%= form.text_field :mandataire_prenom, value: fv.call('mandataire_prenom'), class: "form-control" %>
                   </div>
                   <div class="col-6 col-md-3">
                     <label class="form-label">Fonction *</label>
-                    <%= form.text_field :mandataire_fonction, class: "form-control" %>
+                    <%= form.text_field :mandataire_fonction, value: fv.call('mandataire_fonction'), class: "form-control" %>
                   </div>
                 </div>
 
                 <div class="row mb-3">
                   <div class="col-12 col-md-6">
                     <label class="form-label">Rue *</label>
-                    <%= form.text_field :mandataire_rue, class: "form-control" %>
+                    <%= form.text_field :mandataire_rue, value: fv.call('mandataire_rue'), class: "form-control" %>
                   </div>
                   <div class="col-6 col-sm-3 col-md-1">
                     <label class="form-label">N° *</label>
-                    <%= form.text_field :mandataire_numero, class: "form-control" %>
+                    <%= form.text_field :mandataire_numero, value: fv.call('mandataire_numero'), class: "form-control" %>
                   </div>
                   <div class="col-6 col-sm-3 col-md-1">
                     <label class="form-label">Boîte</label>
-                    <%= form.text_field :mandataire_boite, class: "form-control" %>
+                    <%= form.text_field :mandataire_boite, value: fv.call('mandataire_boite'), class: "form-control" %>
                   </div>
                   <div class="col-6 col-sm-4 col-md-2">
                     <label class="form-label">Code postal *</label>
-                    <%= form.text_field :mandataire_code_postal, class: "form-control" %>
+                    <%= form.text_field :mandataire_code_postal, value: fv.call('mandataire_code_postal'), class: "form-control" %>
                   </div>
                   <div class="col-6 col-sm-4 col-md-2">
                     <label class="form-label">Commune *</label>
-                    <%= form.text_field :mandataire_commune, class: "form-control" %>
+                    <%= form.text_field :mandataire_commune, value: fv.call('mandataire_commune'), class: "form-control" %>
                   </div>
                 </div>
 
                 <div class="row mb-3">
                   <div class="col-12 col-md-6">
                     <label class="form-label">Téléphone *</label>
-                    <%= form.telephone_field :mandataire_telephone, class: "form-control" %>
+                    <%= form.telephone_field :mandataire_telephone, value: fv.call('mandataire_telephone'), class: "form-control" %>
                   </div>
                   <div class="col-12 col-md-6">
                     <label class="form-label">E-mail *</label>
-                    <%= form.email_field :mandataire_email, class: "form-control" %>
+                    <%= form.email_field :mandataire_email, value: fv.call('mandataire_email'), class: "form-control" %>
                   </div>
                 </div>
 
@@ -297,28 +299,28 @@
                   <div class="row">
                     <div class="col-6 col-sm-4 col-md-2">
                       <label class="form-label">Civilité</label>
-                      <select class="form-select" name="contact_civilite">
+                      <select class="form-select" name="request[contact_civilite]">
                         <option value="">Sélectionner...</option>
-                        <option value="madame">Madame</option>
-                        <option value="monsieur">Monsieur</option>
-                        <option value="autre">Autre</option>
+                        <option value="madame" <%= 'selected' if fv.call('contact_civilite') == 'madame' %>>Madame</option>
+                        <option value="monsieur" <%= 'selected' if fv.call('contact_civilite') == 'monsieur' %>>Monsieur</option>
+                        <option value="autre" <%= 'selected' if fv.call('contact_civilite') == 'autre' %>>Autre</option>
                       </select>
                     </div>
                     <div class="col-6 col-md-3">
                       <label class="form-label">Nom</label>
-                      <%= form.text_field :contact_nom, class: "form-control" %>
+                      <%= form.text_field :contact_nom, value: fv.call('contact_nom'), class: "form-control" %>
                     </div>
                     <div class="col-6 col-md-3">
                       <label class="form-label">Prénom</label>
-                      <%= form.text_field :contact_prenom, class: "form-control" %>
+                      <%= form.text_field :contact_prenom, value: fv.call('contact_prenom'), class: "form-control" %>
                     </div>
                     <div class="col-6 col-sm-4 col-md-2">
                       <label class="form-label">Téléphone</label>
-                      <%= form.telephone_field :contact_telephone, class: "form-control" %>
+                      <%= form.telephone_field :contact_telephone, value: fv.call('contact_telephone'), class: "form-control" %>
                     </div>
                     <div class="col-6 col-sm-4 col-md-2">
                       <label class="form-label">E-mail</label>
-                      <%= form.email_field :contact_email, class: "form-control" %>
+                      <%= form.email_field :contact_email, value: fv.call('contact_email'), class: "form-control" %>
                     </div>
                   </div>
                 </div>
@@ -329,31 +331,31 @@
                   <div class="row">
                     <div class="col-12 col-sm-6 col-md-4">
                       <div class="form-check">
-                        <%= check_box_tag 'beneficiaire_public_commune', '1', false, class: 'form-check-input' %>
+                        <%= check_box_tag 'request[beneficiaire_public_commune]', '1', fv.call('beneficiaire_public_commune') == '1', class: 'form-check-input' %>
                         <label class="form-check-label">Commune</label>
                       </div>
                       <div class="form-check">
-                        <%= check_box_tag 'beneficiaire_public_cpas', '1', false, class: 'form-check-input' %>
+                        <%= check_box_tag 'request[beneficiaire_public_cpas]', '1', fv.call('beneficiaire_public_cpas') == '1', class: 'form-check-input' %>
                         <label class="form-check-label">C.P.A.S.</label>
                       </div>
                     </div>
                     <div class="col-12 col-sm-6 col-md-4">
                       <div class="form-check">
-                        <%= check_box_tag 'beneficiaire_public_sisp', '1', false, class: 'form-check-input' %>
+                        <%= check_box_tag 'request[beneficiaire_public_sisp]', '1', fv.call('beneficiaire_public_sisp') == '1', class: 'form-check-input' %>
                         <label class="form-check-label">SISP (société immobilière de service public)</label>
                       </div>
                       <div class="form-check">
-                        <%= check_box_tag 'beneficiaire_public_cultuel', '1', false, class: 'form-check-input' %>
+                        <%= check_box_tag 'request[beneficiaire_public_cultuel]', '1', fv.call('beneficiaire_public_cultuel') == '1', class: 'form-check-input' %>
                         <label class="form-check-label">Établissement chargé de la gestion des intérêts matériels d'une communauté cultuelle locale</label>
                       </div>
                     </div>
                     <div class="col-12 col-sm-6 col-md-4">
                       <div class="form-check">
-                        <%= check_box_tag 'beneficiaire_public_philosophique', '1', false, class: 'form-check-input' %>
+                        <%= check_box_tag 'request[beneficiaire_public_philosophique]', '1', fv.call('beneficiaire_public_philosophique') == '1', class: 'form-check-input' %>
                         <label class="form-check-label">Établissement chargé de la gestion des communautés philosophiques non confessionnelles (CAL ou UVVV)</label>
                       </div>
                       <div class="form-check">
-                        <%= check_box_tag 'beneficiaire_public_enseignement', '1', false, class: 'form-check-input' %>
+                        <%= check_box_tag 'request[beneficiaire_public_enseignement]', '1', fv.call('beneficiaire_public_enseignement') == '1', class: 'form-check-input' %>
                         <label class="form-check-label">Institution de l'enseignement organisé ou subventionné</label>
                       </div>
                     </div>
@@ -376,30 +378,30 @@
               <div class="row mb-3">
                 <div class="col-12 col-md-6">
                   <label class="form-label">Rue *</label>
-                  <%= form.text_field :bien_rue, class: "form-control", required: true %>
+                  <%= form.text_field :bien_rue, value: fv.call('bien_rue'), class: "form-control", required: true %>
                 </div>
                 <div class="col-6 col-sm-4 col-md-2">
                   <label class="form-label">N° *</label>
-                  <%= form.text_field :bien_numero, class: "form-control", required: true %>
+                  <%= form.text_field :bien_numero, value: fv.call('bien_numero'), class: "form-control", required: true %>
                 </div>
                 <div class="col-6 col-sm-3 col-md-1">
                   <label class="form-label">Boîte</label>
-                  <%= form.text_field :bien_boite, class: "form-control" %>
+                  <%= form.text_field :bien_boite, value: fv.call('bien_boite'), class: "form-control" %>
                 </div>
                 <div class="col-6 col-md-3">
                   <label class="form-label">Code postal *</label>
-                  <%= form.text_field :bien_code_postal, class: "form-control", required: true %>
+                  <%= form.text_field :bien_code_postal, value: fv.call('bien_code_postal'), class: "form-control", required: true %>
                 </div>
               </div>
 
               <div class="row mb-3">
                 <div class="col-12 col-md-6">
                   <label class="form-label">Commune *</label>
-                  <%= form.text_field :bien_commune, class: "form-control", required: true %>
+                  <%= form.text_field :bien_commune, value: fv.call('bien_commune'), class: "form-control", required: true %>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label">Dénomination éventuelle</label>
-                  <%= form.text_field :bien_denomination, class: "form-control" %>
+                  <%= form.text_field :bien_denomination, value: fv.call('bien_denomination') || @default_simulation&.property&.denomination_monument, class: "form-control" %>
                 </div>
               </div>
 
@@ -408,21 +410,21 @@
                 <div class="row">
                   <div class="col-12 col-md-6">
                     <div class="form-check">
-                      <%= radio_button_tag 'droit_beneficiaire', 'proprietaire', false, class: 'form-check-input', required: true %>
+                      <%= radio_button_tag 'request[droit_beneficiaire]', 'proprietaire', fv.call('droit_beneficiaire') == 'proprietaire', class: 'form-check-input', required: true %>
                       <label class="form-check-label">Propriétaire(s) du bien ou titulaire d'un droit réel (usufruit, emphytéose ou superficie)</label>
                     </div>
                     <div class="form-check">
-                      <%= radio_button_tag 'droit_beneficiaire', 'copropriete', false, class: 'form-check-input', required: true %>
+                      <%= radio_button_tag 'request[droit_beneficiaire]', 'copropriete', fv.call('droit_beneficiaire') == 'copropriete', class: 'form-check-input', required: true %>
                       <label class="form-check-label">Représentant d'une copropriété <small class="text-muted">(joindre copie de la décision de copropriété)</small></label>
                     </div>
                   </div>
                   <div class="col-12 col-md-6">
                     <div class="form-check">
-                      <%= radio_button_tag 'droit_beneficiaire', 'locataire', false, class: 'form-check-input', required: true %>
+                      <%= radio_button_tag 'request[droit_beneficiaire]', 'locataire', fv.call('droit_beneficiaire') == 'locataire', class: 'form-check-input', required: true %>
                       <label class="form-check-label">Locataire <small class="text-muted">(joindre copie du contrat de bail et autorisation du propriétaire)</small></label>
                     </div>
                     <div class="form-check">
-                      <%= radio_button_tag 'droit_beneficiaire', 'concession', false, class: 'form-check-input', required: true %>
+                      <%= radio_button_tag 'request[droit_beneficiaire]', 'concession', fv.call('droit_beneficiaire') == 'concession', class: 'form-check-input', required: true %>
                       <label class="form-check-label">Titulaire d'un droit de concession domaniale <small class="text-muted">(joindre copie du contrat de concession)</small></label>
                     </div>
                   </div>
@@ -432,21 +434,21 @@
               <div class="mt-4">
                 <label class="form-label fw-bold">Spécificités pouvant donner lieu à des subsides majorés pour les bénéficiaires privés</label>
                 <div class="form-check">
-                  <%= check_box_tag 'specificite_musee', '1', false, class: 'form-check-input' %>
+                  <%= check_box_tag 'request[specificite_musee]', '1', fv.call('specificite_musee') == '1', class: 'form-check-input' %>
                   <label class="form-check-label">
                     <i class="bi bi-plus-circle-fill text-success"></i>
                     Les parties classées de l'immeuble abritent un musée, accessible au grand public toute l'année.
                   </label>
                 </div>
                 <div class="form-check">
-                  <%= check_box_tag 'specificite_fonction_publique', '1', false, class: 'form-check-input' %>
+                  <%= check_box_tag 'request[specificite_fonction_publique]', '1', fv.call('specificite_fonction_publique') == '1', class: 'form-check-input' %>
                   <label class="form-check-label">
                     <i class="bi bi-plus-circle-fill text-success"></i>
                     La fonction principale du bâtiment est publique depuis au moins 5 ans et les espaces intérieurs classés sont accessibles au grand public toute l'année.
                   </label>
                 </div>
                 <div class="form-check">
-                  <%= check_box_tag 'specificite_reconstruction', '1', false, class: 'form-check-input' %>
+                  <%= check_box_tag 'request[specificite_reconstruction]', '1', fv.call('specificite_reconstruction') == '1', class: 'form-check-input' %>
                   <label class="form-check-label">
                     <i class="bi bi-plus-circle-fill text-success"></i>
                     Exécuter des travaux de reconstruction d'éléments de valeur patrimoniale disparus.
@@ -467,17 +469,17 @@
               <div class="mb-3">
                 <label class="form-label fw-bold">Intitulé de la demande *</label>
                 <p class="text-muted small">Décrire les grandes options, les parties du bien sur lequel on intervient, la nature des interventions telle que entretien, remplacement, restauration, reconstruction, nouvelles constructions, ...</p>
-                <%= form.text_area :intitule_demande, class: "form-control", rows: 3, required: true %>
+                <%= form.text_area :intitule_demande, value: fv.call('intitule_demande'), class: "form-control", rows: 3, required: true %>
               </div>
 
               <div class="row mb-3">
                 <div class="col-12 col-md-6">
                   <label class="form-label fw-bold">ÉTUDES :</label>
-                  <%= form.text_area :etudes_description, class: "form-control", rows: 4, placeholder: "Décrire les études préalables nécessaires..." %>
+                  <%= form.text_area :etudes_description, value: fv.call('etudes_description'), class: "form-control", rows: 4, placeholder: "Décrire les études préalables nécessaires..." %>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label fw-bold">TRAVAUX :</label>
-                  <%= form.text_area :travaux_description, class: "form-control", rows: 4, placeholder: "Décrire les travaux de conservation...", required: true %>
+                  <%= form.text_area :travaux_description, value: fv.call('travaux_description'), class: "form-control", rows: 4, placeholder: "Décrire les travaux de conservation...", required: true %>
                 </div>
               </div>
 
@@ -485,7 +487,7 @@
                 <div class="col-12 col-md-6">
                   <label class="form-label fw-bold">Montant total estimé (hors TVA) *</label>
                   <div class="input-group">
-                    <%= form.number_field :montant_estime, class: "form-control", step: 0.01, required: true %>
+                    <%= form.number_field :montant_estime, value: fv.call('montant_estime'), class: "form-control", step: 0.01, required: true %>
                     <span class="input-group-text">€</span>
                   </div>
                   <small class="text-muted">Inclut études, travaux et honoraires (architecte, sécurité de chantier, ingénieur, ...)</small>
@@ -493,17 +495,17 @@
                 <div class="col-12 col-md-6">
                   <label class="form-label fw-bold">Autorisations</label>
                   <div class="form-check">
-                    <%= radio_button_tag 'autorisation_type', 'permis', false, class: 'form-check-input' %>
+                    <%= radio_button_tag 'request[autorisation_type]', 'permis', fv.call('autorisation_type') == 'permis', class: 'form-check-input' %>
                     <label class="form-check-label">Référence du permis délivré</label>
-                    <%= text_field_tag 'permis_reference', '', class: 'form-control mt-1', placeholder: '____/PFU/________' %>
+                    <%= text_field_tag 'request[permis_reference]', fv.call('permis_reference'), class: 'form-control mt-1', placeholder: '____/PFU/________' %>
                   </div>
                   <div class="form-check mt-2">
-                    <%= radio_button_tag 'autorisation_type', 'plan_gestion', false, class: 'form-check-input' %>
+                    <%= radio_button_tag 'request[autorisation_type]', 'plan_gestion', fv.call('autorisation_type') == 'plan_gestion', class: 'form-check-input' %>
                     <label class="form-check-label">Références du plan de gestion patrimoniale</label>
-                    <%= text_field_tag 'plan_gestion_reference', '', class: 'form-control mt-1' %>
+                    <%= text_field_tag 'request[plan_gestion_reference]', fv.call('plan_gestion_reference'), class: 'form-control mt-1' %>
                   </div>
                   <div class="form-check mt-2">
-                    <%= radio_button_tag 'autorisation_type', 'sans_permis', false, class: 'form-check-input' %>
+                    <%= radio_button_tag 'request[autorisation_type]', 'sans_permis', fv.call('autorisation_type') == 'sans_permis', class: 'form-check-input' %>
                     <label class="form-check-label">Actes et travaux non soumis à permis</label>
                   </div>
                 </div>
@@ -512,16 +514,16 @@
               <div class="row">
                 <div class="col-12 col-md-8">
                   <label class="form-label fw-bold">Numéro de compte bancaire (IBAN) *</label>
-                  <%= form.text_field :iban, class: "form-control", required: true, placeholder: "BE__ ____ ____ ____" %>
+                  <%= form.text_field :iban, value: fv.call('iban'), class: "form-control", required: true, placeholder: "BE__ ____ ____ ____" %>
                 </div>
                 <div class="col-12 col-sm-6 col-md-4">
                   <label class="form-label fw-bold">BIC</label>
-                  <%= form.text_field :bic, class: "form-control" %>
+                  <%= form.text_field :bic, value: fv.call('bic'), class: "form-control" %>
                 </div>
               </div>
               <div class="mt-2">
                 <label class="form-label">Nom du titulaire du compte *</label>
-                <%= form.text_field :titulaire_compte, class: "form-control", required: true %>
+                <%= form.text_field :titulaire_compte, value: fv.call('titulaire_compte'), class: "form-control", required: true %>
                 <small class="text-muted">Joindre une attestation d'identité du titulaire ou un relevé d'identité bancaire (RIB)</small>
               </div>
             </div>
@@ -574,27 +576,27 @@
               <div class="mt-4">
                 <h6>Documents facultatifs (pour majorations) :</h6>
                 <div class="form-check">
-                  <%= check_box_tag 'demande_majoration_revenus', '1', false, class: 'form-check-input' %>
+                  <%= check_box_tag 'request[demande_majoration_revenus]', '1', fv.call('demande_majoration_revenus') == '1', class: 'form-check-input' %>
                   <label class="form-check-label">
                     Je demande une majoration (+25%) pour revenus inférieurs à 40.000€
                     <small class="text-muted d-block">Joindre : avertissement-extrait de rôle, composition de ménage, attestation sur l'honneur</small>
                   </label>
                 </div>
                 <div class="form-check">
-                  <%= check_box_tag 'demande_convention_accessibilite', '1', false, class: 'form-check-input' %>
+                  <%= check_box_tag 'request[demande_convention_accessibilite]', '1', fv.call('demande_convention_accessibilite') == '1', class: 'form-check-input' %>
                   <label class="form-check-label">
                     Je demande une convention d'accessibilité (80% pour reconstruction d'éléments patrimoniaux disparus)
                   </label>
                 </div>
-                <div class="mt-2" id="convention_details" style="display: none;">
+                <div class="mt-2" id="convention_details" style="<%= fv.call('demande_convention_accessibilite') == '1' ? '' : 'display: none;' %>">
                   <div class="row">
                     <div class="col-12 col-md-6">
                       <label class="form-label">Référence de la convention</label>
-                      <%= text_field_tag 'convention_reference', '', class: 'form-control' %>
+                      <%= text_field_tag 'request[convention_reference]', fv.call('convention_reference'), class: 'form-control' %>
                     </div>
                     <div class="col-12 col-md-6">
                       <label class="form-label">Date de signature</label>
-                      <%= date_field_tag 'convention_date', '', class: 'form-control' %>
+                      <%= date_field_tag 'request[convention_date]', fv.call('convention_date'), class: 'form-control' %>
                     </div>
                   </div>
                 </div>
@@ -602,8 +604,8 @@
 
               <div class="mt-4">
                 <label class="form-label fw-bold">Upload des documents *</label>
-                <%= form.file_field :documents, multiple: true, class: "form-control",
-                    accept: ".pdf,.doc,.docx,.jpg,.jpeg,.png", required: true %>
+                <%= form.file_field :document_autres, multiple: true, class: "form-control",
+                    accept: ".pdf,.doc,.docx,.jpg,.jpeg,.png", required: @request.document_autres.blank? %>
                 <small class="text-muted">Formats acceptés : PDF, DOC, DOCX, JPG, PNG. Plusieurs fichiers possibles.</small>
               </div>
             </div>
@@ -618,21 +620,21 @@
 
             <div class="card border-warning bg-warning bg-opacity-10 p-3 mb-4">
               <div class="form-check mb-3">
-                <%= check_box_tag 'declaration_conditions', '1', false, class: 'form-check-input', required: true %>
+                <%= check_box_tag 'request[declaration_conditions]', '1', fv.call('declaration_conditions') == '1', class: 'form-check-input', required: true %>
                 <label class="form-check-label fw-bold">
                   J'ai pris connaissance des conditions générales liées à l'octroi de ces subventions. *
                 </label>
               </div>
 
               <div class="form-check mb-3">
-                <%= check_box_tag 'engagement_obligations', '1', false, class: 'form-check-input', required: true %>
+                <%= check_box_tag 'request[engagement_obligations]', '1', fv.call('engagement_obligations') == '1', class: 'form-check-input', required: true %>
                 <label class="form-check-label fw-bold">
                   Je m'engage à respecter ou faire respecter les obligations à charge du bénéficiaire. *
                 </label>
               </div>
 
               <div class="form-check mb-3">
-                <%= check_box_tag 'certification_exactitude', '1', false, class: 'form-check-input', required: true %>
+                <%= check_box_tag 'request[certification_exactitude]', '1', fv.call('certification_exactitude') == '1', class: 'form-check-input', required: true %>
                 <label class="form-check-label fw-bold">
                   Je certifie que les renseignements repris au présent formulaire et dans les documents joints sont sincères et exacts. *
                 </label>
@@ -694,14 +696,15 @@ function toggleBeneficiaireType(type) {
 }
 
 // Afficher/masquer les détails de la convention d'accessibilité
-document.querySelector('input[name="demande_convention_accessibilite"]').addEventListener('change', function() {
+document.querySelector('input[name="request[demande_convention_accessibilite]"]').addEventListener('change', function() {
   const details = document.getElementById('convention_details');
   details.style.display = this.checked ? 'block' : 'none';
 });
 
-// Initialiser l'affichage
+// Initialiser l'affichage selon le type de bénéficiaire déjà sélectionné (brouillon existant)
 document.addEventListener('DOMContentLoaded', function() {
-  toggleBeneficiaireType('personne_physique');
+  const checked = document.querySelector('input[name="request[beneficiaire_type]"]:checked');
+  toggleBeneficiaireType(checked ? checked.value : 'personne_physique');
 });
 </script>
 
