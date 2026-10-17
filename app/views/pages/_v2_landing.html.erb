@@ -1,6 +1,7 @@
 <%# V2 Landing — Ren0vate %>
 <% hc = local_assigns.fetch(:household_count, 0).to_i %>
 
+<div class="ren-landing-root" data-controller="landing-motion">
 <%# ═══════════════════════════════════════════════════════════ %>
 <%# HERO — dark slate + dashboard mockup                        %>
 <%# ═══════════════════════════════════════════════════════════ %>
@@ -21,7 +22,7 @@
     </div>
   </nav>
 
-  <section class="py-5">
+  <section class="py-5 ren-hero-content">
     <div class="container">
       <div class="row align-items-center g-5 py-4">
 
@@ -53,7 +54,7 @@
             <div class="ren-trust ren-trust-on-dark">
               <i class="bi bi-shield-check"></i>
               <% if hc > 0 %>
-                <span>Déjà <strong><%= number_with_delimiter(hc) %> biens</strong> gérés sur Ren0vate</span>
+                <span>Déjà <strong><span data-count-target="<%= hc %>"><%= number_with_delimiter(hc) %></span> biens</strong> gérés sur Ren0vate</span>
               <% else %>
                 <span>Soyez parmi les premiers à centraliser votre bien ici</span>
               <% end %>
@@ -61,8 +62,9 @@
         </div>
 
         <%# Dashboard mockup %>
-        <div class="col-lg-6">
-          <div class="ren-dash-frame">
+        <div class="col-lg-6 position-relative">
+          <div class="ren-hero-glow" aria-hidden="true"></div>
+          <div class="ren-dash-frame" data-reveal>
             <div class="ren-dash-chrome">
               <span class="ren-dash-dot ren-dash-dot-r"></span>
               <span class="ren-dash-dot ren-dash-dot-y"></span>
@@ -86,25 +88,25 @@
                 <div class="ren-dash-stat ren-dash-stat-primary">
                   <i class="bi bi-bar-chart-steps ren-dash-stat-icon"></i>
                   <div class="ren-dash-stat-label">Avancement chantier</div>
-                  <div class="ren-dash-stat-value">62 %</div>
+                  <div class="ren-dash-stat-value"><span data-count-target="62" data-count-suffix=" %">62 %</span></div>
                   <div class="ren-dash-stat-sub">5 lots sur 8 validés</div>
                 </div>
                 <div class="ren-dash-stat ren-dash-stat-accent">
                   <i class="bi bi-cash-coin ren-dash-stat-icon"></i>
                   <div class="ren-dash-stat-label">Prêt 0 % débloqué</div>
-                  <div class="ren-dash-stat-value">18 200 €</div>
+                  <div class="ren-dash-stat-value"><span data-count-target="18200" data-count-suffix=" €">18 200 €</span></div>
                   <div class="ren-dash-stat-sub">sur 32 400 € validés</div>
                 </div>
                 <div class="ren-dash-stat ren-dash-stat-neutral">
                   <i class="bi bi-folder2-open ren-dash-stat-icon"></i>
                   <div class="ren-dash-stat-label">Documents</div>
-                  <div class="ren-dash-stat-value">47</div>
+                  <div class="ren-dash-stat-value"><span data-count-target="47">47</span></div>
                   <div class="ren-dash-stat-sub">3 pièces manquantes</div>
                 </div>
                 <div class="ren-dash-stat ren-dash-stat-warning">
                   <i class="bi bi-bell ren-dash-stat-icon"></i>
                   <div class="ren-dash-stat-label">Prochaine échéance</div>
-                  <div class="ren-dash-stat-value">12 j</div>
+                  <div class="ren-dash-stat-value"><span data-count-target="12" data-count-suffix=" j">12 j</span></div>
                   <div class="ren-dash-stat-sub">Tranche 3 · facture isolation</div>
                 </div>
               </div>
@@ -116,17 +118,17 @@
                 <div class="ren-dash-lots">
                   <div class="ren-dash-lot">
                     <div class="ren-dash-lot-name">Toiture</div>
-                    <div class="ren-dash-lot-bar"><div class="ren-dash-lot-fill ren-dash-lot-fill-success" style="width:100%"></div></div>
+                    <div class="ren-dash-lot-bar"><div class="ren-dash-lot-fill ren-dash-lot-fill-success" style="width:100%" data-bar-target-width="100%"></div></div>
                     <div class="ren-dash-lot-status ren-dash-lot-status-success">Réceptionné</div>
                   </div>
                   <div class="ren-dash-lot">
                     <div class="ren-dash-lot-name">Isolation</div>
-                    <div class="ren-dash-lot-bar"><div class="ren-dash-lot-fill ren-dash-lot-fill-primary" style="width:80%"></div></div>
+                    <div class="ren-dash-lot-bar"><div class="ren-dash-lot-fill ren-dash-lot-fill-primary" style="width:80%" data-bar-target-width="80%"></div></div>
                     <div class="ren-dash-lot-status ren-dash-lot-status-primary">En cours</div>
                   </div>
                   <div class="ren-dash-lot">
                     <div class="ren-dash-lot-name">Châssis</div>
-                    <div class="ren-dash-lot-bar"><div class="ren-dash-lot-fill ren-dash-lot-fill-accent" style="width:45%"></div></div>
+                    <div class="ren-dash-lot-bar"><div class="ren-dash-lot-fill ren-dash-lot-fill-accent" style="width:45%" data-bar-target-width="45%"></div></div>
                     <div class="ren-dash-lot-status ren-dash-lot-status-accent">En cours</div>
                   </div>
                   <div class="ren-dash-lot">
@@ -161,10 +163,10 @@
         </p>
       </div>
     </div>
-    <div class="row g-4 ren-phases-row">
+    <div class="row g-4 ren-phases-row" data-reveal-group>
 
       <div class="col-lg-4">
-        <div class="ren-phase ren-phase-primary">
+        <div class="ren-phase ren-phase-primary" data-reveal>
           <div class="ren-phase-head">
             <div class="ren-phase-num"><i class="bi bi-pencil-square"></i></div>
             <div>
@@ -207,7 +209,7 @@
       </div>
 
       <div class="col-lg-4">
-        <div class="ren-phase ren-phase-accent">
+        <div class="ren-phase ren-phase-accent" data-reveal>
           <div class="ren-phase-head">
             <div class="ren-phase-num"><i class="bi bi-bar-chart-steps"></i></div>
             <div>
@@ -257,7 +259,7 @@
       </div>
 
       <div class="col-lg-4">
-        <div class="ren-phase ren-phase-success">
+        <div class="ren-phase ren-phase-success" data-reveal>
           <div class="ren-phase-head">
             <div class="ren-phase-num"><i class="bi bi-house-check"></i></div>
             <div>
@@ -312,10 +314,10 @@
         </p>
       </div>
     </div>
-    <div class="row g-4 ren-intervenants">
+    <div class="row g-4 ren-intervenants" data-reveal-group>
 
       <div class="col-lg-6">
-        <div class="ren-int-card ren-int-card-primary h-100">
+        <div class="ren-int-card ren-int-card-primary h-100" data-reveal>
           <div class="ren-int-badge"><i class="bi bi-star-fill me-1"></i>Votre rôle</div>
           <div class="ren-int-head">
             <div class="ren-int-icon ren-int-icon-accent">
@@ -345,7 +347,7 @@
       <div class="col-lg-6">
         <div class="row g-3 h-100">
           <div class="col-12">
-            <div class="ren-int-card ren-int-card-secondary">
+            <div class="ren-int-card ren-int-card-secondary" data-reveal>
               <div class="ren-int-head ren-int-head-compact">
                 <div class="ren-int-icon ren-int-icon-muted"><i class="bi bi-hammer"></i></div>
                 <div>
@@ -357,7 +359,7 @@
             </div>
           </div>
           <div class="col-12">
-            <div class="ren-int-card ren-int-card-secondary">
+            <div class="ren-int-card ren-int-card-secondary" data-reveal>
               <div class="ren-int-head ren-int-head-compact">
                 <div class="ren-int-icon ren-int-icon-muted"><i class="bi bi-clipboard-data"></i></div>
                 <div>
@@ -369,7 +371,7 @@
             </div>
           </div>
           <div class="col-12">
-            <div class="ren-int-card ren-int-card-secondary">
+            <div class="ren-int-card ren-int-card-secondary" data-reveal>
               <div class="ren-int-head ren-int-head-compact">
                 <div class="ren-int-icon ren-int-icon-muted"><i class="bi bi-bank2"></i></div>
                 <div>
@@ -392,8 +394,8 @@
 <%# ═══════════════════════════════════════════════════════════ %>
 <section class="py-5">
   <div class="container">
-    <div class="row align-items-center g-5">
-      <div class="col-lg-6">
+    <div class="row align-items-center g-5" data-reveal-group>
+      <div class="col-lg-6" data-reveal>
         <span class="ren-eyebrow ren-eyebrow-accent">
           <i class="bi bi-robot me-1"></i>Assistant IA
         </span>
@@ -412,7 +414,7 @@
           🏛️ Discuter avec l'Expert Subsides →
         <% end %>
       </div>
-      <div class="col-lg-6">
+      <div class="col-lg-6" data-reveal>
         <div class="ren-phase ren-phase-accent">
           <p class="ren-int-sub mb-2"><i class="bi bi-robot me-1"></i>Assistant Ren0vate — Mode Expert</p>
           <ul class="ren-phase-feats">
@@ -450,60 +452,38 @@
         </p>
       </div>
     </div>
-    <div class="row g-4">
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100 border-0" style="box-shadow: var(--ren0vate-shadow);">
-          <div class="card-body">
-            <i class="bi bi-people-fill text-primary-custom mb-2" style="font-size:1.5rem;"></i>
-            <h4 class="ren-int-title-sm mb-2">Comparateur d'entrepreneurs</h4>
-            <p class="ren-int-body-sm mb-0">Comparez plusieurs devis d'entrepreneurs agréés sur les mêmes critères, en un coup d'œil.</p>
-          </div>
+    <div class="ren-bento-grid" data-reveal-group>
+      <div class="ren-bento-item ren-bento-item-wide" data-reveal>
+        <i class="bi bi-piggy-bank-fill ren-bento-icon"></i>
+        <div>
+          <h4 class="ren-int-title-sm mb-2">IA Économies Chantier</h4>
+          <p class="ren-int-body-sm mb-0">L'IA analyse vos devis existants et détecte les postes optimisables : score d'optimisation sur 100, économies estimées en €, alertes sur les matériaux exposés aux prix du pétrole.</p>
         </div>
       </div>
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100 border-0" style="box-shadow: var(--ren0vate-shadow);">
-          <div class="card-body">
-            <i class="bi bi-speedometer2 text-primary-custom mb-2" style="font-size:1.5rem;"></i>
-            <h4 class="ren-int-title-sm mb-2">Score Santé Projet</h4>
-            <p class="ren-int-body-sm mb-0">Une note sur 10 qui évalue en continu la santé de votre chantier (budget, délais, documents), avec alertes automatiques.</p>
-          </div>
-        </div>
+      <div class="ren-bento-item" data-reveal>
+        <i class="bi bi-people-fill ren-bento-icon"></i>
+        <h4 class="ren-int-title-sm mb-2">Comparateur d'entrepreneurs</h4>
+        <p class="ren-int-body-sm mb-0">Comparez plusieurs devis d'entrepreneurs agréés sur les mêmes critères, en un coup d'œil.</p>
       </div>
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100 border-0" style="box-shadow: var(--ren0vate-shadow);">
-          <div class="card-body">
-            <i class="bi bi-signpost-2 text-primary-custom mb-2" style="font-size:1.5rem;"></i>
-            <h4 class="ren-int-title-sm mb-2">Prédicteur de permis d'urbanisme</h4>
-            <p class="ren-int-body-sm mb-0">L'IA estime vos chances d'obtenir votre permis, avant même de déposer le dossier.</p>
-          </div>
-        </div>
+      <div class="ren-bento-item" data-reveal>
+        <i class="bi bi-speedometer2 ren-bento-icon"></i>
+        <h4 class="ren-int-title-sm mb-2">Score Santé Projet</h4>
+        <p class="ren-int-body-sm mb-0">Une note sur 10 qui évalue en continu la santé de votre chantier (budget, délais, documents), avec alertes automatiques.</p>
       </div>
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100 border-0" style="box-shadow: var(--ren0vate-shadow);">
-          <div class="card-body">
-            <i class="bi bi-calculator text-primary-custom mb-2" style="font-size:1.5rem;"></i>
-            <h4 class="ren-int-title-sm mb-2">ROI Calculator</h4>
-            <p class="ren-int-body-sm mb-0">Projetez la rentabilité de vos travaux sur 20 ans : économies d'énergie, valorisation du bien, primes cumulées.</p>
-          </div>
-        </div>
+      <div class="ren-bento-item" data-reveal>
+        <i class="bi bi-signpost-2 ren-bento-icon"></i>
+        <h4 class="ren-int-title-sm mb-2">Prédicteur de permis d'urbanisme</h4>
+        <p class="ren-int-body-sm mb-0">L'IA estime vos chances d'obtenir votre permis, avant même de déposer le dossier.</p>
       </div>
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100 border-0" style="box-shadow: var(--ren0vate-shadow);">
-          <div class="card-body">
-            <i class="bi bi-camera text-primary-custom mb-2" style="font-size:1.5rem;"></i>
-            <h4 class="ren-int-title-sm mb-2">Suivi photo intelligent</h4>
-            <p class="ren-int-body-sm mb-0">Uploadez vos photos de chantier, l'IA détecte automatiquement le taux d'avancement réel.</p>
-          </div>
-        </div>
+      <div class="ren-bento-item" data-reveal>
+        <i class="bi bi-calculator ren-bento-icon"></i>
+        <h4 class="ren-int-title-sm mb-2">ROI Calculator</h4>
+        <p class="ren-int-body-sm mb-0">Projetez la rentabilité de vos travaux sur 20 ans : économies d'énergie, valorisation du bien, primes cumulées.</p>
       </div>
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100 border-0" style="box-shadow: var(--ren0vate-shadow);">
-          <div class="card-body">
-            <i class="bi bi-piggy-bank-fill text-primary-custom mb-2" style="font-size:1.5rem;"></i>
-            <h4 class="ren-int-title-sm mb-2">IA Économies Chantier</h4>
-            <p class="ren-int-body-sm mb-0">L'IA analyse vos devis existants et détecte les postes optimisables : score d'optimisation sur 100, économies estimées en €, alertes sur les matériaux exposés aux prix du pétrole.</p>
-          </div>
-        </div>
+      <div class="ren-bento-item" data-reveal>
+        <i class="bi bi-camera ren-bento-icon"></i>
+        <h4 class="ren-int-title-sm mb-2">Suivi photo intelligent</h4>
+        <p class="ren-int-body-sm mb-0">Uploadez vos photos de chantier, l'IA détecte automatiquement le taux d'avancement réel.</p>
       </div>
     </div>
   </div>
@@ -517,8 +497,8 @@
     <div class="row justify-content-center">
       <div class="col-lg-8">
         <h2 class="mb-4 text-center">Questions fréquentes</h2>
-        <div class="accordion" id="faq-landing">
-          <div class="accordion-item border-0 mb-2 rounded overflow-hidden">
+        <div class="accordion" id="faq-landing" data-reveal-group>
+          <div class="accordion-item border-0 mb-2 rounded overflow-hidden" data-reveal>
             <h2 class="accordion-header">
               <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq-landing-0">
                 Les primes ont disparu — qu'est-ce que je peux toucher en 2026 ?
@@ -538,7 +518,7 @@
               </div>
             </div>
           </div>
-          <div class="accordion-item border-0 mb-2 rounded overflow-hidden">
+          <div class="accordion-item border-0 mb-2 rounded overflow-hidden" data-reveal>
             <h2 class="accordion-header">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-landing-1">
                 Combien ça coûte d'utiliser Ren0vate ?
@@ -551,7 +531,7 @@
               </div>
             </div>
           </div>
-          <div class="accordion-item border-0 mb-2 rounded overflow-hidden">
+          <div class="accordion-item border-0 mb-2 rounded overflow-hidden" data-reveal>
             <h2 class="accordion-header">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-landing-2">
                 Mes données restent-elles confidentielles ?
@@ -567,7 +547,7 @@
               </div>
             </div>
           </div>
-          <div class="accordion-item border-0 mb-2 rounded overflow-hidden">
+          <div class="accordion-item border-0 mb-2 rounded overflow-hidden" data-reveal>
             <h2 class="accordion-header">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-landing-3">
                 Je n'ai pas encore de devis. Je peux quand même commencer ?
@@ -580,7 +560,7 @@
               </div>
             </div>
           </div>
-          <div class="accordion-item border-0 rounded overflow-hidden">
+          <div class="accordion-item border-0 rounded overflow-hidden" data-reveal>
             <h2 class="accordion-header">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-landing-4">
                 Est-ce un chatbot générique ?
@@ -622,19 +602,43 @@
 
 <footer class="ren-landing-footer">
   <div class="container">
-    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 py-2">
-      <div class="d-flex align-items-center gap-2">
-        <%= render "shared/brand_mark", size: 32 %>
-        <span class="ren-landing-logo-text">Ren0vate</span>
+    <div class="ren-foot-grid">
+      <div class="ren-foot-brand">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <%= render "shared/brand_mark", size: 32 %>
+          <span class="ren-landing-logo-text">Ren0vate</span>
+        </div>
+        <p style="color:rgba(255,255,255,.55);font-size:.875rem;max-width:320px;">
+          Le passeport numérique de votre logement — rénovation, primes, DIU, vente et gestion
+          locative centralisés, pour les propriétaires belges.
+        </p>
       </div>
-      <ul class="list-unstyled d-flex flex-wrap gap-3 mb-0 align-items-center" style="font-size:.85rem;">
-        <li><%= link_to "À propos", root_path, style: "color:rgba(255,255,255,.8);text-decoration:none;" %></li>
-        <li><%= link_to "Contact", "mailto:robin@architecht.be", style: "color:rgba(255,255,255,.8);text-decoration:none;" %></li>
-        <li><%= link_to "RGPD", privacy_path, style: "color:rgba(255,255,255,.8);text-decoration:none;" %></li>
-        <li><%= link_to "Mentions légales", legal_path, style: "color:rgba(255,255,255,.8);text-decoration:none;" %></li>
-        <li><%= link_to "Conditions générales", terms_path, style: "color:rgba(255,255,255,.8);text-decoration:none;" %></li>
+      <div>
+        <div class="ren-foot-heading">Produit</div>
+        <ul class="ren-foot-links">
+          <li><%= link_to "Tarifs", pricing_path %></li>
+          <li><%= link_to "Expert Subsides", subsidy_expert_path %></li>
+          <li><%= link_to "Blog", blog_index_path %></li>
+        </ul>
+      </div>
+      <div>
+        <div class="ren-foot-heading">Ressources</div>
+        <ul class="ren-foot-links">
+          <li><%= link_to "FAQ", faq_path %></li>
+          <li><%= link_to "Aide", aide_path %></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ren-foot-bottom flex-column flex-sm-row gap-2">
+      <span>© 2026 Ren0vate SA</span>
+      <ul class="list-unstyled d-flex flex-wrap gap-3 mb-0 align-items-center">
+        <li><%= link_to "Mentions légales", legal_path, class: "ren-foot-link-inline" %></li>
+        <li><%= link_to "Confidentialité", privacy_path, class: "ren-foot-link-inline" %></li>
+        <li><%= link_to "CGU", terms_path, class: "ren-foot-link-inline" %></li>
+        <li><%= link_to "DPA", dpa_path, class: "ren-foot-link-inline" %></li>
+        <li><%= link_to "Contact", "mailto:robin@architecht.be", class: "ren-foot-link-inline" %></li>
       </ul>
-      <span style="color:rgba(255,255,255,.4);font-size:.75rem;">© 2026 Ren0vate SA</span>
     </div>
   </div>
 </footer>
+</div>
