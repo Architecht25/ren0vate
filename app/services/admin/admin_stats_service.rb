@@ -51,15 +51,14 @@ module Admin
 
     def property_stats
       total = Property.count
-      return { total: 0 } if total.zero?
 
       {
         total: total,
         geocoded: Property.where.not(latitude: nil, longitude: nil).count,
         with_projects: Property.joins(:projects).distinct.count,
         with_simulations: Property.joins(:simulations).distinct.count,
-        geocoding_rate: Property.where.not(latitude: nil).count.to_f / total * 100,
-        usage_rate: Property.joins(:projects).distinct.count.to_f / total * 100,
+        geocoding_rate: total.zero? ? 0.0 : Property.where.not(latitude: nil).count.to_f / total * 100,
+        usage_rate: total.zero? ? 0.0 : Property.joins(:projects).distinct.count.to_f / total * 100,
         recent_additions: Property.where('created_at > ?', 1.week.ago).count,
         by_region: property_distribution_by_region
       }
@@ -67,14 +66,13 @@ module Admin
 
     def project_stats
       total = Project.count
-      return { total: 0 } if total.zero?
 
       {
         total: total,
         active: Project.where(statut: 'en_cours').count,
         completed: Project.where(statut: 'termine').count,
         recent: Project.where('created_at > ?', 1.week.ago).count,
-        avg_per_property: (total.to_f / Property.count).round(2),
+        avg_per_property: Property.count.zero? ? 0.0 : (total.to_f / Property.count).round(2),
         completion_rate: calculate_project_completion_rate,
         by_type: project_distribution_by_type
       }
@@ -82,13 +80,12 @@ module Admin
 
     def simulation_stats
       total = Simulation.count
-      return { total: 0 } if total.zero?
 
       {
         total: total,
         this_week: Simulation.where('created_at > ?', 1.week.ago).count,
         this_month: Simulation.where('created_at > ?', 1.month.ago).count,
-        avg_per_user: (total.to_f / User.count).round(2),
+        avg_per_user: User.count.zero? ? 0.0 : (total.to_f / User.count).round(2),
         success_rate: calculate_simulation_success_rate,
         recent_trend: calculate_simulation_trend
       }
@@ -106,20 +103,18 @@ module Admin
 
     def document_stats
       total = Document.count
-      return { total: 0 } if total.zero?
 
       {
         total: total,
         this_week: Document.where('created_at > ?', 1.week.ago).count,
         this_month: Document.where('created_at > ?', 1.month.ago).count,
-        avg_per_user: (total.to_f / User.count).round(2),
+        avg_per_user: User.count.zero? ? 0.0 : (total.to_f / User.count).round(2),
         by_type: document_distribution_by_type
       }
     end
 
     def request_progress_stats
       total = RequestProgress.count
-      return { total: 0 } if total.zero?
 
       {
         total: total,
@@ -129,7 +124,7 @@ module Admin
         refuses: RequestProgress.where(status_administratif: 'refuse').count,
         this_week: RequestProgress.where('created_at > ?', 1.week.ago).count,
         this_month: RequestProgress.where('created_at > ?', 1.month.ago).count,
-        avg_per_user: (total.to_f / User.count).round(2),
+        avg_per_user: User.count.zero? ? 0.0 : (total.to_f / User.count).round(2),
         by_region: request_progress_distribution_by_region,
         by_status: RequestProgress.group(:status_administratif).count,
         success_rate: calculate_request_progress_success_rate
