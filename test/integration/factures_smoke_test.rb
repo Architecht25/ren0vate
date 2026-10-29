@@ -6,11 +6,11 @@ require "test_helper"
 # planter la page en production.
 class FacturesSmokeTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
-  fixtures :users, :properties, :projects
+  fixtures :users, :properties, :projects, :subscriptions
 
   setup do
-    @user = users(:freemium_user)
-    @project = projects(:one)
+    @user = users(:individual_user)
+    @project = projects(:two)
     @document = Document.create!(
       project: @project,
       property: @project.property,

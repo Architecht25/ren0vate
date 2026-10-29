@@ -8,6 +8,7 @@
 # des besoins différents, voir mémoire "project_v2_trois_systemes_devis_audit"
 # pour le détail. Décision ouverte #6 de docs/PLAN_V2.md toujours non close.
 class ProjectQuotesController < ApplicationController
+  before_action :check_dossier_documentaire_access!
   before_action :set_project, only: %i[index new create]
   before_action :set_project_quote, only: %i[show decide]
 

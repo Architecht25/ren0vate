@@ -233,6 +233,17 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  # Gating partagé pour le dossier documentaire (factures/devis/AER...),
+  # utilisé par Documents::DocumentsController, Factures::FacturesController,
+  # Devis::QuotesController, ProjectDocumentsController et ProjectQuotesController.
+  def check_dossier_documentaire_access!
+    return if plan_exempt?
+    unless current_user.can_access_feature?(:dossier_documentaire)
+      redirect_to pricing_select_path,
+                  alert: "Le dossier documentaire (factures, devis, documents) est disponible à partir de l'offre Propriétaire."
+    end
+  end
+
   # Notifie l'admin par email lors d'un dépôt de document, quel que soit le
   # contrôleur d'origine (formulaire générique, OCR, factures, vues pro...).
   # Synchrone (deliver_now) : indépendant de Solid Queue, garantit la livraison
