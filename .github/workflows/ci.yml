@@ -7,7 +7,11 @@ on:
 
 jobs:
   scan_ruby:
-    runs-on: ubuntu-latest
+    # ubuntu-latest est passé à 26.04 le 29/10/2026 : plus de build ruby-3.3.9
+    # disponible pour ce runner (seul 3.3.13+ l'est), CI cassée alors que rien
+    # n'avait changé côté code. Pin sur 24.04 jusqu'à décision délibérée d'upgrade
+    # Ruby (cf. CLAUDE.md "Ruby 3.3.9 sur Heroku — à upgrader").
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout code
@@ -23,7 +27,7 @@ jobs:
         run: bin/brakeman --no-pager
 
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -38,7 +42,7 @@ jobs:
         run: bin/rubocop -f github
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     services:
       postgres:
