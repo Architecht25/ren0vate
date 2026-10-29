@@ -8,6 +8,27 @@
 .ren-hero-dark {
   background: var(--ren0vate-primary-dark);
   color: white;
+  position: relative;
+}
+
+// ── Profondeur hero (glow décoratif derrière le mockup) ──────────────────────
+
+.ren-hero-content {
+  position: relative;
+  overflow: hidden;
+}
+
+.ren-hero-glow {
+  position: absolute;
+  inset: -20% -10% auto auto;
+  width: 70%;
+  height: 140%;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 70% 20%, rgba(var(--ren0vate-accent-rgb), .22), transparent 60%),
+    radial-gradient(circle at 30% 70%, rgba(var(--ren0vate-success-rgb), .14), transparent 55%);
+  filter: blur(40px);
 }
 
 .ren-em-accent {
@@ -74,6 +95,8 @@
 // ── Dashboard mockup ─────────────────────────────────────────────────────────
 
 .ren-dash-frame {
+  position: relative;
+  z-index: 1;
   border-radius: var(--ren0vate-radius-lg);
   overflow: hidden;
   box-shadow: 0 24px 48px rgba(0,0,0,.35);
@@ -271,10 +294,37 @@
   height: 100%;
   border-top: 4px solid transparent;
   box-shadow: var(--ren0vate-shadow);
+  position: relative;
+  overflow: hidden;
+  transition: transform .25s ease, box-shadow .25s ease;
 
   &.ren-phase-primary { border-top-color: var(--ren0vate-primary); }
   &.ren-phase-accent  { border-top-color: var(--ren0vate-accent); }
   &.ren-phase-success { border-top-color: var(--ren0vate-success); }
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--ren0vate-shadow-lg);
+  }
+
+  &::before {
+    position: absolute;
+    top: -.5rem;
+    right: .5rem;
+    font-size: 5.5rem;
+    font-weight: 800;
+    line-height: 1;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  > * { position: relative; z-index: 1; }
+}
+
+.ren-phases-row {
+  .ren-phase-primary::before { content: "01"; color: rgba(var(--ren0vate-primary-rgb), .06); }
+  .ren-phase-accent::before  { content: "02"; color: rgba(var(--ren0vate-accent-rgb), .08); }
+  .ren-phase-success::before { content: "03"; color: rgba(var(--ren0vate-success-rgb), .1); }
 }
 
 .ren-phase-head {
@@ -294,6 +344,11 @@
   font-size: 1.1rem;
   color: var(--ren0vate-primary);
   flex-shrink: 0;
+  transition: transform .25s ease;
+}
+
+.ren-phase:hover .ren-phase-num {
+  transform: scale(1.1) rotate(-4deg);
 }
 
 .ren-phase-accent .ren-phase-num {
@@ -375,15 +430,27 @@
   padding: 1.5rem;
   position: relative;
   box-shadow: var(--ren0vate-shadow);
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
 
   &.ren-int-card-primary {
     border: 2px solid var(--ren0vate-accent);
     background: linear-gradient(135deg, #fff 0%, rgba(var(--ren0vate-accent-rgb),.04) 100%);
+
+    &:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--ren0vate-shadow-lg);
+    }
   }
 
   &.ren-int-card-secondary {
     border: 1px solid var(--ren0vate-border);
     padding: 1rem 1.25rem;
+
+    &:hover {
+      transform: translateX(6px);
+      border-color: var(--ren0vate-accent);
+      box-shadow: var(--ren0vate-shadow-lg);
+    }
   }
 }
 
@@ -432,7 +499,13 @@
     color: var(--ren0vate-primary);
     width: 36px; height: 36px;
     font-size: 1rem;
+    transition: background-color .25s ease, color .25s ease;
   }
+}
+
+.ren-int-card-secondary:hover .ren-int-icon-muted {
+  background: var(--ren0vate-accent);
+  color: #fff;
 }
 
 .ren-int-title {
@@ -484,6 +557,88 @@
   }
 }
 
+// ── Bento grid (fonctionnalités avancées) ────────────────────────────────────
+
+.ren-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1rem;
+}
+
+.ren-bento-item {
+  grid-column: span 2;
+  background: #fff;
+  border-radius: var(--ren0vate-radius-lg);
+  box-shadow: var(--ren0vate-shadow);
+  padding: 1.5rem;
+  height: 100%;
+  transition: transform .25s ease, box-shadow .25s ease;
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--ren0vate-shadow-lg);
+  }
+}
+
+.ren-bento-item-wide {
+  grid-column: span 6;
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  background: linear-gradient(135deg, rgba(var(--ren0vate-accent-rgb),.1) 0%, rgba(var(--ren0vate-primary-rgb),.05) 100%);
+  border: 1px solid rgba(var(--ren0vate-accent-rgb),.25);
+
+  .ren-bento-icon {
+    margin-bottom: 0;
+    width: 56px; height: 56px;
+    flex-shrink: 0;
+    border-radius: var(--ren0vate-radius);
+    background: var(--ren0vate-accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .ren-bento-grid { grid-template-columns: repeat(2, 1fr); }
+  .ren-bento-item { grid-column: span 1; }
+  .ren-bento-item-wide { grid-column: span 2; }
+}
+
+@media (max-width: 575.98px) {
+  .ren-bento-grid { grid-template-columns: 1fr; }
+  .ren-bento-item,
+  .ren-bento-item-wide { grid-column: span 1; }
+  .ren-bento-item-wide { flex-direction: column; }
+}
+
+.ren-bento-icon {
+  width: 44px; height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--ren0vate-radius);
+  background: rgba(var(--ren0vate-primary-rgb), .08);
+  color: var(--ren0vate-primary);
+  font-size: 1.25rem;
+  margin-bottom: .75rem;
+  transition: transform .25s ease;
+}
+
+.ren-bento-item:hover .ren-bento-icon {
+  transform: scale(1.15);
+}
+
+// ── Texture légère sur les sections claires (profondeur) ─────────────────────
+
+.ren-landing-root .bg-sand-ren0vate {
+  background-image: radial-gradient(rgba(var(--ren0vate-primary-rgb), .08) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
 // ── Testimonials ─────────────────────────────────────────────────────────────
 
 .ren-avatar {
@@ -514,19 +669,18 @@
 .ren-landing-nav {
   padding: .875rem 0;
   border-bottom: 1px solid rgba(255,255,255,.08);
-}
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: transparent;
+  transition: background-color .25s ease, box-shadow .25s ease, padding .25s ease;
 
-.ren-logo-mark {
-  width: 32px; height: 32px;
-  border-radius: 8px;
-  background: var(--ren0vate-accent);
-  color: white;
-  font-weight: 800;
-  font-size: .85rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  &.is-scrolled {
+    background: rgba(15, 23, 42, .92);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 16px rgba(0,0,0,.2);
+    padding: .6rem 0;
+  }
 }
 
 .ren-landing-logo-text {
@@ -614,4 +768,9 @@
   .ren-foot-brand { grid-column: 1 / -1; }
 
   .ren-landing-nav .btn { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ren-landing-nav { transition: none; }
+  .ren-dash-lot-fill { transition: none; }
 }

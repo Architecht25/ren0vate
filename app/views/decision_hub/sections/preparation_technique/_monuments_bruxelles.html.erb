@@ -206,7 +206,7 @@
 
       <div class="col-md-4">
         <label class="form-label small fw-medium">Autorisation urbanistique</label>
-        <select class="form-select" name="monuments_travaux[autorisation_type]">
+        <select class="form-select" id="mon-autorisation-type-select" name="monuments_travaux[autorisation_type]">
           <option value="">— Sélectionner —</option>
           <option value="permis" <%= 'selected' if _td.dig(:travaux, :autorisation_type) == 'permis' %>>Permis délivré</option>
           <option value="plan_gestion" <%= 'selected' if _td.dig(:travaux, :autorisation_type) == 'plan_gestion' %>>Plan de gestion patrimoniale</option>
@@ -371,11 +371,37 @@
     </div>
   </div>
   <div class="card-body">
+
+    <div class="alert alert-secondary border-0 small mb-3 rounded-3">
+      <i class="bi bi-info-circle me-1"></i>
+      La liste exacte des annexes dépend de la <strong>qualité du demandeur</strong> (section 1, ci-dessus),
+      du <strong>permis d'urbanisme</strong> (section 3) et du fait que les travaux soient
+      <strong>commandés par marché public</strong>. Précisez ce dernier point pour que la liste
+      ci-dessous se filtre automatiquement sur votre situation.
+    </div>
+
+    <div class="mb-3 p-3 rounded-3 border" style="background:#f8f9fa;">
+      <label class="form-label small fw-semibold mb-2">Les travaux sont-ils commandés par marché public ?</label>
+      <div class="d-flex gap-3">
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="monuments_docs_meta[marche_public]" id="mon-marche-oui" value="oui"
+                 <%= 'checked' if _td.dig(:docs_meta, :marche_public) == 'oui' %>>
+          <label class="form-check-label small" for="mon-marche-oui">Oui</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="monuments_docs_meta[marche_public]" id="mon-marche-non" value="non"
+                 <%= 'checked' if _td.dig(:docs_meta, :marche_public) == 'non' %>>
+          <label class="form-check-label small" for="mon-marche-non">Non</label>
+        </div>
+      </div>
+      <div class="form-text small text-muted">Seuils marchés publics : au-delà de 30 000 € travaux ou 8 500 € services.</div>
+    </div>
+
     <div class="row g-2">
 
       <%# Colonne gauche %>
       <div class="col-md-6">
-        <p class="small fw-semibold text-muted mb-2">Droits sur le bien</p>
+        <p class="small fw-semibold text-muted mb-2">Droits sur le bien <span class="badge bg-light text-muted fw-normal">Toujours requis</span></p>
         <div class="d-flex flex-column gap-2">
           <% [
             ["doc_propriete",   "Attestation de propriété ou autre droit réel (usufruit, emphytéose…)"],
@@ -393,17 +419,28 @@
           <% end %>
         </div>
 
-        <p class="small fw-semibold text-muted mt-3 mb-2">Identité bancaire</p>
+        <p class="small fw-semibold text-muted mt-3 mb-2">Identité bancaire <span class="badge bg-light text-muted fw-normal">Toujours requis</span></p>
         <div class="form-check p-2 rounded-3 border" style="background:#f8f9fa;">
           <input class="form-check-input mon-doc-check" type="checkbox" id="doc_rib"
                  name="monuments_docs[doc_rib]"
                  <%= _td.dig(:docs, :doc_rib) == '1' ? 'checked' : '' %>>
           <label class="form-check-label small" for="doc_rib">
-            <i class="bi bi-paperclip text-primary me-1"></i>RIB ou attestation d'identité bancaire (IBAN)
+            <i class="bi bi-paperclip text-primary me-1"></i>Attestation d'identité du titulaire du compte ou RIB
           </label>
         </div>
 
-        <p class="small fw-semibold text-muted mt-3 mb-2">Assurances</p>
+        <p class="small fw-semibold text-muted mt-3 mb-2">Statut TVA <span class="badge bg-light text-muted fw-normal">Personne morale ou bénéficiaire public</span></p>
+        <div class="form-check p-2 rounded-3 border mon-doc-conditional" data-mon-when="personne-morale-publique" style="background:#f8f9fa;">
+          <input class="form-check-input mon-doc-check" type="checkbox" id="doc_tva"
+                 name="monuments_docs[doc_tva]"
+                 <%= _td.dig(:docs, :doc_tva) == '1' ? 'checked' : '' %>>
+          <label class="form-check-label small" for="doc_tva">
+            <i class="bi bi-paperclip text-primary me-1"></i>
+            Attestation de l'administration de la TVA relative au statut et au régime, ou déclaration sur l'honneur de non-assujettissement
+          </label>
+        </div>
+
+        <p class="small fw-semibold text-muted mt-3 mb-2">Assurances <span class="badge bg-light text-muted fw-normal">Recommandé — non exigé par le formulaire officiel</span></p>
         <div class="form-check p-2 rounded-3 border" style="background:#f8f9fa;">
           <input class="form-check-input mon-doc-check" type="checkbox" id="doc_assurance"
                  name="monuments_docs[doc_assurance]"
@@ -416,29 +453,74 @@
 
       <%# Colonne droite %>
       <div class="col-md-6">
-        <p class="small fw-semibold text-muted mb-2">Estimations de coûts</p>
+        <p class="small fw-semibold text-muted mb-2">Estimations de coûts <span class="badge bg-light text-muted fw-normal">Sans marché public</span></p>
         <div class="d-flex flex-column gap-2">
-          <div class="form-check p-2 rounded-3 border" style="background:#f8f9fa;">
+          <div class="form-check p-2 rounded-3 border mon-doc-conditional" data-mon-when="sans-marche" style="background:#f8f9fa;">
             <input class="form-check-input mon-doc-check" type="checkbox" id="doc_devis"
                    name="monuments_docs[doc_devis]"
                    <%= _td.dig(:docs, :doc_devis) == '1' ? 'checked' : '' %>>
             <label class="form-check-label small" for="doc_devis">
               <i class="bi bi-paperclip text-primary me-1"></i>
-              Minimum 3 devis détaillés (si travaux > 30 000 € ou services > 8 500 €)
-              — ou 1 devis si en deçà des seuils
+              1 ou 3 devis détaillés avec offre de prix pour chaque poste (du métré)
             </label>
           </div>
         </div>
 
-        <p class="small fw-semibold text-muted mt-3 mb-2">Documents techniques</p>
-        <div class="form-check p-2 rounded-3 border" style="background:#f8f9fa;">
-          <input class="form-check-input mon-doc-check" type="checkbox" id="doc_technique"
-                 name="monuments_docs[doc_technique]"
-                 <%= _td.dig(:docs, :doc_technique) == '1' ? 'checked' : '' %>>
-          <label class="form-check-label small" for="doc_technique">
-            <i class="bi bi-paperclip text-primary me-1"></i>
-            Documents décrivant précisément le champ et la nature des études / travaux
-          </label>
+        <p class="small fw-semibold text-muted mt-3 mb-2">Marché public <span class="badge bg-light text-muted fw-normal">Commande par marché public</span></p>
+        <div class="d-flex flex-column gap-2">
+          <% [
+            ["doc_cahier_charges", "Le cahier spécial des charges"],
+            ["doc_metre",          "Le métré estimatif"]
+          ].each do |id, label| %>
+            <div class="form-check p-2 rounded-3 border mon-doc-conditional" data-mon-when="avec-marche" style="background:#f8f9fa;">
+              <input class="form-check-input mon-doc-check" type="checkbox" id="<%= id %>"
+                     name="monuments_docs[<%= id %>]"
+                     <%= _td.dig(:docs, id.to_sym) == '1' ? 'checked' : '' %>>
+              <label class="form-check-label small" for="<%= id %>">
+                <i class="bi bi-paperclip text-primary me-1"></i><%= label %>
+              </label>
+            </div>
+          <% end %>
+        </div>
+
+        <p class="small fw-semibold text-muted mt-3 mb-2">Documents techniques <span class="badge bg-light text-muted fw-normal">Si pas de permis d'urbanisme unique</span></p>
+        <div class="d-flex flex-column gap-2">
+          <div class="form-check p-2 rounded-3 border mon-doc-conditional" data-mon-when="sans-permis" style="background:#f8f9fa;">
+            <input class="form-check-input mon-doc-check" type="checkbox" id="doc_offre_retenue"
+                   name="monuments_docs[doc_offre_retenue]"
+                   <%= _td.dig(:docs, :doc_offre_retenue) == '1' ? 'checked' : '' %>>
+            <label class="form-check-label small" for="doc_offre_retenue">
+              <i class="bi bi-paperclip text-primary me-1"></i>
+              Le cas échéant, l'offre retenue et le rapport d'analyse des offres
+            </label>
+          </div>
+          <div class="form-check p-2 rounded-3 border mon-doc-conditional" data-mon-when="sans-permis" style="background:#f8f9fa;">
+            <input class="form-check-input mon-doc-check" type="checkbox" id="doc_photo"
+                   name="monuments_docs[doc_photo]"
+                   <%= _td.dig(:docs, :doc_photo) == '1' ? 'checked' : '' %>>
+            <label class="form-check-label small" for="doc_photo">
+              <i class="bi bi-paperclip text-primary me-1"></i>
+              Description de l'état physique du bien et des désordres constatés, accompagnée d'un reportage photographique significatif
+            </label>
+          </div>
+          <div class="form-check p-2 rounded-3 border mon-doc-conditional" data-mon-when="sans-permis" style="background:#f8f9fa;">
+            <input class="form-check-input mon-doc-check" type="checkbox" id="doc_plan_execution"
+                   name="monuments_docs[doc_plan_execution]"
+                   <%= _td.dig(:docs, :doc_plan_execution) == '1' ? 'checked' : '' %>>
+            <label class="form-check-label small" for="doc_plan_execution">
+              <i class="bi bi-paperclip text-primary me-1"></i>
+              Plan d'exécution indiquant la localisation et l'emprise exacte de chaque catégorie de travaux
+            </label>
+          </div>
+          <div class="form-check p-2 rounded-3 border" style="background:#f8f9fa;">
+            <input class="form-check-input mon-doc-check" type="checkbox" id="doc_technique"
+                   name="monuments_docs[doc_technique]"
+                   <%= _td.dig(:docs, :doc_technique) == '1' ? 'checked' : '' %>>
+            <label class="form-check-label small" for="doc_technique">
+              <i class="bi bi-paperclip text-primary me-1"></i>
+              Description précise des actes et travaux et des techniques prévues (art. 5, §2, 3°)
+            </label>
+          </div>
         </div>
 
         <p class="small fw-semibold text-muted mt-3 mb-2">Documents optionnels (majorations)</p>
@@ -455,6 +537,30 @@
         </div>
       </div>
 
+    </div>
+
+    <div class="alert alert-light border mt-3 small rounded-3">
+      <p class="fw-semibold mb-2"><i class="bi bi-table me-1"></i>Rappel — matrice officielle (page 8 du formulaire)</p>
+      <div class="row g-2">
+        <div class="col-md-6">
+          <strong>Selon la qualité du demandeur :</strong>
+          <ul class="mb-0 ps-3">
+            <li>Bénéficiaire public → droits + TVA + RIB</li>
+            <li>Privé, personne physique → droits + RIB</li>
+            <li>Privé, revenus &lt; 40.000 € (+2.500 €/pers. à charge) → droits + rôle + ménage + RIB</li>
+            <li>Privé, personne morale → droits + TVA + RIB</li>
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <strong>Selon permis &amp; marché public :</strong>
+          <ul class="mb-0 ps-3">
+            <li>Sans permis, sans marché public → devis + offre retenue + photos/état + plan</li>
+            <li>Avec permis, sans marché public → devis uniquement</li>
+            <li>Sans permis, avec marché public → cahier des charges, métré, offre retenue, photos/état et plan</li>
+            <li>Avec permis, avec marché public → cahier des charges + métré</li>
+          </ul>
+        </div>
+      </div>
     </div>
 
     <%# Barre de progression documents %>
@@ -500,13 +606,33 @@
         <input type="date" class="form-control" name="monuments_planning[date_travaux]"
                value="<%= _td.dig(:planning, :date_travaux) %>">
         <div class="form-text small text-muted">
-          <i class="bi bi-hourglass-split me-1"></i>Délai moyen de traitement : 3 à 6 mois
+          <i class="bi bi-hourglass-split me-1"></i>Délai moyen d'instruction : 3 à 6 mois
         </div>
       </div>
       <div class="col-md-4">
         <label class="form-label small fw-medium">Fin de chantier prévisionnelle</label>
         <input type="date" class="form-control" name="monuments_planning[date_fin]"
                value="<%= _td.dig(:planning, :date_fin) %>">
+      </div>
+    </div>
+
+    <%# Avertissement clef : interdiction de démarrer avant l'accord du Gouvernement %>
+    <div class="alert border-0 mt-3 mb-0 rounded-3"
+         style="background:#fef2f2; border-left:4px solid #dc2626 !important; border-left-width:4px !important;">
+      <div class="d-flex align-items-start gap-2">
+        <i class="bi bi-exclamation-octagon-fill text-danger flex-shrink-0 mt-1"></i>
+        <div>
+          <p class="fw-semibold mb-1 text-danger">
+            N'entamez le chantier qu'après avoir reçu l'accord écrit du Gouvernement — jamais à la date indicative ci-dessus.
+          </p>
+          <p class="mb-0 small text-muted">
+            Déposer le dossier avant les travaux ne suffit pas : il faut ensuite <strong>attendre le feu vert de l'administration</strong>,
+            qui peut prendre <strong>plusieurs mois</strong> (délai d'instruction moyen 3 à 6 mois). Tout chantier commencé pendant
+            l'instruction — même après le dépôt du dossier — fait perdre le bénéfice de la subvention, sans recours possible.
+            La date de début de travaux ci-dessus n'est donc qu'une estimation : le déclencheur réel est la notification officielle
+            de l'accord, pas une date au calendrier.
+          </p>
+        </div>
       </div>
     </div>
 
@@ -521,16 +647,16 @@
           ["bi-arrow-right", nil, "#adb5bd"],
           ["bi-hourglass", "Instruction (3–6 mois)", "#6c757d"],
           ["bi-arrow-right", nil, "#adb5bd"],
-          ["bi-check-circle", "Accord gouvernement", "#198754"],
+          ["bi-check-circle", "Accord gouvernement\n(feu vert requis)", "#198754"],
           ["bi-arrow-right", nil, "#adb5bd"],
-          ["bi-tools", "Début travaux", "#d97706"],
+          ["bi-tools", "Début travaux\n(pas avant)", "#d97706"],
           ["bi-arrow-right", nil, "#adb5bd"],
           ["bi-cash-coin", "Liquidation subvention", "#0f766e"]
         ].each do |icon, label, color| %>
-          <div class="d-flex flex-column align-items-center" style="min-width:<%= label ? '80px' : '20px' %>;">
+          <div class="d-flex flex-column align-items-center" style="min-width:<%= label ? '90px' : '20px' %>;">
             <i class="bi <%= icon %> mb-1" style="color:<%= color %>;font-size:1.2rem;"></i>
             <% if label %>
-              <span class="text-center" style="font-size:0.65rem; color:#6c757d; line-height:1.2;"><%= label %></span>
+              <span class="text-center" style="font-size:0.65rem; color:#6c757d; line-height:1.2; white-space:pre-line;"><%= label %></span>
             <% end %>
           </div>
         <% end %>
@@ -813,11 +939,51 @@
   if (benefSel) benefSel.addEventListener('change', recalcBudget);
   recalcBudget();
 
+  // ---- Filtrage dynamique de la checklist documents (selon page 8 du formulaire) ----
+  function applyDocFiltering() {
+    var typeBenef    = document.getElementById('mon-benef-type-prep')?.value || '';
+    var autorisation = document.getElementById('mon-autorisation-type-select')?.value || '';
+    var marcheEl     = document.querySelector('input[name="monuments_docs_meta[marche_public]"]:checked');
+    var marche       = marcheEl ? marcheEl.value : '';
+
+    var isMorale   = (typeBenef === 'asbl' || typeBenef === 'public');
+    var hasPermis  = (autorisation === 'permis' || autorisation === 'plan_gestion') ? true
+                    : (autorisation === 'sans_permis') ? false : null;
+
+    function visible(rule) {
+      switch (rule) {
+        case 'personne-morale-publique':
+          return typeBenef === '' ? true : isMorale;
+        case 'sans-marche':
+          return marche === '' ? true : marche === 'non';
+        case 'avec-marche':
+          return marche === '' ? true : marche === 'oui';
+        case 'sans-permis':
+          return hasPermis === null ? true : hasPermis === false;
+        default:
+          return true;
+      }
+    }
+
+    document.querySelectorAll('.mon-doc-conditional').forEach(function(el) {
+      var rule = el.dataset.monWhen;
+      var show = visible(rule);
+      el.style.display = show ? '' : 'none';
+      // Un document masqué car non applicable ne doit pas bloquer le calcul de progression
+      var checkbox = el.querySelector('.mon-doc-check');
+      if (checkbox) checkbox.disabled = !show;
+    });
+
+    recalcDocs();
+  }
+
   // ---- Barre de progression documents ----
   function recalcDocs() {
-    var checks = document.querySelectorAll('.mon-doc-check');
+    var checks = Array.from(document.querySelectorAll('.mon-doc-check')).filter(function(c) {
+      return !c.disabled;
+    });
     var total  = checks.length;
-    var done   = Array.from(checks).filter(function(c) { return c.checked; }).length;
+    var done   = checks.filter(function(c) { return c.checked; }).length;
     var pct    = total > 0 ? Math.round(done / total * 100) : 0;
 
     var bar    = document.getElementById('mon-docs-progress');
@@ -832,7 +998,16 @@
   document.querySelectorAll('.mon-doc-check').forEach(function(el) {
     el.addEventListener('change', recalcDocs);
   });
-  recalcDocs();
+
+  ['mon-benef-type-prep', 'mon-autorisation-type-select'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('change', applyDocFiltering);
+  });
+  document.querySelectorAll('input[name="monuments_docs_meta[marche_public]"]').forEach(function(el) {
+    el.addEventListener('change', applyDocFiltering);
+  });
+
+  applyDocFiltering();
 
   // ---- Alerte éligibilité ----
   function checkEligibilite() {
