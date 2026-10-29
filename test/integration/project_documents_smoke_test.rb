@@ -5,12 +5,12 @@ require "test_helper"
 # et que le dépôt d'un document crée bien une version avec fichier attaché.
 class ProjectDocumentsSmokeTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
-  fixtures :users, :properties, :projects
+  fixtures :users, :properties, :projects, :subscriptions
 
   setup do
-    @owner = users(:freemium_user)
+    @owner = users(:individual_user)
     @owner.update_column(:onboarding_completed_at, 1.day.ago)
-    @project = projects(:one)
+    @project = projects(:two)
     sign_in @owner
   end
 
@@ -66,6 +66,10 @@ class ProjectDocumentsSmokeTest < ActionDispatch::IntegrationTest
   test "un utilisateur hors chantier ne peut pas voir un document privé" do
     document = @project.project_documents.create!(title: "Confidentiel", document_type: "autre", visibility: "private", uploaded_by: @owner)
     outsider = User.create!(email: "outsider_smoke@example.com", password: "password123", nom: "Outsider")
+    outsider.subscriptions.create!(
+      stripe_subscription_id: "sub_outsider_smoke_test", tier: "individual", status: "active",
+      current_period_start: 1.day.ago, current_period_end: 1.month.from_now
+    )
     sign_out @owner
     sign_in outsider
 
