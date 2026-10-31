@@ -12,5 +12,9 @@ test:
   <<: *default
 
 production:
-  database: cache
+  # Pas de "database: cache" — config/database.yml n'est pas structuré en vrai
+  # multi-db (url/adapter inline au même niveau que queue/cache/cable), donc
+  # connects_to(:cache) ne résout jamais ce rôle (AdapterNotSpecified). Même
+  # choix que Solid Queue (connects_to désactivé, voir production.rb) : la
+  # table solid_cache_entries vit dans le schema principal, connexion par défaut.
   <<: *default
