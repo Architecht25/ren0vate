@@ -1,5 +1,6 @@
 class FacturesController < ApplicationController
   before_action :authenticate_user!
+  before_action :check_dossier_documentaire_access!
   before_action :set_project, only: [:index, :dashboard, :upload_facture, :validate_facture]
   before_action :set_facture, only: [:show, :edit, :update, :destroy, :validate_by_client]
 

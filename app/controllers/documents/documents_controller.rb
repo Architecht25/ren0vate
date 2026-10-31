@@ -1,5 +1,6 @@
 class DocumentsController < ApplicationController
   before_action :authenticate_user!
+  before_action :check_dossier_documentaire_access!
   before_action :set_document, only: [:show, :edit, :update, :download, :preview, :view, :debug, :destroy, :ocr_view, :rename]
   before_action :set_context, only: [:index, :new, :create, :download_zip]
 

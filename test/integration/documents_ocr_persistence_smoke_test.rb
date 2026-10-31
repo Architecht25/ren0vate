@@ -6,12 +6,12 @@ require "test_helper"
 # persisté — contrairement à la branche facture (creer_facture_depuis_ocr_doc).
 class DocumentsOcrPersistenceSmokeTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
-  fixtures :users, :properties, :projects
+  fixtures :users, :properties, :projects, :subscriptions
 
   setup do
-    @owner = users(:freemium_user)
+    @owner = users(:individual_user)
     @owner.update_column(:onboarding_completed_at, 1.day.ago)
-    @project = projects(:one)
+    @project = projects(:two)
     sign_in @owner
   end
 

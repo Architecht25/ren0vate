@@ -1,6 +1,7 @@
 # V2 — Lot 1 : base documentaire versionnée. Distinct de Documents::DocumentsController
 # (Document V1) — voir docs/PLAN_V2.md Lot 1 pour pourquoi les deux coexistent.
 class ProjectDocumentsController < ApplicationController
+  before_action :check_dossier_documentaire_access!
   before_action :set_project, only: %i[index new create]
   before_action :set_project_document, only: %i[show destroy add_version accept_suggestion translate]
 

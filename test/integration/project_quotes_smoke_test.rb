@@ -2,12 +2,12 @@ require "test_helper"
 
 class ProjectQuotesSmokeTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
-  fixtures :users, :properties, :projects
+  fixtures :users, :properties, :projects, :subscriptions
 
   setup do
-    @owner = users(:freemium_user)
+    @owner = users(:individual_user)
     @owner.update_column(:onboarding_completed_at, 1.day.ago)
-    @project = projects(:one)
+    @project = projects(:two)
     @toiture = @project.lots.create!(key: "toiture", name: "Toiture", position: 0)
     sign_in @owner
   end

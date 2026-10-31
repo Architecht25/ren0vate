@@ -56,6 +56,7 @@ import CookieConsentController from "controllers/site/cookie_consent_controller"
 import NpsController from "controllers/user/nps_controller"
 import DashboardTabsController from "controllers/dashboard/dashboard_tabs_controller"
 import SimulationLaunchController from "controllers/subsidies/simulation_launch_controller"
+import LandingMotionController from "controllers/site/landing_motion_controller"
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite-flandre", TestEligibiliteFlandreController)
@@ -96,5 +97,6 @@ application.register("cookie-consent", CookieConsentController)
 application.register("nps", NpsController)
 application.register("dashboard-tabs", DashboardTabsController)
 application.register("simulation-launch", SimulationLaunchController)
+application.register("landing-motion", LandingMotionController)
 
 export { application }

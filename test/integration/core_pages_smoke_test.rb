@@ -11,6 +11,13 @@ class CorePagesSmokeTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:freemium_user)
     @user.update_column(:onboarding_completed_at, 1.day.ago)
+    # Tier individual (pas freemium) : certaines pages couvertes ici (documents)
+    # sont gatées par can_access_feature?(:dossier_documentaire), réservé aux
+    # offres payantes — voir check_dossier_documentaire_access!.
+    @user.subscriptions.create!(
+      stripe_subscription_id: "sub_core_pages_smoke_test", tier: "individual", status: "active",
+      current_period_start: 1.day.ago, current_period_end: 1.month.from_now
+    )
     sign_in @user
 
     @property = @user.properties.create!(

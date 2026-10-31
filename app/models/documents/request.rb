@@ -182,7 +182,11 @@ class Request < ApplicationRecord
     case form_type
     when 'regional_wallonie', 'regional_flandre'
       %w[nom prenom email telephone adresse travaux_description budget_estime]
-    when 'monuments_bruxelles', 'monuments_wallonie', 'monuments_flandre'
+    when 'monuments_bruxelles'
+      %w[beneficiaire_nom beneficiaire_prenom beneficiaire_email beneficiaire_telephone
+         bien_rue bien_code_postal bien_commune intitule_demande travaux_description
+         montant_estime iban titulaire_compte]
+    when 'monuments_wallonie', 'monuments_flandre'
       %w[nom prenom email telephone adresse bien_classe description_travaux]
     when 'patrimoine_bruxelles'
       %w[nom prenom email telephone adresse elements_patrimoine]
