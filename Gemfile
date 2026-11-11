@@ -67,7 +67,7 @@ gem "bootsnap", require: false
 gem "thruster", require: false
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
-gem "image_processing", "~> 1.2"
+gem "image_processing", "~> 2.2"
 
 # V2 — stockage objet UE S3-compatible (Scaleway), pas encore actif dans aucun
 # environnement (config/storage.yml:scaleway) — voir docs/PLAN_V2.md Lot 0/1
