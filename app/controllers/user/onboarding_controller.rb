@@ -122,7 +122,7 @@ class OnboardingController < ApplicationController
 
     if @project.save
       finish_onboarding!
-      redirect_to project_path(@project, locale: I18n.locale, tab: :preparation),
+      redirect_to new_simulation_path(locale: I18n.locale, project_id: @project.id),
                   notice: t('onboarding.welcome_proprietaire')
     else
       render :proprietaire_projet, status: :unprocessable_entity
