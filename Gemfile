@@ -70,7 +70,11 @@ gem "thruster", require: false
 gem "image_processing", "~> 2.2"
 # config.active_storage.variant_processor par défaut (Rails 8, load_defaults 8.0) est :vips —
 # image_processing >= 2.0 ne tire plus ruby-vips automatiquement, à déclarer explicitement.
-gem "ruby-vips", "~> 2.3"
+# require: false : avant, ruby-vips n'était qu'une dépendance transitive (jamais auto-requise
+# par Bundler) ; en top-level sans ça, Bundler.require charge vips.rb au boot, qui dlopen
+# immédiatement libvips.so.42 — absent sur les runners CI et potentiellement sur le dyno Heroku.
+# ImageProcessing::Vips ne le require que paresseusement, au moment réel de générer un variant.
+gem "ruby-vips", "~> 2.3", require: false
 
 # V2 — stockage objet UE S3-compatible (Scaleway), pas encore actif dans aucun
 # environnement (config/storage.yml:scaleway) — voir docs/PLAN_V2.md Lot 0/1
