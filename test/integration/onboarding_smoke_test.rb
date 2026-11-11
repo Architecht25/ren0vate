@@ -55,17 +55,18 @@ class OnboardingSmokeTest < ActionDispatch::IntegrationTest
     }
     assert_redirected_to onboarding_proprietaire_projet_path(locale: :fr)
 
-    # Étape 3 : créer le projet — redirection directe vers l'onglet "préparation" du
-    # projet créé (plutôt qu'un dashboard générique vide), voir
-    # OnboardingController#create_proprietaire_projet. Comportement intentionnel,
-    # pas une régression (cf. LAUNCH_CHECKLIST_OCT2026.md §2).
+    # Étape 3 : créer le projet — redirection directe vers la simulation de primes
+    # (pré-remplie via project_id) plutôt que vers l'onglet "préparation" du projet,
+    # qui atterrissait sur une grille de cartes vides sans CTA unique. Changement
+    # du 11/11/2026 suite à l'analyse des 10 dernières inscriptions en prod (0/10
+    # n'avait fait de simulation ni uploadé de document après onboarding).
     post onboarding_create_proprietaire_projet_path(locale: :fr), params: {
       project: { nom: "Mon projet test", project_type: "renovation" }
     }
 
     user.reload
     project = user.properties.first.projects.first
-    assert_redirected_to project_path(project, locale: :fr, tab: :preparation)
+    assert_redirected_to new_simulation_path(locale: :fr, project_id: project.id)
 
     assert user.onboarding_done?, "L'onboarding doit être marqué terminé"
     assert_equal 1, user.properties.count
