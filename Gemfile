@@ -16,7 +16,7 @@ gem "jbuilder"
 # options) positionally; json 3.x tightened to keyword-only args and raises
 # ArgumentError on that call. A transitive bump (via faraday) briefly resolved
 # to 3.0.2 on a dependabot rebase and broke every test touching a json column.
-gem "json", "~> 3.1"
+gem "json", "~> 2.21"
 
 gem "importmap-rails"
 gem "simple_form"
@@ -68,6 +68,9 @@ gem "thruster", require: false
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 gem "image_processing", "~> 2.2"
+# config.active_storage.variant_processor par défaut (Rails 8, load_defaults 8.0) est :vips —
+# image_processing >= 2.0 ne tire plus ruby-vips automatiquement, à déclarer explicitement.
+gem "ruby-vips", "~> 2.3"
 
 # V2 — stockage objet UE S3-compatible (Scaleway), pas encore actif dans aucun
 # environnement (config/storage.yml:scaleway) — voir docs/PLAN_V2.md Lot 0/1
