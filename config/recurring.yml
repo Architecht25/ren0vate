@@ -9,21 +9,27 @@
 #     priority: 2
 #     schedule: at 5am every day
 
-# Agent de veille réglementaire + production de contenu (MarketingDraftJob enchaîné
-# automatiquement à la fin de IntelligenceReportJob) — réactivé le 17/07/2026.
+# ── Fermeture progressive de Ren0vate (16/11/2026) ──────────────────────────────
+# Étape 1 : agents veille + marketing désactivés (coût Claude + scraping, aucun
+# retour commercial). Les classes de jobs restent en place et les boutons admin
+# (Admin::IntelligenceReportsController) permettent encore un lancement manuel.
+# Pour réactiver : décommenter les deux blocs ci-dessous.
+#
+# Agent de veille + production de contenu (MarketingDraftJob enchaîné
+# automatiquement à la fin de IntelligenceReportJob) — était actif depuis le 17/07/2026.
+#   intelligence_report_weekly:
+#     class: IntelligenceReportJob
+#     queue: default
+#     schedule: at 7am every monday
+#
+# Diff mensuel des pages réglementaires officielles (wallonie.be, vlaanderen.be...)
+# — distinct de l'agent veille ci-dessus, voir RegulatoryWatchJob (22/08/2026).
+#   regulatory_watch_monthly:
+#     class: RegulatoryWatchJob
+#     queue: default
+#     schedule: "0 8 1 * *"
+
 production:
-  intelligence_report_weekly:
-    class: IntelligenceReportJob
-    queue: default
-    schedule: at 7am every monday
-
-  # Diff mensuel des pages réglementaires officielles (wallonie.be, vlaanderen.be...)
-  # — distinct de l'agent veille ci-dessus, voir RegulatoryWatchJob (22/08/2026).
-  regulatory_watch_monthly:
-    class: RegulatoryWatchJob
-    queue: default
-    schedule: "0 8 1 * *"
-
   # RGPD art. 5(1)(e) — obligation légale indépendante de l'état du business.
   data_retention_quarterly:
     class: DataRetentionJob
