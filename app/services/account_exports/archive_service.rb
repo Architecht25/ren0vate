@@ -10,15 +10,12 @@ module AccountExports
   # Aucune condition de plan. Les fichiers sont joints tels quels (pas de
   # conversion en PDF) : plus fidèle pour les scans, photos et PDF administratifs.
   #
-  # Exclus volontairement : mot de passe, tokens, 2FA, et `national_number`/`iban`
-  # (données chiffrées, inutiles à une synthèse susceptible d'être envoyée par mail).
+  # Inclus (décision du 23/11/2026) : tous les attributs, y compris hash du mot de
+  # passe, tokens, secrets 2FA, `national_number` et `iban` (déchiffrés). Le ZIP
+  # est donc sensible : ne pas l'envoyer par mail non chiffré.
   class ArchiveService
-    EXCLUDED_ATTRIBUTES = %w[
-      id encrypted_password reset_password_token reset_password_sent_at remember_created_at
-      confirmation_token unconfirmed_email otp_secret otp_required_for_login
-      otp_backup_codes consumed_timestep referral_token national_number iban
-      extracted_data embedding invite_token updated_at
-    ].freeze
+    # Seul le bruit technique est exclu.
+    EXCLUDED_ATTRIBUTES = %w[id extracted_data embedding updated_at].freeze
     MAX_VALUE_LENGTH = 300
 
     def initialize(user)
