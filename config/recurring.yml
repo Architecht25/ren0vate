@@ -29,6 +29,11 @@
 #     queue: default
 #     schedule: "0 8 1 * *"
 
+# Étape 3 (23/11/2026) : alertes SLA support (aucun ticket reçu), séquences
+# onboarding J+1/3/7 et nurturing freemium N+14/30/60 (contexte de fermeture, plus
+# de poussée vers le payant) désactivés, blocs commentés dans `production:` ci-dessous.
+# Prépare la suppression éventuelle du dyno worker. Réactiver = décommenter.
+
 production:
   # RGPD art. 5(1)(e) — obligation légale indépendante de l'état du business.
   data_retention_quarterly:
@@ -36,12 +41,12 @@ production:
     queue: default
     schedule: "0 3 1 1,4,7,10 *"
 
-  # SLA support (24h) affiché dans les tiers payants — réactivé le 22/08/2026 avec
-  # le premier client payant réel, pour tenir la promesse commerciale.
-  sla_alerts_support:
-    class: SlaAlertJob
-    queue: default
-    schedule: every hour
+#  # SLA support (24h) affiché dans les tiers payants — réactivé le 22/08/2026 avec
+#  # le premier client payant réel, pour tenir la promesse commerciale.
+#  sla_alerts_support:
+#    class: SlaAlertJob
+#    queue: default
+#    schedule: every hour
 
   # Surveillance active des délais de réponse admin (RequestProgress) et des
   # compléments de dossier expirés — jusqu'ici purement passif (calculé
@@ -58,18 +63,18 @@ production:
     queue: default
     schedule: at 10am every day
 
-  # Séquence onboarding J+1/J+3/J+7 — utile pour toute nouvelle inscription.
-  onboarding_sequence_emails:
-    class: OnboardingSequenceJob
-    queue: default
-    schedule: at 10am every day
+#  # Séquence onboarding J+1/J+3/J+7 — utile pour toute nouvelle inscription.
+#  onboarding_sequence_emails:
+#    class: OnboardingSequenceJob
+#    queue: default
+#    schedule: at 10am every day
 
-  # Séquence nurturing freemium N+14/30/60 — pousse vers le payant, pertinent
-  # maintenant que le tunnel de paiement Stripe est validé de bout en bout.
-  nurturing_sequence_emails:
-    class: NurturingSequenceJob
-    queue: default
-    schedule: at 11am every day
+#  # Séquence nurturing freemium N+14/30/60 — pousse vers le payant, pertinent
+#  # maintenant que le tunnel de paiement Stripe est validé de bout en bout.
+#  nurturing_sequence_emails:
+#    class: NurturingSequenceJob
+#    queue: default
+#    schedule: at 11am every day
 
 # Jobs liés à la "gestion active de chantier" — reprise calée fin septembre 2026
 # par la roadmap de reprise. Désactivés jusque là (fermeture progressive juin 2026).
