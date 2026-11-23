@@ -19,10 +19,10 @@ class AdminAccountExportSmokeTest < ActionDispatch::IntegrationTest
     assert_equal "application/zip", response.media_type
 
     names = []
-    Zip::InputStream.open(StringIO.new(response.body)) do |zip|
-      while (entry = zip.get_next_entry)
+    Zip::File.open_buffer(StringIO.new(response.body)) do |zip|
+      zip.each do |entry|
         names << entry.name
-        assert zip.read.start_with?("%PDF") if entry.name == "00-synthese.pdf"
+        assert entry.get_input_stream.read.start_with?("%PDF") if entry.name == "00-synthese.pdf"
       end
     end
     assert_includes names, "00-synthese.pdf"
@@ -38,11 +38,7 @@ class AdminAccountExportSmokeTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     names = []
-    Zip::InputStream.open(StringIO.new(response.body)) do |zip|
-      while (entry = zip.get_next_entry)
-        names << entry.name
-      end
-    end
+    Zip::File.open_buffer(StringIO.new(response.body)) { |zip| zip.each { |entry| names << entry.name } }
     assert names.any? { |n| n.end_with?("facade.jpg") }, "fichier attaché au bien absent : #{names.inspect}"
   end
 
