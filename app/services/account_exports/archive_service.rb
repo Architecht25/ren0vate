@@ -192,12 +192,23 @@ module AccountExports
     end
 
     def dump(record)
-      record.attributes.each do |key, value|
-        next if EXCLUDED_ATTRIBUTES.include?(key) || value.blank?
+      record.class.attribute_names.each do |key|
+        next if EXCLUDED_ATTRIBUTES.include?(key)
+
+        value = safe_read(record, key)
+        next if value.blank?
 
         text_line("#{key.humanize} : #{format_value(value)}")
       end
       @pdf.move_down 4
+    end
+
+    # Un champ chiffré (Active Record Encryption) dont le contenu est corrompu ou
+    # vide ne doit pas faire échouer tout l'export (bug du 23/11/2026, compte 75).
+    def safe_read(record, key)
+      record.read_attribute(key)
+    rescue ActiveRecord::Encryption::Errors::Base
+      "[illisible : déchiffrement impossible]"
     end
 
     def related(scope, label)

@@ -46,6 +46,13 @@ class AdminAccountExportSmokeTest < ActionDispatch::IntegrationTest
     assert names.any? { |n| n.end_with?("facade.jpg") }, "fichier attaché au bien absent : #{names.inspect}"
   end
 
+  test "un champ chiffré illisible ne fait pas échouer l'export" do
+    User.where(id: @client.id).update_all("iban = 'pas-du-json-chiffre'")
+    get export_archive_admin_user_path(@client, locale: "fr")
+    assert_response :success
+    assert_equal "application/zip", response.media_type
+  end
+
   test "un non-admin est refusé" do
     sign_in @client
     get export_archive_admin_user_path(@admin, locale: "fr")
