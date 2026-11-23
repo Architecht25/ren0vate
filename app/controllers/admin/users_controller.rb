@@ -1,7 +1,7 @@
 class Admin::UsersController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_admin, except: [:stop_impersonating]
-  before_action :find_user, only: [:show, :details, :edit, :update, :destroy, :properties, :documents, :projects, :impersonate, :toggle_primes_services, :mark_contacted]
+  before_action :find_user, only: [:show, :details, :edit, :update, :destroy, :properties, :documents, :projects, :export_archive, :impersonate, :toggle_primes_services, :mark_contacted]
 
   def index
     @users = User.includes(:properties, :projects, :simulations, :requests, :documents, :notifications)
@@ -67,6 +67,18 @@ class Admin::UsersController < ApplicationController
                       metadata: { email: @user.email })
     @user.destroy
     redirect_to admin_users_path, notice: 'Utilisateur supprimé avec succès'
+  end
+
+  # Export complet avant suppression d'un compte : ZIP (synthèse PDF + fichiers originaux).
+  def export_archive
+    AdminAuditLog.log(admin: current_user, action: "user_export_archive", target_user: @user, request: request,
+                      metadata: { email: @user.email })
+    tmp = AccountExports::ArchiveService.new(@user).generate
+    send_data tmp.read,
+              filename: "export-compte-#{@user.id}-#{Date.current.iso8601}.zip",
+              type: "application/zip", disposition: "attachment"
+  ensure
+    tmp&.close!
   end
 
   def toggle_primes_services

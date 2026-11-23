@@ -2,7 +2,7 @@ class AdminAuditLog < ApplicationRecord
   belongs_to :admin, class_name: "User", foreign_key: :admin_id
   belongs_to :target_user, class_name: "User", foreign_key: :target_user_id, optional: true
 
-  ACTIONS = %w[impersonate stop_impersonating user_update user_destroy role_change mark_contacted].freeze
+  ACTIONS = %w[impersonate stop_impersonating user_update user_destroy role_change mark_contacted user_export_archive].freeze
 
   validates :action, inclusion: { in: ACTIONS }
 
