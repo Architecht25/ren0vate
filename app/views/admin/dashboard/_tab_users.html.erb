@@ -302,6 +302,10 @@
                           <%= link_to admin_user_path(user), class: "btn btn-outline-secondary btn-sm d-block mt-1", style: "font-size: 12px; padding: 0.35rem 0.6rem;" do %>
                             <i class="bi bi-eye me-1"></i>Voir
                           <% end %>
+                          <%= link_to export_archive_admin_user_path(user), data: { turbo: false },
+                              class: "btn btn-outline-success btn-sm d-block mt-1", style: "font-size: 12px; padding: 0.35rem 0.6rem;" do %>
+                            <i class="bi bi-file-earmark-zip me-1"></i>Exporter
+                          <% end %>
                           <% unless user == current_user %>
                             <%= button_to admin_user_path(user), method: :delete,
                                 form: { class: "d-block mt-1", data: { turbo_confirm: "Supprimer définitivement le compte #{user.email} ? Cette action est irréversible." } },

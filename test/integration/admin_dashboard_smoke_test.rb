@@ -36,6 +36,12 @@ class AdminDashboardSmokeTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "chaque ligne utilisateur a un lien d'export du compte" do
+    get admin_dashboard_path(locale: "fr")
+    assert_response :success
+    assert_select "a[href=?]", export_archive_admin_user_path(@admin, locale: "fr")
+  end
+
   test "chaque utilisateur a une checkbox de sélection avec son email" do
     get admin_dashboard_path(locale: "fr")
     assert_select "input.user-select-checkbox[data-email=?]", "individual@example.com"
