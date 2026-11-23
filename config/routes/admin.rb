@@ -14,6 +14,7 @@
         get :documents      # Voir tous les documents d'un utilisateur
         get :properties     # Voir toutes les propriétés d'un utilisateur
         get :projects       # Voir tous les projets d'un utilisateur
+        get :export_archive           # Export complet du compte (ZIP : synthèse PDF + fichiers) avant suppression
         post :impersonate             # Se connecter en tant qu'utilisateur (loggé dans AdminAuditLog)
         post :toggle_primes_services  # Basculer le flag client Primes-Services
         post :mark_contacted          # Marquer un lead comme contacté (suivi relance à 7 jours)
