@@ -1,9 +1,8 @@
 require "prawn"
-require "zip"
 
 module AccountExports
   # Export complet d'un compte (usage admin, avant suppression d'un compte) :
-  # un ZIP contenant
+  # un ZIP (envoyé en flux) contenant
   #   - 00-synthese.pdf : profil, biens, chantiers, demandes de primes, simulations
   #   - fichiers/       : tous les fichiers originaux (ActiveStorage) rattachés à
   #                       l'utilisateur, ses biens, chantiers, demandes et suivis.
@@ -25,35 +24,42 @@ module AccountExports
       @skipped = []
     end
 
-    # Retourne un Tempfile (ZIP) — à l'appelant de le fermer/supprimer.
-    def generate
-      tmp = Tempfile.new(["export-compte-#{@user.id}", ".zip"])
-      tmp.binmode
-      Zip::OutputStream.open(tmp.path) do |zip|
-        index = []
-        collect_files.each do |folder, record, attachment|
-          next if @seen_blobs[attachment.blob_id]
+    # Écrit l'archive dans un ZipKit::Streamer (envoi en flux : les premiers octets
+    # partent tout de suite, ce qui évite le timeout H12 de 30 s de Heroku, et rien
+    # n'est accumulé en mémoire — un compte peut peser plusieurs centaines de Mo).
+    # Le PDF part en premier ; les fichiers suivent un par un.
+    def stream_to(zip)
+      entries = plan_entries
+      zip.write_deflated_file("00-synthese.pdf") { |sink| sink << build_pdf(entries.map(&:last)) }
 
-          @seen_blobs[attachment.blob_id] = true
-          begin
-            data = attachment.download
-          rescue StandardError => e
-            @skipped << "#{folder}/#{attachment.filename} (#{e.class})"
-            next
-          end
-          path = unique_path(folder, attachment.filename.to_s)
-          zip.put_next_entry("fichiers/#{path}")
-          zip.write(data)
-          index << "#{path}  (#{record.class.name} ##{record.id})"
+      entries.each do |attachment, path, _label|
+        begin
+          data = attachment.download
+        rescue StandardError => e
+          @skipped << "#{path} (#{e.class})"
+          next
         end
-        zip.put_next_entry("00-synthese.pdf")
-        zip.write(build_pdf(index))
+        zip.write_stored_file("fichiers/#{path}") { |sink| sink << data }
+        data = nil
       end
-      tmp.rewind
-      tmp
+
+      return if @skipped.empty?
+
+      zip.write_deflated_file("fichiers-non-recuperes.txt") { |sink| sink << @skipped.join("\n") }
     end
 
     private
+
+    # [[attachment, chemin dans le ZIP, ligne d'index]] — sans télécharger quoi que ce soit.
+    def plan_entries
+      collect_files.filter_map do |folder, record, attachment|
+        next if @seen_blobs[attachment.blob_id]
+
+        @seen_blobs[attachment.blob_id] = true
+        path = unique_path(folder, attachment.filename.to_s)
+        [attachment, path, "#{path}  (#{record.class.name} ##{record.id})"]
+      end
+    end
 
     # --- Collecte des fichiers -------------------------------------------------
 
@@ -160,10 +166,6 @@ module AccountExports
         section("Index des fichiers joints (dossier fichiers/)")
         text_line("Aucun fichier.") if file_index.empty?
         file_index.each { |l| text_line(l, size: 8) }
-        unless @skipped.empty?
-          subsection("Fichiers non récupérés (erreur de lecture)")
-          @skipped.each { |l| text_line(l, size: 8) }
-        end
       end.render
     end
 

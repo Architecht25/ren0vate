@@ -1,4 +1,5 @@
 class Admin::UsersController < ApplicationController
+  include ZipKit::RailsStreaming
   before_action :authenticate_user!
   before_action :ensure_admin, except: [:stop_impersonating]
   before_action :find_user, only: [:show, :details, :edit, :update, :destroy, :properties, :documents, :projects, :export_archive, :impersonate, :toggle_primes_services, :mark_contacted]
@@ -69,16 +70,13 @@ class Admin::UsersController < ApplicationController
     redirect_to admin_users_path, notice: 'Utilisateur supprimé avec succès'
   end
 
-  # Export complet avant suppression d'un compte : ZIP (synthèse PDF + fichiers originaux).
+  # Export complet avant suppression d'un compte : ZIP (synthèse PDF + fichiers originaux),
+  # envoyé en flux pour passer le timeout de 30 s de Heroku et la limite de RAM du dyno.
   def export_archive
     AdminAuditLog.log(admin: current_user, action: "user_export_archive", target_user: @user, request: request,
                       metadata: { email: @user.email })
-    tmp = AccountExports::ArchiveService.new(@user).generate
-    send_data tmp.read,
-              filename: "export-compte-#{@user.id}-#{Date.current.iso8601}.zip",
-              type: "application/zip", disposition: "attachment"
-  ensure
-    tmp&.close!
+    service = AccountExports::ArchiveService.new(@user)
+    zip_kit_stream(filename: "export-compte-#{@user.id}-#{Date.current.iso8601}.zip") { |zip| service.stream_to(zip) }
   end
 
   def toggle_primes_services
